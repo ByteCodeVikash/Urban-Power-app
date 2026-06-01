@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { View, StyleSheet, FlatList, Dimensions, ViewToken } from 'react-native';
 import { NetworkImage } from './NetworkImage';
 import { Colors, Spacing, BorderRadius } from '../constants/Theme';
@@ -13,6 +13,13 @@ interface BannerCarouselProps {
 export const BannerCarousel: React.FC<BannerCarouselProps> = React.memo(({ data, loading }) => {
   const flatListRef = useRef<FlatList>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+
+  const formattedData = useMemo(() => {
+    return data?.map(item => ({
+      ...item,
+      source: typeof item.image === 'string' ? { uri: item.image } : item.image
+    })) || [];
+  }, [data]);
 
   useEffect(() => {
     if (!data || data?.length <= 1 || loading) return;
@@ -45,7 +52,7 @@ export const BannerCarousel: React.FC<BannerCarouselProps> = React.memo(({ data,
     <View style={styles.container}>
       <FlatList
         ref={flatListRef}
-        data={data}
+        data={formattedData}
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
@@ -53,9 +60,9 @@ export const BannerCarousel: React.FC<BannerCarouselProps> = React.memo(({ data,
         onViewableItemsChanged={onViewableItemsChanged}
         viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
         renderItem={({ item }) => (
-          item?.image ? (
+          item?.source ? (
             <NetworkImage 
-              source={typeof item.image === 'string' ? { uri: item.image } : item.image} 
+              source={item.source} 
               style={styles.image} 
               resizeMode="cover"
             />
