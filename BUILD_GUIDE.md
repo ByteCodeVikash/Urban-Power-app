@@ -60,16 +60,16 @@ chmod +x android/gradlew
 
 This project has the following Android configuration already set up:
 
-| Setting | Value | Location |
-|---|---|---|
-| **Package Name** | `com.anonymous.urbonpower` | `app.json` |
-| **Version Name** | `1.0.0` | `app.json` |
-| **Min SDK** | API 24 (Android 7.0) | Android default for RN 0.81 |
-| **Target SDK** | API 35 (Android 15) | `gradle.properties` |
-| **JS Engine** | Hermes | `gradle.properties` |
-| **New Architecture** | Enabled | `gradle.properties` |
-| **Edge-to-Edge** | Enabled | `gradle.properties` |
-| **ABI** | arm64-v8a (real phones) | `gradle.properties` |
+| Setting              | Value                      | Location                    |
+| -------------------- | -------------------------- | --------------------------- |
+| **Package Name**     | `com.anonymous.urbonpower` | `app.json`                  |
+| **Version Name**     | `1.0.0`                    | `app.json`                  |
+| **Min SDK**          | API 24 (Android 7.0)       | Android default for RN 0.81 |
+| **Target SDK**       | API 35 (Android 15)        | `gradle.properties`         |
+| **JS Engine**        | Hermes                     | `gradle.properties`         |
+| **New Architecture** | Enabled                    | `gradle.properties`         |
+| **Edge-to-Edge**     | Enabled                    | `gradle.properties`         |
+| **ABI**              | arm64-v8a (real phones)    | `gradle.properties`         |
 
 > **Note for production:** Before publishing to the Play Store, change `com.anonymous.urbonpower` to your own unique package name in `app.json`.
 
@@ -103,6 +103,7 @@ cd ..
 4. APK is packaged and signed with debug key
 
 ### First build time: 10–20 minutes
+
 ### Subsequent builds: 2–5 minutes
 
 ### Output:
@@ -122,11 +123,13 @@ A keystore is like a digital certificate that signs your app. Google Play and of
 ### Run this command from the project root:
 
 **Windows (Command Prompt):**
+
 ```cmd
 keytool -genkey -v -keystore urbanpower-release.keystore -alias urbanpower-key -keyalg RSA -keysize 2048 -validity 10000
 ```
 
 **Linux:**
+
 ```bash
 keytool -genkey -v -keystore urbanpower-release.keystore -alias urbanpower-key -keyalg RSA -keysize 2048 -validity 10000
 ```
@@ -148,11 +151,13 @@ Is CN=Your Name, OU=Dev, O=Urban Power, L=Mumbai, ST=Maharashtra, C=IN correct? 
 ### Move the keystore into the android/app folder:
 
 **Windows:**
+
 ```cmd
 move urbanpower-release.keystore android\app\urbanpower-release.keystore
 ```
 
 **Linux:**
+
 ```bash
 mv urbanpower-release.keystore android/app/urbanpower-release.keystore
 ```
@@ -276,11 +281,11 @@ Upload this `.aab` file to the Google Play Console.
 
 ## 8. Output File Locations
 
-| Build Type | Command | Output Location |
-|---|---|---|
-| Debug APK | `./gradlew assembleDebug` | `android/app/build/outputs/apk/debug/app-debug.apk` |
-| Release APK | `./gradlew assembleRelease` | `android/app/build/outputs/apk/release/app-release.apk` |
-| Release AAB | `./gradlew bundleRelease` | `android/app/build/outputs/bundle/release/app-release.aab` |
+| Build Type  | Command                     | Output Location                                            |
+| ----------- | --------------------------- | ---------------------------------------------------------- |
+| Debug APK   | `./gradlew assembleDebug`   | `android/app/build/outputs/apk/debug/app-debug.apk`        |
+| Release APK | `./gradlew assembleRelease` | `android/app/build/outputs/apk/release/app-release.apk`    |
+| Release AAB | `./gradlew bundleRelease`   | `android/app/build/outputs/bundle/release/app-release.aab` |
 
 ---
 
@@ -311,6 +316,7 @@ If your build is broken or producing errors, use these steps to fully reset:
 ### Step 1 — Clean Android build
 
 **Linux:**
+
 ```bash
 cd android
 ./gradlew clean
@@ -318,6 +324,7 @@ cd ..
 ```
 
 **Windows:**
+
 ```cmd
 cd android
 gradlew clean
@@ -327,11 +334,13 @@ cd ..
 ### Step 2 — Clear Gradle cache
 
 **Linux:**
+
 ```bash
 rm -rf ~/.gradle/caches
 ```
 
 **Windows:**
+
 ```cmd
 rmdir /s /q "%USERPROFILE%\.gradle\caches"
 ```
@@ -343,6 +352,7 @@ npx expo start --clear
 ```
 
 Or:
+
 ```bash
 npx react-native start --reset-cache
 ```
@@ -350,12 +360,14 @@ npx react-native start --reset-cache
 ### Step 4 — Reinstall node_modules
 
 **Linux:**
+
 ```bash
 rm -rf node_modules
 npm install
 ```
 
 **Windows:**
+
 ```cmd
 rmdir /s /q node_modules
 npm install
@@ -419,6 +431,7 @@ eas build --platform android --profile production
 **Cause:** Wrong Java version.
 
 **Fix:**
+
 ```bash
 java --version  # Must show Java 17
 ```
@@ -426,6 +439,7 @@ java --version  # Must show Java 17
 If it shows a different version, switch to Java 17:
 
 Linux:
+
 ```bash
 sudo update-alternatives --config java
 # Select the entry for Java 17
@@ -439,6 +453,7 @@ sudo update-alternatives --config java
 
 **Fix:**
 Create a file: `android/local.properties` with this content:
+
 ```properties
 sdk.dir=/home/yourname/Android/Sdk
 ```
@@ -446,6 +461,7 @@ sdk.dir=/home/yourname/Android/Sdk
 Replace the path with your actual Android SDK path from Android Studio.
 
 On Windows:
+
 ```properties
 sdk.dir=C:\\Users\\YourName\\AppData\\Local\\Android\\Sdk
 ```
@@ -459,6 +475,7 @@ sdk.dir=C:\\Users\\YourName\\AppData\\Local\\Android\\Sdk
 **Cause:** No internet connection during build, or corrupted Gradle cache.
 
 **Fix:**
+
 ```bash
 rm -rf ~/.gradle/caches
 cd android && ./gradlew clean && cd ..
@@ -470,6 +487,7 @@ npx expo run:android
 ### ❌ `Execution failed for task ':app:mergeDebugNativeLibs'`
 
 **Fix:**
+
 ```bash
 cd android
 ./gradlew clean
@@ -482,6 +500,7 @@ npx expo run:android
 ### ❌ `Error: duplicate resources`
 
 **Fix:**
+
 ```bash
 cd android && ./gradlew clean && cd ..
 ```
@@ -511,6 +530,7 @@ cd android && ./gradlew clean && cd ..
 **Fix:** Be patient on the first build — it can take 10–20 minutes on slow internet. Subsequent builds are much faster.
 
 If it truly hangs for 30+ minutes:
+
 ```bash
 # Kill the process and try again
 Ctrl + C
@@ -525,6 +545,7 @@ cd android
 ### ❌ `AAPT2 error: check logs for details`
 
 **Fix:**
+
 ```bash
 cd android
 ./gradlew assembleDebug --info 2>&1 | grep "error:"
@@ -559,6 +580,7 @@ This project uses React Native's New Architecture (`newArchEnabled=true`). This 
 ### Build ABI
 
 The default build is configured for `arm64-v8a` (modern 64-bit ARM phones). This covers 99% of Android phones released since 2016. For x86 emulators, override with:
+
 ```bash
 ./gradlew assembleDebug -PreactNativeArchitectures=x86_64
 ```
@@ -566,6 +588,7 @@ The default build is configured for `arm64-v8a` (modern 64-bit ARM phones). This
 ### Bundle Identifier for Production
 
 The current bundle ID is `com.anonymous.urbonpower`. Before publishing to Google Play:
+
 1. Change `android.package` in `app.json` to your own package name
 2. Run `npx expo run:android` to apply the change to native files
 
@@ -575,10 +598,10 @@ The project is configured with `org.gradle.jvmargs=-Xmx4096m` (4 GB JVM heap). I
 
 ### First Build vs. Subsequent Builds
 
-| Build | First Time | After That |
-|---|---|---|
-| `npx expo run:android` | 10–20 minutes | 1–3 minutes |
-| `./gradlew assembleDebug` | 10–20 minutes | 2–5 minutes |
+| Build                       | First Time    | After That  |
+| --------------------------- | ------------- | ----------- |
+| `npx expo run:android`      | 10–20 minutes | 1–3 minutes |
+| `./gradlew assembleDebug`   | 10–20 minutes | 2–5 minutes |
 | `./gradlew assembleRelease` | 10–20 minutes | 2–5 minutes |
 
 The first build downloads Gradle (~150 MB) and all Android build dependencies. These are cached in `~/.gradle/` and reused on subsequent builds.

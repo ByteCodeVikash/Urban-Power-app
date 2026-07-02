@@ -1,0 +1,247 @@
+import React from 'react';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  SafeAreaView,
+  Pressable,
+  ActivityIndicator,
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../navigation/Types';
+import { Typography } from '../../components/Typography';
+import { Header } from '../../components/Header';
+import { NetworkImage } from '../../components/NetworkImage';
+import { Colors, Spacing, BorderRadius, Shadows } from '../../constants/Theme';
+import { useBeauticianCategories } from '../../hooks/useBeautician';
+import { useBeauticianStore } from '../../store/useBeauticianStore';
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+
+export default function BeauticianCategoriesScreen() {
+  const navigation = useNavigation<NavigationProp>();
+  const { data: categories, isLoading, error } = useBeauticianCategories();
+
+  const selectedServices = useBeauticianStore(state => state.selectedServices);
+  const getSelectedCount = useBeauticianStore(
+    state => state.getSelectedCount,
+  )();
+  const getTotalPrice = useBeauticianStore(state => state.getTotalPrice)();
+  const clearSelection = useBeauticianStore(state => state.clearSelection);
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <Header title="Beautician Services" />
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color={Colors.light.primary} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (error || !categories) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <Header title="Beautician Services" />
+        <View style={styles.centered}>
+          <Typography variant="body1" color={Colors.light.textSecondary}>
+            Failed to load beautician categories.
+          </Typography>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <Header title="Beautician Services" />
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.content}
+      >
+        {categories.length === 0 ? (
+          <View style={styles.centered}>
+            <Typography variant="body1" color={Colors.light.textSecondary}>
+              No categories available at the moment.
+            </Typography>
+          </View>
+        ) : (
+          <View style={styles.categoryGrid}>
+            {categories.map((item: any) => (
+              <Pressable
+                key={item.id}
+                style={styles.categoryCard}
+                onPress={() =>
+                  navigation.navigate('BeauticianServices', {
+                    categoryId: item.id,
+                    categoryName: item.name,
+                  })
+                }
+              >
+                <View style={styles.imageContainer}>
+                  {item.image ? (
+                    <NetworkImage
+                      source={{ uri: item.image }}
+                      style={styles.image}
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    <View style={styles.fallbackImage}>
+                      <Typography variant="h2" color={Colors.light.primary}>
+                        {item.name.charAt(0)}
+                      </Typography>
+                    </View>
+                  )}
+                </View>
+                <Typography
+                  variant="body2"
+                  weight="700"
+                  style={styles.categoryTitle}
+                  numberOfLines={2}
+                >
+                  {item.name}
+                </Typography>
+              </Pressable>
+            ))}
+          </View>
+        )}
+
+        <View style={styles.infoBox}>
+          <Typography
+            variant="body2"
+            color={Colors.light.textSecondary}
+            style={{ textAlign: 'center' }}
+          >
+            Explore professional beautician services at home. Select services,
+            custom-configure your package, and request booking at your
+            convenience.
+          </Typography>
+        </View>
+      </ScrollView>
+
+      {selectedServices.length > 0 && (
+        <View style={styles.footerContainer}>
+          <View style={styles.footerInfo}>
+            <Typography variant="body2" weight="600" color={Colors.light.white}>
+              {getSelectedCount} Service(s) Selected
+            </Typography>
+            <Typography variant="caption" color={Colors.light.primaryLight}>
+              Total Value: ₹{getTotalPrice}
+            </Typography>
+          </View>
+          <View style={styles.footerActions}>
+            <Pressable style={styles.clearBtn} onPress={clearSelection}>
+              <Typography
+                variant="body2"
+                color={Colors.light.primary}
+                weight="700"
+              >
+                Clear
+              </Typography>
+            </Pressable>
+            <Pressable
+              style={styles.viewBtn}
+              onPress={() => navigation.navigate('BeauticianServices')}
+            >
+              <Typography
+                variant="body2"
+                color={Colors.light.white}
+                weight="700"
+              >
+                View List
+              </Typography>
+            </Pressable>
+          </View>
+        </View>
+      )}
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  safeArea: { flex: 1, backgroundColor: Colors.light.surface },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  content: { padding: Spacing.md, paddingBottom: 120 },
+  categoryGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: Spacing.md,
+  },
+  categoryCard: {
+    width: '47%',
+    backgroundColor: Colors.light.white,
+    borderRadius: 16,
+    overflow: 'hidden',
+    ...Shadows.light.sm,
+    marginBottom: Spacing.sm,
+  },
+  imageContainer: {
+    width: '100%',
+    height: 120,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    overflow: 'hidden',
+  },
+  image: { width: '100%', height: '100%' },
+  fallbackImage: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: Colors.light.primaryLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  categoryTitle: {
+    textAlign: 'center',
+    color: Colors.light.text,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.xs,
+  },
+  infoBox: {
+    marginTop: Spacing.xl,
+    padding: Spacing.xl,
+    backgroundColor: Colors.light.primaryLight,
+    borderRadius: BorderRadius.xl,
+    borderStyle: 'dashed',
+    borderWidth: 1,
+    borderColor: Colors.light.primary,
+  },
+  footerContainer: {
+    position: 'absolute',
+    bottom: Spacing.lg,
+    left: Spacing.md,
+    right: Spacing.md,
+    backgroundColor: Colors.light.primary,
+    padding: Spacing.md,
+    borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    ...Shadows.light.md,
+  },
+  footerInfo: {
+    flexDirection: 'column',
+  },
+  footerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  clearBtn: {
+    backgroundColor: Colors.light.white,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
+    borderRadius: 8,
+  },
+  viewBtn: {
+    backgroundColor: Colors.light.primaryDark || '#5925CC',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.light.white,
+  },
+});

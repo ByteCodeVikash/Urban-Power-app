@@ -10,20 +10,37 @@ interface SearchBarProps {
   placeholder?: string;
 }
 
-export const SearchBar: React.FC<SearchBarProps> = React.memo(({ onPress, style, placeholder }) => {
-  return (
-    <Pressable style={[styles.searchBar, style, Shadows.light.md]} onPress={onPress}>
-      <Search color={Colors.light.text} size={22} />
-      <Typography variant="body2" color={Colors.light.textSecondary} style={styles.placeholder}>
-        {placeholder ?? 'Search or ask a question'}
-      </Typography>
-      <View style={styles.rightIcons}>
-        <ScanLine color={Colors.light.textMuted} size={22} style={styles.iconSpaced} />
-        <Mic color={Colors.light.textMuted} size={22} style={styles.iconSpaced} />
-      </View>
-    </Pressable>
-  );
-});
+export const SearchBar: React.FC<SearchBarProps> = React.memo(
+  ({ onPress, style, placeholder }) => {
+    return (
+      <Pressable
+        style={[styles.searchBar, style, Shadows.light.md]}
+        onPress={onPress}
+      >
+        <Search color={Colors.light.text} size={22} />
+        <Typography
+          variant="body2"
+          color={Colors.light.textSecondary}
+          style={styles.placeholder}
+        >
+          {placeholder ?? 'Search or ask a question'}
+        </Typography>
+        <View style={styles.rightIcons}>
+          <ScanLine
+            color={Colors.light.textMuted}
+            size={22}
+            style={styles.iconSpaced}
+          />
+          <Mic
+            color={Colors.light.textMuted}
+            size={22}
+            style={styles.iconSpaced}
+          />
+        </View>
+      </Pressable>
+    );
+  },
+);
 
 const styles = StyleSheet.create({
   searchBar: {

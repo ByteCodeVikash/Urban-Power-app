@@ -11,22 +11,37 @@ import { useCartStore } from '../../store/useCartStore';
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const QUICK_ACTIONS = [
-  { id: 'shop', label: 'Shopping', icon: ShoppingBag, route: 'ShopCategory' as const },
-  { id: 'grocery', label: 'Grocery', icon: Package, route: 'GroceryCategory' as const },
-  { id: 'kabadi', label: 'Kabadi', icon: Truck, route: 'KabadiCategory' as const },
+  {
+    id: 'shop',
+    label: 'Shopping',
+    icon: ShoppingBag,
+    route: 'ShopCategory' as const,
+  },
+  {
+    id: 'grocery',
+    label: 'Grocery',
+    icon: Package,
+    route: 'GroceryCategory' as const,
+  },
+  {
+    id: 'kabadi',
+    label: 'Kabadi',
+    icon: Truck,
+    route: 'ScrapCategories' as const,
+  },
   { id: 'cart', label: 'Cart', icon: ShoppingCart, route: 'Cart' as const },
 ];
 
 export function HomeQuickActions() {
   const navigation = useNavigation<NavigationProp>();
-  const cartCount = useCartStore((s) =>
+  const cartCount = useCartStore(s =>
     s.items.reduce((total, item) => total + item.quantity, 0),
   );
 
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        {QUICK_ACTIONS.map((action) => {
+        {QUICK_ACTIONS.map(action => {
           const count = action.id === 'cart' ? cartCount : 0;
           const Icon = action.icon;
 
@@ -37,10 +52,19 @@ export function HomeQuickActions() {
               onPress={() => navigation.navigate(action.route)}
             >
               <View style={styles.iconWrapper}>
-                <Icon size={24} color={Colors.light.primary} strokeWidth={2.5} />
+                <Icon
+                  size={24}
+                  color={Colors.light.primary}
+                  strokeWidth={2.5}
+                />
                 {count > 0 && (
                   <View style={styles.badge}>
-                    <Typography variant="tiny" color="#fff" weight="700" style={{ fontSize: 9 }}>
+                    <Typography
+                      variant="tiny"
+                      color="#fff"
+                      weight="700"
+                      style={{ fontSize: 9 }}
+                    >
                       {count}
                     </Typography>
                   </View>

@@ -34,26 +34,27 @@ import { BANNERS } from '../../constants/MockData';
 // ─── Service module grid (centralized config) ───────────────────────────────
 const MAIN_VERTICALS = [
   // ── Core Services (keep) ──
-  { id: 'c1',      name: 'Cleaning',     icon: 'sparkles' },
-  { id: 'c2',      name: 'Beauty',       icon: 'scissors' },
-  { id: 'c4',      name: 'Repair',       icon: 'wrench'   },
+  { id: 'c1', name: 'Cleaning', icon: 'sparkles' },
+  { id: 'c2', name: 'Beauty', icon: 'scissors' },
+  { id: 'c4', name: 'Repair', icon: 'wrench' },
   // ── Modules ──
-  { id: 'shop',    name: 'Shopping',     icon: 'shop',        isModule: true },
-  { id: 'grocery', name: 'Grocery',      icon: 'apple',       isModule: true },
-  { id: 'kabadi',  name: 'Kabadi',       icon: 'kabadi',      isModule: true },
+  { id: 'shop', name: 'Shopping', icon: 'shop', isModule: true },
+  { id: 'grocery', name: 'Grocery', icon: 'apple', isModule: true },
+  { id: 'kabadi', name: 'Kabadi', icon: 'kabadi', isModule: true },
+  { id: 'beautician', name: 'Beautician', icon: 'scissors', isModule: true },
   // ── Replaced categories ──
-  { id: 'c3',      name: 'Maintenance',  icon: 'maintenance' },   // was: AC Repair
-  { id: 'c5',      name: 'Auto Service', icon: 'autoservice' },   // was: Plumber
-  { id: 'c6',      name: 'Learning',     icon: 'learning'    },   // was: Electrician
-  { id: 'c7',      name: 'Event',        icon: 'event'       },   // was: Painting
-  { id: 'c8',      name: 'Business',     icon: 'business'    },   // was: Carpenter
-  { id: 'c12',     name: 'Workforce',    icon: 'workforce'   },   // was: Smart Home
-  { id: 'c14',     name: 'Pet Care',     icon: 'petcare'     },   // was: Car Wash
+  { id: 'c3', name: 'Maintenance', icon: 'maintenance' }, // was: AC Repair
+  { id: 'c5', name: 'Auto Service', icon: 'autoservice' }, // was: Plumber
+  { id: 'c6', name: 'Learning', icon: 'learning' }, // was: Electrician
+  { id: 'c7', name: 'Event', icon: 'event' }, // was: Painting
+  { id: 'c8', name: 'Business', icon: 'business' }, // was: Carpenter
+  { id: 'c12', name: 'Workforce', icon: 'workforce' }, // was: Smart Home
+  { id: 'c14', name: 'Pet Care', icon: 'petcare' }, // was: Car Wash
   // ── Keep unchanged ──
-  { id: 'c9',      name: 'Pest Control', icon: 'pest'        },
-  { id: 'c10',     name: 'Massage',      icon: 'massage'     },
-  { id: 'c13',     name: 'Gardening',    icon: 'gardening'   },
-  { id: 'c15',     name: 'Packers',      icon: 'packers'     },
+  { id: 'c9', name: 'Pest Control', icon: 'pest' },
+  { id: 'c10', name: 'Massage', icon: 'massage' },
+  { id: 'c13', name: 'Gardening', icon: 'gardening' },
+  { id: 'c15', name: 'Packers', icon: 'packers' },
   // ── Removed: Appliance (c11) ──
 ];
 
@@ -64,15 +65,35 @@ export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   // Cart count for header badge
-  const cartCount = useCartStore((s) =>
-    s.items.reduce((total, item) => total + item.quantity, 0)
+  const cartCount = useCartStore(s =>
+    s.items.reduce((total, item) => total + item.quantity, 0),
   );
 
-  const { data: trending,   isLoading: loadingTrending,   refetch: refetchTrending   } = useTrendingServices();
-  const { data: mostBooked, isLoading: loadingMostBooked, refetch: refetchMostBooked } = useMostBooked();
-  const { data: products,   isLoading: loadingProducts,   refetch: refetchProducts   } = useProducts();
-  const { data: offers,     isLoading: loadingOffers,     refetch: refetchOffers     } = useOffers();
-  const { data: categories, isLoading: loadingCategories, refetch: refetchCategories } = useCategories();
+  const {
+    data: trending,
+    isLoading: loadingTrending,
+    refetch: refetchTrending,
+  } = useTrendingServices();
+  const {
+    data: mostBooked,
+    isLoading: loadingMostBooked,
+    refetch: refetchMostBooked,
+  } = useMostBooked();
+  const {
+    data: products,
+    isLoading: loadingProducts,
+    refetch: refetchProducts,
+  } = useProducts();
+  const {
+    data: offers,
+    isLoading: loadingOffers,
+    refetch: refetchOffers,
+  } = useOffers();
+  const {
+    data: categories,
+    isLoading: loadingCategories,
+    refetch: refetchCategories,
+  } = useCategories();
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -84,7 +105,13 @@ export default function HomeScreen() {
       refetchOffers(),
     ]);
     setRefreshing(false);
-  }, [refetchCategories, refetchTrending, refetchMostBooked, refetchProducts, refetchOffers]);
+  }, [
+    refetchCategories,
+    refetchTrending,
+    refetchMostBooked,
+    refetchProducts,
+    refetchOffers,
+  ]);
 
   const renderServiceItem = useCallback(
     ({ item }: any) => (
@@ -99,7 +126,7 @@ export default function HomeScreen() {
         style={styles.horizontalCard}
       />
     ),
-    [navigation]
+    [navigation],
   );
 
   const renderProductItem = useCallback(
@@ -115,7 +142,7 @@ export default function HomeScreen() {
         style={styles.horizontalProductCard}
       />
     ),
-    [navigation]
+    [navigation],
   );
 
   const keyExtractor = useCallback((item: any) => item.id, []);
@@ -132,8 +159,7 @@ export default function HomeScreen() {
   return (
     <View style={styles.safeArea}>
       {/* ── Custom Home Header ── */}
-      <View style={styles.homeHeader}>
-      </View>
+      <View style={styles.homeHeader}></View>
 
       {/* ═══════════════════════════════════════════════
           SCROLLABLE BODY
@@ -151,15 +177,23 @@ export default function HomeScreen() {
         contentContainerStyle={{ paddingBottom: 150 }}
       >
         {/* ── Banner carousel ── */}
-        <BannerCarousel data={BANNERS} loading={false} autoPlayInterval={4000} />
+        <BannerCarousel
+          data={BANNERS}
+          loading={false}
+          autoPlayInterval={4000}
+        />
 
         {/* ── Service category grid ── */}
         <View style={styles.moduleSection}>
-          <Typography variant="h3" weight="800" style={styles.moduleSectionTitle}>
+          <Typography
+            variant="h3"
+            weight="800"
+            style={styles.moduleSectionTitle}
+          >
             What are you looking for?
           </Typography>
           <View style={styles.moduleGrid}>
-            {MAIN_VERTICALS.map((item) => (
+            {MAIN_VERTICALS.map(item => (
               <CategoryCard
                 key={item.id}
                 category={item as any}
@@ -172,9 +206,11 @@ export default function HomeScreen() {
                   } else if (item.id === 'grocery') {
                     navigation.navigate('GroceryCategory');
                   } else if (item.id === 'kabadi') {
-                    navigation.navigate('KabadiCategory');
+                    navigation.navigate('ScrapCategories');
+                  } else if (item.id === 'beautician') {
+                    navigation.navigate('BeauticianCategories');
 
-                  // ── Gender-based categories ──
+                    // ── Gender-based categories ──
                   } else if (item.id === 'c2') {
                     // Beauty → gender picker
                     navigation.navigate('GenderPicker', {
@@ -187,8 +223,9 @@ export default function HomeScreen() {
                       categoryId: 'c10',
                       categoryName: 'Massage',
                     });
-
-                  // ── All other service categories → SubcategoryScreen ──
+                  } else if (item.id === 'c3') {
+                    navigation.navigate('MaintenanceCategories');
+                    // ── All other service categories → SubcategoryScreen ──
                   } else if (item.id) {
                     navigation.navigate('Subcategory', {
                       categoryId: item.id,
@@ -222,7 +259,7 @@ export default function HomeScreen() {
           </Pressable>
           <Pressable
             style={[styles.spotlightCard, { backgroundColor: '#064E3B' }]}
-            onPress={() => navigation.navigate('KabadiCategory')}
+            onPress={() => navigation.navigate('ScrapCategories')}
           >
             <Truck color={Colors.light.white} size={24} />
             <Typography
@@ -253,7 +290,14 @@ export default function HomeScreen() {
             keyExtractor={keyExtractor}
             renderItem={
               loadingProducts
-                ? () => <View style={[styles.horizontalProductCard, styles.skeletonProduct]} />
+                ? () => (
+                    <View
+                      style={[
+                        styles.horizontalProductCard,
+                        styles.skeletonProduct,
+                      ]}
+                    />
+                  )
                 : renderProductItem
             }
             showsHorizontalScrollIndicator={false}
@@ -299,7 +343,14 @@ export default function HomeScreen() {
             keyExtractor={dealsKeyExtractor}
             renderItem={
               loadingProducts
-                ? () => <View style={[styles.horizontalProductCard, styles.skeletonProduct]} />
+                ? () => (
+                    <View
+                      style={[
+                        styles.horizontalProductCard,
+                        styles.skeletonProduct,
+                      ]}
+                    />
+                  )
                 : renderProductItem
             }
             showsHorizontalScrollIndicator={false}
@@ -311,7 +362,6 @@ export default function HomeScreen() {
         <View style={{ paddingHorizontal: Spacing.lg }}>
           <ReferAndGetFreeServicesBanner onPress={() => {}} />
         </View>
-
       </ScrollView>
     </View>
   );
@@ -394,8 +444,6 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.xl,
     ...Shadows.light.md,
   },
-
-
 
   /* ─── Horizontal sections ─── */
   section: {

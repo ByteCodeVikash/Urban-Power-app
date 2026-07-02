@@ -1,5 +1,11 @@
 import React from 'react';
-import { View, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  SafeAreaView,
+  TouchableOpacity,
+  ScrollView,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ChevronLeft, Wallet } from 'lucide-react-native';
 import { Typography } from '../../components/Typography';
@@ -11,28 +17,49 @@ export default function WalletScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <Header 
-        title="Wallet" 
+      <Header
+        title="Wallet"
         leftComponent={
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.backButton}
+          >
             <ChevronLeft size={24} color={Colors.light.text} />
           </TouchableOpacity>
         }
       />
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.balanceCard}>
-           <Typography variant="body2" color={Colors.light.white} style={{ opacity: 0.8 }}>Current Balance</Typography>
-           <Typography variant="h1" weight="800" color={Colors.light.white}>₹0.00</Typography>
-           <TouchableOpacity style={styles.addBtn}>
-              <Typography variant="body2" weight="800" color={Colors.light.primary}>Add Money</Typography>
-           </TouchableOpacity>
+          <Typography
+            variant="body2"
+            color={Colors.light.white}
+            style={{ opacity: 0.8 }}
+          >
+            Current Balance
+          </Typography>
+          <Typography variant="h1" weight="800" color={Colors.light.white}>
+            ₹0.00
+          </Typography>
+          <TouchableOpacity style={styles.addBtn}>
+            <Typography
+              variant="body2"
+              weight="800"
+              color={Colors.light.primary}
+            >
+              Add Money
+            </Typography>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.section}>
-           <Typography variant="h3" weight="800">Recent Transactions</Typography>
-           <View style={styles.emptyState}>
-              <Typography variant="body1" color={Colors.light.textMuted}>No transactions found.</Typography>
-           </View>
+          <Typography variant="h3" weight="800">
+            Recent Transactions
+          </Typography>
+          <View style={styles.emptyState}>
+            <Typography variant="body1" color={Colors.light.textMuted}>
+              No transactions found.
+            </Typography>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>

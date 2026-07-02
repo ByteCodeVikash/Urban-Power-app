@@ -18,25 +18,23 @@ interface ServiceBookingState {
   updateBookingStatus: (id: string, status: ServiceBooking['status']) => void;
 }
 
-export const useServiceBookingStore = create<ServiceBookingState>((set) => ({
+export const useServiceBookingStore = create<ServiceBookingState>(set => ({
   bookings: [],
-  addBooking: (booking) => {
-    set((state) => ({
+  addBooking: booking => {
+    set(state => ({
       bookings: [
-        { 
-          ...booking, 
-          id: `B-${Math.random().toString(36).substr(2, 9)}`, 
-          status: 'Pending' 
+        {
+          ...booking,
+          id: `B-${Math.random().toString(36).substr(2, 9)}`,
+          status: 'Pending',
         },
         ...state.bookings,
       ],
     }));
   },
   updateBookingStatus: (id, status) => {
-    set((state) => ({
-      bookings: state.bookings.map((b) =>
-        b.id === id ? { ...b, status } : b
-      ),
+    set(state => ({
+      bookings: state.bookings.map(b => (b.id === id ? { ...b, status } : b)),
     }));
   },
 }));

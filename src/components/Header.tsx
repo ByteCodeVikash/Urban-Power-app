@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ChevronLeft } from 'lucide-react-native';
+import { ChevronLeft, ShoppingBag } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Typography } from './Typography';
 import { Colors, Spacing } from '../constants/Theme';
@@ -9,22 +9,28 @@ import { Colors, Spacing } from '../constants/Theme';
 interface HeaderProps {
   title?: string;
   showBack?: boolean;
+  leftComponent?: React.ReactNode;
   rightComponent?: React.ReactNode;
+  showCart?: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   title,
   showBack = false,
+  leftComponent,
   rightComponent,
+  showCart = false,
 }) => {
   const insets = useSafeAreaInsets();
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.content}>
         <View style={styles.left}>
-          {showBack && (
+          {leftComponent ? (
+            leftComponent
+          ) : showBack ? (
             <Pressable
               onPress={() => navigation.goBack()}
               style={styles.backButton}
@@ -32,19 +38,34 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <ChevronLeft color={Colors.light.text} size={24} />
             </Pressable>
-          )}
+          ) : null}
         </View>
-        
+
         <View style={styles.center}>
           {title && (
-            <Typography variant="h4" weight="600" align="center" numberOfLines={1}>
+            <Typography
+              variant="h4"
+              weight="600"
+              align="center"
+              numberOfLines={1}
+            >
               {title}
             </Typography>
           )}
         </View>
 
         <View style={styles.right}>
-          {rightComponent}
+          {rightComponent ? (
+            rightComponent
+          ) : showCart ? (
+            <Pressable
+              onPress={() => navigation.navigate('Cart')}
+              style={styles.backButton}
+              hitSlop={8}
+            >
+              <ShoppingBag color={Colors.light.text} size={24} />
+            </Pressable>
+          ) : null}
         </View>
       </View>
     </View>

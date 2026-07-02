@@ -56,6 +56,7 @@ The app supports **three user roles** — Customer, Technician (field partner), 
 ## ✨ Features
 
 ### Customer Features
+
 - Browse and book **15+ service categories** (Cleaning, Beauty, Repair, AC, Pest Control, Massage, Auto Service, Events, Learning, etc.)
 - **Gender-filtered services** for Beauty and Massage categories
 - **Multi-step booking flow** with date/time slot selection and address management
@@ -76,6 +77,7 @@ The app supports **three user roles** — Customer, Technician (field partner), 
 - Auto-scrolling banner carousel
 
 ### Technician (Partner) Features
+
 - **Partner Hub** dashboard with online/offline toggle
 - Earnings overview with daily summary
 - Job request management (Accept / Reject)
@@ -83,6 +85,7 @@ The app supports **three user roles** — Customer, Technician (field partner), 
 - Earnings history screen
 
 ### Admin Features
+
 - **Admin Console** with revenue overview and growth metrics
 - Order management list
 - User/provider management
@@ -93,20 +96,20 @@ The app supports **three user roles** — Customer, Technician (field partner), 
 
 ## 📱 Screens & Modules
 
-| Module | Screens | Description |
-|---|---|---|
-| **Auth** | 2 | Splash screen, Phone OTP login |
-| **Home** | 1 | Super-app dashboard with all verticals |
-| **Services** | 10 | Categories, subcategories, booking flow, gender picker, tracking, rewards |
-| **Shop** | 6 | Category > Subcategory > Product list > Product detail > Order tracking > Offers |
-| **Grocery** | 3 | Category > Subcategory > Product list |
-| **Kabadi** | 6 | Category > Subcategory > Form > Booking > Status > History |
-| **Account** | 5 | Profile, Bookings, Wallet, Settings, Saved Addresses |
-| **Support** | 2 | Help & Support, Generic Info |
-| **Technician** | 4 | Dashboard, Login, Job Detail, Earnings |
-| **Admin** | 3 | Dashboard, User Management, Order List |
-| **Cart** | 1 | Cart summary with coupon and checkout |
-| **Search** | 1 | Global search screen |
+| Module         | Screens | Description                                                                      |
+| -------------- | ------- | -------------------------------------------------------------------------------- |
+| **Auth**       | 2       | Splash screen, Phone OTP login                                                   |
+| **Home**       | 1       | Super-app dashboard with all verticals                                           |
+| **Services**   | 10      | Categories, subcategories, booking flow, gender picker, tracking, rewards        |
+| **Shop**       | 6       | Category > Subcategory > Product list > Product detail > Order tracking > Offers |
+| **Grocery**    | 3       | Category > Subcategory > Product list                                            |
+| **Kabadi**     | 6       | Category > Subcategory > Form > Booking > Status > History                       |
+| **Account**    | 5       | Profile, Bookings, Wallet, Settings, Saved Addresses                             |
+| **Support**    | 2       | Help & Support, Generic Info                                                     |
+| **Technician** | 4       | Dashboard, Login, Job Detail, Earnings                                           |
+| **Admin**      | 3       | Dashboard, User Management, Order List                                           |
+| **Cart**       | 1       | Cart summary with coupon and checkout                                            |
+| **Search**     | 1       | Global search screen                                                             |
 
 **Total: 70+ screens across 12 modules**
 
@@ -114,23 +117,23 @@ The app supports **three user roles** — Customer, Technician (field partner), 
 
 ## 🛠️ Tech Stack
 
-| Category | Technology | Version |
-|---|---|---|
-| **Mobile Framework** | React Native | 0.81.5 |
-| **Build Toolchain** | Expo SDK | ~54.0.33 |
-| **Language** | TypeScript | ~5.9.2 |
-| **UI Library** | React | 19.1.0 |
-| **Navigation** | React Navigation (Native Stack + Bottom Tabs) | v7 |
-| **State Management** | Zustand | ^5.0.12 |
-| **Data Fetching** | TanStack React Query | ^5.97.0 |
-| **Forms** | React Hook Form | ^7.72.1 |
-| **Animations** | React Native Reanimated | ~4.1.1 |
-| **Gestures** | React Native Gesture Handler | ~2.28.0 |
-| **Icons** | Lucide React Native | ^1.8.0 |
-| **Gradients** | Expo Linear Gradient | ~15.0.8 |
-| **Vector Graphics** | React Native SVG | 15.12.1 |
-| **JS Engine** | Hermes | Enabled |
-| **Architecture** | React Native New Architecture | Enabled |
+| Category             | Technology                                    | Version  |
+| -------------------- | --------------------------------------------- | -------- |
+| **Mobile Framework** | React Native                                  | 0.81.5   |
+| **Build Toolchain**  | Expo SDK                                      | ~54.0.33 |
+| **Language**         | TypeScript                                    | ~5.9.2   |
+| **UI Library**       | React                                         | 19.1.0   |
+| **Navigation**       | React Navigation (Native Stack + Bottom Tabs) | v7       |
+| **State Management** | Zustand                                       | ^5.0.12  |
+| **Data Fetching**    | TanStack React Query                          | ^5.97.0  |
+| **Forms**            | React Hook Form                               | ^7.72.1  |
+| **Animations**       | React Native Reanimated                       | ~4.1.1   |
+| **Gestures**         | React Native Gesture Handler                  | ~2.28.0  |
+| **Icons**            | Lucide React Native                           | ^1.8.0   |
+| **Gradients**        | Expo Linear Gradient                          | ~15.0.8  |
+| **Vector Graphics**  | React Native SVG                              | 15.12.1  |
+| **JS Engine**        | Hermes                                        | Enabled  |
+| **Architecture**     | React Native New Architecture                 | Enabled  |
 
 ---
 
@@ -191,24 +194,24 @@ urbanPower/
 
 ### Minimum System Requirements
 
-| Component | Minimum | Recommended |
-|---|---|---|
-| **RAM** | 8 GB | 16 GB |
-| **Disk Space** | 15 GB free | 25 GB free |
+| Component        | Minimum             | Recommended         |
+| ---------------- | ------------------- | ------------------- |
+| **RAM**          | 8 GB                | 16 GB               |
+| **Disk Space**   | 15 GB free          | 25 GB free          |
 | **OS (Windows)** | Windows 10 (64-bit) | Windows 11 (64-bit) |
-| **OS (Linux)** | Ubuntu 20.04 LTS | Ubuntu 22.04 LTS |
+| **OS (Linux)**   | Ubuntu 20.04 LTS    | Ubuntu 22.04 LTS    |
 
 ### Required Software
 
-| Software | Required Version | Purpose |
-|---|---|---|
-| **Node.js** | 18.x LTS or 20.x LTS | JavaScript runtime |
-| **npm** | 9.x or 10.x | Package manager (comes with Node.js) |
-| **Git** | 2.x or newer | Clone the repository |
-| **Java JDK** | 17 LTS (OpenJDK) | Android build system (Gradle) |
-| **Android Studio** | Hedgehog 2023.1+ or newer | Android SDK, emulator, and tooling |
-| **Android SDK** | API 35 (Android 15) | Build target platform |
-| **Android Platform Tools** | Latest | `adb` device communication |
+| Software                   | Required Version          | Purpose                              |
+| -------------------------- | ------------------------- | ------------------------------------ |
+| **Node.js**                | 18.x LTS or 20.x LTS      | JavaScript runtime                   |
+| **npm**                    | 9.x or 10.x               | Package manager (comes with Node.js) |
+| **Git**                    | 2.x or newer              | Clone the repository                 |
+| **Java JDK**               | 17 LTS (OpenJDK)          | Android build system (Gradle)        |
+| **Android Studio**         | Hedgehog 2023.1+ or newer | Android SDK, emulator, and tooling   |
+| **Android SDK**            | API 35 (Android 15)       | Build target platform                |
+| **Android Platform Tools** | Latest                    | `adb` device communication           |
 
 ---
 
@@ -303,7 +306,7 @@ npx expo run:android
 1. Open **Settings** on your phone
 2. Tap **About Phone**
 3. Find **Build Number** — tap it **7 times rapidly**
-4. You will see: *"You are now a developer!"*
+4. You will see: _"You are now a developer!"_
 
 ### Step 2 — Enable USB Debugging
 
@@ -324,6 +327,7 @@ adb devices
 ```
 
 Expected output:
+
 ```
 List of devices attached
 XXXXXXXXXXXXXXXX    device
@@ -343,24 +347,24 @@ The app will be built and installed on your phone automatically.
 
 ## 🎮 Expo Commands
 
-| Command | What It Does |
-|---|---|
-| `npx expo start` | Start the development server |
-| `npx expo start --clear` | Start with cleared Metro cache |
-| `npx expo start --tunnel` | Use ngrok tunnel (useful on restricted networks) |
-| `npx expo run:android` | Build and install on Android |
-| `npx expo install <package>` | Install an Expo-compatible package version |
-| `npx expo doctor` | Diagnose environment issues |
+| Command                      | What It Does                                     |
+| ---------------------------- | ------------------------------------------------ |
+| `npx expo start`             | Start the development server                     |
+| `npx expo start --clear`     | Start with cleared Metro cache                   |
+| `npx expo start --tunnel`    | Use ngrok tunnel (useful on restricted networks) |
+| `npx expo run:android`       | Build and install on Android                     |
+| `npx expo install <package>` | Install an Expo-compatible package version       |
+| `npx expo doctor`            | Diagnose environment issues                      |
 
 **Inside the running Expo terminal:**
 
-| Key | Action |
-|---|---|
-| `a` | Open on Android emulator |
-| `r` | Reload the app |
-| `m` | Toggle developer menu |
-| `j` | Open React DevTools |
-| `Ctrl + C` | Stop the server |
+| Key        | Action                   |
+| ---------- | ------------------------ |
+| `a`        | Open on Android emulator |
+| `r`        | Reload the app           |
+| `m`        | Toggle developer menu    |
+| `j`        | Open React DevTools      |
+| `Ctrl + C` | Stop the server          |
 
 ---
 
@@ -382,6 +386,7 @@ gradlew assembleDebug
 ```
 
 **Where is the APK?**
+
 ```
 android/app/build/outputs/apk/debug/app-debug.apk
 ```
@@ -404,6 +409,7 @@ gradlew assembleRelease
 ```
 
 **Output:**
+
 ```
 android/app/build/outputs/apk/release/app-release.apk
 ```
@@ -425,6 +431,7 @@ gradlew bundleRelease
 ```
 
 **Output:**
+
 ```
 android/app/build/outputs/bundle/release/app-release.aab
 ```
@@ -438,11 +445,11 @@ android/app/build/outputs/bundle/release/app-release.aab
 
 This app uses mock data. Use these to test all three user roles:
 
-| Role | Phone Number | OTP | What You Can Access |
-|---|---|---|---|
-| **Customer** | Any 10-digit (e.g. `9999999999`) | Any 4 digits | Home, Services, Shop, Grocery, Kabadi, Cart, Account |
-| **Admin** | `9876543210` | Any 4 digits | Admin Console, Order Management, User Management |
-| **Technician** | `8888888888` | Any 4 digits | Partner Hub, Job Requests, Earnings |
+| Role           | Phone Number                     | OTP          | What You Can Access                                  |
+| -------------- | -------------------------------- | ------------ | ---------------------------------------------------- |
+| **Customer**   | Any 10-digit (e.g. `9999999999`) | Any 4 digits | Home, Services, Shop, Grocery, Kabadi, Cart, Account |
+| **Admin**      | `9876543210`                     | Any 4 digits | Admin Console, Order Management, User Management     |
+| **Technician** | `8888888888`                     | Any 4 digits | Partner Hub, Job Requests, Earnings                  |
 
 > OTP is simulated — enter any 4-digit number to proceed.
 
@@ -509,19 +516,19 @@ npm install
 
 ## ❗ Common Errors & Fixes
 
-| Error | Cause | Fix |
-|---|---|---|
-| `JAVA_HOME is not set` | JDK not in environment variables | See [WINDOWS_SETUP.md](./WINDOWS_SETUP.md) / [LINUX_SETUP.md](./LINUX_SETUP.md) |
-| `SDK location not found` | `ANDROID_HOME` not set | Add `ANDROID_HOME` to environment variables |
-| `Unable to find expo in this project` | node_modules missing | Run `npm install` |
-| `adb: command not found` | Platform Tools not in PATH | Add `%ANDROID_HOME%\platform-tools` to PATH |
-| `No connected devices` | USB Debugging not enabled | Follow the USB debugging steps above |
-| `Gradle build failed` | Corrupted Gradle cache | Run `cd android && ./gradlew clean` |
-| `Port 8081 already in use` | Another Metro instance running | Kill it: `npx kill-port 8081` |
-| `Cannot read property of undefined` | Stale cache | Run `npx expo start --clear` |
-| `Duplicate resources` | Conflicting build artifacts | Run `cd android && ./gradlew clean` |
-| `ENOMEM / heap out of memory` | Node.js memory limit | Set `NODE_OPTIONS=--max-old-space-size=4096` |
-| `Task :app:processDebugMainManifest FAILED` | SDK tools issue | Open Android Studio and update SDK |
+| Error                                       | Cause                            | Fix                                                                             |
+| ------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------- |
+| `JAVA_HOME is not set`                      | JDK not in environment variables | See [WINDOWS_SETUP.md](./WINDOWS_SETUP.md) / [LINUX_SETUP.md](./LINUX_SETUP.md) |
+| `SDK location not found`                    | `ANDROID_HOME` not set           | Add `ANDROID_HOME` to environment variables                                     |
+| `Unable to find expo in this project`       | node_modules missing             | Run `npm install`                                                               |
+| `adb: command not found`                    | Platform Tools not in PATH       | Add `%ANDROID_HOME%\platform-tools` to PATH                                     |
+| `No connected devices`                      | USB Debugging not enabled        | Follow the USB debugging steps above                                            |
+| `Gradle build failed`                       | Corrupted Gradle cache           | Run `cd android && ./gradlew clean`                                             |
+| `Port 8081 already in use`                  | Another Metro instance running   | Kill it: `npx kill-port 8081`                                                   |
+| `Cannot read property of undefined`         | Stale cache                      | Run `npx expo start --clear`                                                    |
+| `Duplicate resources`                       | Conflicting build artifacts      | Run `cd android && ./gradlew clean`                                             |
+| `ENOMEM / heap out of memory`               | Node.js memory limit             | Set `NODE_OPTIONS=--max-old-space-size=4096`                                    |
+| `Task :app:processDebugMainManifest FAILED` | SDK tools issue                  | Open Android Studio and update SDK                                              |
 
 ---
 
@@ -537,6 +544,7 @@ src/services/api.ts          ← Mock API with simulated delay (no real HTTP)
 ```
 
 **What this means for developers:**
+
 - ✅ No internet connection required to run the app
 - ✅ No `.env` file or API keys needed
 - ❌ All app data resets when you close the app (no persistence)
@@ -544,6 +552,7 @@ src/services/api.ts          ← Mock API with simulated delay (no real HTTP)
 - ❌ User IDs are randomly generated on each login
 
 **Packages installed but not yet in use:**
+
 - `axios` — installed for future API calls, currently unused
 - `react-hook-form` — installed, forms currently use `useState`
 
@@ -552,12 +561,14 @@ src/services/api.ts          ← Mock API with simulated delay (no real HTTP)
 ## 👨‍💻 Developer Notes
 
 ### Architecture Highlights
+
 - **New Architecture enabled** — Fabric renderer + JSI for better performance
 - **Hermes JS engine** — faster startup, lower memory usage
 - **Edge-to-edge display** — app renders behind Android system bars
 - **TypeScript strict mode** — `"strict": true` enforced throughout
 
 ### Design Token System (`src/constants/Theme.ts`)
+
 - `Colors.light` / `Colors.dark` — full dual-theme color palette
 - `Spacing` — 8-level spacing scale (2px → 64px)
 - `Typography` — 8 text variants (h1 → tiny)
@@ -567,7 +578,9 @@ src/services/api.ts          ← Mock API with simulated delay (no real HTTP)
 > Note: Dark mode tokens are fully prepared but the theme switcher is not yet wired.
 
 ### State Architecture
+
 All global state is managed by Zustand (in-memory only, resets on app restart):
+
 - `useAuthStore` — user info, role, login/logout
 - `useCartStore` — items, quantities, totals
 - `useBookingStore` — all booking records
@@ -578,10 +591,10 @@ All global state is managed by Zustand (in-memory only, resets on app restart):
 
 ## 🌐 Supported Platforms
 
-| Platform | Status | Notes |
-|---|---|---|
-| **Android** | ✅ Fully Supported | New Architecture + Hermes, API 24+ |
-| **Web** | ⚠️ Experimental | `npx expo start --web` (limited UI) |
+| Platform    | Status             | Notes                               |
+| ----------- | ------------------ | ----------------------------------- |
+| **Android** | ✅ Fully Supported | New Architecture + Hermes, API 24+  |
+| **Web**     | ⚠️ Experimental    | `npx expo start --web` (limited UI) |
 
 > **Minimum Android version:** Android 7.0 (API level 24)
 > **Target Android version:** Android 15 (API level 35)

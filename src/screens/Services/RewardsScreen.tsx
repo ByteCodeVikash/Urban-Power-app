@@ -9,24 +9,40 @@ export default function RewardsScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <Header title="Your Rewards" />
-      <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.pointsCard}>
           <View>
-            <Typography variant="body2" color={Colors.light.white} style={{ opacity: 0.8 }}>Available Points</Typography>
-            <Typography variant="h1" color={Colors.light.white}>2,450</Typography>
+            <Typography
+              variant="body2"
+              color={Colors.light.white}
+              style={{ opacity: 0.8 }}
+            >
+              Available Points
+            </Typography>
+            <Typography variant="h1" color={Colors.light.white}>
+              2,450
+            </Typography>
           </View>
           <Trophy color={Colors.light.white} size={48} />
         </View>
 
-        <Typography variant="h3" style={styles.sectionTitle}>Exclusive Offers</Typography>
-        
+        <Typography variant="h3" style={styles.sectionTitle}>
+          Exclusive Offers
+        </Typography>
+
         <View style={styles.offerCard}>
           <View style={[styles.iconBox, { backgroundColor: '#FFEEED' }]}>
             <Gift color="#EF4444" size={24} />
           </View>
           <View style={styles.offerInfo}>
             <Typography variant="h4">50% OFF</Typography>
-            <Typography variant="body2" color={Colors.light.textSecondary}>On your next Deep Cleaning</Typography>
+            <Typography variant="body2" color={Colors.light.textSecondary}>
+              On your next Deep Cleaning
+            </Typography>
           </View>
         </View>
 
@@ -36,18 +52,26 @@ export default function RewardsScreen() {
           </View>
           <View style={styles.offerInfo}>
             <Typography variant="h4">Free Consultation</Typography>
-            <Typography variant="body2" color={Colors.light.textSecondary}>With our top experts</Typography>
+            <Typography variant="body2" color={Colors.light.textSecondary}>
+              With our top experts
+            </Typography>
           </View>
         </View>
 
-        <Typography variant="h3" style={styles.sectionTitle}>Refer & Earn</Typography>
+        <Typography variant="h3" style={styles.sectionTitle}>
+          Refer & Earn
+        </Typography>
         <View style={styles.referCard}>
-          <Typography variant="body1" align="center">Invite your friends and get ₹500 for each successful referral.</Typography>
+          <Typography variant="body1" align="center">
+            Invite your friends and get ₹500 for each successful referral.
+          </Typography>
           <View style={styles.codeContainer}>
-             <Typography variant="h4" weight="700" color={Colors.light.primary}>URBAN500</Typography>
+            <Typography variant="h4" weight="700" color={Colors.light.primary}>
+              URBAN500
+            </Typography>
           </View>
         </View>
-        
+
         <View style={{ height: 120 }} />
       </ScrollView>
     </SafeAreaView>

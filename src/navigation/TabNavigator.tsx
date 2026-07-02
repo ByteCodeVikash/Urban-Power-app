@@ -29,26 +29,35 @@ export default function TabNavigator() {
           tabBarInactiveTintColor: '#777777',
           tabBarStyle: [
             styles.bottomTabBar,
-            { height: 70 + insets.bottom, paddingBottom: insets.bottom > 0 ? insets.bottom : 12 },
+            {
+              height: 70 + insets.bottom,
+              paddingBottom: insets.bottom > 0 ? insets.bottom : 12,
+            },
           ],
           tabBarLabelStyle: styles.bottomTabLabel,
           tabBarIcon: ({ color, focused }) => {
             const size = 24;
             const strokeWidth = focused ? 2.5 : 2;
             if (route.name === 'Home') {
-              return <Home size={size} color={color} strokeWidth={strokeWidth} />;
+              return (
+                <Home size={size} color={color} strokeWidth={strokeWidth} />
+              );
             }
             if (route.name === 'My Bookings') {
-              return <Calendar size={size} color={color} strokeWidth={strokeWidth} />;
+              return (
+                <Calendar size={size} color={color} strokeWidth={strokeWidth} />
+              );
             }
             if (route.name === 'Account') {
-              return <User size={size} color={color} strokeWidth={strokeWidth} />;
+              return (
+                <User size={size} color={color} strokeWidth={strokeWidth} />
+              );
             }
             return null;
           },
         })}
         screenListeners={{
-          state: (e) => {
+          state: e => {
             const state = e.data.state;
             const routeName = state.routes[state.index]?.name ?? 'Home';
             setActiveTab(routeName);

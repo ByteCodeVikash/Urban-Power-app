@@ -1,4 +1,4 @@
-import { API } from "./backend";
+import { API } from './backend';
 
 import {
   CATEGORIES,
@@ -17,11 +17,10 @@ import {
   REVIEWS,
   FAQS,
   KABADI_ITEMS,
-} from "../constants/MockData";
+} from '../constants/MockData';
 
 // Simulated Network delay helper
-const delay = (ms: number) =>
-  new Promise((resolve) => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const api = {
   // =========================
@@ -53,14 +52,10 @@ export const api = {
       return OFFERS;
     },
 
-    getServiceDetails: async (
-      serviceId: string
-    ): Promise<DetailedService> => {
+    getServiceDetails: async (serviceId: string): Promise<DetailedService> => {
       await delay(400);
 
-      const service = ALL_SERVICES.find(
-        (s) => s.id === serviceId
-      )!;
+      const service = ALL_SERVICES.find(s => s.id === serviceId)!;
 
       return {
         ...service,
@@ -75,7 +70,7 @@ export const api = {
   // =========================
   auth: {
     sendOtp: async (phone: string) => {
-      const response = await API.post("/api/auth/send-otp", {
+      const response = await API.post('/api/v1/auth/send-otp', {
         phone,
       });
 
@@ -83,7 +78,7 @@ export const api = {
     },
 
     verifyOtp: async (phone: string, otp: string) => {
-      const response = await API.post("/api/auth/verify-otp", {
+      const response = await API.post('/api/v1/auth/verify-otp', {
         phone,
         otp,
       });
@@ -91,8 +86,16 @@ export const api = {
       return response.data;
     },
 
+    googleLogin: async (idToken: string) => {
+      const response = await API.post('/api/v1/auth/google-login', {
+        id_token: idToken,
+      });
+
+      return response.data;
+    },
+
     login: async (phone: string, password: string) => {
-      const response = await API.post("/api/auth/login", {
+      const response = await API.post('/api/v1/auth/login', {
         phone,
         password,
       });
@@ -101,10 +104,7 @@ export const api = {
     },
 
     register: async (data: any) => {
-      const response = await API.post(
-        "/api/auth/register",
-        data
-      );
+      const response = await API.post('/api/v1/users/', data);
 
       return response.data;
     },
@@ -131,7 +131,7 @@ export const api = {
   shop: {
     getProducts: async () => {
       try {
-        const response = await API.get("/api/products");
+        const response = await API.get('/api/products');
 
         return response.data.map((product: any) => ({
           id: String(product.id),
@@ -142,10 +142,7 @@ export const api = {
           description: product.description,
         }));
       } catch (error) {
-        console.error(
-          "Products API Error:",
-          error
-        );
+        console.error('Products API Error:', error);
 
         return [];
       }
@@ -153,16 +150,11 @@ export const api = {
 
     getCategories: async () => {
       try {
-        const response = await API.get(
-          "/api/product-categories"
-        );
+        const response = await API.get('/api/product-categories');
 
         return response.data;
       } catch (error) {
-        console.error(
-          "Product Categories API Error:",
-          error
-        );
+        console.error('Product Categories API Error:', error);
 
         return [];
       }
@@ -175,16 +167,11 @@ export const api = {
   reviews: {
     getReviews: async (serviceId: string) => {
       try {
-        const response = await API.get(
-          `/api/reviews/service/${serviceId}`
-        );
+        const response = await API.get(`/api/reviews/service/${serviceId}`);
 
         return response.data;
       } catch (error) {
-        console.error(
-          "Reviews API Error:",
-          error
-        );
+        console.error('Reviews API Error:', error);
 
         return [];
       }
@@ -192,16 +179,11 @@ export const api = {
 
     getTopServices: async () => {
       try {
-        const response = await API.get(
-          "/api/reviews/top-services"
-        );
+        const response = await API.get('/api/reviews/top-services');
 
         return response.data;
       } catch (error) {
-        console.error(
-          "Top Services API Error:",
-          error
-        );
+        console.error('Top Services API Error:', error);
 
         return [];
       }
@@ -211,56 +193,107 @@ export const api = {
   // =========================
   // KABADI
   // =========================
- kabadi: {
-  getRates: async () => {
-    try {
-      const response = await API.get("/api/kabadi/rates");
+  kabadi: {
+    getRates: async () => {
+      try {
+        const response = await API.get('/api/kabadi/rates');
 
-      return response.data;
-    } catch (error) {
-      console.error("Kabadi API Error:", error);
-      return [];
-    }
+        return response.data;
+      } catch (error) {
+        console.error('Kabadi API Error:', error);
+        return [];
+      }
+    },
+    getCategories: async () => {
+      try {
+        const response = await API.get('/api/v1/scrap/categories');
+        return response.data;
+      } catch (error) {
+        console.error('Scrap Categories API Error:', error);
+        return [];
+      }
+    },
+    getItemDetails: async (itemId: string) => {
+      try {
+        const response = await API.get(`/api/v1/scrap/items/${itemId}`);
+        return response.data;
+      } catch (error) {
+        console.error('Scrap Item Details API Error:', error);
+        throw error;
+      }
+    },
   },
-},
-  // =========================
-  // ADDRESS
-  // =========================
+  beautician: {
+    getCategories: async () => {
+      try {
+        const response = await API.get('/api/v1/beautician/categories');
+        return response.data;
+      } catch (error) {
+        console.error('Beautician Categories API Error:', error);
+        return [];
+      }
+    },
+    getServices: async (categoryId?: string) => {
+      try {
+        const url = categoryId
+          ? `/api/v1/beautician/services?category_id=${categoryId}`
+          : '/api/v1/beautician/services';
+        const response = await API.get(url);
+        return response.data;
+      } catch (error) {
+        console.error('Beautician Services API Error:', error);
+        return [];
+      }
+    },
+  },
+  maintenance: {
+    getCategories: async () => {
+      try {
+        const response = await API.get('/api/v1/maintenance/categories');
+        return response.data;
+      } catch (error) {
+        console.error('Maintenance Categories API Error:', error);
+        return [];
+      }
+    },
+    getServices: async (categoryId?: string) => {
+      try {
+        const url = categoryId
+          ? `/api/v1/maintenance/services?category_id=${categoryId}`
+          : '/api/v1/maintenance/services';
+        const response = await API.get(url);
+        return response.data;
+      } catch (error) {
+        console.error('Maintenance Services API Error:', error);
+        return [];
+      }
+    },
+  },
   address: {
-    getAddresses: async (userId: number) => {
-      const response = await API.get(
-        `/api/address/user/${userId}`
-      );
-
+    getAddresses: async (userId?: number) => {
+      const response = await API.get('/api/v1/addresses/');
       return response.data;
     },
 
     addAddress: async (data: any) => {
-      const response = await API.post(
-        "/api/address/add",
-        data
-      );
-
+      const response = await API.post('/api/v1/addresses/', data);
       return response.data;
     },
 
-    deleteAddress: async (
-      addressId: number
-    ) => {
-      const response = await API.delete(
-        `/api/address/delete/${addressId}`
-      );
-
+    updateAddress: async (addressId: string, data: any) => {
+      const response = await API.put(`/api/v1/addresses/${addressId}`, data);
       return response.data;
     },
 
-    setDefaultAddress: async (
-      addressId: number
-    ) => {
-      const response = await API.put(
-        `/api/address/default/${addressId}`
-      );
+    deleteAddress: async (addressId: string) => {
+      const response = await API.delete(`/api/v1/addresses/${addressId}`);
+      return response.data;
+    },
 
+    setDefaultAddress: async (addressId: string) => {
+      const response = await API.put(`/api/v1/addresses/${addressId}`, {
+        is_default: true,
+      });
       return response.data;
     },
   },
@@ -270,38 +303,27 @@ export const api = {
   // =========================
   cart: {
     getCart: async (userId: number) => {
-      const response = await API.get(
-        `/api/cart/${userId}`
-      );
+      const response = await API.get(`/api/cart/${userId}`);
 
       return response.data;
     },
 
     addToCart: async (data: any) => {
-      const response = await API.post(
-        "/api/cart/add",
-        data
-      );
+      const response = await API.post('/api/cart/add', data);
 
       return response.data;
     },
 
     updateCart: async (data: any) => {
-      const response = await API.put(
-        "/api/cart/update",
-        data
-      );
+      const response = await API.put('/api/cart/update', data);
 
       return response.data;
     },
 
     removeFromCart: async (data: any) => {
-      const response = await API.delete(
-        "/api/cart/remove",
-        {
-          data,
-        }
-      );
+      const response = await API.delete('/api/cart/remove', {
+        data,
+      });
 
       return response.data;
     },
@@ -312,28 +334,19 @@ export const api = {
   // =========================
   orders: {
     placeOrder: async (data: any) => {
-      const response = await API.post(
-        "/api/orders/place",
-        data
-      );
+      const response = await API.post('/api/orders/place', data);
 
       return response.data;
     },
 
     getOrders: async (userId: number) => {
-      const response = await API.get(
-        `/api/orders/${userId}`
-      );
+      const response = await API.get(`/api/orders/${userId}`);
 
       return response.data;
     },
 
-    trackOrder: async (
-      orderId: number
-    ) => {
-      const response = await API.get(
-        `/api/orders/track/${orderId}`
-      );
+    trackOrder: async (orderId: number) => {
+      const response = await API.get(`/api/orders/track/${orderId}`);
 
       return response.data;
     },
@@ -344,29 +357,154 @@ export const api = {
   // =========================
   bookings: {
     createBooking: async (data: any) => {
-      const response = await API.post(
-        "/api/bookings/create",
-        data
-      );
+      const response = await API.post('/api/v1/bookings/', data);
 
       return response.data;
     },
 
-    getUserBookings: async (
-      userId: number
-    ) => {
-      const response = await API.get(
-        `/api/bookings/user/${userId}`
-      );
+    getBookingHistory: async (): Promise<any[]> => {
+      const response = await API.get('/api/v1/bookings/history');
+      return response.data;
+    },
+
+    getUserBookings: async (userId: number) => {
+      const response = await API.get(`/api/bookings/user/${userId}`);
 
       return response.data;
     },
 
     getSlots: async () => {
-      const response = await API.get(
-        "/api/bookings/slots"
-      );
+      const response = await API.get('/api/bookings/slots');
 
+      return response.data;
+    },
+
+    getAvailableDates: async (serviceId: string): Promise<string[]> => {
+      try {
+        const response = await API.get(
+          `/api/v1/bookings/available-dates?service_id=${serviceId}`,
+        );
+        return response.data.available_dates;
+      } catch (error) {
+        console.error('getAvailableDates Error:', error);
+        // Generate mock dates for the next 14 days, skipping Sundays (0)
+        const dates: string[] = [];
+        const today = new Date();
+        for (let i = 0; i < 14; i++) {
+          const d = new Date(today);
+          d.setDate(today.getDate() + i);
+          if (d.getDay() !== 0) {
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            dates.push(`${year}-${month}-${day}`);
+          }
+        }
+        return dates;
+      }
+    },
+
+    getAvailableTimeslots: async (
+      serviceId: string,
+      date: string,
+    ): Promise<
+      { id: string; start_time: string; end_time: string; available: boolean }[]
+    > => {
+      try {
+        const response = await API.get(
+          `/api/v1/bookings/available-timeslots?service_id=${serviceId}&date=${date}`,
+        );
+        return response.data.available_timeslots;
+      } catch (error) {
+        console.error('getAvailableTimeslots Error:', error);
+        // Fallback mock slots
+        return [
+          {
+            id: '1',
+            start_time: '09:00:00',
+            end_time: '10:00:00',
+            available: true,
+          },
+          {
+            id: '2',
+            start_time: '10:00:00',
+            end_time: '11:00:00',
+            available: true,
+          },
+          {
+            id: '3',
+            start_time: '11:00:00',
+            end_time: '12:00:00',
+            available: false,
+          },
+          {
+            id: '4',
+            start_time: '13:00:00',
+            end_time: '14:00:00',
+            available: true,
+          },
+          {
+            id: '5',
+            start_time: '14:00:00',
+            end_time: '15:00:00',
+            available: true,
+          },
+          {
+            id: '6',
+            start_time: '15:00:00',
+            end_time: '16:00:00',
+            available: false,
+          },
+          {
+            id: '7',
+            start_time: '16:00:00',
+            end_time: '17:00:00',
+            available: true,
+          },
+        ];
+      }
+    },
+  },
+
+  // =========================
+  // MEDIA
+  // =========================
+  media: {
+    upload: async (
+      fileData: FormData,
+      onUploadProgress?: (progressEvent: any) => void,
+    ) => {
+      const response = await API.post('/api/v1/media/upload', fileData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        onUploadProgress,
+      });
+      return response.data;
+    },
+  },
+
+  // =========================
+  // PAYMENTS
+  // =========================
+  payments: {
+    createOrder: async (bookingId: string, amount: number) => {
+      const response = await API.post('/api/v1/payments/create-order', {
+        booking_id: bookingId,
+        amount: amount,
+      });
+      return response.data as {
+        order_id: string;
+        amount: number;
+        currency: string;
+      };
+    },
+    verifyPayment: async (data: {
+      razorpay_payment_id: string;
+      razorpay_order_id: string;
+      razorpay_signature: string;
+    }) => {
+      const response = await API.post('/api/v1/payments/verify', data);
       return response.data;
     },
   },
@@ -376,9 +514,7 @@ export const api = {
   // =========================
   admin: {
     getDashboard: async () => {
-      const response = await API.get(
-        "/api/admin/dashboard"
-      );
+      const response = await API.get('/api/admin/dashboard');
 
       return response.data;
     },

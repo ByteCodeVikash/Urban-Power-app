@@ -1,7 +1,18 @@
 import React from 'react';
-import { View, StyleSheet, SafeAreaView, FlatList, Pressable } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  SafeAreaView,
+  FlatList,
+  Pressable,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Calendar, ChevronRight, Recycle, TrendingUp } from 'lucide-react-native';
+import {
+  Calendar,
+  ChevronRight,
+  Recycle,
+  TrendingUp,
+} from 'lucide-react-native';
 import { Typography } from '../../components/Typography';
 import { Header } from '../../components/Header';
 import { Colors, Spacing, BorderRadius, Shadows } from '../../constants/Theme';
@@ -17,43 +28,78 @@ export default function KabadiHistoryScreen() {
       <View style={styles.cardHeader}>
         <View style={styles.dateRow}>
           <Calendar size={14} color={Colors.light.textMuted} />
-          <Typography variant="caption" color={Colors.light.textMuted} style={{ marginLeft: 6 }}>
+          <Typography
+            variant="caption"
+            color={Colors.light.textMuted}
+            style={{ marginLeft: 6 }}
+          >
             {item.date}
           </Typography>
         </View>
-        <View style={[
-          styles.statusBadge, 
-          item.status === 'Completed' ? styles.statusSuccess : styles.statusDanger
-        ]}>
-          <Typography variant="tiny" weight="800" color={item.status === 'Completed' ? Colors.light.success : Colors.light.danger}>
+        <View
+          style={[
+            styles.statusBadge,
+            item.status === 'Completed'
+              ? styles.statusSuccess
+              : styles.statusDanger,
+          ]}
+        >
+          <Typography
+            variant="tiny"
+            weight="800"
+            color={
+              item.status === 'Completed'
+                ? Colors.light.success
+                : Colors.light.danger
+            }
+          >
             {item.status.toUpperCase()}
           </Typography>
         </View>
       </View>
 
       <View style={styles.cardBody}>
-        <Typography variant="body1" weight="800">{item.categories.join(', ')}</Typography>
-        <Typography variant="caption" color={Colors.light.textSecondary} style={{ marginTop: 2 }}>
-           Slot: {item.timeSlot}
+        <Typography variant="body1" weight="800">
+          {item.categories.join(', ')}
         </Typography>
-        
+        <Typography
+          variant="caption"
+          color={Colors.light.textSecondary}
+          style={{ marginTop: 2 }}
+        >
+          Slot: {item.timeSlot}
+        </Typography>
+
         <View style={styles.impactTag}>
-           <Recycle size={12} color={Colors.light.success} />
-           <Typography variant="tiny" color={Colors.light.success} weight="700" style={{ marginLeft: 4 }}>
-             {item.status === 'Completed' ? 'Processing ecological impact...' : 'Pending Pickup'}
-           </Typography>
+          <Recycle size={12} color={Colors.light.success} />
+          <Typography
+            variant="tiny"
+            color={Colors.light.success}
+            weight="700"
+            style={{ marginLeft: 4 }}
+          >
+            {item.status === 'Completed'
+              ? 'Processing ecological impact...'
+              : 'Pending Pickup'}
+          </Typography>
         </View>
       </View>
 
       <View style={styles.cardFooter}>
-         <View>
-            <Typography variant="caption" color={Colors.light.textMuted}>EST. VALUE</Typography>
-            <Typography variant="h4" weight="900" color={Colors.light.primary}>₹{item.estimatedValue || '---'}</Typography>
-         </View>
-         <Pressable style={styles.detailsBtn} onPress={() => {}}>
-            <Typography variant="body2" weight="700" color={Colors.light.primary}>Details</Typography>
-            <ChevronRight size={16} color={Colors.light.primary} />
-         </Pressable>
+        <View>
+          <Typography variant="caption" color={Colors.light.textMuted}>
+            EST. VALUE
+          </Typography>
+          <Typography variant="h4" weight="900" color={Colors.light.primary}>
+            ₹{item.estimatedValue || '---'}
+          </Typography>
+        </View>
+        <Pressable style={styles.detailsBtn} onPress={() => {}}>
+          <Typography variant="body2" weight="700" color={Colors.light.primary}>
+            Details
+          </Typography>
+          <ChevronRight size={16} color={Colors.light.primary} />
+        </Pressable>
       </View>
     </Pressable>
   );
@@ -61,25 +107,40 @@ export default function KabadiHistoryScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <Header title="Pickup History" showBack />
-      
+
       <View style={styles.summaryBanner}>
-         <View style={styles.summaryItem}>
-            <TrendingUp size={20} color={Colors.light.success} />
-            <Typography variant="h3" weight="900" style={{ marginLeft: 8 }}>₹2,480</Typography>
-            <Typography variant="tiny" color={Colors.light.textMuted} weight="700" style={{ marginLeft: 4 }}>TOTAL EARNED</Typography>
-         </View>
+        <View style={styles.summaryItem}>
+          <TrendingUp size={20} color={Colors.light.success} />
+          <Typography variant="h3" weight="900" style={{ marginLeft: 8 }}>
+            ₹2,480
+          </Typography>
+          <Typography
+            variant="tiny"
+            color={Colors.light.textMuted}
+            weight="700"
+            style={{ marginLeft: 4 }}
+          >
+            TOTAL EARNED
+          </Typography>
+        </View>
       </View>
 
       <FlatList
-        data={MOCK_HISTORY}
-        keyExtractor={(item) => item.id}
+        data={pickups}
+        keyExtractor={item => item.id}
         renderItem={renderItem}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={styles.empty}>
             <Recycle size={60} color={Colors.light.border} />
-            <Typography variant="body1" weight="700" style={{ marginTop: Spacing.md }}>No pickups yet</Typography>
+            <Typography
+              variant="body1"
+              weight="700"
+              style={{ marginTop: Spacing.md }}
+            >
+              No pickups yet
+            </Typography>
           </View>
         }
       />
@@ -142,5 +203,10 @@ const styles = StyleSheet.create({
     borderTopColor: Colors.light.surface,
   },
   detailsBtn: { flexDirection: 'row', alignItems: 'center' },
-  empty: { flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 100 },
+  empty: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 100,
+  },
 });

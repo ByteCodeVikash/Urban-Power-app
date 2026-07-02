@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, SafeAreaView, Pressable, TouchableOpacity, Modal } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  SafeAreaView,
+  Pressable,
+  TouchableOpacity,
+  Modal,
+} from 'react-native';
 import { NetworkImage } from '../../components/NetworkImage';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { ChevronLeft, ShoppingCart, Plus } from 'lucide-react-native';
@@ -13,7 +21,7 @@ import { Button } from '../../components/Button';
 export default function GroceryProductListScreen() {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
-  const addProduct = useCartStore((state) => state.addProduct);
+  const addProduct = useCartStore(state => state.addProduct);
   const { categoryId, subcategoryName, categoryName } = route.params;
 
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
@@ -21,55 +29,79 @@ export default function GroceryProductListScreen() {
 
   // Filter products by category (e.g. Grains) AND subcategory (e.g. Atta)
   // Note: For some generic items, they might only have category
-  const filteredProducts = PRODUCTS.filter(p => 
-    p.category === categoryName && p.subcategory === subcategoryName
+  const filteredProducts = PRODUCTS.filter(
+    p => p.category === categoryName && p.subcategory === subcategoryName,
   );
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <Header 
-        title={subcategoryName} 
+      <Header
+        title={subcategoryName}
         leftComponent={
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.backButton}
+          >
             <ChevronLeft size={24} color={Colors.light.text} />
           </TouchableOpacity>
         }
         rightComponent={
-           <TouchableOpacity onPress={() => navigation.navigate('Cart')} style={styles.cartButton}>
-             <ShoppingCart size={22} color={Colors.light.text} />
-           </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Cart')}
+            style={styles.cartButton}
+          >
+            <ShoppingCart size={22} color={Colors.light.text} />
+          </TouchableOpacity>
         }
       />
-      
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.content}
+      >
         <View style={styles.headerInfo}>
-           <Typography variant="h3" weight="800">{subcategoryName}</Typography>
-           <Typography variant="body2" color={Colors.light.textSecondary}>
-             Showing {filteredProducts.length} items in {categoryName}
-           </Typography>
+          <Typography variant="h3" weight="800">
+            {subcategoryName}
+          </Typography>
+          <Typography variant="body2" color={Colors.light.textSecondary}>
+            Showing {filteredProducts.length} items in {categoryName}
+          </Typography>
         </View>
 
         {filteredProducts.length > 0 ? (
           <View style={styles.productGrid}>
-            {filteredProducts.map((product) => (
+            {filteredProducts.map(product => (
               <View key={product.id} style={styles.productCard}>
-                <NetworkImage 
-                  source={{ uri: product.image }} 
-                  style={styles.productImage} 
+                <NetworkImage
+                  source={{ uri: product.image }}
+                  style={styles.productImage}
                   resizeMode="cover"
                 />
                 <View style={styles.productInfo}>
-                  <Typography variant="body2" weight="700" numberOfLines={2} style={styles.productTitle}>
+                  <Typography
+                    variant="body2"
+                    weight="700"
+                    numberOfLines={2}
+                    style={styles.productTitle}
+                  >
                     {product.title}
                   </Typography>
-                  <Typography variant="caption" color={Colors.light.textMuted} numberOfLines={1}>
+                  <Typography
+                    variant="caption"
+                    color={Colors.light.textMuted}
+                    numberOfLines={1}
+                  >
                     {product.description}
                   </Typography>
                   <View style={styles.priceRow}>
-                    <Typography variant="h4" weight="800" color={Colors.light.primary}>
+                    <Typography
+                      variant="h4"
+                      weight="800"
+                      color={Colors.light.primary}
+                    >
                       ₹{product.price}
                     </Typography>
-                    <TouchableOpacity 
+                    <TouchableOpacity
                       style={styles.addButton}
                       onPress={() => {
                         setSelectedProduct(product);
@@ -85,8 +117,12 @@ export default function GroceryProductListScreen() {
           </View>
         ) : (
           <View style={styles.emptyState}>
-             <Typography variant="body1" color={Colors.light.textMuted}>No products found in this category.</Typography>
-             <Typography variant="caption" color={Colors.light.textMuted}>We are adding more items soon!</Typography>
+            <Typography variant="body1" color={Colors.light.textMuted}>
+              No products found in this category.
+            </Typography>
+            <Typography variant="caption" color={Colors.light.textMuted}>
+              We are adding more items soon!
+            </Typography>
           </View>
         )}
       </ScrollView>
@@ -98,30 +134,47 @@ export default function GroceryProductListScreen() {
         visible={isModalVisible}
         onRequestClose={() => setIsModalVisible(false)}
       >
-        <Pressable 
-          style={styles.modalBackdrop} 
+        <Pressable
+          style={styles.modalBackdrop}
           onPress={() => setIsModalVisible(false)}
         >
           <View style={styles.modalContainer}>
-            <Pressable style={styles.modalContent} onPress={(e) => e.stopPropagation()}>
+            <Pressable
+              style={styles.modalContent}
+              onPress={e => e.stopPropagation()}
+            >
               <View style={styles.dragHandle} />
-              
+
               {selectedProduct && (
                 <>
                   <View style={styles.modalProductRow}>
-                    <NetworkImage 
-                      source={{ uri: selectedProduct.image }} 
-                      style={styles.modalProductImage} 
+                    <NetworkImage
+                      source={{ uri: selectedProduct.image }}
+                      style={styles.modalProductImage}
                       resizeMode="cover"
                     />
                     <View style={styles.modalProductInfo}>
-                      <Typography variant="tiny" color={Colors.light.primary} weight="700" style={{ textTransform: 'uppercase', marginBottom: 2 }}>
+                      <Typography
+                        variant="tiny"
+                        color={Colors.light.primary}
+                        weight="700"
+                        style={{ textTransform: 'uppercase', marginBottom: 2 }}
+                      >
                         {selectedProduct.category}
                       </Typography>
-                      <Typography variant="body1" weight="800" numberOfLines={2}>
+                      <Typography
+                        variant="body1"
+                        weight="800"
+                        numberOfLines={2}
+                      >
                         {selectedProduct.title}
                       </Typography>
-                      <Typography variant="caption" color={Colors.light.textSecondary} numberOfLines={2} style={{ marginTop: 4 }}>
+                      <Typography
+                        variant="caption"
+                        color={Colors.light.textSecondary}
+                        numberOfLines={2}
+                        style={{ marginTop: 4 }}
+                      >
                         {selectedProduct.description}
                       </Typography>
                     </View>
@@ -129,18 +182,30 @@ export default function GroceryProductListScreen() {
 
                   <View style={styles.modalPriceRow}>
                     <View>
-                      <Typography variant="caption" color={Colors.light.textMuted} weight="600">Total Price</Typography>
-                      <Typography variant="h2" weight="900" color={Colors.light.primary}>
+                      <Typography
+                        variant="caption"
+                        color={Colors.light.textMuted}
+                        weight="600"
+                      >
+                        Total Price
+                      </Typography>
+                      <Typography
+                        variant="h2"
+                        weight="900"
+                        color={Colors.light.primary}
+                      >
                         ₹{selectedProduct.price}
                       </Typography>
                     </View>
                     <View style={styles.modalBadge}>
-                      <Typography variant="tiny" color="#10B981" weight="800">In Stock</Typography>
+                      <Typography variant="tiny" color="#10B981" weight="800">
+                        In Stock
+                      </Typography>
                     </View>
                   </View>
 
-                  <Button 
-                    title="Buy Now" 
+                  <Button
+                    title="Buy Now"
                     onPress={() => {
                       addProduct(selectedProduct);
                       setIsModalVisible(false);

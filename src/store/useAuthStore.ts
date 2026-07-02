@@ -1,41 +1,113 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export type UserRole = 'Customer' | 'Technician' | 'Admin';
 
-interface User {
+export interface User {
   id: string;
   phone: string;
   name: string;
   role: UserRole;
+  email?: string;
+  profileImage?: string;
 }
 
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   role: UserRole | null;
-  login: (phone: string, role: UserRole, name?: string) => void;
+  accessToken: string | null;
+  login: (
+    phone: string,
+    role: UserRole,
+    name?: string,
+    id?: string,
+    accessToken?: string,
+  ) => void;
   logout: () => void;
   switchRole: (role: UserRole) => void;
+  updateProfile: (updatedFields: Partial<Omit<User, 'id' | 'role'>>) => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
-  isAuthenticated: false,
-  role: null,
-  login: (phone, role, name = 'User') => {
-    set({
-      user: { id: Math.random().toString(), phone, name, role },
-      isAuthenticated: true,
-      role: role,
-    });
+// Fail-safe storage wrapper to handle native module environment safety
+const customStorage = {
+  getItem: async (name: string): Promise<string | null> => {
+    try {
+      return await AsyncStorage.getItem(name);
+    } catch (e) {
+      console.warn('[useAuthStore] Error reading auth session:', e);
+      return null;
+    }
   },
-  logout: () => {
-    set({ user: null, isAuthenticated: false, role: null });
+  setItem: async (name: string, value: string): Promise<void> => {
+    try {
+      await AsyncStorage.setItem(name, value);
+    } catch (e) {
+      console.warn('[useAuthStore] Error writing auth session:', e);
+    }
   },
-  switchRole: (role) => {
-    set((state) => ({
-      role: role,
-      user: state.user ? { ...state.user, role } : null,
-    }));
+  removeItem: async (name: string): Promise<void> => {
+    try {
+      await AsyncStorage.removeItem(name);
+    } catch (e) {
+      console.warn('[useAuthStore] Error removing auth session:', e);
+    }
   },
-}));
+};
+
+export const useAuthStore = create<AuthState>()(
+  persist(
+    set => ({
+      user: null,
+      isAuthenticated: false,
+      role: null,
+      accessToken: null,
+      login: (
+        phone,
+        role,
+        name = 'User',
+        id = Math.random().toString(),
+        accessToken,
+      ) => {
+        set({
+          user: {
+            id,
+            phone,
+            name,
+            role,
+            email: `${name.toLowerCase().replace(/\s+/g, '') || 'user'}@example.com`,
+            profileImage:
+              'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=256&auto=format&fit=crop',
+          },
+          isAuthenticated: true,
+          role: role,
+          accessToken: accessToken || null,
+        });
+      },
+      logout: () => {
+        set({
+          user: null,
+          isAuthenticated: false,
+          role: null,
+          accessToken: null,
+        });
+      },
+      switchRole: role => {
+        set(state => ({
+          role: role,
+          user: state.user ? { ...state.user, role } : null,
+        }));
+      },
+      updateProfile: updatedFields => {
+        set(state => ({
+          user: state.user ? { ...state.user, ...updatedFields } : null,
+        }));
+      },
+    }),
+    {
+      name: 'urban-power-auth-session',
+      storage: createJSONStorage(() => customStorage),
+    },
+  ),
+);

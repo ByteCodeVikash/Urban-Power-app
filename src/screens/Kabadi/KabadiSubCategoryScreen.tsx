@@ -1,5 +1,12 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, SafeAreaView, Pressable, Image } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  SafeAreaView,
+  Pressable,
+  Image,
+} from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ChevronLeft } from 'lucide-react-native';
@@ -8,7 +15,10 @@ import { Colors, Spacing, BorderRadius, Shadows } from '../../constants/Theme';
 import { KABADI_ITEMS } from '../../constants/MockData';
 import { RootStackParamList } from '../../navigation/Types';
 
-type KabadiSubCategoryRouteProp = RouteProp<RootStackParamList, 'KabadiSubCategory'>;
+type KabadiSubCategoryRouteProp = RouteProp<
+  RootStackParamList,
+  'KabadiSubCategory'
+>;
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 export default function KabadiSubCategoryScreen() {
@@ -24,24 +34,37 @@ export default function KabadiSubCategoryScreen() {
         <Pressable style={styles.iconBtn} onPress={() => navigation.goBack()}>
           <ChevronLeft color={Colors.light.text} size={24} />
         </Pressable>
-        <Typography variant="h3" weight="700">{categoryName}</Typography>
+        <Typography variant="h3" weight="700">
+          {categoryName}
+        </Typography>
         <View style={{ width: 44 }} />
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.content}
+      >
         <View style={styles.grid}>
-          {selectedCategory?.subcategories.map((sub) => (
-            <Pressable 
-              key={sub.id} 
+          {selectedCategory?.subcategories.map(sub => (
+            <Pressable
+              key={sub.id}
               style={styles.subCard}
-              onPress={() => navigation.navigate('KabadiForm', { 
-                categoryId: sub.id,
-                categoryName: categoryName,
-                subcategoryName: sub.title
-              })}
+              onPress={() =>
+                navigation.navigate('KabadiForm', {
+                  categoryId: sub.id,
+                  categoryName: categoryName,
+                  subcategoryName: sub.title,
+                })
+              }
             >
-              <Typography variant="body1" weight="700">{sub.title}</Typography>
-              <Typography variant="body2" color={Colors.light.primary} weight="800">
+              <Typography variant="body1" weight="700">
+                {sub.title}
+              </Typography>
+              <Typography
+                variant="body2"
+                color={Colors.light.primary}
+                weight="800"
+              >
                 ₹{sub.price}/kg
               </Typography>
             </Pressable>
@@ -63,8 +86,11 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.light.borderLight,
   },
   iconBtn: {
-    width: 44, height: 44, borderRadius: 22,
-    justifyContent: 'center', alignItems: 'center',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   content: { padding: Spacing.lg },
   grid: { gap: Spacing.md },

@@ -1,16 +1,43 @@
 import React from 'react';
-import { View, StyleSheet, SafeAreaView, ScrollView, Pressable, TextInput } from 'react-native';
-import { HelpCircle, MessageCircle, Phone, Mail, ChevronRight, Search, FileText } from 'lucide-react-native';
+import {
+  View,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+  Pressable,
+  TextInput,
+} from 'react-native';
+import {
+  HelpCircle,
+  MessageCircle,
+  Phone,
+  Mail,
+  ChevronRight,
+  Search,
+  FileText,
+} from 'lucide-react-native';
 import { Typography } from '../../components/Typography';
 import { Header } from '../../components/Header';
 import { Colors, Spacing, BorderRadius, Shadows } from '../../constants/Theme';
 import { useRoute } from '@react-navigation/native';
 
 const FAQ_CATEGORIES = [
-  { title: 'Home Services', icon: <HelpCircle size={20} color={Colors.light.primary} /> },
-  { title: 'Shopping & Returns', icon: <FileText size={20} color={Colors.light.primary} /> },
-  { title: 'Payments & Wallet', icon: <Search size={20} color={Colors.light.primary} /> },
-  { title: 'Kabadi Pickup', icon: <HelpCircle size={20} color={Colors.light.primary} /> },
+  {
+    title: 'Home Services',
+    icon: <HelpCircle size={20} color={Colors.light.primary} />,
+  },
+  {
+    title: 'Shopping & Returns',
+    icon: <FileText size={20} color={Colors.light.primary} />,
+  },
+  {
+    title: 'Payments & Wallet',
+    icon: <Search size={20} color={Colors.light.primary} />,
+  },
+  {
+    title: 'Kabadi Pickup',
+    icon: <HelpCircle size={20} color={Colors.light.primary} />,
+  },
 ];
 
 export default function HelpSupportScreen() {
@@ -20,56 +47,98 @@ export default function HelpSupportScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       {!isTab && <Header title="Help & Support" showBack />}
-      
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.content}
+      >
         {/* Search Bar */}
         <View style={styles.searchBar}>
-           <Search size={20} color={Colors.light.textMuted} />
-           <TextInput placeholder="How can we help you?" style={styles.searchInput} />
+          <Search size={20} color={Colors.light.textMuted} />
+          <TextInput
+            placeholder="How can we help you?"
+            style={styles.searchInput}
+          />
         </View>
 
         {/* Contact Options */}
         <View style={styles.section}>
-           <Typography variant="h4" weight="800" style={{ marginBottom: Spacing.lg }}>Contact Us</Typography>
-           <View style={styles.contactGrid}>
-              <Pressable style={styles.contactCard}>
-                 <MessageCircle size={24} color="#25D366" />
-                 <Typography variant="body2" weight="700" style={{ marginTop: 8 }}>WhatsApp</Typography>
-              </Pressable>
-              <Pressable style={styles.contactCard}>
-                 <Phone size={24} color={Colors.light.primary} />
-                 <Typography variant="body2" weight="700" style={{ marginTop: 8 }}>Call Us</Typography>
-              </Pressable>
-              <Pressable style={styles.contactCard}>
-                 <Mail size={24} color="#EA4335" />
-                 <Typography variant="body2" weight="700" style={{ marginTop: 8 }}>Email</Typography>
-              </Pressable>
-           </View>
+          <Typography
+            variant="h4"
+            weight="800"
+            style={{ marginBottom: Spacing.lg }}
+          >
+            Contact Us
+          </Typography>
+          <View style={styles.contactGrid}>
+            <Pressable style={styles.contactCard}>
+              <MessageCircle size={24} color="#25D366" />
+              <Typography variant="body2" weight="700" style={{ marginTop: 8 }}>
+                WhatsApp
+              </Typography>
+            </Pressable>
+            <Pressable style={styles.contactCard}>
+              <Phone size={24} color={Colors.light.primary} />
+              <Typography variant="body2" weight="700" style={{ marginTop: 8 }}>
+                Call Us
+              </Typography>
+            </Pressable>
+            <Pressable style={styles.contactCard}>
+              <Mail size={24} color="#EA4335" />
+              <Typography variant="body2" weight="700" style={{ marginTop: 8 }}>
+                Email
+              </Typography>
+            </Pressable>
+          </View>
         </View>
 
         {/* FAQ Categories */}
         <View style={styles.section}>
-           <Typography variant="h4" weight="800" style={{ marginBottom: Spacing.lg }}>FAQ Categories</Typography>
-           {FAQ_CATEGORIES.map((cat, index) => (
-             <Pressable key={index} style={styles.faqRow}>
-                <View style={styles.catIcon}>{cat.icon}</View>
-                <Typography variant="body1" weight="700" style={{ flex: 1, marginLeft: Spacing.md }}>{cat.title}</Typography>
-                <ChevronRight size={18} color={Colors.light.textMuted} />
-             </Pressable>
-           ))}
+          <Typography
+            variant="h4"
+            weight="800"
+            style={{ marginBottom: Spacing.lg }}
+          >
+            FAQ Categories
+          </Typography>
+          {FAQ_CATEGORIES.map((cat, index) => (
+            <Pressable key={index} style={styles.faqRow}>
+              <View style={styles.catIcon}>{cat.icon}</View>
+              <Typography
+                variant="body1"
+                weight="700"
+                style={{ flex: 1, marginLeft: Spacing.md }}
+              >
+                {cat.title}
+              </Typography>
+              <ChevronRight size={18} color={Colors.light.textMuted} />
+            </Pressable>
+          ))}
         </View>
 
         {/* Live Support Banner */}
         <View style={styles.supportBanner}>
-           <View style={{ flex: 1 }}>
-              <Typography variant="h4" weight="800" color={Colors.light.white}>Talk to a Human</Typography>
-              <Typography variant="body2" color={Colors.light.white} style={{ opacity: 0.8, marginTop: 4 }}>
-                Available Mon-Sat, 9 AM - 8 PM
-              </Typography>
-           </View>
-           <Pressable style={styles.chatBtn}>
-              <Typography variant="body2" weight="800" color={Colors.light.primary}>CHAT NOW</Typography>
-           </Pressable>
+          <View style={{ flex: 1 }}>
+            <Typography variant="h4" weight="800" color={Colors.light.white}>
+              Talk to a Human
+            </Typography>
+            <Typography
+              variant="body2"
+              color={Colors.light.white}
+              style={{ opacity: 0.8, marginTop: 4 }}
+            >
+              Available Mon-Sat, 9 AM - 8 PM
+            </Typography>
+          </View>
+          <Pressable style={styles.chatBtn}>
+            <Typography
+              variant="body2"
+              weight="800"
+              color={Colors.light.primary}
+            >
+              CHAT NOW
+            </Typography>
+          </Pressable>
         </View>
 
         <View style={{ height: 120 }} />
@@ -115,9 +184,12 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.light.surface,
   },
   catIcon: {
-    width: 40, height: 40, borderRadius: 10,
+    width: 40,
+    height: 40,
+    borderRadius: 10,
     backgroundColor: Colors.light.primaryLight,
-    justifyContent: 'center', alignItems: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   supportBanner: {
     backgroundColor: Colors.light.primary,
@@ -129,7 +201,8 @@ const styles = StyleSheet.create({
   },
   chatBtn: {
     backgroundColor: Colors.light.white,
-    paddingHorizontal: 20, paddingVertical: 10,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
     borderRadius: BorderRadius.lg,
   },
 });

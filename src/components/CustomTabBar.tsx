@@ -8,7 +8,12 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Colors, Spacing, Shadows, BorderRadius } from '../constants/Theme';
 import { Typography } from './Typography';
-import { ShoppingBag, ShoppingBasket, Recycle, ShoppingCart } from 'lucide-react-native';
+import {
+  ShoppingBag,
+  ShoppingBasket,
+  Recycle,
+  ShoppingCart,
+} from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
@@ -21,11 +26,16 @@ const TAB_WIDTH = TAB_BAR_WIDTH / TAB_COUNT;
 
 const getIcon = (routeName: string, color: string, size: number) => {
   switch (routeName) {
-    case 'Shopping': return <ShoppingBag color={color} size={size} />;
-    case 'Grocery': return <ShoppingBasket color={color} size={size} />;
-    case 'Kabadi':  return <Recycle color={color} size={size} />;
-    case 'Cart':    return <ShoppingCart color={color} size={size} />;
-    default:        return <ShoppingBag color={color} size={size} />;
+    case 'Shopping':
+      return <ShoppingBag color={color} size={size} />;
+    case 'Grocery':
+      return <ShoppingBasket color={color} size={size} />;
+    case 'Kabadi':
+      return <Recycle color={color} size={size} />;
+    case 'Cart':
+      return <ShoppingCart color={color} size={size} />;
+    default:
+      return <ShoppingBag color={color} size={size} />;
   }
 };
 
@@ -37,8 +47,12 @@ export const CustomTabBar: React.FC<BottomTabBarProps> = ({
   const insets = useSafeAreaInsets();
 
   // Map full route index to visible-only index for indicator position
-  const visibleRoutes = state.routes.filter((r) => VISIBLE_ROUTES.includes(r.name));
-  const visibleIndex = visibleRoutes.findIndex((r) => r.key === state.routes[state.index]?.key);
+  const visibleRoutes = state.routes.filter(r =>
+    VISIBLE_ROUTES.includes(r.name),
+  );
+  const visibleIndex = visibleRoutes.findIndex(
+    r => r.key === state.routes[state.index]?.key,
+  );
   const indicatorPosition = visibleIndex >= 0 ? visibleIndex : 0;
 
   const translateX = useSharedValue(indicatorPosition * TAB_WIDTH);
@@ -55,7 +69,12 @@ export const CustomTabBar: React.FC<BottomTabBarProps> = ({
   }));
 
   return (
-    <View style={[styles.container, { bottom: Math.max(insets.bottom, Spacing.lg) }]}>
+    <View
+      style={[
+        styles.container,
+        { bottom: Math.max(insets.bottom, Spacing.lg) },
+      ]}
+    >
       <View style={styles.tabBar}>
         <Animated.View style={[styles.indicator, indicatorStyle]} />
 
@@ -71,8 +90,8 @@ export const CustomTabBar: React.FC<BottomTabBarProps> = ({
             options.tabBarLabel !== undefined
               ? options.tabBarLabel
               : options.title !== undefined
-              ? options.title
-              : route.name;
+                ? options.title
+                : route.name;
 
           const isFocused = state.index === index;
 
@@ -97,7 +116,7 @@ export const CustomTabBar: React.FC<BottomTabBarProps> = ({
               accessibilityRole="button"
               accessibilityState={isFocused ? { selected: true } : {}}
               accessibilityLabel={options.tabBarAccessibilityLabel}
-              testID={options.tabBarTestID}
+              testID={(options as { tabBarTestID?: string }).tabBarTestID}
               onPress={onPress}
               onLongPress={onLongPress}
               style={styles.tabItem}
@@ -106,11 +125,15 @@ export const CustomTabBar: React.FC<BottomTabBarProps> = ({
                 {getIcon(
                   route.name,
                   isFocused ? Colors.light.primary : Colors.light.textSecondary,
-                  24
+                  24,
                 )}
                 <Typography
                   variant="tiny"
-                  color={isFocused ? Colors.light.primary : Colors.light.textSecondary}
+                  color={
+                    isFocused
+                      ? Colors.light.primary
+                      : Colors.light.textSecondary
+                  }
                   style={[styles.label, isFocused && styles.activeLabel]}
                   numberOfLines={1}
                 >

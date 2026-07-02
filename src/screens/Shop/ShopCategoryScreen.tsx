@@ -1,5 +1,12 @@
 import React from 'react';
-import { View, StyleSheet, FlatList, SafeAreaView, Pressable, Image } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  SafeAreaView,
+  Pressable,
+  Image,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/Types';
@@ -15,17 +22,28 @@ export default function ShopCategoryScreen() {
   const navigation = useNavigation<NavigationProp>();
 
   const renderItem = ({ item }: any) => (
-    <Pressable 
+    <Pressable
       style={styles.categoryCard}
-      onPress={() => navigation.navigate('ShopSubCategory', { 
-        categoryId: item.id, 
-        categoryName: item.name 
-      })}
+      onPress={() =>
+        navigation.navigate('ShopSubCategory', {
+          categoryId: item.id,
+          categoryName: item.name,
+        })
+      }
     >
       <View style={styles.imageContainer}>
-        <NetworkImage source={{ uri: item.icon }} style={styles.image} resizeMode="cover" />
+        <NetworkImage
+          source={{ uri: item.icon }}
+          style={styles.image}
+          resizeMode="cover"
+        />
       </View>
-      <Typography variant="body2" weight="700" style={styles.categoryTitle} numberOfLines={2}>
+      <Typography
+        variant="body2"
+        weight="700"
+        style={styles.categoryTitle}
+        numberOfLines={2}
+      >
         {item.name}
       </Typography>
     </Pressable>
@@ -34,19 +52,24 @@ export default function ShopCategoryScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <Header title="Shopping" />
-      
+
       <FlatList
         data={SHOP_CATEGORIES}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         numColumns={2}
         columnWrapperStyle={styles.columnWrapper}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
         ListFooterComponent={
           <View style={styles.infoBox}>
-            <Typography variant="body2" color={Colors.light.textSecondary} style={{ textAlign: 'center' }}>
-              Explore latest trends in fashion, electronics, and home decor. Best prices guaranteed.
+            <Typography
+              variant="body2"
+              color={Colors.light.textSecondary}
+              style={{ textAlign: 'center' }}
+            >
+              Explore latest trends in fashion, electronics, and home decor.
+              Best prices guaranteed.
             </Typography>
           </View>
         }
@@ -78,7 +101,13 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   image: { width: '100%', height: '100%' },
-  categoryTitle: { textAlign: 'center', color: Colors.light.text, fontSize: 13, paddingVertical: Spacing.sm, paddingHorizontal: Spacing.xs },
+  categoryTitle: {
+    textAlign: 'center',
+    color: Colors.light.text,
+    fontSize: 13,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.xs,
+  },
   infoBox: {
     marginTop: Spacing.xl,
     marginHorizontal: 16,
@@ -90,4 +119,3 @@ const styles = StyleSheet.create({
     borderColor: '#DB2777',
   },
 });
-

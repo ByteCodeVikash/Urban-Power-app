@@ -1,5 +1,12 @@
 import React from 'react';
-import { View, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, Switch } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  SafeAreaView,
+  TouchableOpacity,
+  ScrollView,
+  Switch,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ChevronLeft, Bell, Lock, Globe, Moon } from 'lucide-react-native';
 import { Typography } from '../../components/Typography';
@@ -11,17 +18,22 @@ export default function SettingsScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <Header 
-        title="Settings" 
+      <Header
+        title="Settings"
         leftComponent={
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.backButton}
+          >
             <ChevronLeft size={24} color={Colors.light.text} />
           </TouchableOpacity>
         }
       />
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.section}>
-          <Typography variant="h3" weight="800" style={styles.sectionTitle}>General</Typography>
+          <Typography variant="h3" weight="800" style={styles.sectionTitle}>
+            General
+          </Typography>
           <View style={styles.card}>
             <SettingItem icon={Bell} title="Notifications" value={true} />
             <SettingItem icon={Moon} title="Dark Mode" value={false} />
@@ -39,12 +51,16 @@ function SettingItem({ icon: Icon, title, value, detail, last }: any) {
     <View style={[styles.item, last && { borderBottomWidth: 0 }]}>
       <View style={styles.itemLeft}>
         <Icon size={20} color={Colors.light.text} />
-        <Typography variant="body1" weight="700">{title}</Typography>
+        <Typography variant="body1" weight="700">
+          {title}
+        </Typography>
       </View>
       {value !== undefined ? (
         <Switch value={value} />
       ) : (
-        <Typography variant="body2" color={Colors.light.textSecondary}>{detail || ''}</Typography>
+        <Typography variant="body2" color={Colors.light.textSecondary}>
+          {detail || ''}
+        </Typography>
       )}
     </View>
   );

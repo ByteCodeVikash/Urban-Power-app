@@ -8,16 +8,28 @@ interface RatingStarsProps {
   rating: number;
   reviews?: number;
   size?: number;
+  showText?: boolean;
 }
 
-export const RatingStars: React.FC<RatingStarsProps> = ({ rating, reviews, size = 16 }) => {
+export const RatingStars: React.FC<RatingStarsProps> = ({
+  rating,
+  reviews,
+  size = 16,
+  showText = true,
+}) => {
   return (
     <View style={styles.container}>
-      <Star fill={Colors.light.warning} color={Colors.light.warning} size={size} />
-      <Typography variant="body2" weight="600" style={styles.ratingText}>
-        {rating.toFixed(1)}
-      </Typography>
-      {reviews !== undefined && (
+      <Star
+        fill={Colors.light.warning}
+        color={Colors.light.warning}
+        size={size}
+      />
+      {showText && (
+        <Typography variant="body2" weight="600" style={styles.ratingText}>
+          {rating.toFixed(1)}
+        </Typography>
+      )}
+      {showText && reviews !== undefined && (
         <Typography variant="caption" color={Colors.light.textSecondary}>
           ({reviews}k)
         </Typography>

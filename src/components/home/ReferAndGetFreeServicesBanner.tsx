@@ -3,17 +3,31 @@ import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { Typography } from '../Typography';
 import { Colors, Spacing, BorderRadius, Shadows } from '../../constants/Theme';
 
-export function ReferAndGetFreeServicesBanner({ onPress }: { onPress?: () => void }) {
+export function ReferAndGetFreeServicesBanner({
+  onPress,
+}: {
+  onPress?: () => void;
+}) {
   return (
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
     >
       <View style={styles.left}>
-        <Typography variant="h3" weight="900" color={Colors.light.primary} style={styles.title}>
+        <Typography
+          variant="h3"
+          weight="900"
+          color={Colors.light.primary}
+          style={styles.title}
+        >
           Refer and get free services
         </Typography>
-        <Typography variant="body2" color={Colors.light.textSecondary} weight="700" style={styles.subtitle}>
+        <Typography
+          variant="body2"
+          color={Colors.light.textSecondary}
+          weight="700"
+          style={styles.subtitle}
+        >
           Invite and get{' '}
           <Typography variant="body2" color={Colors.light.primary} weight="900">
             ₹100
@@ -59,4 +73,3 @@ const styles = StyleSheet.create({
   },
   image: { width: '100%', height: '100%' },
 });
-

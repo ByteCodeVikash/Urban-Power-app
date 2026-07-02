@@ -27,23 +27,23 @@ import { Colors, BorderRadius, Shadows, Spacing } from '../constants/Theme';
 
 // ── Icon map: icon key → Lucide component ─────────────────────────────────
 const ICON_MAP: Record<string, LucideIcon> = {
-  sparkles:    Sparkles,
-  scissors:    Scissors,
-  wrench:      Wrench,
-  shop:        ShoppingBag,
-  apple:       ShoppingBasket,
-  kabadi:      Recycle,
-  pest:        Bug,
-  massage:     Hand,
-  gardening:   Flower2,
-  packers:     PackageOpen,
+  sparkles: Sparkles,
+  scissors: Scissors,
+  wrench: Wrench,
+  shop: ShoppingBag,
+  apple: ShoppingBasket,
+  kabadi: Recycle,
+  pest: Bug,
+  massage: Hand,
+  gardening: Flower2,
+  packers: PackageOpen,
   maintenance: Settings2,
   autoservice: Car,
-  learning:    GraduationCap,
-  event:       CalendarDays,
-  business:    Briefcase,
-  workforce:   Users,
-  petcare:     PawPrint,
+  learning: GraduationCap,
+  event: CalendarDays,
+  business: Briefcase,
+  workforce: Users,
+  petcare: PawPrint,
 };
 
 interface CategoryCardProps {
@@ -86,9 +86,9 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
     >
       <View style={styles.imageContainer}>
         {isUrl ? (
-          <NetworkImage 
-            source={{ uri: category.icon }} 
-            style={styles.image} 
+          <NetworkImage
+            source={{ uri: category.icon }}
+            style={styles.image}
             resizeMode="cover"
           />
         ) : (
@@ -97,7 +97,14 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
       </View>
       {!hideText && (
         <View style={styles.textContainer}>
-          <Typography variant="tiny" weight="700" align="center" color={Colors.light.text} style={styles.text} numberOfLines={2}>
+          <Typography
+            variant="tiny"
+            weight="700"
+            align="center"
+            color={Colors.light.text}
+            style={styles.text}
+            numberOfLines={2}
+          >
             {category.name}
           </Typography>
         </View>

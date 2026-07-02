@@ -33,6 +33,7 @@
 ### Supported Linux Distributions
 
 This guide is tested on:
+
 - ✅ Ubuntu 22.04 LTS (Jammy Jellyfish) — **Recommended**
 - ✅ Ubuntu 20.04 LTS (Focal Fossa)
 - ✅ Linux Mint 21
@@ -138,6 +139,7 @@ npm --version
 ```
 
 Expected output:
+
 ```
 v20.18.0
 10.8.2
@@ -163,6 +165,7 @@ javac --version
 ```
 
 Expected output:
+
 ```
 openjdk 17.0.x 2024-xx-xx
 OpenJDK Runtime Environment ...
@@ -183,6 +186,7 @@ sudo update-alternatives --config java
 A numbered list will appear. Type the number corresponding to Java 17 and press Enter.
 
 Also set it for the compiler:
+
 ```bash
 sudo update-alternatives --config javac
 ```
@@ -277,6 +281,7 @@ After Android Studio is set up:
 ### Note your SDK path:
 
 In the SDK Manager, the path is shown at the top. It will look like:
+
 ```
 /home/yourname/Android/Sdk
 ```
@@ -292,11 +297,13 @@ We need to tell Linux where Java and Android SDK are located.
 ### Open your shell configuration file:
 
 For Bash (default on Ubuntu):
+
 ```bash
 nano ~/.bashrc
 ```
 
 For Zsh (if you use zsh):
+
 ```bash
 nano ~/.zshrc
 ```
@@ -340,6 +347,7 @@ adb --version
 ```
 
 Expected:
+
 ```
 /home/yourname/Android/Sdk
 /usr/lib/jvm/java-17-openjdk-amd64
@@ -359,6 +367,7 @@ adb version
 ```
 
 Expected:
+
 ```
 Android Debug Bridge version 1.0.41
 Version xx.x.x-xxxxxxxx
@@ -367,11 +376,13 @@ Version xx.x.x-xxxxxxxx
 ### If adb is not found:
 
 Install it from apt as a backup:
+
 ```bash
 sudo apt install -y android-tools-adb
 ```
 
 Then check again:
+
 ```bash
 adb version
 ```
@@ -432,6 +443,7 @@ npm install
 ```
 
 This will take 2–5 minutes depending on your internet speed. When complete, you will see something like:
+
 ```
 added 1234 packages in 45s
 ```
@@ -523,7 +535,7 @@ Then press `a` to open on the emulator.
 1. Open **Settings** on your Android phone
 2. Tap **About Phone**
 3. Find **Build Number** and tap it **7 times**
-4. You will see: *"You are now a developer!"*
+4. You will see: _"You are now a developer!"_
 
 ### Step 2 — Enable USB Debugging:
 
@@ -548,6 +560,7 @@ lsusb
 ```
 
 You will see output like:
+
 ```
 Bus 001 Device 003: ID 18d1:4ee7 Google Inc. Nexus/Pixel Device
 ```
@@ -555,16 +568,19 @@ Bus 001 Device 003: ID 18d1:4ee7 Google Inc. Nexus/Pixel Device
 The part before the colon (e.g., `18d1`) is your **vendor ID**.
 
 Create a udev rule:
+
 ```bash
 sudo nano /etc/udev/rules.d/51-android.rules
 ```
 
 Add this line (replace `18d1` with your actual vendor ID):
+
 ```
 SUBSYSTEM=="usb", ATTR{idVendor}=="18d1", MODE="0666", GROUP="plugdev"
 ```
 
 Save and apply:
+
 ```bash
 sudo chmod a+r /etc/udev/rules.d/51-android.rules
 sudo udevadm control --reload-rules
@@ -580,6 +596,7 @@ adb devices
 ```
 
 Expected:
+
 ```
 List of devices attached
 XXXXXXXXXXXXXXXX    device
@@ -610,6 +627,7 @@ cd ..
 ```
 
 **Output location:**
+
 ```
 android/app/build/outputs/apk/debug/app-debug.apk
 ```
@@ -627,6 +645,7 @@ cd ..
 ```
 
 **Output location:**
+
 ```
 android/app/build/outputs/apk/release/app-release.apk
 ```
@@ -644,6 +663,7 @@ cd ..
 ```
 
 **Output location:**
+
 ```
 android/app/build/outputs/bundle/release/app-release.aab
 ```
@@ -660,10 +680,12 @@ android/app/build/outputs/bundle/release/app-release.aab
 ### ❌ `nvm: command not found`
 
 **Fix:** Load nvm manually in your current session:
+
 ```bash
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 ```
+
 Then close and reopen your terminal for it to persist.
 
 ---
@@ -673,6 +695,7 @@ Then close and reopen your terminal for it to persist.
 **Cause:** `ANDROID_HOME/platform-tools` not in PATH.
 
 **Fix:**
+
 ```bash
 echo 'export PATH=$PATH:$HOME/Android/Sdk/platform-tools' >> ~/.bashrc
 source ~/.bashrc
@@ -684,6 +707,7 @@ adb version
 ### ❌ `JAVA_HOME is not set`
 
 **Fix:**
+
 ```bash
 # Find your Java path
 readlink -f $(which java)
@@ -700,6 +724,7 @@ echo $JAVA_HOME
 ### ❌ `SDK location not found`
 
 **Fix:**
+
 ```bash
 # Get your Android SDK path from Android Studio SDK Manager
 # Then add it:
@@ -713,6 +738,7 @@ source ~/.bashrc
 ### ❌ `permission denied` on `./gradlew`
 
 **Fix:**
+
 ```bash
 chmod +x android/gradlew
 ```
@@ -722,6 +748,7 @@ chmod +x android/gradlew
 ### ❌ `Gradle build failed`
 
 **Fix:**
+
 ```bash
 cd android
 ./gradlew clean
@@ -731,6 +758,7 @@ npx expo run:android
 ```
 
 Also try clearing Gradle's own cache:
+
 ```bash
 rm -rf ~/.gradle/caches
 ```
@@ -740,6 +768,7 @@ rm -rf ~/.gradle/caches
 ### ❌ `npm install` fails with `EACCES permission denied`
 
 **Fix:**
+
 ```bash
 sudo chown -R $(whoami) ~/.npm
 sudo chown -R $(whoami) ~/.config
@@ -751,6 +780,7 @@ npm install
 ### ❌ Metro bundler port 8081 is already in use
 
 **Fix:**
+
 ```bash
 # Kill the process using port 8081
 fuser -k 8081/tcp
@@ -762,6 +792,7 @@ npx expo start
 ### ❌ Device shows as `unauthorized` in `adb devices`
 
 **Fix:**
+
 1. Unplug the USB cable
 2. On your phone: go to Developer Options → Revoke USB debugging authorizations
 3. Reconnect the cable
@@ -775,6 +806,7 @@ npx expo start
 **Cause:** KVM (hardware acceleration) is not enabled.
 
 **Fix:**
+
 ```bash
 # Verify KVM is available
 egrep -c '(vmx|svm)' /proc/cpuinfo
@@ -798,6 +830,7 @@ This is specific to some Samsung phones. Use a different phone for testing, or u
 ### ❌ `No AVD found` / Emulator won't start
 
 **Fix:**
+
 1. Open Android Studio
 2. Go to **Device Manager**
 3. If no AVD exists, create one (see Step 15)
@@ -810,6 +843,7 @@ This is specific to some Samsung phones. Use a different phone for testing, or u
 **Cause:** 32-bit library missing (on some 64-bit systems).
 
 **Fix:**
+
 ```bash
 sudo apt install -y lib32z1 lib32ncurses6 lib32stdc++6 libc6-i386
 ```

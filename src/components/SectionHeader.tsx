@@ -8,20 +8,28 @@ interface SectionHeaderProps {
   onSeeAll?: () => void;
 }
 
-export const SectionHeader: React.FC<SectionHeaderProps> = React.memo(({ title, onSeeAll }) => {
-  return (
-    <View style={styles.container}>
-      <Typography variant="h3" weight="700">{title}</Typography>
-      {onSeeAll && (
-        <Pressable onPress={onSeeAll}>
-          <Typography variant="body2" weight="600" color={Colors.light.primary}>
-            See All
-          </Typography>
-        </Pressable>
-      )}
-    </View>
-  );
-});
+export const SectionHeader: React.FC<SectionHeaderProps> = React.memo(
+  ({ title, onSeeAll }) => {
+    return (
+      <View style={styles.container}>
+        <Typography variant="h3" weight="700">
+          {title}
+        </Typography>
+        {onSeeAll && (
+          <Pressable onPress={onSeeAll}>
+            <Typography
+              variant="body2"
+              weight="600"
+              color={Colors.light.primary}
+            >
+              See All
+            </Typography>
+          </Pressable>
+        )}
+      </View>
+    );
+  },
+);
 
 const styles = StyleSheet.create({
   container: {

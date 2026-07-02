@@ -8,6 +8,7 @@ export interface PickupRequest {
   timeSlot: string;
   status: 'Requested' | 'Assigned' | 'In-Progress' | 'Completed' | 'Cancelled';
   estimatedValue?: string;
+  image?: string;
 }
 
 interface KabadiState {
@@ -26,24 +27,26 @@ export const useKabadiStore = create<KabadiState>((set, get) => ({
       date: '15 Oct, 2023',
       timeSlot: '10 AM - 12 PM',
       status: 'Requested',
-    }
+    },
   ],
-  schedulePickup: (pickup) => {
-    set((state) => ({
+  schedulePickup: pickup => {
+    set(state => ({
       pickups: [
-        { ...pickup, id: `K-${Math.random().toString(36).substr(2, 9)}`, status: 'Requested' },
+        {
+          ...pickup,
+          id: `K-${Math.random().toString(36).substr(2, 9)}`,
+          status: 'Requested',
+        },
         ...state.pickups,
       ],
     }));
   },
   updatePickupStatus: (id, status) => {
-    set((state) => ({
-      pickups: state.pickups.map((p) =>
-        p.id === id ? { ...p, status } : p
-      ),
+    set(state => ({
+      pickups: state.pickups.map(p => (p.id === id ? { ...p, status } : p)),
     }));
   },
-  getPickupById: (id) => {
-    return get().pickups.find((p) => p.id === id);
+  getPickupById: id => {
+    return get().pickups.find(p => p.id === id);
   },
 }));

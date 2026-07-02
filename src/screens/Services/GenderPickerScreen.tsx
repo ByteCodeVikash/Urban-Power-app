@@ -47,12 +47,12 @@ export default function GenderPickerScreen() {
   const route = useRoute<any>();
   const { categoryId, categoryName } = route.params || {};
 
-  const category = CATEGORIES.find((c) => c.id === categoryId);
+  const category = CATEGORIES.find(c => c.id === categoryId);
 
-  const genderOptions = (['female', 'male'] as const).map((g) => {
-    const services = category?.services.filter((s) => s.gender === g) ?? [];
+  const genderOptions = (['female', 'male'] as const).map(g => {
+    const services = category?.services.filter(s => s.gender === g) ?? [];
     const meta = { ...GENDER_META[g] };
-    
+
     // Customize label for Massage category
     if (categoryId === 'c10') {
       meta.label = g === 'female' ? 'Massage for Women' : 'Massage for Men';
@@ -71,8 +71,14 @@ export default function GenderPickerScreen() {
           <ChevronLeft color={Colors.light.text} size={24} />
         </Pressable>
         <View style={styles.headerCenter}>
-          <Typography variant="h3" weight="900">{categoryName}</Typography>
-          <Typography variant="tiny" color={Colors.light.textSecondary} weight="600">
+          <Typography variant="h3" weight="900">
+            {categoryName}
+          </Typography>
+          <Typography
+            variant="tiny"
+            color={Colors.light.textSecondary}
+            weight="600"
+          >
             Select your preference
           </Typography>
         </View>
@@ -80,7 +86,9 @@ export default function GenderPickerScreen() {
       </View>
 
       <View style={styles.subheadingContainer}>
-        <Typography variant="h4" weight="800">Who is this for?</Typography>
+        <Typography variant="h4" weight="800">
+          Who is this for?
+        </Typography>
         <Typography variant="body2" color={Colors.light.textSecondary}>
           Choose a category to see personalised services
         </Typography>
@@ -88,10 +96,13 @@ export default function GenderPickerScreen() {
 
       {/* ── Gender Cards ── */}
       <View style={styles.cardsContainer}>
-        {genderOptions.map((opt) => (
+        {genderOptions.map(opt => (
           <Pressable
             key={opt.key}
-            style={({ pressed }) => [styles.genderCard, pressed && styles.cardPressed]}
+            style={({ pressed }) => [
+              styles.genderCard,
+              pressed && styles.cardPressed,
+            ]}
             onPress={() =>
               navigation.navigate('Subcategory', {
                 categoryId,
@@ -107,44 +118,77 @@ export default function GenderPickerScreen() {
             >
               <LinearGradient
                 colors={['transparent', 'rgba(0,0,0,0.75)']}
-                style={[styles.cardGradient, { borderRadius: BorderRadius.xxl }]}
+                style={[
+                  styles.cardGradient,
+                  { borderRadius: BorderRadius.xxl },
+                ]}
               />
 
               {/* Emoji badge */}
-              <View style={[styles.emojiBadge, { backgroundColor: opt.accentColor }]}>
-                <Typography variant="h4" color="#fff" weight="900">{opt.emoji}</Typography>
+              <View
+                style={[
+                  styles.emojiBadge,
+                  { backgroundColor: opt.accentColor },
+                ]}
+              >
+                <Typography variant="h4" color="#fff" weight="900">
+                  {opt.emoji}
+                </Typography>
               </View>
 
               {/* Bottom info */}
               <View style={styles.cardInfo}>
-                <Typography variant="h2" weight="900" color="#fff">{opt.label}</Typography>
+                <Typography variant="h2" weight="900" color="#fff">
+                  {opt.label}
+                </Typography>
 
-                <View style={[styles.taglinePill, { backgroundColor: opt.accentColor + '44' }]}>
+                <View
+                  style={[
+                    styles.taglinePill,
+                    { backgroundColor: opt.accentColor + '44' },
+                  ]}
+                >
                   <Typography variant="tiny" weight="800" color="#fff">
-                    {opt.services.length} service{opt.services.length !== 1 ? 's' : ''} available
+                    {opt.services.length} service
+                    {opt.services.length !== 1 ? 's' : ''} available
                   </Typography>
                 </View>
 
                 {/* Service name chips */}
                 <View style={styles.serviceChips}>
-                  {opt.services.slice(0, 3).map((s) => (
+                  {opt.services.slice(0, 3).map(s => (
                     <View key={s.id} style={styles.chip}>
-                      <Typography variant="tiny" weight="700" color="rgba(255,255,255,0.9)">
+                      <Typography
+                        variant="tiny"
+                        weight="700"
+                        color="rgba(255,255,255,0.9)"
+                      >
                         {s.title}
                       </Typography>
                     </View>
                   ))}
                   {opt.services.length > 3 && (
                     <View style={styles.chip}>
-                      <Typography variant="tiny" weight="700" color="rgba(255,255,255,0.9)">
+                      <Typography
+                        variant="tiny"
+                        weight="700"
+                        color="rgba(255,255,255,0.9)"
+                      >
                         +{opt.services.length - 3} more
                       </Typography>
                     </View>
                   )}
                 </View>
 
-                <View style={[styles.selectBtn, { backgroundColor: opt.accentColor }]}>
-                  <Typography variant="tiny" weight="900" color="#fff">SELECT →</Typography>
+                <View
+                  style={[
+                    styles.selectBtn,
+                    { backgroundColor: opt.accentColor },
+                  ]}
+                >
+                  <Typography variant="tiny" weight="900" color="#fff">
+                    SELECT →
+                  </Typography>
                 </View>
               </View>
             </ImageBackground>
@@ -167,9 +211,12 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.light.borderLight,
   },
   backBtn: {
-    width: 40, height: 40, borderRadius: 20,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: Colors.light.surface,
-    justifyContent: 'center', alignItems: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   headerCenter: { alignItems: 'center' },
   subheadingContainer: {
@@ -196,32 +243,44 @@ const styles = StyleSheet.create({
   cardGradient: { ...StyleSheet.absoluteFillObject },
   emojiBadge: {
     position: 'absolute',
-    top: Spacing.lg, right: Spacing.lg,
-    width: 44, height: 44, borderRadius: 22,
-    alignItems: 'center', justifyContent: 'center',
+    top: Spacing.lg,
+    right: Spacing.lg,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
     ...Shadows.light.md,
   },
   cardInfo: { padding: Spacing.xl, paddingTop: Spacing.lg },
   taglinePill: {
     alignSelf: 'flex-start',
-    paddingHorizontal: 10, paddingVertical: 3,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
     borderRadius: BorderRadius.full,
-    marginTop: 4, marginBottom: Spacing.sm,
-    borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)',
+    marginTop: 4,
+    marginBottom: Spacing.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
   },
   serviceChips: {
-    flexDirection: 'row', flexWrap: 'wrap',
-    gap: 6, marginBottom: Spacing.md,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginBottom: Spacing.md,
   },
   chip: {
     backgroundColor: 'rgba(255,255,255,0.18)',
-    borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)',
-    paddingHorizontal: 8, paddingVertical: 3,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
     borderRadius: BorderRadius.full,
   },
   selectBtn: {
     alignSelf: 'flex-start',
-    paddingHorizontal: 20, paddingVertical: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 8,
     borderRadius: BorderRadius.full,
     ...Shadows.light.sm,
   },

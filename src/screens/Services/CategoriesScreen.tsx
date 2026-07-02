@@ -19,30 +19,43 @@ export default function CategoriesScreen() {
     <SafeAreaView style={styles.safeArea}>
       <Header title="All Categories" />
       <View style={styles.container}>
-        <Typography variant="body2" color={Colors.light.textSecondary} style={styles.subtitle}>
+        <Typography
+          variant="body2"
+          color={Colors.light.textSecondary}
+          style={styles.subtitle}
+        >
           Choose a service category to get started
         </Typography>
-        
+
         <FlatList
           data={categories}
           numColumns={3}
-          keyExtractor={(item) => item.id}
+          keyExtractor={item => item.id}
           renderItem={({ item }) => (
             <View style={styles.cardWrapper}>
-              <CategoryCard 
-                category={item} 
+              <CategoryCard
+                category={item}
                 onPress={() => {
                   if (item.id === 'c2') {
-                    navigation.navigate('GenderPicker', { categoryId: 'c2', categoryName: 'Beauty' });
+                    navigation.navigate('GenderPicker', {
+                      categoryId: 'c2',
+                      categoryName: 'Beauty',
+                    });
                   } else if (item.id === 'c10') {
-                    navigation.navigate('GenderPicker', { categoryId: 'c10', categoryName: 'Massage' });
+                    navigation.navigate('GenderPicker', {
+                      categoryId: 'c10',
+                      categoryName: 'Massage',
+                    });
                   } else if (item.id.startsWith('c')) {
-                    navigation.navigate('Subcategory', { categoryId: item.id, categoryName: item.name });
-                  } else {
-                    navigation.navigate('CategoryDetail', { 
-                      categoryId: item.id, 
+                    navigation.navigate('Subcategory', {
+                      categoryId: item.id,
                       categoryName: item.name,
-                      isTab: false 
+                    });
+                  } else {
+                    navigation.navigate('CategoryDetail', {
+                      categoryId: item.id,
+                      categoryName: item.name,
+                      isTab: false,
                     });
                   }
                 }}
@@ -74,7 +87,7 @@ const styles = StyleSheet.create({
     paddingBottom: 100, // Space for custom tab bar
   },
   cardWrapper: {
-    flex: 1/3,
+    flex: 1 / 3,
     alignItems: 'center',
     marginBottom: Spacing.xl,
   },

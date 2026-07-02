@@ -1,5 +1,11 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { View, StyleSheet, FlatList, Dimensions, ViewToken } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  Dimensions,
+  ViewToken,
+} from 'react-native';
 import { NetworkImage } from './NetworkImage';
 import { Colors, Spacing, BorderRadius } from '../constants/Theme';
 
@@ -8,76 +14,91 @@ const { width } = Dimensions.get('window');
 interface BannerCarouselProps {
   data?: { id: string; image: string }[];
   loading?: boolean;
+  autoPlayInterval?: number;
 }
 
-export const BannerCarousel: React.FC<BannerCarouselProps> = React.memo(({ data, loading }) => {
-  const flatListRef = useRef<FlatList>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
+export const BannerCarousel: React.FC<BannerCarouselProps> = React.memo(
+  ({ data, loading, autoPlayInterval }) => {
+    const flatListRef = useRef<FlatList>(null);
+    const [activeIndex, setActiveIndex] = useState(0);
 
-  useEffect(() => {
-    if (!data || data?.length <= 1 || loading) return;
+    useEffect(() => {
+      if (!data || data?.length <= 1 || loading) return;
 
-    const interval = setInterval(() => {
-      let nextIndex = activeIndex + 1;
-      if (nextIndex >= data?.length) nextIndex = 0;
-      
-      flatListRef.current?.scrollToIndex({
-        index: nextIndex,
-        animated: true,
-      });
-      setActiveIndex(nextIndex);
-    }, 3500);
+      const interval = setInterval(() => {
+        let nextIndex = activeIndex + 1;
+        if (nextIndex >= data?.length) nextIndex = 0;
 
-    return () => clearInterval(interval);
-  }, [activeIndex, data, loading]);
+        flatListRef.current?.scrollToIndex({
+          index: nextIndex,
+          animated: true,
+        });
+        setActiveIndex(nextIndex);
+      }, autoPlayInterval || 3500);
 
-  const onViewableItemsChanged = useRef(({ viewableItems }: { viewableItems: ViewToken[] }) => {
-    if (viewableItems.length > 0) {
-      setActiveIndex(viewableItems[0].index || 0);
+      return () => clearInterval(interval);
+    }, [activeIndex, data, loading, autoPlayInterval]);
+
+    const onViewableItemsChanged = useRef(
+      ({ viewableItems }: { viewableItems: ViewToken[] }) => {
+        if (viewableItems.length > 0) {
+          setActiveIndex(viewableItems[0].index || 0);
+        }
+      },
+    ).current;
+
+    if (loading || !data) {
+      return (
+        <View
+          style={[styles.image, { backgroundColor: Colors.light.surface }]}
+        />
+      );
     }
-  }).current;
 
-  if (loading || !data) {
-    return <View style={[styles.image, { backgroundColor: Colors.light.surface }]} />;
-  }
-
-  return (
-    <View style={styles.container}>
-      <FlatList
-        ref={flatListRef}
-        data={data}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        keyExtractor={(item) => item.id}
-        onViewableItemsChanged={onViewableItemsChanged}
-        viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
-        renderItem={({ item }) => (
-          item?.image ? (
-            <NetworkImage 
-              source={typeof item.image === 'string' ? { uri: item.image } : item.image} 
-              style={styles.image} 
-              resizeMode="cover"
+    return (
+      <View style={styles.container}>
+        <FlatList
+          ref={flatListRef}
+          data={data}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          keyExtractor={item => item.id}
+          onViewableItemsChanged={onViewableItemsChanged}
+          viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
+          renderItem={({ item }) =>
+            item?.image ? (
+              <NetworkImage
+                source={
+                  typeof item.image === 'string'
+                    ? { uri: item.image }
+                    : item.image
+                }
+                style={styles.image}
+                resizeMode="cover"
+              />
+            ) : (
+              <View
+                style={[
+                  styles.image,
+                  { backgroundColor: Colors.light.surface },
+                ]}
+              />
+            )
+          }
+        />
+        <View style={styles.pagination}>
+          {data.map((_, index) => (
+            <View
+              key={index}
+              style={[styles.dot, index === activeIndex && styles.activeDot]}
             />
-          ) : (
-            <View style={[styles.image, { backgroundColor: Colors.light.surface }]} />
-          )
-        )}
-      />
-      <View style={styles.pagination}>
-        {data.map((_, index) => (
-          <View
-            key={index}
-            style={[
-              styles.dot,
-              index === activeIndex && styles.activeDot,
-            ]}
-          />
-        ))}
+          ))}
+        </View>
       </View>
-    </View>
-  );
-});
+    );
+  },
+);
 
 const styles = StyleSheet.create({
   container: {

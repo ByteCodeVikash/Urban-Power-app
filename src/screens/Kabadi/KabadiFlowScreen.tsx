@@ -1,7 +1,22 @@
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, SafeAreaView, Pressable, TextInput, BackHandler } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  SafeAreaView,
+  Pressable,
+  TextInput,
+  BackHandler,
+} from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { ChevronLeft, Calendar, User, MapPin, Scale, CheckCircle2 } from 'lucide-react-native';
+import {
+  ChevronLeft,
+  Calendar,
+  User,
+  MapPin,
+  Scale,
+  CheckCircle2,
+} from 'lucide-react-native';
 import { Typography } from '../../components/Typography';
 import { Button } from '../../components/Button';
 import { Colors, Spacing, BorderRadius, Shadows } from '../../constants/Theme';
@@ -11,11 +26,11 @@ import { NetworkImage } from '../../components/NetworkImage';
 
 export default function KabadiFlowScreen() {
   const navigation = useNavigation<any>();
-  const addBooking = useBookingStore((state) => state.addBooking);
+  const addBooking = useBookingStore(state => state.addBooking);
 
   const [step, setStep] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState<any>(null);
-  
+
   // Form State
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -42,9 +57,12 @@ export default function KabadiFlowScreen() {
         }
       };
 
-      const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      const subscription = BackHandler.addEventListener(
+        'hardwareBackPress',
+        onBackPress,
+      );
       return () => subscription.remove();
-    }, [step, navigation])
+    }, [step, navigation]),
   );
 
   const handleCategorySelect = (category: any) => {
@@ -59,39 +77,59 @@ export default function KabadiFlowScreen() {
     }
 
     addBooking({
-      id: Math.random().toString(36).substr(2, 9),
       type: 'Kabadi',
       title: selectedCategory.title,
       subtitle: `${weight}kg Pickup`,
       customerName: name,
       address: address,
       date: date,
-      price: parseFloat(weight) * selectedCategory.price,
-      status: 'Upcoming',
+      price:
+        parseFloat(weight) *
+        (selectedCategory.price ||
+          selectedCategory.subcategories?.[0]?.price ||
+          15),
     });
 
     setStep(3);
   };
 
   const renderStep1 = () => (
-    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.grid}>
-      <Typography variant="h3" weight="800" style={styles.stepTitle}>Select Scrap Category</Typography>
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.grid}
+    >
+      <Typography variant="h3" weight="800" style={styles.stepTitle}>
+        Select Scrap Category
+      </Typography>
       <View style={styles.gridRow}>
-        {KABADI_ITEMS.map((item) => (
-          <Pressable 
-            key={item.id} 
+        {KABADI_ITEMS.map(item => (
+          <Pressable
+            key={item.id}
             style={styles.categoryCard}
             onPress={() => handleCategorySelect(item)}
           >
             <View style={styles.iconWrapper}>
-              <NetworkImage source={{ uri: item.icon }} style={styles.icon} resizeMode="cover" />
+              <NetworkImage
+                source={{ uri: item.icon }}
+                style={styles.icon}
+                resizeMode="cover"
+              />
             </View>
-            <Typography variant="tiny" weight="800" align="center" style={styles.categoryName}>
+            <Typography
+              variant="tiny"
+              weight="800"
+              align="center"
+              style={styles.categoryName}
+            >
               {item.title}
             </Typography>
             <View style={styles.priceTag}>
-               <Typography variant="tiny" color={Colors.light.white} weight="800">
-                ₹{item.price}/kg
+              <Typography
+                variant="tiny"
+                color={Colors.light.white}
+                weight="800"
+              >
+                ₹{item.subcategories?.[0]?.price || 15}/kg
               </Typography>
             </View>
           </Pressable>
@@ -101,25 +139,40 @@ export default function KabadiFlowScreen() {
   );
 
   const renderStep2 = () => (
-    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.formContainer}>
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.formContainer}
+    >
       <View style={styles.selectedHeader}>
         <View style={styles.smallIconWrapper}>
-          <NetworkImage source={{ uri: selectedCategory.icon }} style={styles.smallIcon} resizeMode="cover" />
+          <NetworkImage
+            source={{ uri: selectedCategory.icon }}
+            style={styles.smallIcon}
+            resizeMode="cover"
+          />
         </View>
         <View style={{ marginLeft: Spacing.md }}>
-          <Typography variant="body1" weight="800">{selectedCategory.title}</Typography>
-          <Typography variant="tiny" color={Colors.light.textSecondary}>Selected Category</Typography>
+          <Typography variant="body1" weight="800">
+            {selectedCategory.title}
+          </Typography>
+          <Typography variant="tiny" color={Colors.light.textSecondary}>
+            Selected Category
+          </Typography>
         </View>
       </View>
 
-      <Typography variant="h3" weight="800" style={styles.stepTitle}>Pickup Details</Typography>
+      <Typography variant="h3" weight="800" style={styles.stepTitle}>
+        Pickup Details
+      </Typography>
 
       <View style={styles.inputGroup}>
         <View style={styles.inputLabel}>
           <User size={18} color={Colors.light.primary} />
-          <Typography variant="body2" weight="700" style={{ marginLeft: 8 }}>Name</Typography>
+          <Typography variant="body2" weight="700" style={{ marginLeft: 8 }}>
+            Name
+          </Typography>
         </View>
-        <TextInput 
+        <TextInput
           style={styles.input}
           placeholder="Enter your full name"
           value={name}
@@ -130,9 +183,11 @@ export default function KabadiFlowScreen() {
       <View style={styles.inputGroup}>
         <View style={styles.inputLabel}>
           <Scale size={18} color={Colors.light.primary} />
-          <Typography variant="body2" weight="700" style={{ marginLeft: 8 }}>Approx Weight (kg)</Typography>
+          <Typography variant="body2" weight="700" style={{ marginLeft: 8 }}>
+            Approx Weight (kg)
+          </Typography>
         </View>
-        <TextInput 
+        <TextInput
           style={styles.input}
           placeholder="e.g. 10"
           keyboardType="numeric"
@@ -144,9 +199,11 @@ export default function KabadiFlowScreen() {
       <View style={styles.inputGroup}>
         <View style={styles.inputLabel}>
           <MapPin size={18} color={Colors.light.primary} />
-          <Typography variant="body2" weight="700" style={{ marginLeft: 8 }}>Pickup Address</Typography>
+          <Typography variant="body2" weight="700" style={{ marginLeft: 8 }}>
+            Pickup Address
+          </Typography>
         </View>
-        <TextInput 
+        <TextInput
           style={[styles.input, styles.textArea]}
           placeholder="Enter complete pickup address"
           multiline
@@ -159,9 +216,11 @@ export default function KabadiFlowScreen() {
       <View style={styles.inputGroup}>
         <View style={styles.inputLabel}>
           <Calendar size={18} color={Colors.light.primary} />
-          <Typography variant="body2" weight="700" style={{ marginLeft: 8 }}>Pickup Date</Typography>
+          <Typography variant="body2" weight="700" style={{ marginLeft: 8 }}>
+            Pickup Date
+          </Typography>
         </View>
-        <TextInput 
+        <TextInput
           style={styles.input}
           placeholder="e.g. 25th Oct, 2025"
           value={date}
@@ -169,8 +228,8 @@ export default function KabadiFlowScreen() {
         />
       </View>
 
-      <Button 
-        title="Confirm Pickup Request" 
+      <Button
+        title="Confirm Pickup Request"
         onPress={handleSubmit}
         size="lg"
         style={styles.submitBtn}
@@ -181,20 +240,30 @@ export default function KabadiFlowScreen() {
   const renderStep3 = () => (
     <View style={styles.successContainer}>
       <CheckCircle2 size={80} color="#10B981" />
-      <Typography variant="h2" weight="900" style={styles.successTitle}>Booking Successful!</Typography>
-      <Typography variant="body1" align="center" color={Colors.light.textSecondary} style={styles.successSubtitle}>
-        Our pickup agent will arrive at your address on {date}. Keep your {selectedCategory.title} ready!
+      <Typography variant="h2" weight="900" style={styles.successTitle}>
+        Booking Successful!
       </Typography>
-      
+      <Typography
+        variant="body1"
+        align="center"
+        color={Colors.light.textSecondary}
+        style={styles.successSubtitle}
+      >
+        Our pickup agent will arrive at your address on {date}. Keep your{' '}
+        {selectedCategory.title} ready!
+      </Typography>
+
       <View style={styles.summaryCard}>
-        <Typography variant="body2" color={Colors.light.textSecondary}>Approx Value</Typography>
+        <Typography variant="body2" color={Colors.light.textSecondary}>
+          Approx Value
+        </Typography>
         <Typography variant="h3" weight="900" color={Colors.light.primary}>
           ₹{(parseFloat(weight) * selectedCategory.price).toFixed(2)}
         </Typography>
       </View>
 
-      <Button 
-        title="Done" 
+      <Button
+        title="Done"
         onPress={() => navigation.navigate('Home')}
         size="lg"
         style={{ width: '100%', marginTop: Spacing.xl }}
@@ -205,8 +274,8 @@ export default function KabadiFlowScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
-        <Pressable 
-          style={styles.backBtn} 
+        <Pressable
+          style={styles.backBtn}
           onPress={() => {
             if (step === 3) navigation.navigate('Home');
             else if (step === 2) setStep(1);
@@ -216,7 +285,9 @@ export default function KabadiFlowScreen() {
           <ChevronLeft color={Colors.light.text} size={24} />
         </Pressable>
         <View style={styles.headerTitle}>
-          <Typography variant="h3" weight="800">Kabadi Pickup</Typography>
+          <Typography variant="h3" weight="800">
+            Kabadi Pickup
+          </Typography>
           {step < 3 && (
             <Typography variant="tiny" color={Colors.light.textSecondary}>
               Step {step} of 2
@@ -228,7 +299,9 @@ export default function KabadiFlowScreen() {
 
       {step < 3 && (
         <View style={styles.progressBar}>
-          <View style={[styles.progress, { width: step === 1 ? '50%' : '100%' }]} />
+          <View
+            style={[styles.progress, { width: step === 1 ? '50%' : '100%' }]}
+          />
         </View>
       )}
 
@@ -249,9 +322,12 @@ const styles = StyleSheet.create({
   },
   headerTitle: { alignItems: 'center' },
   backBtn: {
-    width: 40, height: 40, borderRadius: 20,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: Colors.light.surface,
-    justifyContent: 'center', alignItems: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   progressBar: {
     height: 4,
@@ -279,11 +355,15 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.lg,
   },
   iconWrapper: {
-    width: 70, height: 70, borderRadius: 35,
+    width: 70,
+    height: 70,
+    borderRadius: 35,
     backgroundColor: Colors.light.surface,
-    justifyContent: 'center', alignItems: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: Spacing.xs,
-    borderWidth: 1, borderColor: Colors.light.borderLight,
+    borderWidth: 1,
+    borderColor: Colors.light.borderLight,
     ...Shadows.light.sm,
   },
   icon: { width: 32, height: 32 },
@@ -295,7 +375,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.primary,
     borderRadius: BorderRadius.full,
   },
-  
+
   formContainer: { paddingHorizontal: Spacing.xl, paddingBottom: 150 }, // Increased padding for bottom tab
   selectedHeader: {
     flexDirection: 'row',
@@ -304,23 +384,32 @@ const styles = StyleSheet.create({
     padding: Spacing.md,
     borderRadius: BorderRadius.xl,
     marginTop: Spacing.md,
-    borderWidth: 1, borderColor: Colors.light.borderLight,
+    borderWidth: 1,
+    borderColor: Colors.light.borderLight,
   },
   smallIconWrapper: {
-    width: 44, height: 44, borderRadius: 22,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: Colors.light.white,
-    justifyContent: 'center', alignItems: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   smallIcon: { width: 24, height: 24 },
   inputGroup: { marginBottom: Spacing.xl },
-  inputLabel: { flexDirection: 'row', alignItems: 'center', marginBottom: Spacing.sm },
+  inputLabel: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
+  },
   input: {
     backgroundColor: Colors.light.surface,
     borderRadius: BorderRadius.lg,
     padding: Spacing.lg,
     fontSize: 15,
     color: Colors.light.text,
-    borderWidth: 1, borderColor: Colors.light.borderLight,
+    borderWidth: 1,
+    borderColor: Colors.light.borderLight,
   },
   textArea: { height: 100, textAlignVertical: 'top' },
   submitBtn: { marginTop: Spacing.lg },

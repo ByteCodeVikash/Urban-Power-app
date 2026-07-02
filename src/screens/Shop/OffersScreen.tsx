@@ -1,5 +1,12 @@
 import React from 'react';
-import { View, StyleSheet, FlatList, SafeAreaView, Pressable, Image } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  SafeAreaView,
+  Pressable,
+  Image,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/Types';
@@ -15,19 +22,28 @@ export default function OffersScreen() {
   const navigation = useNavigation<NavigationProp>();
 
   const renderItem = ({ item }: any) => (
-    <Pressable 
+    <Pressable
       style={styles.offerCard}
       onPress={() => {
-          // Navigate to a generic detail or just show the offer
-          // For now, let's just go back or stay here as it's a list
+        // Navigate to a generic detail or just show the offer
+        // For now, let's just go back or stay here as it's a list
       }}
     >
-      <NetworkImage source={{ uri: item.image }} style={styles.offerImage} resizeMode="cover" />
+      <NetworkImage
+        source={{ uri: item.image }}
+        style={styles.offerImage}
+        resizeMode="cover"
+      />
       <View style={styles.offerDetails}>
         <Typography variant="h4" weight="900" color={Colors.light.text}>
           {item.title}
         </Typography>
-        <Typography variant="body2" color={Colors.light.primary} weight="700" style={{ marginTop: 4 }}>
+        <Typography
+          variant="body2"
+          color={Colors.light.primary}
+          weight="700"
+          style={{ marginTop: 4 }}
+        >
           {item.subtitle}
         </Typography>
         <View style={styles.claimBadge}>
@@ -42,11 +58,11 @@ export default function OffersScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <Header title="Deals For You" showBack />
-      
+
       <FlatList
         data={OFFERS}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={
@@ -54,7 +70,12 @@ export default function OffersScreen() {
             <Typography variant="h3" weight="900" align="center">
               Exclusive Offers 🎁
             </Typography>
-            <Typography variant="body2" color={Colors.light.textSecondary} align="center" style={{ marginTop: 4 }}>
+            <Typography
+              variant="body2"
+              color={Colors.light.textSecondary}
+              align="center"
+              style={{ marginTop: 4 }}
+            >
               Handpicked deals just for your needs
             </Typography>
           </View>

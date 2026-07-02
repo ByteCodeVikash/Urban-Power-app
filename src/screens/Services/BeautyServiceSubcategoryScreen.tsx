@@ -34,7 +34,11 @@ export default function BeautyServiceSubcategoryScreen() {
             {serviceTitle}
           </Typography>
           {gender && (
-            <Typography variant="tiny" color={Colors.light.primary} weight="700">
+            <Typography
+              variant="tiny"
+              color={Colors.light.primary}
+              weight="700"
+            >
               {gender === 'female' ? '♀ Female' : '♂ Male'}
             </Typography>
           )}
@@ -43,10 +47,19 @@ export default function BeautyServiceSubcategoryScreen() {
       </View>
 
       <View style={styles.subtitleBar}>
-        <Typography variant="body2" color={Colors.light.textSecondary} weight="600">
-          {subcategories.length} option{subcategories.length !== 1 ? 's' : ''} available
+        <Typography
+          variant="body2"
+          color={Colors.light.textSecondary}
+          weight="600"
+        >
+          {subcategories.length} option{subcategories.length !== 1 ? 's' : ''}{' '}
+          available
         </Typography>
-        <Typography variant="tiny" color={Colors.light.textMuted} style={{ marginTop: 4 }}>
+        <Typography
+          variant="tiny"
+          color={Colors.light.textMuted}
+          style={{ marginTop: 4 }}
+        >
           Choose a service in {serviceTitle}
         </Typography>
       </View>
@@ -67,7 +80,10 @@ export default function BeautyServiceSubcategoryScreen() {
 
           return (
             <Pressable
-              style={({ pressed }) => [styles.listItem, pressed && styles.listItemPressed]}
+              style={({ pressed }) => [
+                styles.listItem,
+                pressed && styles.listItemPressed,
+              ]}
               onPress={() =>
                 navigation.navigate('ServiceBookingScreen', {
                   categoryId,
@@ -84,10 +100,16 @@ export default function BeautyServiceSubcategoryScreen() {
                   {subName}
                 </Typography>
               </View>
-              
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+
+              <View
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
+              >
                 {subPrice ? (
-                  <Typography variant="body1" weight="700" color={Colors.light.text}>
+                  <Typography
+                    variant="body1"
+                    weight="700"
+                    color={Colors.light.text}
+                  >
                     ₹{subPrice}
                   </Typography>
                 ) : null}
@@ -98,7 +120,12 @@ export default function BeautyServiceSubcategoryScreen() {
         }}
         ListEmptyComponent={
           <View style={styles.emptyState}>
-            <Typography variant="h4" weight="800" align="center" color={Colors.light.textMuted}>
+            <Typography
+              variant="h4"
+              weight="800"
+              align="center"
+              color={Colors.light.textMuted}
+            >
               No subcategories found
             </Typography>
           </View>

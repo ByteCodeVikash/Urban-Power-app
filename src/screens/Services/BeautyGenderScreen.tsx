@@ -20,8 +20,16 @@ const GENDER_OPTIONS = [
     tagline: '6 services available',
     bg: ['#FFF0F6', '#FCE4EC'] as [string, string],
     accentColor: '#E91E63',
-    image: 'https://images.unsplash.com/photo-1487412947147-5cebf100d293?q=80&w=800&auto=format&fit=crop',
-    services: ['Make Up Artist', 'Hair Styling', 'Facial & Skincare', 'Bridal Service', 'Home Salon','Nail Extension' ],
+    image:
+      'https://images.unsplash.com/photo-1487412947147-5cebf100d293?q=80&w=800&auto=format&fit=crop',
+    services: [
+      'Make Up Artist',
+      'Hair Styling',
+      'Facial & Skincare',
+      'Bridal Service',
+      'Home Salon',
+      'Nail Extension',
+    ],
   },
   {
     key: 'male',
@@ -30,7 +38,8 @@ const GENDER_OPTIONS = [
     tagline: '1 service available',
     bg: ['#E3F2FD', '#BBDEFB'] as [string, string],
     accentColor: '#1565C0',
-    image: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?q=80&w=800&auto=format&fit=crop',
+    image:
+      'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?q=80&w=800&auto=format&fit=crop',
     services: ['Home Salon Service'],
   },
 ];
@@ -46,8 +55,14 @@ export default function BeautyGenderScreen() {
           <ChevronLeft color={Colors.light.text} size={24} />
         </Pressable>
         <View style={styles.headerCenter}>
-          <Typography variant="h3" weight="900">Beauty</Typography>
-          <Typography variant="tiny" color={Colors.light.textSecondary} weight="600">
+          <Typography variant="h3" weight="900">
+            Beauty
+          </Typography>
+          <Typography
+            variant="tiny"
+            color={Colors.light.textSecondary}
+            weight="600"
+          >
             Select your preference
           </Typography>
         </View>
@@ -66,10 +81,13 @@ export default function BeautyGenderScreen() {
 
       {/* ── Gender Cards ── */}
       <View style={styles.cardsContainer}>
-        {GENDER_OPTIONS.map((opt) => (
+        {GENDER_OPTIONS.map(opt => (
           <Pressable
             key={opt.key}
-            style={({ pressed }) => [styles.genderCard, pressed && styles.cardPressed]}
+            style={({ pressed }) => [
+              styles.genderCard,
+              pressed && styles.cardPressed,
+            ]}
             onPress={() =>
               navigation.navigate('Subcategory', {
                 categoryId: 'c2',
@@ -85,11 +103,19 @@ export default function BeautyGenderScreen() {
             >
               <LinearGradient
                 colors={['transparent', 'rgba(0,0,0,0.72)']}
-                style={[styles.cardGradient, { borderRadius: BorderRadius.xxl }]}
+                style={[
+                  styles.cardGradient,
+                  { borderRadius: BorderRadius.xxl },
+                ]}
               />
 
               {/* Emoji badge */}
-              <View style={[styles.emojiBadge, { backgroundColor: opt.accentColor }]}>
+              <View
+                style={[
+                  styles.emojiBadge,
+                  { backgroundColor: opt.accentColor },
+                ]}
+              >
                 <Typography variant="h4" color="#fff" weight="900">
                   {opt.emoji}
                 </Typography>
@@ -100,29 +126,47 @@ export default function BeautyGenderScreen() {
                 <Typography variant="h2" weight="900" color="#fff">
                   {opt.label}
                 </Typography>
-                <View style={[styles.taglinePill, { backgroundColor: opt.accentColor + '33' }]}>
+                <View
+                  style={[
+                    styles.taglinePill,
+                    { backgroundColor: opt.accentColor + '33' },
+                  ]}
+                >
                   <Typography variant="tiny" weight="800" color="#fff">
                     {opt.tagline}
                   </Typography>
                 </View>
                 {/* Service chips */}
                 <View style={styles.serviceChips}>
-                  {opt.services.slice(0, 4).map((s) => (
+                  {opt.services.slice(0, 4).map(s => (
                     <View key={s} style={styles.chip}>
-                      <Typography variant="tiny" weight="700" color="rgba(255,255,255,0.9)">
+                      <Typography
+                        variant="tiny"
+                        weight="700"
+                        color="rgba(255,255,255,0.9)"
+                      >
                         {s}
                       </Typography>
                     </View>
                   ))}
                   {opt.services.length > 3 && (
                     <View style={styles.chip}>
-                      <Typography variant="tiny" weight="700" color="rgba(255,255,255,0.9)">
+                      <Typography
+                        variant="tiny"
+                        weight="700"
+                        color="rgba(255,255,255,0.9)"
+                      >
                         +{opt.services.length - 3} more
                       </Typography>
                     </View>
                   )}
                 </View>
-                <View style={[styles.selectBtn, { backgroundColor: opt.accentColor }]}>
+                <View
+                  style={[
+                    styles.selectBtn,
+                    { backgroundColor: opt.accentColor },
+                  ]}
+                >
                   <Typography variant="tiny" weight="900" color="#fff">
                     SELECT →
                   </Typography>
@@ -149,7 +193,8 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.light.borderLight,
   },
   backBtn: {
-    width: 40, height: 40,
+    width: 40,
+    height: 40,
     borderRadius: 20,
     backgroundColor: Colors.light.surface,
     justifyContent: 'center',

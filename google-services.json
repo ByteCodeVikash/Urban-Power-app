@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "356047649885",
+    "project_id": "urban-power-7f413",
+    "storage_bucket": "urban-power-7f413.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:356047649885:android:e363dd021d687c6637a1b4",
+        "android_client_info": {
+          "package_name": "com.anonymous.urbanpower"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQzI2sUQ6bB4khy_N12huhB6rc34DpEE4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

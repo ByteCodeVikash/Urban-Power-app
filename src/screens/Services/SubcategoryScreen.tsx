@@ -20,12 +20,11 @@ export default function SubcategoryScreen() {
   const route = useRoute<any>();
   const { categoryId, categoryName, gender } = route.params || {};
 
-  const category = CATEGORIES.find((c) => c.id === categoryId);
+  const category = CATEGORIES.find(c => c.id === categoryId);
 
   // Filter services by gender if provided
-  const services = category?.services.filter((s) =>
-    gender ? s.gender === gender : true
-  ) ?? [];
+  const services =
+    category?.services.filter(s => (gender ? s.gender === gender : true)) ?? [];
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -35,9 +34,15 @@ export default function SubcategoryScreen() {
           <ChevronLeft color={Colors.light.text} size={24} />
         </Pressable>
         <View style={styles.headerCenter}>
-          <Typography variant="h3" weight="900">{categoryName}</Typography>
+          <Typography variant="h3" weight="900">
+            {categoryName}
+          </Typography>
           {gender && (
-            <Typography variant="tiny" color={Colors.light.primary} weight="700">
+            <Typography
+              variant="tiny"
+              color={Colors.light.primary}
+              weight="700"
+            >
               {gender === 'female' ? '♀ Female' : '♂ Male'}
             </Typography>
           )}
@@ -47,7 +52,11 @@ export default function SubcategoryScreen() {
 
       {/* ── Subtitle ── */}
       <View style={styles.subtitleBar}>
-        <Typography variant="body2" color={Colors.light.textSecondary} weight="600">
+        <Typography
+          variant="body2"
+          color={Colors.light.textSecondary}
+          weight="600"
+        >
           {services.length} service{services.length !== 1 ? 's' : ''} available
         </Typography>
       </View>
@@ -56,10 +65,13 @@ export default function SubcategoryScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
       >
-        {services.map((item) => (
+        {services.map(item => (
           <Pressable
             key={item.id}
-            style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
+            style={({ pressed }) => [
+              styles.card,
+              pressed && styles.cardPressed,
+            ]}
             onPress={() => {
               if (item.subcategories && item.subcategories.length > 0) {
                 navigation.navigate('BeautyServiceSubcategory', {
@@ -80,9 +92,9 @@ export default function SubcategoryScreen() {
               });
             }}
           >
-            <Image 
-              source={{ uri: item.image }} 
-              style={styles.cardImage} 
+            <Image
+              source={{ uri: item.image }}
+              style={styles.cardImage}
               resizeMode="cover"
             />
             <LinearGradient
@@ -92,32 +104,62 @@ export default function SubcategoryScreen() {
             {/* Price badge */}
             <View style={styles.priceBadge}>
               <IndianRupee color={Colors.light.primary} size={12} />
-              <Typography variant="body2" weight="900" color={Colors.light.primary}>
+              <Typography
+                variant="body2"
+                weight="900"
+                color={Colors.light.primary}
+              >
                 {item.price}
               </Typography>
             </View>
             <View style={styles.contentOverlay}>
               <View style={styles.cardBody}>
-              <Typography variant="h4" weight="800" color="#fff" style={styles.serviceTitle}>
-                {item.title}
-              </Typography>
-              <View style={styles.metaRow}>
-                <Star size={12} color="#F59E0B" fill="#F59E0B" />
-                <Typography variant="tiny" weight="700" color="#fff" style={{ marginLeft: 4 }}>
-                  {item.rating}
+                <Typography
+                  variant="h4"
+                  weight="800"
+                  color="#fff"
+                  style={styles.serviceTitle}
+                >
+                  {item.title}
                 </Typography>
-                <Typography variant="tiny" color="rgba(255,255,255,0.7)" style={{ marginLeft: 6 }}>
-                  ({item.reviews}k reviews)
-                </Typography>
-                <Clock size={12} color="rgba(255,255,255,0.8)" style={{ marginLeft: 12 }} />
-                <Typography variant="tiny" color="rgba(255,255,255,0.8)" style={{ marginLeft: 4 }}>
-                  {item.duration}
-                </Typography>
+                <View style={styles.metaRow}>
+                  <Star size={12} color="#F59E0B" fill="#F59E0B" />
+                  <Typography
+                    variant="tiny"
+                    weight="700"
+                    color="#fff"
+                    style={{ marginLeft: 4 }}
+                  >
+                    {item.rating}
+                  </Typography>
+                  <Typography
+                    variant="tiny"
+                    color="rgba(255,255,255,0.7)"
+                    style={{ marginLeft: 6 }}
+                  >
+                    ({item.reviews}k reviews)
+                  </Typography>
+                  <Clock
+                    size={12}
+                    color="rgba(255,255,255,0.8)"
+                    style={{ marginLeft: 12 }}
+                  />
+                  <Typography
+                    variant="tiny"
+                    color="rgba(255,255,255,0.8)"
+                    style={{ marginLeft: 4 }}
+                  >
+                    {item.duration}
+                  </Typography>
+                </View>
               </View>
-            </View>
 
               <View style={styles.bookBtn}>
-                <Typography variant="tiny" weight="900" color={Colors.light.primary}>
+                <Typography
+                  variant="tiny"
+                  weight="900"
+                  color={Colors.light.primary}
+                >
                   BOOK NOW
                 </Typography>
               </View>
@@ -127,10 +169,20 @@ export default function SubcategoryScreen() {
 
         {services.length === 0 && (
           <View style={styles.emptyState}>
-            <Typography variant="h4" weight="800" align="center" color={Colors.light.textMuted}>
+            <Typography
+              variant="h4"
+              weight="800"
+              align="center"
+              color={Colors.light.textMuted}
+            >
               No services found
             </Typography>
-            <Typography variant="body2" align="center" color={Colors.light.textMuted} style={{ marginTop: 8 }}>
+            <Typography
+              variant="body2"
+              align="center"
+              color={Colors.light.textMuted}
+              style={{ marginTop: 8 }}
+            >
               Please go back and try another option.
             </Typography>
           </View>
@@ -155,7 +207,8 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.light.borderLight,
   },
   backBtn: {
-    width: 40, height: 40,
+    width: 40,
+    height: 40,
     borderRadius: 20,
     backgroundColor: Colors.light.surface,
     justifyContent: 'center',

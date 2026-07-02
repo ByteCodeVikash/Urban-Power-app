@@ -33,11 +33,13 @@
 Throughout this guide, we will use **Command Prompt** or **PowerShell**. Here is how to open either one:
 
 **Command Prompt:**
+
 - Press `Win + R` on your keyboard
 - Type `cmd`
 - Press Enter
 
 **PowerShell:**
+
 - Press `Win + X`
 - Click "Windows PowerShell" or "Terminal"
 
@@ -48,6 +50,7 @@ Throughout this guide, we will use **Command Prompt** or **PowerShell**. Here is
 This guide requires **Windows 10 or Windows 11 (64-bit)**.
 
 To check:
+
 - Press `Win + R`, type `winver`, press Enter
 - You will see your Windows version
 
@@ -76,6 +79,7 @@ git --version
 ```
 
 You should see something like:
+
 ```
 git version 2.43.0.windows.1
 ```
@@ -115,6 +119,7 @@ node --version
 ```
 
 Expected output (yours may differ slightly):
+
 ```
 v20.18.0
 ```
@@ -124,6 +129,7 @@ npm --version
 ```
 
 Expected output:
+
 ```
 10.8.2
 ```
@@ -174,6 +180,7 @@ java --version
 ```
 
 Expected output:
+
 ```
 openjdk 17.0.x 2024-xx-xx
 OpenJDK Runtime Environment Temurin-17.0.x...
@@ -184,6 +191,7 @@ javac --version
 ```
 
 Expected:
+
 ```
 javac 17.0.x
 ```
@@ -277,7 +285,7 @@ You will see two sections: **User variables** (top) and **System variables** (bo
 2. Set:
    - Variable name: `JAVA_HOME`
    - Variable value: `C:\Program Files\Eclipse Adoptium\jdk-17.0.x.x-hotspot`
-   
+
    > **Find your actual JDK path:** Open File Explorer, navigate to `C:\Program Files\Eclipse Adoptium\` and copy the exact folder name.
 
 3. Click **OK**
@@ -324,17 +332,21 @@ Close **all** open terminals and open a **new** terminal. Environment variables 
 ```cmd
 echo %ANDROID_HOME%
 ```
+
 Should print your SDK path.
 
 ```cmd
 echo %JAVA_HOME%
 ```
+
 Should print your JDK path.
 
 ```cmd
 adb --version
 ```
+
 Should print:
+
 ```
 Android Debug Bridge version 1.0.41
 ```
@@ -352,6 +364,7 @@ adb version
 ```
 
 Expected output:
+
 ```
 Android Debug Bridge version 1.0.41
 Version xx.x.x-xxxxxxxx
@@ -406,6 +419,7 @@ npm install
 This may take 2–5 minutes depending on your internet speed. You will see a progress bar.
 
 When it finishes, you should see something like:
+
 ```
 added 1234 packages in 45s
 ```
@@ -482,7 +496,7 @@ Follow these steps carefully:
 1. Open **Settings** on your phone
 2. Scroll to **About Phone**
 3. Tap **Build Number** exactly **7 times**
-4. You will see the message: *"You are now a developer!"*
+4. You will see the message: _"You are now a developer!"_
 
 ### Enable USB Debugging:
 
@@ -505,6 +519,7 @@ adb devices
 ```
 
 You should see:
+
 ```
 List of devices attached
 XXXXXXXXXXXXXXXX    device
@@ -533,6 +548,7 @@ cd ..
 ```
 
 Output file:
+
 ```
 android\app\build\outputs\apk\debug\app-debug.apk
 ```
@@ -550,6 +566,7 @@ cd ..
 ```
 
 Output file:
+
 ```
 android\app\build\outputs\apk\release\app-release.apk
 ```
@@ -567,6 +584,7 @@ cd ..
 ```
 
 Output file:
+
 ```
 android\app\build\outputs\bundle\release\app-release.aab
 ```
@@ -585,6 +603,7 @@ android\app\build\outputs\bundle\release\app-release.aab
 **Cause:** Node.js was not added to PATH.
 
 **Fix:**
+
 1. Uninstall Node.js from Control Panel
 2. Reinstall from [nodejs.org](https://nodejs.org) — make sure to check all options during install
 3. Open a **new** terminal after installing
@@ -596,6 +615,7 @@ android\app\build\outputs\bundle\release\app-release.aab
 **Cause:** `ANDROID_HOME\platform-tools` is not in PATH.
 
 **Fix:**
+
 1. Press `Win + S` → search for "Edit system environment variables"
 2. Under **User variables**, find `Path` and double-click
 3. Click **New** and add: `%ANDROID_HOME%\platform-tools`
@@ -609,6 +629,7 @@ android\app\build\outputs\bundle\release\app-release.aab
 **Cause:** Java JDK is not installed or JAVA_HOME environment variable is missing.
 
 **Fix:**
+
 1. Verify Java: `java --version` in a new terminal
 2. If Java is not found, reinstall JDK 17 from [adoptium.net](https://adoptium.net)
 3. If Java is installed but JAVA_HOME is missing:
@@ -622,6 +643,7 @@ android\app\build\outputs\bundle\release\app-release.aab
 **Cause:** `ANDROID_HOME` environment variable is not set.
 
 **Fix:**
+
 1. Open Android Studio → SDK Manager
 2. Copy the SDK path shown at the top (e.g., `C:\Users\You\AppData\Local\Android\Sdk`)
 3. Set `ANDROID_HOME` in User variables to that path (see Step 8)
@@ -633,6 +655,7 @@ android\app\build\outputs\bundle\release\app-release.aab
 **Cause:** Corrupted Gradle cache or first-time build issue.
 
 **Fix:**
+
 ```cmd
 cd android
 gradlew clean
@@ -642,6 +665,7 @@ npx expo run:android
 ```
 
 Also try clearing the Gradle cache:
+
 ```cmd
 cd %USERPROFILE%\.gradle
 rmdir /s /q caches
@@ -654,6 +678,7 @@ rmdir /s /q caches
 **Cause:** Running without admin privileges.
 
 **Fix:**
+
 1. Right-click on Command Prompt → **Run as Administrator**
 2. Navigate back to the project folder and run `npm install` again
 
@@ -664,6 +689,7 @@ rmdir /s /q caches
 **Cause:** Phone not connected correctly or USB Debugging not enabled.
 
 **Fix:**
+
 1. Unplug and re-plug the USB cable
 2. On your phone: check for an "Allow USB Debugging?" popup and tap Allow
 3. Try a different USB cable (must be a data cable, not charge-only)
@@ -674,6 +700,7 @@ rmdir /s /q caches
 ### ❌ Metro bundler port 8081 already in use
 
 **Fix:**
+
 ```cmd
 npx kill-port 8081
 npx expo start
@@ -686,6 +713,7 @@ npx expo start
 **Cause:** Native library conflict or build artifact issue.
 
 **Fix:**
+
 ```cmd
 cd android
 gradlew clean
@@ -698,6 +726,7 @@ npx expo run:android
 ### ❌ Emulator is slow or freezes
 
 **Fix:**
+
 1. Open **Android Studio → Settings → Emulator**
 2. Enable **Hardware GPU acceleration**
 3. Make sure **Intel HAXM** or **Windows Hypervisor Platform** is enabled:

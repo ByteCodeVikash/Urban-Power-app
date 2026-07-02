@@ -5,7 +5,7 @@ import { Typography as ThemeTypography, Colors } from '../constants/Theme';
 interface CustomTextProps extends TextProps {
   variant?: keyof typeof ThemeTypography;
   color?: string;
-  weight?: '400' | '500' | '600' | '700';
+  weight?: '400' | '500' | '600' | '700' | '800' | '900';
   align?: 'auto' | 'left' | 'right' | 'center' | 'justify';
 }
 

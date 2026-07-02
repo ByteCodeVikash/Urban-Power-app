@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  View,
-  StyleSheet,
-  Pressable,
-  Linking,
-} from 'react-native';
+import { View, StyleSheet, Pressable, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import {
   Home,
@@ -37,11 +32,40 @@ const SECTIONS = [
     title: 'Home Services',
     Icon: Home,
     links: [
-      { id: 'cleaning',   label: 'Cleaning',      route: 'Subcategory',   params: { categoryId: 'c1', categoryName: 'Cleaning', isTab: false } },
-      { id: 'ac_repair',  label: 'Maintenance',   route: 'Subcategory',   params: { categoryId: 'c3', categoryName: 'Maintenance', isTab: false } },
-      { id: 'repair',     label: 'Repair',        route: 'Subcategory',   params: { categoryId: 'c4', categoryName: 'Repair', isTab: false } },
-      { id: 'auto',       label: 'Auto Service',  route: 'Subcategory',   params: { categoryId: 'c5', categoryName: 'Auto Service', isTab: false } },
-      { id: 'beauty',     label: 'Beauty & Spa',  route: 'GenderPicker',  params: { categoryId: 'c2', categoryName: 'Beauty', isTab: false } },
+      {
+        id: 'cleaning',
+        label: 'Cleaning',
+        route: 'Subcategory',
+        params: { categoryId: 'c1', categoryName: 'Cleaning', isTab: false },
+      },
+      {
+        id: 'ac_repair',
+        label: 'Maintenance',
+        route: 'Subcategory',
+        params: { categoryId: 'c3', categoryName: 'Maintenance', isTab: false },
+      },
+      {
+        id: 'repair',
+        label: 'Repair',
+        route: 'Subcategory',
+        params: { categoryId: 'c4', categoryName: 'Repair', isTab: false },
+      },
+      {
+        id: 'auto',
+        label: 'Auto Service',
+        route: 'Subcategory',
+        params: {
+          categoryId: 'c5',
+          categoryName: 'Auto Service',
+          isTab: false,
+        },
+      },
+      {
+        id: 'beauty',
+        label: 'Beauty & Spa',
+        route: 'GenderPicker',
+        params: { categoryId: 'c2', categoryName: 'Beauty', isTab: false },
+      },
     ],
   },
   {
@@ -49,10 +73,30 @@ const SECTIONS = [
     title: 'Instant Help',
     Icon: Zap,
     links: [
-      { id: 'shop',     label: 'Urban Shop',    route: 'Main',         params: { screen: 'Shopping' } },
-      { id: 'grocery',  label: 'Grocery',       route: 'Main',         params: { screen: 'Grocery' } },
-      { id: 'kabadi',   label: 'Kabadi Pickup', route: 'KabadiBooking', params: undefined },
-      { id: 'tracking', label: 'Track Order',   route: 'Bookings',     params: undefined },
+      {
+        id: 'shop',
+        label: 'Urban Shop',
+        route: 'Main',
+        params: { screen: 'Shopping' },
+      },
+      {
+        id: 'grocery',
+        label: 'Grocery',
+        route: 'Main',
+        params: { screen: 'Grocery' },
+      },
+      {
+        id: 'kabadi',
+        label: 'Kabadi Pickup',
+        route: 'KabadiBooking',
+        params: undefined,
+      },
+      {
+        id: 'tracking',
+        label: 'Track Order',
+        route: 'Bookings',
+        params: undefined,
+      },
     ],
   },
   {
@@ -60,10 +104,25 @@ const SECTIONS = [
     title: 'My Account',
     Icon: LayoutGrid,
     links: [
-      { id: 'bookings',  label: 'My Bookings',   route: 'Bookings',      params: undefined },
-      { id: 'rewards',   label: 'Rewards',        route: 'Rewards',       params: undefined },
-      { id: 'addresses', label: 'Saved Address',  route: 'SavedAddresses', params: undefined },
-      { id: 'support',   label: 'Help & Support', route: 'HelpSupport',   params: undefined },
+      {
+        id: 'bookings',
+        label: 'My Bookings',
+        route: 'Bookings',
+        params: undefined,
+      },
+      { id: 'rewards', label: 'Rewards', route: 'Rewards', params: undefined },
+      {
+        id: 'addresses',
+        label: 'Saved Address',
+        route: 'SavedAddresses',
+        params: undefined,
+      },
+      {
+        id: 'support',
+        label: 'Help & Support',
+        route: 'HelpSupport',
+        params: undefined,
+      },
     ],
   },
   {
@@ -71,10 +130,34 @@ const SECTIONS = [
     title: 'About Us',
     Icon: Info,
     links: [
-      { id: 'about',    label: 'About Urban Power', route: null, params: null, url: 'https://urbanpower.in/about' },
-      { id: 'careers',  label: 'Careers',           route: null, params: null, url: 'https://urbanpower.in/careers' },
-      { id: 'privacy',  label: 'Privacy Policy',    route: null, params: null, url: 'https://urbanpower.in/privacy' },
-      { id: 'terms',    label: 'Terms of Service',  route: null, params: null, url: 'https://urbanpower.in/terms' },
+      {
+        id: 'about',
+        label: 'About Urban Power',
+        route: null,
+        params: null,
+        url: 'https://urbanpower.in/about',
+      },
+      {
+        id: 'careers',
+        label: 'Careers',
+        route: null,
+        params: null,
+        url: 'https://urbanpower.in/careers',
+      },
+      {
+        id: 'privacy',
+        label: 'Privacy Policy',
+        route: null,
+        params: null,
+        url: 'https://urbanpower.in/privacy',
+      },
+      {
+        id: 'terms',
+        label: 'Terms of Service',
+        route: null,
+        params: null,
+        url: 'https://urbanpower.in/terms',
+      },
     ],
   },
 ];
@@ -82,9 +165,13 @@ const SECTIONS = [
 // ─── Social links ────────────────────────────────────────────────────────────
 
 const SOCIAL_LINKS = [
-  { id: 'facebook',  Icon: MessageCircle,  url: 'https://facebook.com/urbanpower' },
+  {
+    id: 'facebook',
+    Icon: MessageCircle,
+    url: 'https://facebook.com/urbanpower',
+  },
   { id: 'instagram', Icon: Camera, url: 'https://instagram.com/urbanpower' },
-  { id: 'twitter',   Icon: Hash,   url: 'https://twitter.com/urbanpower' },
+  { id: 'twitter', Icon: Hash, url: 'https://twitter.com/urbanpower' },
 ];
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -102,16 +189,35 @@ export const AppFooter: React.FC = () => {
 
   return (
     <View style={styles.footer}>
-
       {/* ── Brand strip ── */}
       <View style={styles.brandStrip}>
         <View style={styles.brandRow}>
           <View style={styles.brandBadge}>
-            <Typography variant="tiny" color={Colors.light.primary} weight="900" style={styles.brandBadgeText}>UP</Typography>
+            <Typography
+              variant="tiny"
+              color={Colors.light.primary}
+              weight="900"
+              style={styles.brandBadgeText}
+            >
+              UP
+            </Typography>
           </View>
           <View style={styles.brandTextBlock}>
-            <Typography variant="h4" weight="900" color="#FFFFFF" style={{ letterSpacing: -0.5 }}>Urban Power</Typography>
-            <Typography variant="tiny" color="rgba(255,255,255,0.6)" weight="600">Your Neighbourhood Super App</Typography>
+            <Typography
+              variant="h4"
+              weight="900"
+              color="#FFFFFF"
+              style={{ letterSpacing: -0.5 }}
+            >
+              Urban Power
+            </Typography>
+            <Typography
+              variant="tiny"
+              color="rgba(255,255,255,0.6)"
+              weight="600"
+            >
+              Your Neighbourhood Super App
+            </Typography>
           </View>
         </View>
 
@@ -122,25 +228,43 @@ export const AppFooter: React.FC = () => {
             onPress={() => Linking.openURL('tel:+919999999999')}
           >
             <Phone size={13} color={Colors.light.accent} />
-            <Typography variant="tiny" color="#FFFFFF" weight="700" style={{ marginLeft: 5 }}>+91 99999 99999</Typography>
+            <Typography
+              variant="tiny"
+              color="#FFFFFF"
+              weight="700"
+              style={{ marginLeft: 5 }}
+            >
+              +91 99999 99999
+            </Typography>
           </Pressable>
           <Pressable
             style={styles.contactChip}
             onPress={() => Linking.openURL('mailto:hello@urbanpower.in')}
           >
             <Mail size={13} color={Colors.light.accent} />
-            <Typography variant="tiny" color="#FFFFFF" weight="700" style={{ marginLeft: 5 }}>hello@urbanpower.in</Typography>
+            <Typography
+              variant="tiny"
+              color="#FFFFFF"
+              weight="700"
+              style={{ marginLeft: 5 }}
+            >
+              hello@urbanpower.in
+            </Typography>
           </Pressable>
         </View>
       </View>
 
       {/* ── 4-column link grid ── */}
       <View style={styles.linkGrid}>
-        {SECTIONS.map((section) => (
+        {SECTIONS.map(section => (
           <View key={section.id} style={styles.linkColumn}>
             {/* Section heading */}
             <View style={styles.sectionHeading}>
-              <section.Icon size={13} color={Colors.light.accent} strokeWidth={2} />
+              <section.Icon
+                size={13}
+                color={Colors.light.accent}
+                strokeWidth={2}
+              />
               <Typography
                 variant="tiny"
                 weight="900"
@@ -152,13 +276,21 @@ export const AppFooter: React.FC = () => {
             </View>
 
             {/* Links */}
-            {section.links.map((link) => (
+            {section.links.map(link => (
               <Pressable
                 key={link.id}
-                style={({ pressed }) => [styles.linkItem, pressed && styles.linkItemPressed]}
+                style={({ pressed }) => [
+                  styles.linkItem,
+                  pressed && styles.linkItemPressed,
+                ]}
                 onPress={() => handleLinkPress(link)}
               >
-                <Typography variant="tiny" color="rgba(255,255,255,0.65)" weight="600" style={styles.linkText}>
+                <Typography
+                  variant="tiny"
+                  color="rgba(255,255,255,0.65)"
+                  weight="600"
+                  style={styles.linkText}
+                >
                   {link.label}
                 </Typography>
               </Pressable>
@@ -172,11 +304,15 @@ export const AppFooter: React.FC = () => {
 
       {/* ── Bottom: Social + Copyright ── */}
       <View style={styles.bottomRow}>
-        <Typography variant="tiny" color="rgba(255,255,255,0.4)" style={{ flex: 1 }}>
+        <Typography
+          variant="tiny"
+          color="rgba(255,255,255,0.4)"
+          style={{ flex: 1 }}
+        >
           © 2025 Urban Power. All rights reserved.
         </Typography>
         <View style={styles.socialRow}>
-          {SOCIAL_LINKS.map((s) => (
+          {SOCIAL_LINKS.map(s => (
             <Pressable
               key={s.id}
               style={styles.socialBtn}
@@ -187,7 +323,6 @@ export const AppFooter: React.FC = () => {
           ))}
         </View>
       </View>
-
     </View>
   );
 };
@@ -196,7 +331,7 @@ export const AppFooter: React.FC = () => {
 
 const styles = StyleSheet.create({
   footer: {
-    backgroundColor: '#110B2A',   // Very dark purple — premium feel
+    backgroundColor: '#110B2A', // Very dark purple — premium feel
     paddingTop: Spacing.xl,
     paddingBottom: Spacing.xxl,
     paddingHorizontal: Spacing.md,
@@ -253,7 +388,7 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.lg,
   },
   linkColumn: {
-    width: '47%',      // 2 per row on mobile
+    width: '47%', // 2 per row on mobile
     marginBottom: Spacing.lg,
   },
   sectionHeading: {

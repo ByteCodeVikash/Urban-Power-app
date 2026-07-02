@@ -1,5 +1,12 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, SafeAreaView, Pressable, TouchableOpacity } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  SafeAreaView,
+  Pressable,
+  TouchableOpacity,
+} from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { Typography } from '../../components/Typography';
@@ -17,35 +24,49 @@ export default function ShopSubCategoryScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <Header 
-        title={categoryName} 
+      <Header
+        title={categoryName}
         leftComponent={
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.backButton}
+          >
             <ChevronLeft size={24} color={Colors.light.text} />
           </TouchableOpacity>
         }
       />
-      
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.content}
+      >
         <View style={styles.headerBox}>
-           <Typography variant="h3" weight="800">Shop by Category</Typography>
-           <Typography variant="body2" color={Colors.light.textSecondary}>Choose a collection in {categoryName}</Typography>
+          <Typography variant="h3" weight="800">
+            Shop by Category
+          </Typography>
+          <Typography variant="body2" color={Colors.light.textSecondary}>
+            Choose a collection in {categoryName}
+          </Typography>
         </View>
 
         <View style={styles.list}>
           {subcategories.map((sub, index) => (
-            <Pressable 
-              key={index} 
+            <Pressable
+              key={index}
               style={styles.listItem}
-              onPress={() => navigation.navigate('ShopProductList', { 
-                categoryId, 
-                subcategoryName: sub,
-                categoryName 
-              })}
+              onPress={() =>
+                navigation.navigate('ShopProductList', {
+                  categoryId,
+                  subcategoryName: sub,
+                  categoryName,
+                })
+              }
             >
               <View style={styles.listContent}>
                 <View style={styles.dot} />
-                <Typography variant="body1" weight="700" style={{ flex: 1 }}>{sub}</Typography>
+                <Typography variant="body1" weight="700" style={{ flex: 1 }}>
+                  {sub}
+                </Typography>
               </View>
               <ChevronRight size={20} color={Colors.light.textMuted} />
             </Pressable>

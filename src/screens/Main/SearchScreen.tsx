@@ -1,10 +1,33 @@
 import React, { useState, useMemo } from 'react';
-import { View, StyleSheet, TextInput, FlatList, Pressable, SafeAreaView, Dimensions } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  TextInput,
+  FlatList,
+  Pressable,
+  SafeAreaView,
+  Dimensions,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { ChevronLeft, Search as SearchIcon, ArrowRight, Sparkles, ShoppingBag, Package, Truck, Wrench } from 'lucide-react-native';
+import {
+  ChevronLeft,
+  Search as SearchIcon,
+  ArrowRight,
+  Sparkles,
+  ShoppingBag,
+  Package,
+  Truck,
+  Wrench,
+} from 'lucide-react-native';
 import { Typography } from '../../components/Typography';
 import { Colors, Spacing, BorderRadius, Shadows } from '../../constants/Theme';
-import { CATEGORIES, PRODUCTS, GROCERY_CATEGORIES, SHOP_CATEGORIES, KABADI_ITEMS } from '../../constants/MockData';
+import {
+  CATEGORIES,
+  PRODUCTS,
+  GROCERY_CATEGORIES,
+  SHOP_CATEGORIES,
+  KABADI_ITEMS,
+} from '../../constants/MockData';
 
 const { width } = Dimensions.get('window');
 
@@ -35,7 +58,7 @@ export default function SearchScreen() {
         type: 'Category',
         icon: Sparkles,
         route: 'Subcategory',
-        params: { categoryId: cat.id, categoryName: cat.name }
+        params: { categoryId: cat.id, categoryName: cat.name },
       });
 
       // 2. Services inside categories
@@ -47,7 +70,11 @@ export default function SearchScreen() {
           type: 'Service',
           icon: Wrench,
           route: 'ServiceBookingScreen',
-          params: { categoryId: cat.id, categoryName: cat.name, selectedServiceId: svc.id }
+          params: {
+            categoryId: cat.id,
+            categoryName: cat.name,
+            selectedServiceId: svc.id,
+          },
         });
       });
     });
@@ -61,7 +88,7 @@ export default function SearchScreen() {
         type: 'Product',
         icon: ShoppingBag,
         route: 'ProductDetail',
-        params: { productId: prod.id, productTitle: prod.title }
+        params: { productId: prod.id, productTitle: prod.title },
       });
     });
 
@@ -74,7 +101,7 @@ export default function SearchScreen() {
         type: 'Grocery',
         icon: Package,
         route: 'GrocerySubCategory',
-        params: { categoryId: cat.id, categoryName: cat.name }
+        params: { categoryId: cat.id, categoryName: cat.name },
       });
     });
 
@@ -87,7 +114,7 @@ export default function SearchScreen() {
         type: 'Shop',
         icon: ShoppingBag,
         route: 'ShopSubCategory',
-        params: { categoryId: cat.id, categoryName: cat.name }
+        params: { categoryId: cat.id, categoryName: cat.name },
       });
     });
 
@@ -100,7 +127,7 @@ export default function SearchScreen() {
         type: 'Kabadi',
         icon: Truck,
         route: 'KabadiSubCategory',
-        params: { categoryId: item.id, categoryName: item.title }
+        params: { categoryId: item.id, categoryName: item.title },
       });
     });
 
@@ -110,24 +137,33 @@ export default function SearchScreen() {
   const filteredResults = useMemo(() => {
     if (!query.trim()) return [];
     const lowerQuery = query.toLowerCase();
-    return searchData.filter(item => 
-      item.title.toLowerCase().includes(lowerQuery) || 
-      item.subtitle.toLowerCase().includes(lowerQuery) ||
-      item.type.toLowerCase().includes(lowerQuery)
-    ).slice(0, 15); // Limit results for performance
+    return searchData
+      .filter(
+        item =>
+          item.title.toLowerCase().includes(lowerQuery) ||
+          item.subtitle.toLowerCase().includes(lowerQuery) ||
+          item.type.toLowerCase().includes(lowerQuery),
+      )
+      .slice(0, 15); // Limit results for performance
   }, [query, searchData]);
 
   const renderResult = ({ item }: { item: SearchResult }) => (
-    <Pressable 
+    <Pressable
       style={styles.resultItem}
       onPress={() => navigation.navigate(item.route, item.params)}
     >
-      <View style={[styles.iconWrapper, { backgroundColor: getBgColor(item.type) }]}>
+      <View
+        style={[styles.iconWrapper, { backgroundColor: getBgColor(item.type) }]}
+      >
         <item.icon size={20} color={getIconColor(item.type)} />
       </View>
       <View style={styles.resultInfo}>
-        <Typography variant="body1" weight="700">{item.title}</Typography>
-        <Typography variant="tiny" color={Colors.light.textSecondary}>{item.subtitle}</Typography>
+        <Typography variant="body1" weight="700">
+          {item.title}
+        </Typography>
+        <Typography variant="tiny" color={Colors.light.textSecondary}>
+          {item.subtitle}
+        </Typography>
       </View>
       <ArrowRight size={16} color={Colors.light.textMuted} />
     </Pressable>
@@ -140,8 +176,12 @@ export default function SearchScreen() {
           <ChevronLeft color={Colors.light.text} size={24} />
         </Pressable>
         <View style={styles.searchWrapper}>
-          <SearchIcon size={18} color={Colors.light.primary} style={styles.searchIcon} />
-          <TextInput 
+          <SearchIcon
+            size={18}
+            color={Colors.light.primary}
+            style={styles.searchIcon}
+          />
+          <TextInput
             style={styles.input}
             placeholder="Search for services, products..."
             autoFocus
@@ -152,23 +192,48 @@ export default function SearchScreen() {
         </View>
       </View>
 
-      <FlatList 
+      <FlatList
         data={filteredResults}
-        keyExtractor={(item) => `${item.type}-${item.id}`}
+        keyExtractor={item => `${item.type}-${item.id}`}
         renderItem={renderResult}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
           query.trim() ? (
             <View style={styles.emptyContainer}>
-              <Typography variant="body1" color={Colors.light.textMuted}>No results found for "{query}"</Typography>
+              <Typography variant="body1" color={Colors.light.textMuted}>
+                No results found for "{query}"
+              </Typography>
             </View>
           ) : (
             <View style={styles.suggestContainer}>
-              <Typography variant="h4" weight="800" style={{ marginBottom: Spacing.md }}>Popular Searches</Typography>
+              <Typography
+                variant="h4"
+                weight="800"
+                style={{ marginBottom: Spacing.md }}
+              >
+                Popular Searches
+              </Typography>
               <View style={styles.chipRow}>
-                {['Cleaning', 'AC Repair', 'Salon', 'Plumber', 'Grocery', 'Kabadi'].map(tag => (
-                  <Pressable key={tag} style={styles.chip} onPress={() => setQuery(tag)}>
-                    <Typography variant="tiny" weight="700" color={Colors.light.primary}>{tag}</Typography>
+                {[
+                  'Cleaning',
+                  'AC Repair',
+                  'Salon',
+                  'Plumber',
+                  'Grocery',
+                  'Kabadi',
+                ].map(tag => (
+                  <Pressable
+                    key={tag}
+                    style={styles.chip}
+                    onPress={() => setQuery(tag)}
+                  >
+                    <Typography
+                      variant="tiny"
+                      weight="700"
+                      color={Colors.light.primary}
+                    >
+                      {tag}
+                    </Typography>
                   </Pressable>
                 ))}
               </View>
@@ -181,22 +246,32 @@ export default function SearchScreen() {
 }
 
 const getBgColor = (type: string) => {
-  switch(type) {
-    case 'Service': return '#F5F3FF';
-    case 'Product': return '#EFF6FF';
-    case 'Grocery': return '#FEF2F2';
-    case 'Kabadi': return '#F0FDF4';
-    default: return Colors.light.surface;
+  switch (type) {
+    case 'Service':
+      return '#F5F3FF';
+    case 'Product':
+      return '#EFF6FF';
+    case 'Grocery':
+      return '#FEF2F2';
+    case 'Kabadi':
+      return '#F0FDF4';
+    default:
+      return Colors.light.surface;
   }
 };
 
 const getIconColor = (type: string) => {
-  switch(type) {
-    case 'Service': return '#7C3AED';
-    case 'Product': return '#3B82F6';
-    case 'Grocery': return '#EF4444';
-    case 'Kabadi': return '#10B981';
-    default: return Colors.light.primary;
+  switch (type) {
+    case 'Service':
+      return '#7C3AED';
+    case 'Product':
+      return '#3B82F6';
+    case 'Grocery':
+      return '#EF4444';
+    case 'Kabadi':
+      return '#10B981';
+    default:
+      return Colors.light.primary;
   }
 };
 
@@ -211,9 +286,12 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.light.borderLight,
   },
   backBtn: {
-    width: 40, height: 40, borderRadius: 20,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: Colors.light.surface,
-    justifyContent: 'center', alignItems: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   searchWrapper: {
     flex: 1,
@@ -242,8 +320,11 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.light.borderLight,
   },
   iconWrapper: {
-    width: 40, height: 40, borderRadius: 10,
-    justifyContent: 'center', alignItems: 'center',
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: Spacing.md,
   },
   resultInfo: { flex: 1 },

@@ -46,9 +46,13 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
       ]}
       onPress={onPress}
     >
-      <NetworkImage 
-        source={{ uri: service.image || 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=600&auto=format&fit=crop' }} 
-        style={styles.image} 
+      <NetworkImage
+        source={{
+          uri:
+            service.image ||
+            'https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=600&auto=format&fit=crop',
+        }}
+        style={styles.image}
         resizeMode="cover"
       />
 
@@ -68,12 +72,20 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
               <Typography variant="h4" weight="800" color={Colors.light.text}>
                 ₹{service.price}
               </Typography>
-              <Typography variant="tiny" color={Colors.light.textMuted} style={{ marginLeft: 4, textDecorationLine: 'line-through' }}>
+              <Typography
+                variant="tiny"
+                color={Colors.light.textMuted}
+                style={{ marginLeft: 4, textDecorationLine: 'line-through' }}
+              >
                 ₹{Math.floor(service.price * 1.2)}
               </Typography>
             </View>
-            <Typography variant="tiny" color={Colors.light.primary} weight="600">
-               ~ {service.duration}
+            <Typography
+              variant="tiny"
+              color={Colors.light.primary}
+              weight="600"
+            >
+              ~ {service.duration}
             </Typography>
           </View>
 
@@ -167,4 +179,3 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.md,
   },
 });
-

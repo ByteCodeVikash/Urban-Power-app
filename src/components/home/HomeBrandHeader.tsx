@@ -16,14 +16,26 @@ export function HomeBrandHeader() {
           style={styles.logoImage}
           resizeMode="contain"
         />
-        <Typography variant="h4" weight="700" color={Colors.light.text} style={styles.logoText}>
+        <Typography
+          variant="h4"
+          weight="700"
+          color={Colors.light.text}
+          style={styles.logoText}
+        >
           Urban Power
         </Typography>
       </View>
 
-      <Pressable style={styles.searchBar} onPress={() => navigation.navigate('Search')}>
+      <Pressable
+        style={styles.searchBar}
+        onPress={() => navigation.navigate('Search')}
+      >
         <Search size={16} color={Colors.light.textMuted} />
-        <Typography variant="body2" color={Colors.light.textMuted} style={styles.searchText}>
+        <Typography
+          variant="body2"
+          color={Colors.light.textMuted}
+          style={styles.searchText}
+        >
           Search services...
         </Typography>
       </Pressable>

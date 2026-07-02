@@ -1,6 +1,15 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, SafeAreaView, Pressable, TextInput } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  SafeAreaView,
+  Pressable,
+  TextInput,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../navigation/Types';
 import { Minus, Plus, ShoppingCart, Tag } from 'lucide-react-native';
 import { useCartStore } from '../../store/useCartStore';
 import { Header } from '../../components/Header';
@@ -9,8 +18,10 @@ import { Button } from '../../components/Button';
 import { Colors, Spacing, BorderRadius, Shadows } from '../../constants/Theme';
 
 export default function CartScreen() {
-  const navigation = useNavigation();
-  const { items, addProduct, updateQuantity, totalPrice, totalItemsCount } = useCartStore();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { items, addProduct, updateQuantity, totalPrice, totalItemsCount } =
+    useCartStore();
   const [couponCode, setCouponCode] = useState('');
   const [discount, setDiscount] = useState(0);
 
@@ -26,7 +37,7 @@ export default function CartScreen() {
 
   const handleCheckout = () => {
     // Dummy checkout success logic
-    navigation.navigate('Main', { screen: 'Home' } as any);
+    navigation.navigate('Main', { screen: 'Home' });
     alert('Order placed successfully! Thank you for shopping with UrbanPower.');
   };
 
@@ -36,15 +47,23 @@ export default function CartScreen() {
         <Header title="Your Cart" showBack />
         <View style={styles.emptyContainer}>
           <ShoppingCart color={Colors.light.border} size={80} />
-          <Typography variant="h3" weight="600" style={{ marginTop: Spacing.xl }}>
+          <Typography
+            variant="h3"
+            weight="600"
+            style={{ marginTop: Spacing.xl }}
+          >
             Your cart is empty
           </Typography>
-          <Typography variant="body1" color={Colors.light.textSecondary} style={{ marginTop: Spacing.sm, textAlign: 'center' }}>
+          <Typography
+            variant="body1"
+            color={Colors.light.textSecondary}
+            style={{ marginTop: Spacing.sm, textAlign: 'center' }}
+          >
             Looks like you haven't added any products yet.
           </Typography>
-          <Button 
-            title="Go to Shop" 
-            onPress={() => navigation.goBack()} 
+          <Button
+            title="Go to Shop"
+            onPress={() => navigation.goBack()}
             style={{ marginTop: Spacing.xl }}
           />
         </View>
@@ -60,27 +79,49 @@ export default function CartScreen() {
     <SafeAreaView style={styles.safeArea}>
       <Header title="Cart Summary" showBack />
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        
         <View style={styles.section}>
           <View style={styles.sectionTitleRow}>
-            <Typography variant="h4" weight="700">Product List</Typography>
-            <Typography variant="caption" color={Colors.light.textMuted}>{totalItemsCount()} Items</Typography>
+            <Typography variant="h4" weight="700">
+              Product List
+            </Typography>
+            <Typography variant="caption" color={Colors.light.textMuted}>
+              {totalItemsCount()} Items
+            </Typography>
           </View>
-          {items.map((item) => (
+          {items.map(item => (
             <View key={item.id} style={styles.cartItem}>
               <View style={styles.itemInfo}>
-                <Typography variant="body1" weight="600">{item.title}</Typography>
-                <Typography variant="h4" weight="800" color={Colors.light.primary} style={{ marginTop: 2 }}>₹{item.price}</Typography>
+                <Typography variant="body1" weight="600">
+                  {item.title}
+                </Typography>
+                <Typography
+                  variant="h4"
+                  weight="800"
+                  color={Colors.light.primary}
+                  style={{ marginTop: 2 }}
+                >
+                  ₹{item.price}
+                </Typography>
               </View>
-              
+
               <View style={styles.quantityControl}>
-                <Pressable onPress={() => updateQuantity(item.id, -1)} style={styles.qButton}>
+                <Pressable
+                  onPress={() => updateQuantity(item.id, -1)}
+                  style={styles.qButton}
+                >
                   <Minus color={Colors.light.text} size={14} />
                 </Pressable>
-                <Typography variant="body1" weight="700" style={{ marginHorizontal: Spacing.md }}>
+                <Typography
+                  variant="body1"
+                  weight="700"
+                  style={{ marginHorizontal: Spacing.md }}
+                >
                   {item.quantity}
                 </Typography>
-                <Pressable onPress={() => updateQuantity(item.id, 1)} style={styles.qButton}>
+                <Pressable
+                  onPress={() => updateQuantity(item.id, 1)}
+                  style={styles.qButton}
+                >
                   <Plus color={Colors.light.text} size={14} />
                 </Pressable>
               </View>
@@ -89,7 +130,9 @@ export default function CartScreen() {
         </View>
 
         <View style={styles.section}>
-          <Typography variant="h4" weight="700" style={styles.sectionTitle}>Coupons & Offers</Typography>
+          <Typography variant="h4" weight="700" style={styles.sectionTitle}>
+            Coupons & Offers
+          </Typography>
           <View style={styles.couponContainer}>
             <View style={styles.couponInputWrapper}>
               <Tag color={Colors.light.primary} size={18} />
@@ -102,61 +145,101 @@ export default function CartScreen() {
                 placeholderTextColor={Colors.light.textMuted}
               />
             </View>
-            <Pressable 
-              onPress={applyCoupon} 
+            <Pressable
+              onPress={applyCoupon}
               disabled={!couponCode}
               style={[styles.applyBtn, !couponCode && { opacity: 0.5 }]}
             >
-              <Typography variant="body2" weight="700" color={Colors.light.primary}>APPLY</Typography>
+              <Typography
+                variant="body2"
+                weight="700"
+                color={Colors.light.primary}
+              >
+                APPLY
+              </Typography>
             </Pressable>
           </View>
           {discount > 0 && (
             <View style={styles.couponSuccess}>
-               <Typography variant="tiny" color={Colors.light.success} weight="700">"UC50" applied! You saved ₹{discount}</Typography>
+              <Typography
+                variant="tiny"
+                color={Colors.light.success}
+                weight="700"
+              >
+                "UC50" applied! You saved ₹{discount}
+              </Typography>
             </View>
           )}
         </View>
 
         <View style={styles.section}>
-          <Typography variant="h4" weight="700" style={styles.sectionTitle}>Payment Summary</Typography>
-          
+          <Typography variant="h4" weight="700" style={styles.sectionTitle}>
+            Payment Summary
+          </Typography>
+
           <View style={styles.row}>
-            <Typography variant="body1" color={Colors.light.textSecondary}>Item Total</Typography>
-            <Typography variant="body1" weight="600">₹{subtotal}</Typography>
+            <Typography variant="body1" color={Colors.light.textSecondary}>
+              Item Total
+            </Typography>
+            <Typography variant="body1" weight="600">
+              ₹{subtotal}
+            </Typography>
           </View>
           {discount > 0 && (
             <View style={[styles.row, { marginTop: Spacing.md }]}>
-              <Typography variant="body1" color={Colors.light.success}>Coupon Discount</Typography>
-              <Typography variant="body1" color={Colors.light.success} weight="600">-₹{discount}</Typography>
+              <Typography variant="body1" color={Colors.light.success}>
+                Coupon Discount
+              </Typography>
+              <Typography
+                variant="body1"
+                color={Colors.light.success}
+                weight="600"
+              >
+                -₹{discount}
+              </Typography>
             </View>
           )}
           <View style={[styles.row, { marginTop: Spacing.md }]}>
-            <Typography variant="body1" color={Colors.light.textSecondary}>Convenience Fee & Taxes</Typography>
-            <Typography variant="body1" weight="600">₹{tax}</Typography>
+            <Typography variant="body1" color={Colors.light.textSecondary}>
+              Convenience Fee & Taxes
+            </Typography>
+            <Typography variant="body1" weight="600">
+              ₹{tax}
+            </Typography>
           </View>
-          
+
           <View style={styles.totalRow}>
             <View>
-              <Typography variant="h4" weight="800">Total Amount</Typography>
-              <Typography variant="tiny" color={Colors.light.textMuted}>Incl. all taxes</Typography>
+              <Typography variant="h4" weight="800">
+                Total Amount
+              </Typography>
+              <Typography variant="tiny" color={Colors.light.textMuted}>
+                Incl. all taxes
+              </Typography>
             </View>
-            <Typography variant="h3" weight="900">₹{total}</Typography>
+            <Typography variant="h3" weight="900">
+              ₹{total}
+            </Typography>
           </View>
         </View>
-        
+
         <View style={{ height: 120 }} />
       </ScrollView>
 
       <View style={styles.footer}>
         <View style={styles.footerPrice}>
-          <Typography variant="h3" weight="800">₹{total}</Typography>
-          <Typography variant="tiny" color={Colors.light.primary} weight="700">VIEW BREAKUP</Typography>
+          <Typography variant="h3" weight="800">
+            ₹{total}
+          </Typography>
+          <Typography variant="tiny" color={Colors.light.primary} weight="700">
+            VIEW BREAKUP
+          </Typography>
         </View>
-        <Button 
-          title="Proceed to Checkout" 
-          onPress={handleCheckout} 
-          size="lg" 
-          style={{ flex: 1, marginLeft: Spacing.lg }} 
+        <Button
+          title="Proceed to Checkout"
+          onPress={handleCheckout}
+          size="lg"
+          style={{ flex: 1, marginLeft: Spacing.lg }}
         />
       </View>
     </SafeAreaView>
@@ -165,7 +248,12 @@ export default function CartScreen() {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: Colors.light.surface },
-  emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: Spacing.xl },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: Spacing.xl,
+  },
   container: { flex: 1 },
   section: {
     backgroundColor: Colors.light.white,
@@ -228,8 +316,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#A7F3D0',
   },
-  divider: { height: 1, backgroundColor: Colors.light.border, marginVertical: Spacing.lg },
-  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  divider: {
+    height: 1,
+    backgroundColor: Colors.light.border,
+    marginVertical: Spacing.lg,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   totalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',

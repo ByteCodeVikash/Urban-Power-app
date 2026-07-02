@@ -3,6 +3,7 @@ export const Colors = {
     primary: '#6F42E5', // Urban Company Indigo/Purple
     primaryLight: '#F5F3FF',
     primaryHover: '#5B21B6',
+    primaryDark: '#5B21B6',
     background: '#FFFFFF',
     surface: '#F8F9FA',
     surfaceAlt: '#F3F4F6',
@@ -12,8 +13,10 @@ export const Colors = {
     border: '#E5E7EB',
     borderLight: '#F3F4F6',
     error: '#EF4444',
+    danger: '#EF4444',
     success: '#10B981',
     warning: '#F59E0B',
+    accent: '#F59E0B',
     white: '#FFFFFF',
     black: '#000000',
     transparent: 'transparent',
@@ -22,6 +25,7 @@ export const Colors = {
     primary: '#8B5CF6',
     primaryLight: '#1E1B4B',
     primaryHover: '#A78BFA',
+    primaryDark: '#7C3AED',
     background: '#0F172A',
     surface: '#1E293B',
     surfaceAlt: '#334155',
@@ -31,8 +35,10 @@ export const Colors = {
     border: '#334155',
     borderLight: '#1E293B',
     error: '#F87171',
+    danger: '#F87171',
     success: '#34D399',
     warning: '#FBBF24',
+    accent: '#FBBF24',
     white: '#FFFFFF',
     black: '#000000',
     transparent: 'transparent',
@@ -61,8 +67,18 @@ export const BorderRadius = {
 };
 
 export const Typography = {
-  h1: { fontSize: 32, fontWeight: '800' as const, lineHeight: 40, letterSpacing: -0.5 },
-  h2: { fontSize: 24, fontWeight: '700' as const, lineHeight: 32, letterSpacing: -0.3 },
+  h1: {
+    fontSize: 32,
+    fontWeight: '800' as const,
+    lineHeight: 40,
+    letterSpacing: -0.5,
+  },
+  h2: {
+    fontSize: 24,
+    fontWeight: '700' as const,
+    lineHeight: 32,
+    letterSpacing: -0.3,
+  },
   h3: { fontSize: 20, fontWeight: '700' as const, lineHeight: 28 },
   h4: { fontSize: 18, fontWeight: '600' as const, lineHeight: 28 },
   body1: { fontSize: 16, fontWeight: '500' as const, lineHeight: 24 },
@@ -104,10 +120,33 @@ export const Shadows = {
   },
   dark: {
     // Dark mode shadows refined for depth on black
-    xs: { shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.3, shadowRadius: 2, elevation: 1 },
-    sm: { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.5, shadowRadius: 8, elevation: 3 },
-    md: { shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.7, shadowRadius: 16, elevation: 6 },
-    lg: { shadowColor: '#000', shadowOffset: { width: 0, height: 20 }, shadowOpacity: 0.9, shadowRadius: 30, elevation: 12 },
+    xs: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.3,
+      shadowRadius: 2,
+      elevation: 1,
+    },
+    sm: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.5,
+      shadowRadius: 8,
+      elevation: 3,
+    },
+    md: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.7,
+      shadowRadius: 16,
+      elevation: 6,
+    },
+    lg: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 20 },
+      shadowOpacity: 0.9,
+      shadowRadius: 30,
+      elevation: 12,
+    },
   },
 };
-

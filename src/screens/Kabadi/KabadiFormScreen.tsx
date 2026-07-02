@@ -1,7 +1,27 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, SafeAreaView, Pressable, TextInput, Modal, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  SafeAreaView,
+  Pressable,
+  TextInput,
+  Modal,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { ChevronLeft, Calendar, Clock, MapPin, Truck } from 'lucide-react-native';
+import {
+  ChevronLeft,
+  Calendar,
+  Clock,
+  MapPin,
+  Truck,
+  Camera,
+  Trash2,
+  AlertCircle,
+} from 'lucide-react-native';
 import { Typography } from '../../components/Typography';
 import { Button } from '../../components/Button';
 import { Colors, Spacing, BorderRadius, Shadows } from '../../constants/Theme';
@@ -9,6 +29,8 @@ import { KABADI_ITEMS } from '../../constants/MockData';
 import { useAddresses } from '../../hooks/useServices';
 import { useAuthStore } from '../../store/useAuthStore';
 import { NetworkImage } from '../../components/NetworkImage';
+import * as ImagePicker from 'expo-image-picker';
+import { api } from '../../services/api';
 
 import { useKabadiStore } from '../../store/useKabadiStore';
 
@@ -16,14 +38,16 @@ export default function KabadiFormScreen() {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const { categoryId, subcategoryName, categoryName } = route.params || {};
-  
+
   // Find the specific subcategory for pricing
   const parentCategory = KABADI_ITEMS.find(k => k.title === categoryName);
-  const subcategory = parentCategory?.subcategories.find(s => s.id === categoryId);
-  
+  const subcategory = parentCategory?.subcategories.find(
+    s => s.id === categoryId,
+  );
+
   const { data: addresses } = useAddresses();
   const { user } = useAuthStore();
-  const schedulePickup = useKabadiStore((state) => state.schedulePickup);
+  const schedulePickup = useKabadiStore(state => state.schedulePickup);
 
   const [selectedDate, setSelectedDate] = useState(0);
   const [selectedSlot, setSelectedSlot] = useState('Morning (9-12)');
@@ -32,17 +56,134 @@ export default function KabadiFormScreen() {
   const [phone, setPhone] = useState(user?.phone || '');
   const [weight, setWeight] = useState('');
 
+  // Image Upload states
+  const [imageUri, setImageUri] = useState<string | null>(null);
+  const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  const handleSelectImage = async () => {
+    setUploadError(null);
+    try {
+      const permissionResult =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permissionResult.granted) {
+        alert('Permission to access camera roll is required!');
+        return;
+      }
+
+      const pickerResult = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: false,
+        quality: 1,
+      });
+
+      if (pickerResult.canceled) {
+        return;
+      }
+
+      const asset = pickerResult.assets[0];
+      if (!asset) return;
+
+      // Validate MIME type
+      const mimeType = asset.mimeType || '';
+      const allowedMimes = [
+        'image/jpeg',
+        'image/jpg',
+        'image/png',
+        'image/gif',
+        'image/webp',
+        'image/heic',
+        'image/heif',
+        'image/svg+xml',
+      ];
+      const fileExt = (asset.fileName || asset.uri.split('/').pop() || '')
+        .split('.')
+        .pop()
+        ?.toLowerCase();
+      const allowedExts = [
+        'jpg',
+        'jpeg',
+        'png',
+        'gif',
+        'webp',
+        'heic',
+        'heif',
+        'svg',
+      ];
+
+      if (mimeType && !allowedMimes.includes(mimeType)) {
+        setUploadError(`Unsupported MIME type: ${mimeType}`);
+        return;
+      }
+      if (fileExt && !allowedExts.includes(fileExt)) {
+        setUploadError(`Unsupported file extension: .${fileExt}`);
+        return;
+      }
+
+      // Validate file size (10MB limit)
+      const maxSizeBytes = 10 * 1024 * 1024;
+      if (asset.fileSize && asset.fileSize > maxSizeBytes) {
+        setUploadError('File size exceeds the 10MB limit.');
+        return;
+      }
+
+      setImageUri(asset.uri);
+      setIsUploading(true);
+      setUploadProgress(0);
+
+      const formData = new FormData();
+      formData.append('file', {
+        uri: asset.uri,
+        name: asset.fileName || `photo_${Date.now()}.${fileExt || 'jpg'}`,
+        type: mimeType || 'image/jpeg',
+      } as any);
+
+      const response = await api.media.upload(
+        formData,
+        (progressEvent: any) => {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total,
+          );
+          setUploadProgress(percentCompleted);
+        },
+      );
+
+      if (response && response.file_url) {
+        setUploadedUrl(response.file_url);
+      } else {
+        throw new Error('Invalid response from server');
+      }
+    } catch (err: any) {
+      console.error('Image selection or upload failed:', err);
+      setUploadError(
+        err.response?.data?.detail || err.message || 'Upload failed',
+      );
+      setImageUri(null);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImageUri(null);
+    setUploadedUrl(null);
+    setUploadProgress(0);
+    setUploadError(null);
+  };
+
   // Pickup Address state
   const defaultAddress = addresses?.[0]?.details || 'Add address in profile';
-  const defaultLabel   = addresses?.[0]?.type   || 'Home';
+  const defaultLabel = addresses?.[0]?.type || 'Home';
   const [pickupAddress, setPickupAddress] = useState(defaultAddress);
-  const [addressLabel,  setAddressLabel]  = useState(defaultLabel);
+  const [addressLabel, setAddressLabel] = useState<string>(defaultLabel);
 
   // Address‑edit modal state
   const [addressModalVisible, setAddressModalVisible] = useState(false);
-  const [draftHouse,    setDraftHouse]    = useState('');
-  const [draftArea,     setDraftArea]     = useState('');
-  const [draftCity,     setDraftCity]     = useState('');
+  const [draftHouse, setDraftHouse] = useState('');
+  const [draftArea, setDraftArea] = useState('');
+  const [draftCity, setDraftCity] = useState('');
   const [draftLandmark, setDraftLandmark] = useState('');
 
   const openAddressModal = () => {
@@ -55,7 +196,9 @@ export default function KabadiFormScreen() {
   };
 
   const saveAddress = () => {
-    const parts = [draftHouse, draftArea, draftCity, draftLandmark].filter(Boolean);
+    const parts = [draftHouse, draftArea, draftCity, draftLandmark].filter(
+      Boolean,
+    );
     if (parts.length === 0) {
       setAddressModalVisible(false);
       return;
@@ -73,7 +216,7 @@ export default function KabadiFormScreen() {
       day: d.toLocaleDateString('en-IN', { weekday: 'short' }),
       date: d.getDate(),
       month: d.toLocaleDateString('en-IN', { month: 'short' }),
-      full: d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+      full: d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }),
     };
   });
 
@@ -82,15 +225,19 @@ export default function KabadiFormScreen() {
       alert('Please enter your name, phone and estimated weight.');
       return;
     }
+    if (isUploading) {
+      alert('Please wait for the image upload to complete.');
+      return;
+    }
     schedulePickup({
       categories: [`${categoryName} - ${subcategoryName}`],
-      address: addresses?.[0]?.details || 'Default Home',
+      address: pickupAddress,
       date: dates[selectedDate].full,
       timeSlot: selectedSlot,
-      estimatedValue: (subcategory?.price || 0) * (parseFloat(weight) || 0),
-      userName: name,
-      phone: phone,
-      estimatedWeight: weight
+      estimatedValue: (
+        (subcategory?.price || 0) * (parseFloat(weight) || 0)
+      ).toString(),
+      image: uploadedUrl || undefined,
     });
     alert('Pickup scheduled successfully!');
     navigation.navigate('KabadiBooking' as any); // Navigate to confirmation/booking flow
@@ -102,33 +249,68 @@ export default function KabadiFormScreen() {
         <Pressable style={styles.iconBtn} onPress={() => navigation.goBack()}>
           <ChevronLeft color={Colors.light.text} size={24} />
         </Pressable>
-        <Typography variant="h3" weight="700">Schedule Pickup</Typography>
+        <Typography variant="h3" weight="700">
+          Schedule Pickup
+        </Typography>
         <View style={{ width: 44 }} />
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.content}
+      >
         <View style={styles.selectedBox}>
-           <View style={styles.categoryIcon}>
-              <NetworkImage source={{ uri: parentCategory?.icon || '' }} style={styles.icon} resizeMode="cover" />
-           </View>
-           <View style={{ marginLeft: Spacing.md, flex: 1 }}>
-              <Typography variant="caption" color={Colors.light.textSecondary} weight="700">
-                {categoryName?.toUpperCase()}
-              </Typography>
-              <Typography variant="body1" weight="800">{subcategoryName || 'General Scrap'}</Typography>
-              <Typography variant="body2" color={Colors.light.success} weight="700">₹{subcategory?.price || 'Market Rate'}/kg</Typography>
-           </View>
-           <View style={styles.verifiedBadge}>
-              <Typography variant="tiny" color={Colors.light.success} weight="700">Rate Verified</Typography>
-           </View>
+          <View style={styles.categoryIcon}>
+            <NetworkImage
+              source={{ uri: parentCategory?.icon || '' }}
+              style={styles.icon}
+              resizeMode="cover"
+            />
+          </View>
+          <View style={{ marginLeft: Spacing.md, flex: 1 }}>
+            <Typography
+              variant="caption"
+              color={Colors.light.textSecondary}
+              weight="700"
+            >
+              {categoryName?.toUpperCase()}
+            </Typography>
+            <Typography variant="body1" weight="800">
+              {subcategoryName || 'General Scrap'}
+            </Typography>
+            <Typography
+              variant="body2"
+              color={Colors.light.success}
+              weight="700"
+            >
+              ₹{subcategory?.price || 'Market Rate'}/kg
+            </Typography>
+          </View>
+          <View style={styles.verifiedBadge}>
+            <Typography
+              variant="tiny"
+              color={Colors.light.success}
+              weight="700"
+            >
+              Rate Verified
+            </Typography>
+          </View>
         </View>
 
         <View style={styles.section}>
-          <Typography variant="h3" weight="700" style={styles.sectionTitle}>Your Details</Typography>
+          <Typography variant="h3" weight="700" style={styles.sectionTitle}>
+            Your Details
+          </Typography>
           <View style={styles.inputGroup}>
             <View style={{ flex: 1 }}>
-              <Typography variant="caption" color={Colors.light.textSecondary} style={{ marginBottom: 4 }}>NAME</Typography>
-              <TextInput 
+              <Typography
+                variant="caption"
+                color={Colors.light.textSecondary}
+                style={{ marginBottom: 4 }}
+              >
+                NAME
+              </Typography>
+              <TextInput
                 style={styles.singleLineInput}
                 placeholder="Enter your name"
                 value={name}
@@ -136,8 +318,14 @@ export default function KabadiFormScreen() {
               />
             </View>
             <View style={{ flex: 1, marginLeft: Spacing.md }}>
-              <Typography variant="caption" color={Colors.light.textSecondary} style={{ marginBottom: 4 }}>ESTIMATED WEIGHT (KG)</Typography>
-              <TextInput 
+              <Typography
+                variant="caption"
+                color={Colors.light.textSecondary}
+                style={{ marginBottom: 4 }}
+              >
+                ESTIMATED WEIGHT (KG)
+              </Typography>
+              <TextInput
                 style={styles.singleLineInput}
                 placeholder="e.g. 10"
                 value={weight}
@@ -146,35 +334,66 @@ export default function KabadiFormScreen() {
               />
             </View>
           </View>
-          
+
           <View style={[styles.inputGroup, { marginTop: Spacing.md }]}>
-             <View style={{ flex: 1 }}>
-                <Typography variant="caption" color={Colors.light.textSecondary} style={{ marginBottom: 4 }}>PHONE NUMBER</Typography>
-                <TextInput 
-                  style={styles.singleLineInput}
-                  placeholder="Enter 10-digit number"
-                  value={phone}
-                  onChangeText={setPhone}
-                  keyboardType="phone-pad"
-                  maxLength={10}
-                />
-             </View>
+            <View style={{ flex: 1 }}>
+              <Typography
+                variant="caption"
+                color={Colors.light.textSecondary}
+                style={{ marginBottom: 4 }}
+              >
+                PHONE NUMBER
+              </Typography>
+              <TextInput
+                style={styles.singleLineInput}
+                placeholder="Enter 10-digit number"
+                value={phone}
+                onChangeText={setPhone}
+                keyboardType="phone-pad"
+                maxLength={10}
+              />
+            </View>
           </View>
         </View>
 
         <View style={styles.section}>
-          <Typography variant="h3" weight="700" style={styles.sectionTitle}>Select Date</Typography>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.datePicker}>
+          <Typography variant="h3" weight="700" style={styles.sectionTitle}>
+            Select Date
+          </Typography>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.datePicker}
+          >
             {dates.map((item, index) => (
-              <Pressable 
-                key={index} 
-                style={[styles.dateChip, selectedDate === index && styles.activeChip]}
+              <Pressable
+                key={index}
+                style={[
+                  styles.dateChip,
+                  selectedDate === index && styles.activeChip,
+                ]}
                 onPress={() => setSelectedDate(index)}
               >
-                <Typography variant="tiny" weight="700" color={selectedDate === index ? Colors.light.white : Colors.light.textSecondary}>
+                <Typography
+                  variant="tiny"
+                  weight="700"
+                  color={
+                    selectedDate === index
+                      ? Colors.light.white
+                      : Colors.light.textSecondary
+                  }
+                >
                   {item.day.toUpperCase()}
                 </Typography>
-                <Typography variant="h3" weight="800" color={selectedDate === index ? Colors.light.white : Colors.light.text}>
+                <Typography
+                  variant="h3"
+                  weight="800"
+                  color={
+                    selectedDate === index
+                      ? Colors.light.white
+                      : Colors.light.text
+                  }
+                >
                   {item.date}
                 </Typography>
               </Pressable>
@@ -183,37 +402,77 @@ export default function KabadiFormScreen() {
         </View>
 
         <View style={styles.section}>
-          <Typography variant="h3" weight="700" style={styles.sectionTitle}>Select Time Slot</Typography>
+          <Typography variant="h3" weight="700" style={styles.sectionTitle}>
+            Select Time Slot
+          </Typography>
           <View style={styles.slotGrid}>
-            {['Morning (9-12)', 'Afternoon (12-4)', 'Evening (4-7)'].map((slot) => (
-              <Pressable 
-                key={slot} 
-                style={[styles.slotChip, selectedSlot === slot && styles.activeChip]}
-                onPress={() => setSelectedSlot(slot)}
-              >
-                <Typography variant="body2" weight="700" color={selectedSlot === slot ? Colors.light.white : Colors.light.text}>
-                  {slot.split(' ')[0]}
-                </Typography>
-                <Typography variant="tiny" color={selectedSlot === slot ? 'rgba(255,255,255,0.7)' : Colors.light.textSecondary}>
-                   {slot.split(' ')[1]}
-                </Typography>
-              </Pressable>
-            ))}
+            {['Morning (9-12)', 'Afternoon (12-4)', 'Evening (4-7)'].map(
+              slot => (
+                <Pressable
+                  key={slot}
+                  style={[
+                    styles.slotChip,
+                    selectedSlot === slot && styles.activeChip,
+                  ]}
+                  onPress={() => setSelectedSlot(slot)}
+                >
+                  <Typography
+                    variant="body2"
+                    weight="700"
+                    color={
+                      selectedSlot === slot
+                        ? Colors.light.white
+                        : Colors.light.text
+                    }
+                  >
+                    {slot.split(' ')[0]}
+                  </Typography>
+                  <Typography
+                    variant="tiny"
+                    color={
+                      selectedSlot === slot
+                        ? 'rgba(255,255,255,0.7)'
+                        : Colors.light.textSecondary
+                    }
+                  >
+                    {slot.split(' ')[1]}
+                  </Typography>
+                </Pressable>
+              ),
+            )}
           </View>
         </View>
 
         <View style={styles.addressSection}>
-          <Typography variant="h3" weight="700" style={styles.sectionTitle}>Pickup Address</Typography>
+          <Typography variant="h3" weight="700" style={styles.sectionTitle}>
+            Pickup Address
+          </Typography>
           <View style={styles.addressCard}>
             <MapPin color={Colors.light.primary} size={24} />
             <View style={{ marginLeft: Spacing.md, flex: 1 }}>
-              <Typography variant="body1" weight="800">{addressLabel}</Typography>
-              <Typography variant="body2" color={Colors.light.textSecondary} numberOfLines={2}>
+              <Typography variant="body1" weight="800">
+                {addressLabel}
+              </Typography>
+              <Typography
+                variant="body2"
+                color={Colors.light.textSecondary}
+                numberOfLines={2}
+              >
                 {pickupAddress}
               </Typography>
             </View>
-            <TouchableOpacity style={styles.changeBtn} onPress={openAddressModal} activeOpacity={0.7}>
-              <Typography variant="tiny" color={Colors.light.primary} weight="700">CHANGE</Typography>
+            <TouchableOpacity
+              style={styles.changeBtn}
+              onPress={openAddressModal}
+              activeOpacity={0.7}
+            >
+              <Typography
+                variant="tiny"
+                color={Colors.light.primary}
+                weight="700"
+              >
+                CHANGE
+              </Typography>
             </TouchableOpacity>
           </View>
         </View>
@@ -232,14 +491,30 @@ export default function KabadiFormScreen() {
             <View style={styles.modalSheet}>
               {/* Modal Header */}
               <View style={styles.modalHeader}>
-                <Typography variant="h3" weight="800">Change Pickup Address</Typography>
-                <TouchableOpacity onPress={() => setAddressModalVisible(false)} activeOpacity={0.7}>
-                  <Typography variant="body1" color={Colors.light.textSecondary}>✕</Typography>
+                <Typography variant="h3" weight="800">
+                  Change Pickup Address
+                </Typography>
+                <TouchableOpacity
+                  onPress={() => setAddressModalVisible(false)}
+                  activeOpacity={0.7}
+                >
+                  <Typography
+                    variant="body1"
+                    color={Colors.light.textSecondary}
+                  >
+                    ✕
+                  </Typography>
                 </TouchableOpacity>
               </View>
 
               {/* House / Flat */}
-              <Typography variant="caption" color={Colors.light.textSecondary} style={styles.modalLabel}>HOUSE / FLAT NO.</Typography>
+              <Typography
+                variant="caption"
+                color={Colors.light.textSecondary}
+                style={styles.modalLabel}
+              >
+                HOUSE / FLAT NO.
+              </Typography>
               <TextInput
                 style={styles.modalInput}
                 placeholder="e.g. A-421, Shunya Apartments"
@@ -249,7 +524,13 @@ export default function KabadiFormScreen() {
               />
 
               {/* Area / Street */}
-              <Typography variant="caption" color={Colors.light.textSecondary} style={styles.modalLabel}>AREA / STREET</Typography>
+              <Typography
+                variant="caption"
+                color={Colors.light.textSecondary}
+                style={styles.modalLabel}
+              >
+                AREA / STREET
+              </Typography>
               <TextInput
                 style={styles.modalInput}
                 placeholder="e.g. Sector 45, Gurugram"
@@ -259,7 +540,13 @@ export default function KabadiFormScreen() {
               />
 
               {/* City */}
-              <Typography variant="caption" color={Colors.light.textSecondary} style={styles.modalLabel}>CITY</Typography>
+              <Typography
+                variant="caption"
+                color={Colors.light.textSecondary}
+                style={styles.modalLabel}
+              >
+                CITY
+              </Typography>
               <TextInput
                 style={styles.modalInput}
                 placeholder="e.g. Delhi"
@@ -269,7 +556,13 @@ export default function KabadiFormScreen() {
               />
 
               {/* Landmark */}
-              <Typography variant="caption" color={Colors.light.textSecondary} style={styles.modalLabel}>LANDMARK (OPTIONAL)</Typography>
+              <Typography
+                variant="caption"
+                color={Colors.light.textSecondary}
+                style={styles.modalLabel}
+              >
+                LANDMARK (OPTIONAL)
+              </Typography>
               <TextInput
                 style={styles.modalInput}
                 placeholder="e.g. Near Metro Station"
@@ -279,16 +572,99 @@ export default function KabadiFormScreen() {
               />
 
               {/* Save Button */}
-              <TouchableOpacity style={styles.saveBtn} onPress={saveAddress} activeOpacity={0.85}>
-                <Typography variant="body1" weight="800" color={Colors.light.white}>SAVE ADDRESS</Typography>
+              <TouchableOpacity
+                style={styles.saveBtn}
+                onPress={saveAddress}
+                activeOpacity={0.85}
+              >
+                <Typography
+                  variant="body1"
+                  weight="800"
+                  color={Colors.light.white}
+                >
+                  SAVE ADDRESS
+                </Typography>
               </TouchableOpacity>
             </View>
           </KeyboardAvoidingView>
         </Modal>
 
+        {/* Photo Upload Section */}
         <View style={styles.section}>
-          <Typography variant="h3" weight="700" style={styles.sectionTitle}>Instructions (Optional)</Typography>
-          <TextInput 
+          <Typography variant="h3" weight="700" style={styles.sectionTitle}>
+            Upload Scrap Photos (Optional)
+          </Typography>
+
+          {uploadError && (
+            <View style={styles.errorContainer}>
+              <AlertCircle color={Colors.light.error} size={18} />
+              <Typography
+                variant="body2"
+                color={Colors.light.error}
+                style={{ marginLeft: Spacing.sm, flex: 1 }}
+              >
+                {uploadError}
+              </Typography>
+            </View>
+          )}
+
+          {imageUri ? (
+            <View style={styles.previewContainer}>
+              <NetworkImage
+                source={{ uri: imageUri }}
+                style={styles.previewImage}
+              />
+              {isUploading ? (
+                <View style={styles.uploadingOverlay}>
+                  <View style={styles.progressContainer}>
+                    <View
+                      style={[
+                        styles.progressBarFill,
+                        { width: `${uploadProgress}%` },
+                      ]}
+                    />
+                  </View>
+                  <Typography
+                    variant="caption"
+                    color={Colors.light.textSecondary}
+                    weight="700"
+                  >
+                    Uploading... {uploadProgress}%
+                  </Typography>
+                </View>
+              ) : (
+                <Pressable style={styles.removeBtn} onPress={handleRemoveImage}>
+                  <Trash2 color={Colors.light.white} size={16} />
+                </Pressable>
+              )}
+            </View>
+          ) : (
+            <Pressable style={styles.uploadBox} onPress={handleSelectImage}>
+              <Camera color={Colors.light.primary} size={32} />
+              <Typography
+                variant="body2"
+                color={Colors.light.textSecondary}
+                style={{ marginTop: Spacing.sm }}
+                weight="600"
+              >
+                Tap to select photo
+              </Typography>
+              <Typography
+                variant="caption"
+                color={Colors.light.textMuted}
+                style={{ marginTop: 2 }}
+              >
+                Max 10MB (JPEG, PNG, WEBP)
+              </Typography>
+            </Pressable>
+          )}
+        </View>
+
+        <View style={styles.section}>
+          <Typography variant="h3" weight="700" style={styles.sectionTitle}>
+            Instructions (Optional)
+          </Typography>
+          <TextInput
             style={styles.input}
             placeholder="e.g. Call before arrival, gate code 1234..."
             value={instructions}
@@ -298,19 +674,20 @@ export default function KabadiFormScreen() {
         </View>
 
         <View style={styles.hintBox}>
-           <Truck size={20} color={Colors.light.primary} />
-           <Typography variant="body2" color={Colors.light.textSecondary} style={{ marginLeft: Spacing.sm, flex: 1 }}>
-              Professional will bring a digital scale. Instant payment via UPI or Cash.
-           </Typography>
+          <Truck size={20} color={Colors.light.primary} />
+          <Typography
+            variant="body2"
+            color={Colors.light.textSecondary}
+            style={{ marginLeft: Spacing.sm, flex: 1 }}
+          >
+            Professional will bring a digital scale. Instant payment via UPI or
+            Cash.
+          </Typography>
         </View>
       </ScrollView>
 
       <View style={styles.footer}>
-        <Button 
-          title="Confirm & Schedule" 
-          onPress={handleSchedule} 
-          size="lg"
-        />
+        <Button title="Confirm & Schedule" onPress={handleSchedule} size="lg" />
       </View>
     </SafeAreaView>
   );
@@ -326,8 +703,11 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.light.borderLight,
   },
   iconBtn: {
-    width: 44, height: 44, borderRadius: 22,
-    justifyContent: 'center', alignItems: 'center',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   content: { padding: Spacing.xl },
   selectedBox: {
@@ -341,17 +721,22 @@ const styles = StyleSheet.create({
     borderColor: Colors.light.borderLight,
   },
   categoryIcon: {
-    width: 56, height: 56, borderRadius: 28,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     backgroundColor: Colors.light.white,
-    justifyContent: 'center', alignItems: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
     ...Shadows.light.sm,
   },
   icon: { width: 34, height: 34 },
   verifiedBadge: {
     backgroundColor: '#ECFDF5',
-    paddingHorizontal: 8, paddingVertical: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: 6,
-    borderWidth: 1, borderColor: '#A7F3D0',
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
   },
   section: { marginBottom: Spacing.xl },
   sectionTitle: { marginBottom: Spacing.md },
@@ -370,25 +755,31 @@ const styles = StyleSheet.create({
   },
   datePicker: { paddingVertical: Spacing.sm },
   dateChip: {
-    width: 70, height: 80,
+    width: 70,
+    height: 80,
     borderRadius: BorderRadius.xl,
     backgroundColor: Colors.light.surface,
     marginRight: Spacing.md,
-    justifyContent: 'center', alignItems: 'center',
-    borderWidth: 1, borderColor: Colors.light.borderLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.light.borderLight,
   },
-  activeChip: { 
+  activeChip: {
     backgroundColor: Colors.light.primary,
     borderColor: Colors.light.primary,
     ...Shadows.light.sm,
   },
   slotGrid: { flexDirection: 'row', gap: Spacing.sm },
   slotChip: {
-    flex: 1, height: 60,
+    flex: 1,
+    height: 60,
     borderRadius: BorderRadius.lg,
     backgroundColor: Colors.light.surface,
-    alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1, borderColor: Colors.light.borderLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: Colors.light.borderLight,
   },
   addressSection: { marginBottom: Spacing.xl },
   addressCard: {
@@ -397,7 +788,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.white,
     padding: Spacing.lg,
     borderRadius: BorderRadius.xl,
-    borderWidth: 1, borderColor: Colors.light.borderLight,
+    borderWidth: 1,
+    borderColor: Colors.light.borderLight,
     ...Shadows.light.sm,
   },
   changeBtn: {
@@ -414,7 +806,8 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
     fontSize: 14,
     color: Colors.light.text,
-    borderWidth: 1, borderColor: Colors.light.borderLight,
+    borderWidth: 1,
+    borderColor: Colors.light.borderLight,
   },
   hintBox: {
     flexDirection: 'row',
@@ -428,7 +821,8 @@ const styles = StyleSheet.create({
     padding: Spacing.xl,
     paddingBottom: 40,
     backgroundColor: Colors.light.white,
-    borderTopWidth: 1, borderTopColor: Colors.light.borderLight,
+    borderTopWidth: 1,
+    borderTopColor: Colors.light.borderLight,
     ...Shadows.light.lg,
   },
 
@@ -475,5 +869,63 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     ...Shadows.light.sm,
   },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FEE2E2',
+    padding: Spacing.md,
+    borderRadius: BorderRadius.lg,
+    marginBottom: Spacing.md,
+  },
+  uploadBox: {
+    height: 140,
+    borderRadius: BorderRadius.xl,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: Colors.light.primary,
+    backgroundColor: Colors.light.surface,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  previewContainer: {
+    height: 180,
+    borderRadius: BorderRadius.xl,
+    overflow: 'hidden',
+    position: 'relative',
+    backgroundColor: Colors.light.surface,
+  },
+  previewImage: {
+    width: '100%',
+    height: '100%',
+  },
+  uploadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(255,255,255,0.85)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: Spacing.xl,
+  },
+  progressContainer: {
+    width: '100%',
+    height: 6,
+    backgroundColor: Colors.light.border,
+    borderRadius: 3,
+    overflow: 'hidden',
+    marginBottom: Spacing.sm,
+  },
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: Colors.light.primary,
+  },
+  removeBtn: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
-

@@ -1,17 +1,24 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, Pressable, TouchableOpacity, Linking } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  Pressable,
+  TouchableOpacity,
+  Linking,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { 
-  ChevronRight, 
-  Mail, 
-  Phone, 
-  MessageCircle, 
-  BookOpen, 
-  CreditCard, 
-  Crown, 
-  ShieldCheck, 
+import {
+  ChevronRight,
+  Mail,
+  Phone,
+  MessageCircle,
+  BookOpen,
+  CreditCard,
+  Crown,
+  ShieldCheck,
   Wrench,
-  UserCheck
+  UserCheck,
 } from 'lucide-react-native';
 import { Typography } from '../../components/Typography';
 import { Header } from '../../components/Header';
@@ -21,65 +28,105 @@ export default function HelpSupportScreen() {
   const navigation = useNavigation<any>();
 
   const supportActions = [
-    { 
-      id: 'email', 
-      title: 'Email', 
-      icon: Mail, 
-      action: () => Linking.openURL('mailto:urbanpower.homecare@gmail.com')
+    {
+      id: 'email',
+      title: 'Email',
+      icon: Mail,
+      action: () => Linking.openURL('mailto:urbanpower.homecare@gmail.com'),
     },
-    { 
-      id: 'call', 
-      title: 'Call / Message', 
-      icon: Phone, 
-      action: () => Linking.openURL('tel:+917678549869')
+    {
+      id: 'call',
+      title: 'Call / Message',
+      icon: Phone,
+      action: () => Linking.openURL('tel:+917678549869'),
     },
-    { 
-      id: 'chat', 
-      title: 'Chat with Us', 
-      icon: MessageCircle, 
-      action: () => Linking.openURL('whatsapp://send?phone=+917678549869')
+    {
+      id: 'chat',
+      title: 'Chat with Us',
+      icon: MessageCircle,
+      action: () => Linking.openURL('whatsapp://send?phone=+917678549869'),
     },
   ];
 
   const helpTopics = [
-    { id: 'started', title: 'Getting Started with App', icon: BookOpen, route: 'GettingStarted' },
-    { id: 'payment', title: 'Payment & UPI Credits', icon: CreditCard, route: 'PaymentUPICredits' },
-    { id: 'membership', title: 'UPI Plus Membership', icon: Crown, route: 'UPIPlusMembership' },
-    { id: 'safety', title: 'VIP Safety', icon: ShieldCheck, route: 'VIPSafety' },
-    { id: 'warranty', title: 'Claim Warranty', icon: Wrench, route: 'ClaimWarranty' },
+    {
+      id: 'started',
+      title: 'Getting Started with App',
+      icon: BookOpen,
+      route: 'GettingStarted',
+    },
+    {
+      id: 'payment',
+      title: 'Payment & UPI Credits',
+      icon: CreditCard,
+      route: 'PaymentUPICredits',
+    },
+    {
+      id: 'membership',
+      title: 'UPI Plus Membership',
+      icon: Crown,
+      route: 'UPIPlusMembership',
+    },
+    {
+      id: 'safety',
+      title: 'VIP Safety',
+      icon: ShieldCheck,
+      route: 'VIPSafety',
+    },
+    {
+      id: 'warranty',
+      title: 'Claim Warranty',
+      icon: Wrench,
+      route: 'ClaimWarranty',
+    },
   ];
 
   return (
     <View style={styles.safeArea}>
       <Header title="Help & Support" />
-      
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.content}
+      >
         <View style={styles.contactSection}>
-          <Typography variant="h3" weight="700" style={styles.sectionTitle}>Contact Us</Typography>
+          <Typography variant="h3" weight="700" style={styles.sectionTitle}>
+            Contact Us
+          </Typography>
           <View style={styles.actionGrid}>
-            {supportActions.map((item) => (
-              <TouchableOpacity key={item.id} style={styles.actionCard} onPress={item.action}>
+            {supportActions.map(item => (
+              <TouchableOpacity
+                key={item.id}
+                style={styles.actionCard}
+                onPress={item.action}
+              >
                 <View style={styles.iconCircle}>
-                   <item.icon size={24} color={Colors.light.primary} />
+                  <item.icon size={24} color={Colors.light.primary} />
                 </View>
-                <Typography variant="body2" weight="700">{item.title}</Typography>
+                <Typography variant="body2" weight="700">
+                  {item.title}
+                </Typography>
               </TouchableOpacity>
             ))}
           </View>
         </View>
 
         <View style={styles.topicsSection}>
-          <Typography variant="h3" weight="700" style={styles.sectionTitle}>Help Topics</Typography>
+          <Typography variant="h3" weight="700" style={styles.sectionTitle}>
+            Help Topics
+          </Typography>
           <View style={styles.topicsList}>
-            {helpTopics.map((item) => (
-              <Pressable 
-                key={item.id} 
+            {helpTopics.map(item => (
+              <Pressable
+                key={item.id}
                 style={styles.topicItem}
                 onPress={() => navigation.navigate(item.route)}
               >
                 <View style={styles.topicLeft}>
                   <item.icon size={22} color={Colors.light.text} />
-                  <Typography variant="body1" weight="700">{item.title}</Typography>
+                  <Typography variant="body1" weight="700">
+                    {item.title}
+                  </Typography>
                 </View>
                 <ChevronRight size={20} color={Colors.light.textMuted} />
               </Pressable>
@@ -88,9 +135,14 @@ export default function HelpSupportScreen() {
         </View>
 
         <View style={styles.infoBox}>
-           <Typography variant="body2" color={Colors.light.textSecondary} align="center">
-              Our support team is available 24/7 to help you with any issues or queries.
-           </Typography>
+          <Typography
+            variant="body2"
+            color={Colors.light.textSecondary}
+            align="center"
+          >
+            Our support team is available 24/7 to help you with any issues or
+            queries.
+          </Typography>
         </View>
       </ScrollView>
     </View>

@@ -29,7 +29,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   style,
 }) => {
   const [showBuyNow, setShowBuyNow] = useState(false);
-  const addProduct = useCartStore((state) => state.addProduct);
+  const addProduct = useCartStore(state => state.addProduct);
 
   const handleBuyNow = () => {
     addProduct(product); // Your store automatically handles quantity vs new item logic
@@ -46,47 +46,73 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       onPress={onPress}
     >
       <View style={styles.imageContainer}>
-        <NetworkImage 
-          source={{ uri: product.image || 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=600&auto=format&fit=crop' }} 
-          style={styles.image} 
-          resizeMode="cover" 
+        <NetworkImage
+          source={{
+            uri:
+              product.image ||
+              'https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=600&auto=format&fit=crop',
+          }}
+          style={styles.image}
+          resizeMode="cover"
         />
         <View style={styles.badge}>
-          <Typography variant="tiny" weight="700" color={Colors.light.primary}>20% OFF</Typography>
+          <Typography variant="tiny" weight="700" color={Colors.light.primary}>
+            20% OFF
+          </Typography>
         </View>
       </View>
-      
+
       <View style={styles.content}>
-        <Typography variant="tiny" color={Colors.light.textMuted} weight="600" numberOfLines={1} style={{ marginBottom: 2 }}>
+        <Typography
+          variant="tiny"
+          color={Colors.light.textMuted}
+          weight="600"
+          numberOfLines={1}
+          style={{ marginBottom: 2 }}
+        >
           {product.category.toUpperCase()}
         </Typography>
         <Typography variant="body2" weight="700" numberOfLines={1}>
           {product.title}
         </Typography>
-        
+
         <View style={styles.ratingRow}>
-          <RatingStars rating={product.rating || 4.5} size={12} showText={false} />
-          <Typography variant="tiny" color={Colors.light.textMuted} style={{ marginLeft: 4 }}>
+          <RatingStars
+            rating={product.rating || 4.5}
+            size={12}
+            showText={false}
+          />
+          <Typography
+            variant="tiny"
+            color={Colors.light.textMuted}
+            style={{ marginLeft: 4 }}
+          >
             ({product.reviews || 120})
           </Typography>
         </View>
-        
+
         <View style={styles.footer}>
-          <Typography variant="body1" weight="800">₹{product.price}</Typography>
-          
+          <Typography variant="body1" weight="800">
+            ₹{product.price}
+          </Typography>
+
           {!showBuyNow ? (
-            <Pressable 
-              style={({ pressed }) => [styles.addButton, pressed && styles.addButtonPressed]}
+            <Pressable
+              style={({ pressed }) => [
+                styles.addButton,
+                pressed && styles.addButtonPressed,
+              ]}
               onPress={() => setShowBuyNow(true)}
             >
               <Plus size={16} color={Colors.light.white} />
             </Pressable>
           ) : (
-            <Pressable 
-              style={styles.buyNowActiveBtn}
-              onPress={handleBuyNow}
-            >
-              <Typography variant="caption" weight="800" color={Colors.light.white}>
+            <Pressable style={styles.buyNowActiveBtn} onPress={handleBuyNow}>
+              <Typography
+                variant="caption"
+                weight="800"
+                color={Colors.light.white}
+              >
                 Buy Now
               </Typography>
             </Pressable>

@@ -1,5 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, Image, StyleSheet, ActivityIndicator, ImageProps, ImageStyle, StyleProp, ViewStyle } from 'react-native';
+import {
+  View,
+  Image,
+  StyleSheet,
+  ActivityIndicator,
+  ImageProps,
+  ImageStyle,
+  StyleProp,
+  ViewStyle,
+} from 'react-native';
 import { Colors } from '../constants/Theme';
 
 interface NetworkImageProps extends Omit<ImageProps, 'style'> {
@@ -13,13 +22,13 @@ interface NetworkImageProps extends Omit<ImageProps, 'style'> {
   fallbackSource?: ImageProps['source'];
 }
 
-export const NetworkImage: React.FC<NetworkImageProps> = ({ 
-  source, 
-  style, 
-  containerStyle, 
+export const NetworkImage: React.FC<NetworkImageProps> = ({
+  source,
+  style,
+  containerStyle,
   showLoader = false,
   fallbackSource,
-  ...props 
+  ...props
 }) => {
   const builtInFallbackSource: ImageProps['source'] = useMemo(
     () => ({
@@ -35,7 +44,9 @@ export const NetworkImage: React.FC<NetworkImageProps> = ({
     return source;
   }, [source, fallbackSource, builtInFallbackSource]);
 
-  const [effectiveSource, setEffectiveSource] = useState<ImageProps['source']>(initialEffectiveSource);
+  const [effectiveSource, setEffectiveSource] = useState<ImageProps['source']>(
+    initialEffectiveSource,
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [fallbackTried, setFallbackTried] = useState(false);
@@ -74,14 +85,20 @@ export const NetworkImage: React.FC<NetworkImageProps> = ({
     <View style={[styles.container, containerStyle]}>
       {/* Placeholder / Loading State */}
       {(error || (loading && showLoader)) && (
-        <View style={[styles.placeholder, style, !error && { backgroundColor: 'transparent' }]}>
+        <View
+          style={[
+            styles.placeholder,
+            style,
+            !error && { backgroundColor: 'transparent' },
+          ]}
+        >
           {showLoader && !error && (
             <ActivityIndicator size="small" color={Colors.light.primary} />
           )}
           {error && (
-             <View style={styles.errorContainer}>
-               <View style={styles.emptyCircle} />
-             </View>
+            <View style={styles.errorContainer}>
+              <View style={styles.emptyCircle} />
+            </View>
           )}
         </View>
       )}
@@ -121,5 +138,5 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 2,
     borderColor: Colors.light.textMuted,
-  }
+  },
 });

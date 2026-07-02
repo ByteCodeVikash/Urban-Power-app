@@ -1,5 +1,12 @@
 import React from 'react';
-import { StyleSheet, Pressable, ViewStyle, TextStyle, ActivityIndicator } from 'react-native';
+import {
+  StyleSheet,
+  Pressable,
+  ViewStyle,
+  TextStyle,
+  ActivityIndicator,
+  StyleProp,
+} from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -11,13 +18,13 @@ import { Typography } from './Typography';
 
 interface ButtonProps {
   title: string;
-  onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
+  onPress?: () => void;
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
   disabled?: boolean;
-  style?: ViewStyle;
-  textStyle?: TextStyle;
+  style?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
   icon?: React.ReactNode;
 }
 
@@ -25,7 +32,7 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 const ButtonComponent: React.FC<ButtonProps> = ({
   title,
-  onPress,
+  onPress = () => {},
   variant = 'primary',
   size = 'md',
   loading = false,
@@ -55,22 +62,26 @@ const ButtonComponent: React.FC<ButtonProps> = ({
 
   const getHeight = () => {
     switch (size) {
-      case 'sm': return 36;
-      case 'lg': return 56;
-      default: return 48;
+      case 'sm':
+        return 36;
+      case 'lg':
+        return 56;
+      default:
+        return 48;
     }
   };
 
   const getBackgroundColor = () => {
     if (disabled) return Colors.light.border;
     if (variant === 'secondary') return Colors.light.primaryLight;
+    if (variant === 'danger') return Colors.light.danger;
     if (isOutline || variant === 'ghost') return 'transparent';
     return Colors.light.primary;
   };
 
   const getTextColor = () => {
     if (disabled) return 'rgba(255,255,255,0.6)';
-    if (isPrimary) return Colors.light.white;
+    if (isPrimary || variant === 'danger') return Colors.light.white;
     return Colors.light.primary;
   };
 
@@ -80,10 +91,12 @@ const ButtonComponent: React.FC<ButtonProps> = ({
         <ActivityIndicator color={getTextColor()} />
       ) : (
         <>
-          {icon && <Animated.View style={styles.iconContainer}>{icon}</Animated.View>}
+          {icon && (
+            <Animated.View style={styles.iconContainer}>{icon}</Animated.View>
+          )}
           <Typography
             variant={size === 'sm' ? 'body2' : 'body1'}
-            weight="800"
+            weight="700"
             color={getTextColor()}
             style={[{ letterSpacing: 0.8 }, textStyle]}
           >
@@ -106,7 +119,11 @@ const ButtonComponent: React.FC<ButtonProps> = ({
         isOutline && styles.outline,
         {
           height: getHeight(),
-          backgroundColor: isPrimary ? (disabled ? 'rgba(124,58,237,0.3)' : 'transparent') : getBackgroundColor(),
+          backgroundColor: isPrimary
+            ? disabled
+              ? 'rgba(124,58,237,0.3)'
+              : 'transparent'
+            : getBackgroundColor(),
         },
         style,
       ]}
