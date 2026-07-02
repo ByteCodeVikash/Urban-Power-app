@@ -28,28 +28,14 @@ interface BookingState {
 }
 
 export const useBookingStore = create<BookingState>((set) => ({
-  bookings: [
-    {
-      id: 'B1',
-      type: 'Service',
-      title: 'Full Home Deep Cleaning',
-      subtitle: 'Cleaning',
-      date: '22 Oct, 2025',
-      time: '10:00 AM',
-      status: 'Confirmed',
-      price: 3499,
-      address: 'A-421, Shunya Apartments, Sector 12, Azamgarh',
-      customerName: 'Vikash',
-      partner: { name: 'Amit Kumar', phone: '9876543210', rating: 4.8 }
-    }
-  ],
+  bookings: [],
   addBooking: (booking) => {
     set((state) => ({
       bookings: [
         { 
           ...booking, 
           id: `UP-${Math.random().toString(36).substr(2, 9).toUpperCase()}`, 
-          status: 'Pending' 
+          status: 'Confirmed' 
         },
         ...state.bookings,
       ],

@@ -35,7 +35,14 @@ export default function ProfileScreen() {
       title: 'Wallet', 
       icon: Wallet, 
       route: 'Wallet' 
-    },
+    },  
+     {
+    id: 'account-detail',
+    title: 'Account Detail',
+    icon: User,
+    route: 'AccountDetail',
+   },
+    
     { 
       id: 'membership', 
       title: 'Plus Membership', 

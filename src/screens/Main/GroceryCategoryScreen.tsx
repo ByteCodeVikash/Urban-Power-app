@@ -22,12 +22,12 @@ export default function GroceryCategoryScreen() {
         categoryName: item.name 
       })}
     >
-      <View style={styles.iconContainer}>
-        <NetworkImage source={{ uri: item.icon }} style={styles.icon} resizeMode="cover" />
+      <NetworkImage source={{ uri: item.icon }} style={styles.cardImage} resizeMode="cover" />
+      <View style={styles.cardContent}>
+        <Typography variant="body2" weight="700" style={styles.categoryTitle} numberOfLines={2}>
+          {item.name}
+        </Typography>
       </View>
-      <Typography variant="body2" weight="700" style={styles.categoryTitle} numberOfLines={2}>
-        {item.name}
-      </Typography>
     </Pressable>
   );
 
@@ -66,24 +66,21 @@ const styles = StyleSheet.create({
   categoryCard: {
     width: '48%',
     backgroundColor: Colors.light.white,
-    padding: Spacing.md,
     borderRadius: BorderRadius.xl,
-    alignItems: 'center',
-    justifyContent: 'center',
     ...Shadows.light.sm,
     borderWidth: 1,
     borderColor: Colors.light.borderLight,
+    overflow: 'hidden',
   },
-  iconContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+  cardImage: {
+    width: '100%',
+    height: 120,
     backgroundColor: '#F8FAFC',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: Spacing.sm,
   },
-  icon: { width: 35, height: 35 },
+  cardContent: {
+    padding: Spacing.md,
+    alignItems: 'center',
+  },
   categoryTitle: { textAlign: 'center', fontSize: 13, color: Colors.light.text },
   infoBox: {
     marginTop: Spacing.xl,

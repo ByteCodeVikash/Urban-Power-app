@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xxl,
     borderWidth: 1, borderColor: Colors.light.borderLight,
   },
-  bannerIcon: { width: 60, height: 60 },
+  bannerIcon: { width: 60, height: 60, borderRadius: BorderRadius.lg },
   sectionTitle: { marginBottom: Spacing.lg },
   list: { gap: Spacing.md },
   listItem: {

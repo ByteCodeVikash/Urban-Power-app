@@ -66,7 +66,12 @@ export default function KabadiBookingScreen() {
         />
         <Button 
           title="Back to Home" 
-          onPress={() => navigation.navigate('Home' as never)} 
+          onPress={() =>
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'Main' as never }],
+            })
+          } 
           variant="outline"
           style={{ marginBottom: Spacing.md }}
           icon={<Home size={20} color={Colors.light.primary} />}

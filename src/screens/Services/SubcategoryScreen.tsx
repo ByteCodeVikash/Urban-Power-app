@@ -5,6 +5,7 @@ import {
   SafeAreaView,
   ScrollView,
   Pressable,
+  Image,
 } from 'react-native';
 import { NetworkImage } from '../../components/NetworkImage';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -79,7 +80,7 @@ export default function SubcategoryScreen() {
               });
             }}
           >
-            <NetworkImage 
+            <Image 
               source={{ uri: item.image }} 
               style={styles.cardImage} 
               resizeMode="cover"

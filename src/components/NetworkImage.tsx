@@ -73,8 +73,8 @@ export const NetworkImage: React.FC<NetworkImageProps> = ({
   return (
     <View style={[styles.container, containerStyle]}>
       {/* Placeholder / Loading State */}
-      {(loading || error) && (
-        <View style={[styles.placeholder, style]}>
+      {(error || (loading && showLoader)) && (
+        <View style={[styles.placeholder, style, !error && { backgroundColor: 'transparent' }]}>
           {showLoader && !error && (
             <ActivityIndicator size="small" color={Colors.light.primary} />
           )}
@@ -91,10 +91,7 @@ export const NetworkImage: React.FC<NetworkImageProps> = ({
         <Image
           {...props}
           source={effectiveSource}
-          style={[
-            style,
-            loading ? styles.hiddenImage : styles.visibleImage
-          ]}
+          style={style}
           onLoadStart={handleLoadStart}
           onLoadEnd={handleLoadEnd}
           onError={handleError}
@@ -114,12 +111,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1,
-  },
-  hiddenImage: {
-    opacity: 0,
-  },
-  visibleImage: {
-    opacity: 1,
   },
   errorContainer: {
     opacity: 0.3,

@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Truck, ShoppingBag } from 'lucide-react-native';
+import { Truck, ShoppingBag, ShoppingCart } from 'lucide-react-native';
 import { RootStackParamList } from '../../navigation/Types';
 import {
   useTrendingServices,
@@ -29,6 +29,7 @@ import { BannerCarousel } from '../../components/BannerCarousel';
 import { SectionHeader } from '../../components/SectionHeader';
 import { ReferAndGetFreeServicesBanner } from '../../components/home/ReferAndGetFreeServicesBanner';
 import { Colors, Spacing, Shadows, BorderRadius } from '../../constants/Theme';
+import { BANNERS } from '../../constants/MockData';
 
 // ─── Service module grid (centralized config) ───────────────────────────────
 const MAIN_VERTICALS = [
@@ -54,15 +55,6 @@ const MAIN_VERTICALS = [
   { id: 'c13',     name: 'Gardening',    icon: 'gardening'   },
   { id: 'c15',     name: 'Packers',      icon: 'packers'     },
   // ── Removed: Appliance (c11) ──
-];
-
-
-
-// ─── Banner images (URL-based for reliability) ──────────────────────────────
-const BANNERS = [
-  { id: 'b1', image: 'https://images.unsplash.com/photo-1628177142898-93e36e4e3a50?q=80&w=800&auto=format&fit=crop' }, // Cleaning
-  { id: 'b2', image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=800&auto=format&fit=crop' }, // Shopping
-  { id: 'b3', image: 'https://images.unsplash.com/photo-1581244277943-fe4a9c777189?q=80&w=800&auto=format&fit=crop' }, // Services
 ];
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -139,6 +131,10 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.safeArea}>
+      {/* ── Custom Home Header ── */}
+      <View style={styles.homeHeader}>
+      </View>
+
       {/* ═══════════════════════════════════════════════
           SCROLLABLE BODY
       ═══════════════════════════════════════════════ */}
@@ -155,7 +151,7 @@ export default function HomeScreen() {
         contentContainerStyle={{ paddingBottom: 150 }}
       >
         {/* ── Banner carousel ── */}
-        <BannerCarousel data={BANNERS} loading={false} />
+        <BannerCarousel data={BANNERS} loading={false} autoPlayInterval={4000} />
 
         {/* ── Service category grid ── */}
         <View style={styles.moduleSection}>
@@ -327,6 +323,32 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: Colors.light.white,
+  },
+
+  /* ─── Home Header ─── */
+  homeHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+    backgroundColor: Colors.light.white,
+  },
+  cartBtn: {
+    position: 'relative',
+    padding: Spacing.xs,
+  },
+  badgeContainer: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    backgroundColor: Colors.light.primary,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4,
   },
 
   /* ─── Body ─── */

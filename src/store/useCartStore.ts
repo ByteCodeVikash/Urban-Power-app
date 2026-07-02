@@ -12,6 +12,7 @@ export interface ProductItem {
 interface CartState {
   items: ProductItem[];
   addProduct: (product: any) => void;
+  addItem: (product: any, type?: string) => void;
   removeProduct: (id: string) => void;
   updateQuantity: (id: string, delta: number) => void;
   clearCart: () => void;
@@ -42,6 +43,9 @@ export const useCartStore = create<CartState>((set, get) => ({
         }] 
       };
     });
+  },
+  addItem: (product, type) => {
+    get().addProduct(product);
   },
   removeProduct: (id) => {
     set((state) => ({

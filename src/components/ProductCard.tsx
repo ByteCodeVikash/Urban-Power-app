@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { NetworkImage } from './NetworkImage';
-import { ShoppingBag } from 'lucide-react-native';
+import { Plus } from 'lucide-react-native';
 import { RatingStars } from './RatingStars';
 import { Typography } from './Typography';
 import { Colors, Spacing, BorderRadius, Shadows } from '../constants/Theme';
+import { useCartStore } from '../store/useCartStore';
 
 interface ProductCardProps {
   product: {
@@ -27,6 +28,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onAddPress,
   style,
 }) => {
+  const [showBuyNow, setShowBuyNow] = useState(false);
+  const addProduct = useCartStore((state) => state.addProduct);
+
+  const handleBuyNow = () => {
+    addProduct(product); // Your store automatically handles quantity vs new item logic
+    if (onAddPress) onAddPress();
+  };
+
   return (
     <Pressable
       style={({ pressed }) => [
@@ -64,12 +73,24 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         
         <View style={styles.footer}>
           <Typography variant="body1" weight="800">₹{product.price}</Typography>
-          <Pressable 
-            style={({ pressed }) => [styles.addButton, pressed && styles.addButtonPressed]}
-            onPress={onAddPress}
-          >
-            <ShoppingBag size={14} color={Colors.light.white} />
-          </Pressable>
+          
+          {!showBuyNow ? (
+            <Pressable 
+              style={({ pressed }) => [styles.addButton, pressed && styles.addButtonPressed]}
+              onPress={() => setShowBuyNow(true)}
+            >
+              <Plus size={16} color={Colors.light.white} />
+            </Pressable>
+          ) : (
+            <Pressable 
+              style={styles.buyNowActiveBtn}
+              onPress={handleBuyNow}
+            >
+              <Typography variant="caption" weight="800" color={Colors.light.white}>
+                Buy Now
+              </Typography>
+            </Pressable>
+          )}
         </View>
       </View>
     </Pressable>
@@ -130,5 +151,14 @@ const styles = StyleSheet.create({
   },
   addButtonPressed: {
     backgroundColor: Colors.light.primaryDark,
+  },
+  buyNowActiveBtn: {
+    backgroundColor: Colors.light.primary,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...Shadows.light.sm,
   },
 });

@@ -22,8 +22,8 @@ export default function ShopCategoryScreen() {
         categoryName: item.name 
       })}
     >
-      <View style={styles.iconContainer}>
-        <NetworkImage source={{ uri: item.icon }} style={styles.icon} resizeMode="cover" />
+      <View style={styles.imageContainer}>
+        <NetworkImage source={{ uri: item.icon }} style={styles.image} resizeMode="cover" />
       </View>
       <Typography variant="body2" weight="700" style={styles.categoryTitle} numberOfLines={2}>
         {item.name}
@@ -66,25 +66,19 @@ const styles = StyleSheet.create({
   categoryCard: {
     width: '48%',
     backgroundColor: Colors.light.white,
-    padding: Spacing.lg,
-    borderRadius: BorderRadius.xl,
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderRadius: 16,
+    overflow: 'hidden',
     ...Shadows.light.sm,
-    borderWidth: 1,
-    borderColor: Colors.light.borderLight,
   },
-  iconContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#F8FAFC',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: Spacing.sm,
+  imageContainer: {
+    width: '100%',
+    height: 120,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    overflow: 'hidden',
   },
-  icon: { width: 34, height: 34 },
-  categoryTitle: { textAlign: 'center', color: Colors.light.text, fontSize: 13 },
+  image: { width: '100%', height: '100%' },
+  categoryTitle: { textAlign: 'center', color: Colors.light.text, fontSize: 13, paddingVertical: Spacing.sm, paddingHorizontal: Spacing.xs },
   infoBox: {
     marginTop: Spacing.xl,
     marginHorizontal: 16,
@@ -96,3 +90,4 @@ const styles = StyleSheet.create({
     borderColor: '#DB2777',
   },
 });
+

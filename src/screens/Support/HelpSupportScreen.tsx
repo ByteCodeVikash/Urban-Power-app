@@ -25,24 +25,23 @@ export default function HelpSupportScreen() {
       id: 'email', 
       title: 'Email', 
       icon: Mail, 
-      action: () => Linking.openURL('mailto:support@urbanpower.com')
+      action: () => Linking.openURL('mailto:urbanpower.homecare@gmail.com')
     },
     { 
       id: 'call', 
       title: 'Call / Message', 
       icon: Phone, 
-      action: () => Linking.openURL('tel:+919876543210')
+      action: () => Linking.openURL('tel:+917678549869')
     },
     { 
       id: 'chat', 
       title: 'Chat with Us', 
       icon: MessageCircle, 
-      action: () => Linking.openURL('whatsapp://send?phone=+919876543210')
+      action: () => Linking.openURL('whatsapp://send?phone=+917678549869')
     },
   ];
 
   const helpTopics = [
-    { id: 'account', title: 'Account Detail', icon: UserCheck, route: 'AccountDetail' },
     { id: 'started', title: 'Getting Started with App', icon: BookOpen, route: 'GettingStarted' },
     { id: 'payment', title: 'Payment & UPI Credits', icon: CreditCard, route: 'PaymentUPICredits' },
     { id: 'membership', title: 'UPI Plus Membership', icon: Crown, route: 'UPIPlusMembership' },

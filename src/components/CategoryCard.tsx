@@ -1,7 +1,5 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native';
-import { NetworkImage } from './NetworkImage';
-import { LinearGradient } from 'expo-linear-gradient';
 import {
   Sparkles,
   Scissors,
@@ -22,6 +20,8 @@ import {
   PawPrint,
   LucideIcon,
 } from 'lucide-react-native';
+import { NetworkImage } from './NetworkImage';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Typography } from './Typography';
 import { Colors, BorderRadius, Shadows, Spacing } from '../constants/Theme';
 
@@ -69,10 +69,8 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
   if (loading || !category) {
     return (
       <View style={[styles.container, style]}>
-        <View style={styles.skeletonContainer}>
-          <View style={styles.skeletonIcon} />
-          {!hideText && <View style={styles.skeletonText} />}
-        </View>
+        <View style={styles.skeletonImage} />
+        {!hideText && <View style={styles.skeletonText} />}
       </View>
     );
   }
@@ -82,29 +80,27 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
 
   return (
     <TouchableOpacity
-      activeOpacity={0.7}
+      activeOpacity={0.8}
       style={[styles.container, style]}
       onPress={onPress}
-      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
     >
-      <LinearGradient
-        colors={['#F5F3FF', '#FFFFFF']}
-        style={styles.iconContainer}
-      >
+      <View style={styles.imageContainer}>
         {isUrl ? (
           <NetworkImage 
             source={{ uri: category.icon }} 
-            style={styles.iconImage} 
-            resizeMode="contain"
+            style={styles.image} 
+            resizeMode="cover"
           />
         ) : (
-          <IconComponent color={Colors.light.primary} size={28} />
+          <IconComponent color={Colors.light.primary} size={32} />
         )}
-      </LinearGradient>
+      </View>
       {!hideText && (
-        <Typography variant="tiny" weight="800" align="center" color={Colors.light.text} style={styles.text}>
-          {category.name}
-        </Typography>
+        <View style={styles.textContainer}>
+          <Typography variant="tiny" weight="700" align="center" color={Colors.light.text} style={styles.text} numberOfLines={2}>
+            {category.name}
+          </Typography>
+        </View>
       )}
     </TouchableOpacity>
   );
@@ -112,42 +108,46 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: 80,
-    alignItems: 'center',
+    width: '100%',
+    backgroundColor: Colors.light.white,
+    borderRadius: BorderRadius.xl,
+    ...Shadows.light.sm,
+    borderWidth: 1,
+    borderColor: Colors.light.borderLight,
+    overflow: 'hidden',
   },
-  skeletonContainer: {
-    alignItems: 'center',
-  },
-  skeletonIcon: {
-    width: 60,
-    height: 60,
-    borderRadius: BorderRadius.lg,
+  skeletonImage: {
+    width: '100%',
+    height: 80,
     backgroundColor: Colors.light.surfaceAlt,
   },
   skeletonText: {
-    width: 40,
+    width: '60%',
     height: 10,
     borderRadius: BorderRadius.xs,
     backgroundColor: Colors.light.surfaceAlt,
-    marginTop: 8,
+    marginTop: Spacing.sm,
+    marginBottom: Spacing.sm,
+    alignSelf: 'center',
   },
-  iconContainer: {
-    width: 80,
+  imageContainer: {
+    width: '100%',
     height: 80,
-    borderRadius: BorderRadius.xxl,
+    backgroundColor: '#F8FAFC',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: Colors.light.borderLight,
-    ...Shadows.light.sm,
   },
-  iconImage: {
-    width: 40,
-    height: 40,
+  image: {
+    width: '100%',
+    height: '100%',
+  },
+  textContainer: {
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.xs,
+    minHeight: 40, // To accommodate 2 lines of text
+    justifyContent: 'center',
   },
   text: {
-    marginTop: 6,
     lineHeight: 14,
   },
 });
-

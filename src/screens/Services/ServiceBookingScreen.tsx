@@ -45,7 +45,7 @@ export default function ServiceBookingScreen() {
     useCallback(() => {
       const onBackPress = () => {
         if (step === 3) {
-          navigation.navigate('Home');
+          navigation.navigate('Main');
           return true;
         } else if (step === 2) {
           // If service was pre-selected from SubcategoryScreen go back there
@@ -59,7 +59,7 @@ export default function ServiceBookingScreen() {
           navigation.goBack();
           return true;
         } else {
-          navigation.navigate('Home');
+          navigation.navigate('Main');
           return true;
         }
       };
@@ -81,7 +81,6 @@ export default function ServiceBookingScreen() {
     }
 
     addBooking({
-      id: Math.random().toString(36).substr(2, 9),
       type: 'Service',
       title: bookingTitle,
       subtitle: categoryName,
@@ -90,7 +89,6 @@ export default function ServiceBookingScreen() {
       address: address,
       date: date,
       price: selectedService.price,
-      status: 'Upcoming',
     });
 
     setStep(3);
@@ -231,7 +229,7 @@ export default function ServiceBookingScreen() {
 
       <Button 
         title="Back to Home" 
-        onPress={() => navigation.navigate('Home')}
+        onPress={() => navigation.navigate('Main')}
         size="lg"
         style={{ width: '100%', marginTop: Spacing.xxl }}
       />
@@ -244,7 +242,7 @@ export default function ServiceBookingScreen() {
         <Pressable 
           style={styles.backBtn} 
           onPress={() => {
-            if (step === 3) navigation.navigate('Home');
+            if (step === 3) navigation.navigate('Main');
             else if (step === 2 && preSelected) navigation.goBack();
             else if (step === 2) setStep(1);
             else navigation.goBack();
