@@ -1,5 +1,5 @@
 import React from 'react';
-import { Module } from '../registry';
+import type { Module } from '../registry';
 
 const Reports = React.lazy(() => import('../../pages/Reports').then((m) => ({ default: m.Reports })));
 

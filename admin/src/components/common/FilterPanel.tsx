@@ -114,7 +114,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
             </Typography>
             <Grid container spacing={2}>
               {fields.map((field) => (
-                <Grid item xs={12} sm={6} md={4} key={field.id}>
+                <Grid size={{ xs: 12, sm: 6, md: 4 }} key={field.id}>
                   {field.type === 'select' ? (
                     <TextField
                       select
@@ -140,7 +140,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                         fullWidth
                         size="small"
                         label={`Start ${field.label}`}
-                        InputLabelProps={{ shrink: true }}
+                        slotProps={{ inputLabel: { shrink: true } }}
                         value={filters[`${field.id}_start`]}
                         onChange={(e) => handleFieldChange(`${field.id}_start`, e.target.value)}
                       />
@@ -149,7 +149,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                         fullWidth
                         size="small"
                         label={`End ${field.label}`}
-                        InputLabelProps={{ shrink: true }}
+                        slotProps={{ inputLabel: { shrink: true } }}
                         value={filters[`${field.id}_end`]}
                         onChange={(e) => handleFieldChange(`${field.id}_end`, e.target.value)}
                       />

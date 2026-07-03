@@ -1,5 +1,5 @@
 import React from 'react';
-import { Module } from '../registry';
+import type { Module } from '../registry';
 
 const CMSManager = React.lazy(() => import('./CMSManager').then((m) => ({ default: m.CMSManager })));
 

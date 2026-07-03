@@ -77,10 +77,10 @@ export const ExportButton: React.FC<ExportButtonProps> = ({
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
-        MenuListProps={{
-          'aria-labelledby': 'export-button',
-        }}
         slotProps={{
+          list: {
+            'aria-labelledby': 'export-button',
+          },
           paper: {
             sx: {
               borderRadius: 2.5,

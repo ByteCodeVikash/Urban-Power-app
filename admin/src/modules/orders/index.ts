@@ -1,5 +1,5 @@
 import React from 'react';
-import { Module } from '../registry';
+import type { Module } from '../registry';
 
 const Orders = React.lazy(() => import('../../pages/Orders').then((m) => ({ default: m.Orders })));
 const OrderDetails = React.lazy(() => import('../../pages/OrderDetails').then((m) => ({ default: m.OrderDetails })));
@@ -68,6 +68,20 @@ export const OrdersModule: Module = {
       title: 'Average Order Value',
       component: React.lazy(() =>
         import('./widgets/AverageOrderValueWidget').then((m) => ({ default: m.AverageOrderValueWidget }))
+      ),
+    },
+    {
+      id: 'bookings-graph',
+      title: 'Bookings Graph',
+      component: React.lazy(() =>
+        import('./widgets/BookingsGraphWidget').then((m) => ({ default: m.BookingsGraphWidget }))
+      ),
+    },
+    {
+      id: 'latest-orders',
+      title: 'Latest Orders',
+      component: React.lazy(() =>
+        import('./widgets/LatestOrdersWidget').then((m) => ({ default: m.LatestOrdersWidget }))
       ),
     },
   ],

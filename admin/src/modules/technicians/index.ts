@@ -1,5 +1,5 @@
 import React from 'react';
-import { Module } from '../registry';
+import type { Module } from '../registry';
 
 const Technicians = React.lazy(() => import('../../pages/Technicians').then((m) => ({ default: m.Technicians })));
 
@@ -27,6 +27,20 @@ export const TechniciansModule: Module = {
       title: 'Active Technicians',
       component: React.lazy(() =>
         import('./widgets/ActiveTechniciansWidget').then((m) => ({ default: m.ActiveTechniciansWidget }))
+      ),
+    },
+    {
+      id: 'top-technicians',
+      title: 'Top Technicians',
+      component: React.lazy(() =>
+        import('./widgets/TopTechniciansWidget').then((m) => ({ default: m.TopTechniciansWidget }))
+      ),
+    },
+    {
+      id: 'low-rated-technicians',
+      title: 'Low Rated Technicians',
+      component: React.lazy(() =>
+        import('./widgets/LowRatedTechniciansWidget').then((m) => ({ default: m.LowRatedTechniciansWidget }))
       ),
     },
   ],

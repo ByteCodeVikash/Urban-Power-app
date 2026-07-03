@@ -1,5 +1,5 @@
 import React from 'react';
-import { Module } from '../registry';
+import type { Module } from '../registry';
 
 const Users = React.lazy(() => import('../../pages/Users').then((m) => ({ default: m.Users })));
 

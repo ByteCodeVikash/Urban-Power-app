@@ -1,6 +1,6 @@
 import React from 'react';
 import { useHasPermission } from '../hooks/useHasPermission';
-import { Permission } from '../config/roles';
+import type { Permission } from '../config/roles';
 import NoPermission from '../components/common/NoPermission';
 
 interface PermissionGuardProps {

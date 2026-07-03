@@ -1,4 +1,4 @@
-import { Permission } from './roles';
+import type { Permission } from './roles';
 
 export interface MenuItem {
   title: string;
@@ -107,6 +107,20 @@ export const menuConfig: MenuItem[] = [
     icon: 'Settings',
     route: '/settings',
     permission: 'settings.manage',
+    children: [
+      {
+        title: 'System Settings',
+        icon: 'SettingsApplications',
+        route: '/settings',
+        permission: 'settings.manage',
+      },
+      {
+        title: 'Audit Logs',
+        icon: 'ReceiptLong',
+        route: '/settings/audit-logs',
+        permission: 'settings.manage',
+      },
+    ],
   },
   {
     title: 'Profile',

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Module } from '../registry';
+import type { Module } from '../registry';
 
 const CouponManager = React.lazy(() => import('./CouponManager').then((m) => ({ default: m.CouponManager })));
 

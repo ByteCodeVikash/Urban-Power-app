@@ -9,7 +9,7 @@ import {
   Box,
   Typography,
 } from '@mui/material';
-import { DeleteOutline as DeleteIcon } from '@mui/icons-material';
+import { DeleteOutlined as DeleteIcon } from '@mui/icons-material';
 
 interface DeleteDialogProps {
   open: boolean;

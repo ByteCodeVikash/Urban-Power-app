@@ -1,5 +1,5 @@
 import React from 'react';
-import { Module } from '../registry';
+import type { Module } from '../registry';
 
 const SupportCenter = React.lazy(() => import('./SupportCenter').then((m) => ({ default: m.SupportCenter })));
 

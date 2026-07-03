@@ -13,7 +13,8 @@ import {
   Grid,
 } from '@mui/material';
 import PageHeader from '../../components/common/PageHeader';
-import DataTable, { ColumnConfig } from '../../components/common/DataTable';
+import DataTable from '../../components/common/DataTable';
+import type { ColumnConfig } from '../../components/common/DataTable';
 import DeleteDialog from '../../components/common/DeleteDialog';
 import { Add as AddIcon } from '@mui/icons-material';
 
@@ -163,7 +164,7 @@ export const CouponManager: React.FC = () => {
         </DialogTitle>
         <DialogContent>
           <Grid container spacing={2.5} sx={{ mt: 0.5 }}>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
                 label="Coupon Code"
@@ -172,7 +173,7 @@ export const CouponManager: React.FC = () => {
                 onChange={(e) => setCode(e.target.value.toUpperCase())}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 select
                 fullWidth
@@ -185,7 +186,7 @@ export const CouponManager: React.FC = () => {
                 <MenuItem value="Referral">Referral Coupon</MenuItem>
               </TextField>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
                 type="number"
@@ -194,12 +195,12 @@ export const CouponManager: React.FC = () => {
                 onChange={(e) => setValue(Number(e.target.value))}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
                 type="date"
                 label="Expiry Date"
-                InputLabelProps={{ shrink: true }}
+                slotProps={{ inputLabel: { shrink: true } }}
                 value={expiryDate}
                 onChange={(e) => setExpiryDate(e.target.value)}
               />

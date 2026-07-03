@@ -99,17 +99,19 @@ export const SearchBar: React.FC = () => {
         value={query}
         onChange={handleSearch}
         onFocus={() => query.trim() && setShowDropdown(true)}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <SearchIcon sx={{ color: 'text.secondary' }} />
-            </InputAdornment>
-          ),
-          sx: {
-            borderRadius: 3,
-            bgcolor: '#F8FAFC',
-            border: '1px solid #E2E8F0',
-            '& fieldset': { border: 'none' },
+        slotProps={{
+          input: {
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon sx={{ color: 'text.secondary' }} />
+              </InputAdornment>
+            ),
+            sx: {
+              borderRadius: 3,
+              bgcolor: '#F8FAFC',
+              border: '1px solid #E2E8F0',
+              '& fieldset': { border: 'none' },
+            },
           },
         }}
       />

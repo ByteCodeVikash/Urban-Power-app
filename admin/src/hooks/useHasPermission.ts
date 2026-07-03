@@ -1,5 +1,6 @@
+import { hasPermission } from '../config/roles';
+import type { Permission } from '../config/roles';
 import { useAuthStore } from '../store/authStore';
-import { hasPermission, Permission } from '../config/roles';
 
 export const useHasPermission = () => {
   const user = useAuthStore((state) => state.user);

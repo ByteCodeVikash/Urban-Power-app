@@ -1,5 +1,5 @@
 import React from 'react';
-import { Module } from '../registry';
+import type { Module } from '../registry';
 
 const Services = React.lazy(() => import('../../pages/Services').then((m) => ({ default: m.Services })));
 const Categories = React.lazy(() => import('../../pages/Categories').then((m) => ({ default: m.Categories })));
@@ -31,6 +31,15 @@ export const ServicesModule: Module = {
       icon: 'Category',
       route: '/categories',
       permission: 'services.manage',
+    },
+  ],
+  dashboardWidgets: [
+    {
+      id: 'top-services',
+      title: 'Top Services',
+      component: React.lazy(() =>
+        import('./widgets/TopServicesWidget').then((m) => ({ default: m.TopServicesWidget }))
+      ),
     },
   ],
 };

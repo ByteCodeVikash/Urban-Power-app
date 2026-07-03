@@ -1,5 +1,5 @@
 import React from 'react';
-import { Permission } from '../config/roles';
+import type { Permission } from '../config/roles';
 
 export interface ModuleRoute {
   path: string;

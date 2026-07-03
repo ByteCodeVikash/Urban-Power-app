@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Box, Tab, Tabs, Chip, Button, Dialog, DialogTitle, DialogContent, DialogActions, Typography, Grid } from '@mui/material';
+import { useLocation, useNavigate } from 'react-router-dom';
 import PageHeader from '../../components/common/PageHeader';
-import DataTable, { ColumnConfig } from '../../components/common/DataTable';
-import { ConfirmationNumber as TicketIcon } from '@mui/icons-material';
+import DataTable from '../../components/common/DataTable';
+import type { ColumnConfig } from '../../components/common/DataTable';
 
 interface Ticket {
   id: string;
@@ -49,8 +50,40 @@ const mockTickets: Ticket[] = [
 ];
 
 export const SupportCenter: React.FC = () => {
-  const [activeTab, setActiveTab] = useState(0);
+  const navigate = useNavigate();
+  const location = useLocation();
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+
+  // Sync tab active index with current URL path
+  const getActiveTab = () => {
+    switch (location.pathname) {
+      case '/support/complaints':
+        return 1;
+      case '/support/feedback':
+        return 2;
+      case '/support/escalations':
+        return 3;
+      default:
+        return 0; // Tickets
+    }
+  };
+
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
+    switch (newValue) {
+      case 1:
+        navigate('/support/complaints');
+        break;
+      case 2:
+        navigate('/support/feedback');
+        break;
+      case 3:
+        navigate('/support/escalations');
+        break;
+      default:
+        navigate('/support/tickets');
+        break;
+    }
+  };
 
   const getPriorityColor = (priority: Ticket['priority']) => {
     switch (priority) {
@@ -105,16 +138,17 @@ export const SupportCenter: React.FC = () => {
     },
   ];
 
-  // Filter mock lists based on tab category
+  // Filter mock lists based on current path
   const getFilteredData = () => {
-    switch (activeTab) {
+    const tab = getActiveTab();
+    switch (tab) {
       case 1: // Complaints
         return mockTickets.filter((t) => t.subject.toLowerCase().includes('pickup') || t.subject.toLowerCase().includes('refund'));
       case 2: // Customer Feedback
         return mockTickets.filter((t) => t.status === 'Resolved');
       case 3: // Escalations
         return mockTickets.filter((t) => t.priority === 'Critical' || t.status === 'Escalated');
-      default: // All Tickets
+      default: // All Tickets / Tickets Tab
         return mockTickets;
     }
   };
@@ -123,7 +157,7 @@ export const SupportCenter: React.FC = () => {
     <Box>
       <PageHeader title="Support Center" subtitle="Manage help tickets, escalations, and feedbacks." />
 
-      <Tabs value={activeTab} onChange={(e, val) => setActiveTab(val)} sx={{ mb: 3 }}>
+      <Tabs value={getActiveTab()} onChange={handleTabChange} sx={{ mb: 3 }}>
         <Tab label="Tickets" />
         <Tab label="Complaints" />
         <Tab label="Customer Feedback" />
@@ -146,31 +180,31 @@ export const SupportCenter: React.FC = () => {
             </DialogTitle>
             <DialogContent dividers>
               <Grid container spacing={2}>
-                <Grid item xs={12}>
+                <Grid size={{ xs: 12 }}>
                   <Typography variant="caption" color="text.secondary">Subject</Typography>
                   <Typography variant="body1" sx={{ fontWeight: 600 }}>{selectedTicket.subject}</Typography>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid size={{ xs: 6 }}>
                   <Typography variant="caption" color="text.secondary">Customer</Typography>
                   <Typography variant="body2">{selectedTicket.customer}</Typography>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid size={{ xs: 6 }}>
                   <Typography variant="caption" color="text.secondary">Assigned Executive</Typography>
                   <Typography variant="body2">{selectedTicket.assignedExecutive}</Typography>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid size={{ xs: 6 }}>
                   <Typography variant="caption" color="text.secondary">Priority</Typography>
                   <Box sx={{ mt: 0.5 }}>
                     <Chip label={selectedTicket.priority} size="small" color={getPriorityColor(selectedTicket.priority)} />
                   </Box>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid size={{ xs: 6 }}>
                   <Typography variant="caption" color="text.secondary">Status</Typography>
                   <Box sx={{ mt: 0.5 }}>
                     <Chip label={selectedTicket.status} size="small" color={getStatusColor(selectedTicket.status)} />
                   </Box>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={{ xs: 12 }}>
                   <Typography variant="caption" color="text.secondary">Issue Details</Typography>
                   <Typography variant="body2" sx={{ bgcolor: '#F7FAFC', p: 2, borderRadius: 2, border: '1px solid #E2E8F0', mt: 0.5 }}>
                     {selectedTicket.description}

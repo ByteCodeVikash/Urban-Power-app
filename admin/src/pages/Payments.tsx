@@ -5,13 +5,6 @@ import {
   CardContent,
   Typography,
   Grid,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   Button,
   Dialog,
   DialogTitle,
@@ -27,6 +20,8 @@ import {
   KeyboardReturn as RefundIcon,
   AccountBalanceWallet as BalanceIcon,
 } from '@mui/icons-material';
+import { DataTable, type ColumnConfig } from '../components/common/DataTable';
+import { FilterPanel, type FilterField } from '../components/common/FilterPanel';
 
 // Initial Mock Transactions
 const initialTransactions = [
@@ -39,6 +34,12 @@ const initialTransactions = [
 
 export const Payments: React.FC = () => {
   const [txns, setTxns] = useState(initialTransactions);
+  const [activeFilters, setActiveFilters] = useState<Record<string, any>>({
+    search: '',
+    gateway: '',
+    status: '',
+  });
+
   const [openRefundDialog, setOpenRefundDialog] = useState(false);
   const [selectedTxn, setSelectedTxn] = useState<typeof initialTransactions[0] | null>(null);
 
@@ -46,6 +47,25 @@ export const Payments: React.FC = () => {
   const [refundAmount, setRefundAmount] = useState('');
   const [refundReason, setRefundReason] = useState('');
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // Filter change handler
+  const handleFilterChange = (filters: Record<string, any>) => {
+    setActiveFilters(filters);
+  };
+
+  // Filter logic
+  const filteredTransactions = txns.filter((txn) => {
+    const searchVal = activeFilters.search || '';
+    const matchesSearch =
+      txn.id.toLowerCase().includes(searchVal.toLowerCase()) ||
+      txn.orderId.toLowerCase().includes(searchVal.toLowerCase()) ||
+      txn.customer.toLowerCase().includes(searchVal.toLowerCase());
+    
+    const matchesGateway = !activeFilters.gateway || txn.gateway === activeFilters.gateway;
+    const matchesStatus = !activeFilters.status || txn.status === activeFilters.status;
+
+    return matchesSearch && matchesGateway && matchesStatus;
+  });
 
   const handleOpenRefund = (txn: typeof initialTransactions[0]) => {
     setSelectedTxn(txn);
@@ -67,6 +87,112 @@ export const Payments: React.FC = () => {
       }, 1500);
     }
   };
+
+  // DataTable column configuration
+  const columns: ColumnConfig<typeof initialTransactions[0]>[] = [
+    { id: 'id', label: 'Transaction ID' },
+    { id: 'orderId', label: 'Order ID' },
+    { id: 'customer', label: 'Customer', render: (row) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{row.customer}</Typography> },
+    {
+      id: 'gateway',
+      label: 'Gateway Mode',
+      render: (row) => (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          {row.gateway === 'Razorpay' ? (
+            <RazorpayIcon fontSize="small" color="primary" />
+          ) : (
+            <CodIcon fontSize="small" color="success" />
+          )}
+          <Typography variant="body2">{row.gateway}</Typography>
+        </Box>
+      ),
+    },
+    { id: 'date', label: 'Date' },
+    { id: 'amount', label: 'Paid Amount', render: (row) => <Typography variant="body2" sx={{ fontWeight: 700 }}>{row.amount}</Typography> },
+    {
+      id: 'status',
+      label: 'Settlement Status',
+      align: 'center',
+      render: (row) => (
+        <Box
+          sx={{
+            display: 'inline-block',
+            px: 1.5,
+            py: 0.5,
+            borderRadius: 2,
+            fontSize: '0.75rem',
+            fontWeight: 700,
+            bgcolor:
+              row.status === 'Settled'
+                ? 'rgba(72, 187, 120, 0.15)'
+                : row.status === 'Escrow'
+                ? 'rgba(66, 153, 225, 0.15)'
+                : row.status === 'Refunded'
+                ? 'rgba(245, 101, 101, 0.15)'
+                : 'rgba(250, 208, 44, 0.2)',
+            color:
+              row.status === 'Settled'
+                ? '#276749'
+                : row.status === 'Escrow'
+                ? '#2B6CB0'
+                : row.status === 'Refunded'
+                ? '#9B2C2C'
+                : '#B7791F',
+          }}
+        >
+          {row.status}
+        </Box>
+      ),
+    },
+    {
+      id: 'actions',
+      label: 'Actions',
+      align: 'right',
+      render: (row) => (
+        <Box>
+          {row.gateway === 'Razorpay' && row.status !== 'Refunded' ? (
+            <Button
+              size="small"
+              color="error"
+              variant="outlined"
+              startIcon={<RefundIcon />}
+              onClick={() => handleOpenRefund(row)}
+            >
+              Trigger Refund
+            </Button>
+          ) : (
+            <Button size="small" variant="outlined" disabled>
+              No Action
+            </Button>
+          )}
+        </Box>
+      ),
+    },
+  ];
+
+  // Filter fields configuration
+  const filterFields: FilterField[] = [
+    {
+      id: 'gateway',
+      label: 'Gateway Mode',
+      type: 'select',
+      options: [
+        { value: 'Razorpay', label: 'Razorpay' },
+        { value: 'COD', label: 'Cash on Delivery (COD)' },
+      ],
+    },
+    {
+      id: 'status',
+      label: 'Settlement Status',
+      type: 'select',
+      options: [
+        { value: 'Settled', label: 'Settled' },
+        { value: 'Escrow', label: 'Escrow' },
+        { value: 'Pending Cash', label: 'Pending Cash' },
+        { value: 'Refunded', label: 'Refunded' },
+      ],
+    },
+  ];
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -159,91 +285,17 @@ export const Payments: React.FC = () => {
         </Grid>
       </Grid>
 
-      {/* Transaction Ledger Table */}
-      <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #E2E8F0' }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Transaction ID</TableCell>
-              <TableCell>Order ID</TableCell>
-              <TableCell>Customer</TableCell>
-              <TableCell>Gateway Mode</TableCell>
-              <TableCell>Date</TableCell>
-              <TableCell>Paid Amount</TableCell>
-              <TableCell align="center">Settlement Status</TableCell>
-              <TableCell align="right">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {txns.map((txn) => (
-              <TableRow key={txn.id} hover>
-                <TableCell sx={{ fontWeight: 600 }}>{txn.id}</TableCell>
-                <TableCell>{txn.orderId}</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>{txn.customer}</TableCell>
-                <TableCell>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    {txn.gateway === 'Razorpay' ? (
-                      <RazorpayIcon fontSize="small" color="primary" />
-                    ) : (
-                      <CodIcon fontSize="small" color="success" />
-                    )}
-                    <Typography variant="body2">{txn.gateway}</Typography>
-                  </Box>
-                </TableCell>
-                <TableCell>{txn.date}</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>{txn.amount}</TableCell>
-                <TableCell align="center">
-                  <Box
-                    sx={{
-                      display: 'inline-block',
-                      px: 1.5,
-                      py: 0.5,
-                      borderRadius: 2,
-                      fontSize: '0.75rem',
-                      fontWeight: 700,
-                      bgcolor:
-                        txn.status === 'Settled'
-                          ? 'rgba(72, 187, 120, 0.15)'
-                          : txn.status === 'Escrow'
-                          ? 'rgba(66, 153, 225, 0.15)'
-                          : txn.status === 'Refunded'
-                          ? 'rgba(245, 101, 101, 0.15)'
-                          : 'rgba(250, 208, 44, 0.2)',
-                      color:
-                        txn.status === 'Settled'
-                          ? '#276749'
-                          : txn.status === 'Escrow'
-                          ? '#2B6CB0'
-                          : txn.status === 'Refunded'
-                          ? '#9B2C2C'
-                          : '#B7791F',
-                    }}
-                  >
-                    {txn.status}
-                  </Box>
-                </TableCell>
-                <TableCell align="right">
-                  {txn.gateway === 'Razorpay' && txn.status !== 'Refunded' ? (
-                    <Button
-                      size="small"
-                      color="error"
-                      variant="outlined"
-                      startIcon={<RefundIcon />}
-                      onClick={() => handleOpenRefund(txn)}
-                    >
-                      Trigger Refund
-                    </Button>
-                  ) : (
-                    <Button size="small" variant="outlined" disabled>
-                      No Action
-                    </Button>
-                  )}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      {/* Unified Filter Panel */}
+      <FilterPanel fields={filterFields} onFilterChange={handleFilterChange} />
+
+      {/* Transaction Ledger DataTable */}
+      <DataTable
+        title="Transaction Ledger"
+        filename="transactions_ledger"
+        columns={columns}
+        data={filteredTransactions}
+        emptyMessage="No transaction logs match current filters."
+      />
 
       {/* Process Refund Dialog */}
       <Dialog open={openRefundDialog} onClose={() => setOpenRefundDialog(false)} fullWidth maxWidth="xs">
@@ -294,4 +346,5 @@ export const Payments: React.FC = () => {
     </Box>
   );
 };
+
 export default Payments;
