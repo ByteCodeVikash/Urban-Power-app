@@ -70,6 +70,8 @@ export default function ServiceCategoryListScreen() {
               categoryId: 'c10',
               categoryName: 'Massage',
             });
+          } else if (item.id === 'c3') {
+            navigation.navigate('MaintenanceCategories');
           } else {
             navigation.navigate('Subcategory', {
               categoryId: item.id,

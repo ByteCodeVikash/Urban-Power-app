@@ -9,8 +9,14 @@ import {
   Pressable,
   ScrollView,
   Image,
+  ActivityIndicator,
 } from 'react-native';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import Animated, {
+  FadeIn,
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from 'react-native-reanimated';
 import { ArrowLeft, AlertCircle, PhoneCall } from 'lucide-react-native';
 import { useAuthStore, UserRole } from '../../store/useAuthStore';
 import { Button } from '../../components/Button';
@@ -21,12 +27,76 @@ import { api } from '../../services/api';
 import { OtpInput } from '../../components/OtpInput';
 import { googleAuthService } from '../../services/googleAuth';
 
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+interface GoogleButtonProps {
+  onPress: () => void;
+  disabled: boolean;
+  loading: boolean;
+}
+
+const GoogleButton: React.FC<GoogleButtonProps> = ({
+  onPress,
+  disabled,
+  loading,
+}) => {
+  const scale = useSharedValue(1);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scale.value }],
+    };
+  });
+
+  const handlePressIn = () => {
+    if (disabled || loading) return;
+    scale.value = withTiming(0.98, { duration: 120 });
+  };
+
+  const handlePressOut = () => {
+    scale.value = withTiming(1, { duration: 120 });
+  };
+
+  return (
+    <AnimatedPressable
+      onPress={onPress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      disabled={disabled || loading}
+      style={[
+        styles.googleButton,
+        (disabled || loading) && styles.googleButtonDisabled,
+        animatedStyle,
+      ]}
+    >
+      {loading ? (
+        <ActivityIndicator color="#1F2937" size="small" />
+      ) : (
+        <View style={styles.googleButtonContent}>
+          <Image
+            source={require('../../../assets/google_logo.png')}
+            style={styles.googleIcon}
+          />
+          <Typography
+            variant="body1"
+            weight="600"
+            style={styles.googleButtonText}
+          >
+            Continue with Google
+          </Typography>
+        </View>
+      )}
+    </AnimatedPressable>
+  );
+};
+
 export default function LoginScreen() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState<'PHONE' | 'OTP'>('PHONE');
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [confirmation, setConfirmation] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [resendTimer, setResendTimer] = useState(0);
@@ -128,6 +198,7 @@ export default function LoginScreen() {
   }, [otp]);
 
   const handleGoogleLogin = async () => {
+    setGoogleLoading(true);
     setLoading(true);
     setError(null);
     try {
@@ -155,6 +226,7 @@ export default function LoginScreen() {
         setError(err?.message || 'Google Sign-in failed. Please try again.');
       }
     } finally {
+      setGoogleLoading(false);
       setLoading(false);
     }
   };
@@ -378,20 +450,10 @@ export default function LoginScreen() {
                     <View style={styles.dividerLine} />
                   </View>
 
-                  <Button
-                    title="Continue with Google"
-                    variant="outline"
+                  <GoogleButton
                     onPress={handleGoogleLogin}
-                    loading={loading}
-                    icon={
-                      <Image
-                        source={require('../../../assets/google_logo.png')}
-                        style={styles.googleIcon}
-                      />
-                    }
-                    size="lg"
-                    style={styles.googleButton}
-                    textStyle={styles.googleButtonText}
+                    disabled={loading}
+                    loading={googleLoading}
                   />
                 </>
               )}
@@ -627,20 +689,37 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   googleButton: {
-    backgroundColor: Colors.light.white,
-    borderColor: Colors.light.border,
+    backgroundColor: '#FFFFFF',
+    borderColor: '#E5E7EB',
     borderWidth: 1,
     height: 56,
-    borderRadius: BorderRadius.lg,
-    elevation: 0,
-    shadowOpacity: 0,
+    borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+    width: '100%',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  googleButtonDisabled: {
+    opacity: 0.6,
+  },
+  googleButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   googleButtonText: {
-    color: Colors.light.text,
-    fontWeight: '700',
+    fontSize: 16,
+    color: '#1F2937',
   },
   googleIcon: {
     width: 20,
     height: 20,
+    marginRight: 12,
   },
 });

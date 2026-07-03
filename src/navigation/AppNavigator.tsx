@@ -77,6 +77,7 @@ import SearchScreen from '../screens/Main/SearchScreen';
 import ServiceCategoryListScreen from '../screens/Services/ServiceCategoryListScreen';
 import OffersScreen from '../screens/Shop/OffersScreen';
 import MapScreen from '../screens/Main/MapScreen';
+import ComingSoonScreen from '../screens/Services/ComingSoonScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -107,14 +108,11 @@ export default function AppNavigator() {
             )}
 
             {/* Common Shares Screens (Accessible by all or based on logic) */}
-            <Stack.Screen name="CategoryDetail" component={CategoryScreen} />
-            <Stack.Screen
-              name="ServiceDetail"
-              component={ServiceDetailScreen}
-            />
+            <Stack.Screen name="CategoryDetail" component={ComingSoonScreen} />
+            <Stack.Screen name="ServiceDetail" component={ComingSoonScreen} />
             <Stack.Screen
               name="ServiceBookingFlow"
-              component={ServiceBookingFlowScreen}
+              component={ComingSoonScreen}
             />
             <Stack.Screen name="Bookings" component={BookingsScreen} />
             <Stack.Screen name="Rewards" component={RewardsScreen} />
@@ -122,13 +120,10 @@ export default function AppNavigator() {
               name="GeneralBookingSuccess"
               component={GeneralBookingSuccessScreen}
             />
-            <Stack.Screen
-              name="ProductDetail"
-              component={ProductDetailScreen}
-            />
+            <Stack.Screen name="ProductDetail" component={ComingSoonScreen} />
             <Stack.Screen
               name="ShopSubcategories"
-              component={ShopSubcategoriesScreen}
+              component={ComingSoonScreen}
             />
 
             {/* Kabadi Stack */}
@@ -200,7 +195,7 @@ export default function AppNavigator() {
             {/* Modal Screens */}
             <Stack.Screen
               name="Cart"
-              component={CartScreen}
+              component={ComingSoonScreen}
               options={{ presentation: 'modal' }}
             />
 
@@ -227,35 +222,23 @@ export default function AppNavigator() {
               name="ServiceTracking"
               component={ServiceTrackingScreen}
             />
-            <Stack.Screen
-              name="OrderTracking"
-              component={OrderTrackingScreen}
-            />
+            <Stack.Screen name="OrderTracking" component={ComingSoonScreen} />
             <Stack.Screen
               name="SavedAddresses"
               component={SavedAddressesScreen}
             />
             <Stack.Screen name="HelpSupport" component={HelpSupportScreen} />
-            <Stack.Screen name="ShopCategory" component={ShopCategoryScreen} />
-            <Stack.Screen
-              name="ShopSubCategory"
-              component={ShopSubCategoryScreen}
-            />
-            <Stack.Screen
-              name="ShopProductList"
-              component={ShopProductListScreen}
-            />
-            <Stack.Screen
-              name="GroceryCategory"
-              component={GroceryCategoryScreen}
-            />
+            <Stack.Screen name="ShopCategory" component={ComingSoonScreen} />
+            <Stack.Screen name="ShopSubCategory" component={ComingSoonScreen} />
+            <Stack.Screen name="ShopProductList" component={ComingSoonScreen} />
+            <Stack.Screen name="GroceryCategory" component={ComingSoonScreen} />
             <Stack.Screen
               name="GrocerySubCategory"
-              component={GrocerySubCategoryScreen}
+              component={ComingSoonScreen}
             />
             <Stack.Screen
               name="GroceryProductList"
-              component={GroceryProductListScreen}
+              component={ComingSoonScreen}
             />
             <Stack.Screen name="MyBookings" component={MyBookingsScreen} />
             <Stack.Screen name="Wallet" component={WalletScreen} />
@@ -282,34 +265,32 @@ export default function AppNavigator() {
             />
             <Stack.Screen name="VIPSafety" component={GenericInfoScreen} />
             <Stack.Screen name="ClaimWarranty" component={GenericInfoScreen} />
-            <Stack.Screen name="ServiceScreen" component={ServiceScreen} />
+            <Stack.Screen name="ServiceScreen" component={ComingSoonScreen} />
             <Stack.Screen
               name="ServiceBookingScreen"
-              component={ServiceBookingScreen}
+              component={ComingSoonScreen}
             />
-            <Stack.Screen
-              name="DateSelection"
-              component={DateSelectionScreen}
-            />
+            <Stack.Screen name="DateSelection" component={ComingSoonScreen} />
             <Stack.Screen
               name="TimeslotSelection"
-              component={TimeslotSelectionScreen}
+              component={ComingSoonScreen}
             />
             {/* Subcategory Screens */}
-            <Stack.Screen name="Subcategory" component={SubcategoryScreen} />
+            <Stack.Screen name="Subcategory" component={ComingSoonScreen} />
             <Stack.Screen
               name="BeautyServiceSubcategory"
-              component={BeautyServiceSubcategoryScreen}
+              component={ComingSoonScreen}
             />
-            <Stack.Screen name="BeautyGender" component={BeautyGenderScreen} />
-            <Stack.Screen name="GenderPicker" component={GenderPickerScreen} />
+            <Stack.Screen name="BeautyGender" component={ComingSoonScreen} />
+            <Stack.Screen name="GenderPicker" component={ComingSoonScreen} />
             <Stack.Screen name="Search" component={SearchScreen} />
             <Stack.Screen
               name="CategoryList"
               component={ServiceCategoryListScreen}
             />
-            <Stack.Screen name="Offers" component={OffersScreen} />
+            <Stack.Screen name="Offers" component={ComingSoonScreen} />
             <Stack.Screen name="MapScreen" component={MapScreen} />
+            <Stack.Screen name="ComingSoon" component={ComingSoonScreen} />
           </>
         )}
       </Stack.Navigator>

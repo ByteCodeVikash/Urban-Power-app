@@ -150,4 +150,5 @@ export type RootStackParamList = {
   EditProfile: undefined;
   Search: undefined;
   Offers: undefined;
+  ComingSoon: undefined;
 };
