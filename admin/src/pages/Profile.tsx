@@ -19,7 +19,10 @@ import { useAuthStore } from '../store/authStore';
 // Form Schema
 const profileSchema = zod.object({
   name: zod.string().min(1, 'Name is required'),
-  email: zod.string().min(1, 'Email is required').email('Invalid email address'),
+  email: zod
+    .string()
+    .min(1, 'Email is required')
+    .email('Invalid email address'),
   phone: zod.string().min(10, 'Phone must be at least 10 digits'),
   newPassword: zod.string().optional().or(zod.literal('')),
 });
@@ -48,8 +51,8 @@ export const Profile: React.FC = () => {
     setSuccessText(null);
     try {
       // Simulate API Save
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      
+      await new Promise(resolve => setTimeout(resolve, 800));
+
       // Update state in store
       if (user && token) {
         login(
@@ -58,7 +61,7 @@ export const Profile: React.FC = () => {
             name: data.name,
             email: data.email,
           },
-          token
+          token,
         );
       }
       setSuccessText('Profile details saved successfully.');
@@ -71,7 +74,14 @@ export const Profile: React.FC = () => {
   return (
     <Box sx={{ flexGrow: 1 }}>
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 800, fontFamily: '"Outfit", sans-serif', color: '#1A202C' }}>
+        <Typography
+          variant="h4"
+          sx={{
+            fontWeight: 800,
+            fontFamily: '"Outfit", sans-serif',
+            color: '#1A202C',
+          }}
+        >
           My Admin Profile
         </Typography>
         <Typography variant="body2" color="text.secondary">
@@ -89,7 +99,15 @@ export const Profile: React.FC = () => {
         {/* Profile Card left */}
         <Grid size={{ xs: 12, md: 4 }}>
           <Card>
-            <CardContent sx={{ p: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+            <CardContent
+              sx={{
+                p: 4,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                textAlign: 'center',
+              }}
+            >
               <Avatar
                 sx={{
                   width: 90,
@@ -110,7 +128,20 @@ export const Profile: React.FC = () => {
               <Typography variant="body2" color="text.secondary" gutterBottom>
                 {user?.email || 'admin@urbanpower.com'}
               </Typography>
-              <Typography variant="caption" sx={{ mt: 1, px: 2, py: 0.5, borderRadius: 2, bgcolor: '#2D3748', color: '#FFFFFF', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  mt: 1,
+                  px: 2,
+                  py: 0.5,
+                  borderRadius: 2,
+                  bgcolor: '#2D3748',
+                  color: '#FFFFFF',
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  letterSpacing: 0.5,
+                }}
+              >
                 {user?.role || 'Administrator'}
               </Typography>
             </CardContent>
@@ -121,10 +152,17 @@ export const Profile: React.FC = () => {
         <Grid size={{ xs: 12, md: 8 }}>
           <Card>
             <CardContent sx={{ p: 4 }}>
-              <Typography variant="h6" sx={{ fontWeight: 700, mb: 3, fontFamily: '"Outfit", sans-serif' }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 700,
+                  mb: 3,
+                  fontFamily: '"Outfit", sans-serif',
+                }}
+              >
                 Profile Coordinates
               </Typography>
-              
+
               <form onSubmit={handleSubmit(onSubmit)}>
                 <Grid container spacing={3}>
                   <Grid size={{ xs: 12, sm: 6 }}>
@@ -157,10 +195,17 @@ export const Profile: React.FC = () => {
                       {...register('email')}
                     />
                   </Grid>
-                  
+
                   <Grid size={12}>
                     <Divider sx={{ my: 1.5 }} />
-                    <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 2, fontFamily: '"Outfit", sans-serif' }}>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        fontWeight: 700,
+                        mb: 2,
+                        fontFamily: '"Outfit", sans-serif',
+                      }}
+                    >
                       Change Security Password
                     </Typography>
                   </Grid>
@@ -179,7 +224,9 @@ export const Profile: React.FC = () => {
                   </Grid>
                 </Grid>
 
-                <Box sx={{ mt: 4, display: 'flex', justifyContent: 'flex-end' }}>
+                <Box
+                  sx={{ mt: 4, display: 'flex', justifyContent: 'flex-end' }}
+                >
                   <Button
                     type="submit"
                     variant="contained"
@@ -187,7 +234,9 @@ export const Profile: React.FC = () => {
                     disabled={isSubmitting}
                     sx={{ px: 3, py: 1 }}
                   >
-                    {isSubmitting ? 'Saving Changes...' : 'Save Profile details'}
+                    {isSubmitting
+                      ? 'Saving Changes...'
+                      : 'Save Profile details'}
                   </Button>
                 </Box>
               </form>

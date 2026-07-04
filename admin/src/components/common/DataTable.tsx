@@ -49,7 +49,9 @@ export function DataTable<T extends Record<string, any>>({
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
@@ -63,21 +65,27 @@ export function DataTable<T extends Record<string, any>>({
   }
 
   // Paginate items
-  const paginatedData = data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const paginatedData = data.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage,
+  );
 
   // Prepare data for Export utilities
-  const exportData = data.map((item) => {
+  const exportData = data.map(item => {
     const rowObj: Record<string, any> = {};
-    columns.forEach((col) => {
+    columns.forEach(col => {
       // Avoid exporting custom React renders directly, fallback to primitive field text if available
-      rowObj[col.label] = item[col.id] !== undefined ? String(item[col.id]) : '';
+      rowObj[col.label] =
+        item[col.id] !== undefined ? String(item[col.id]) : '';
     });
     return rowObj;
   });
 
-  const pdfHeaders = columns.map((col) => col.label);
-  const pdfRows = data.map((item) =>
-    columns.map((col) => (item[col.id] !== undefined ? String(item[col.id]) : ''))
+  const pdfHeaders = columns.map(col => col.label);
+  const pdfRows = data.map(item =>
+    columns.map(col =>
+      item[col.id] !== undefined ? String(item[col.id]) : '',
+    ),
   );
 
   return (
@@ -95,11 +103,19 @@ export function DataTable<T extends Record<string, any>>({
         </Box>
       )}
 
-      <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #E2E8F0', borderRadius: 3, overflow: 'hidden' }}>
+      <TableContainer
+        component={Paper}
+        elevation={0}
+        sx={{
+          border: '1px solid #E2E8F0',
+          borderRadius: 3,
+          overflow: 'hidden',
+        }}
+      >
         <Table sx={{ minWidth: 650 }} aria-label={title}>
           <TableHead sx={{ bgcolor: '#F8FAFC' }}>
             <TableRow>
-              {columns.map((col) => (
+              {columns.map(col => (
                 <TableCell
                   key={col.id}
                   align={col.align || 'left'}
@@ -119,14 +135,20 @@ export function DataTable<T extends Record<string, any>>({
           </TableHead>
           <TableBody>
             {paginatedData.map((row, index) => (
-              <TableRow key={row.id || index} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                {columns.map((col) => (
+              <TableRow
+                key={row.id || index}
+                hover
+                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+              >
+                {columns.map(col => (
                   <TableCell
                     key={col.id}
                     align={col.align || 'left'}
                     sx={{ py: 1.8, fontSize: '0.88rem', color: '#2D3748' }}
                   >
-                    {col.render ? col.render(row, page * rowsPerPage + index) : row[col.id]}
+                    {col.render
+                      ? col.render(row, page * rowsPerPage + index)
+                      : row[col.id]}
                   </TableCell>
                 ))}
               </TableRow>

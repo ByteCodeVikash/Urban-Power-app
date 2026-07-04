@@ -1,6 +1,9 @@
 import React from 'react';
 import { Card, CardContent, Typography, Box } from '@mui/material';
-import { ArrowUpward as ArrowUpIcon, ArrowDownward as ArrowDownIcon } from '@mui/icons-material';
+import {
+  ArrowUpward as ArrowUpIcon,
+  ArrowDownward as ArrowDownIcon,
+} from '@mui/icons-material';
 
 interface StatCardProps {
   title: string;
@@ -37,7 +40,13 @@ export const StatCard: React.FC<StatCardProps> = ({
       }}
     >
       <CardContent sx={{ p: 3, '&:last-child': { pb: 3 } }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+          }}
+        >
           <Box>
             <Typography
               variant="body2"
@@ -52,12 +61,22 @@ export const StatCard: React.FC<StatCardProps> = ({
             >
               {title}
             </Typography>
-            <Typography variant="h4" sx={{ fontWeight: 850, color: '#1A202C', letterSpacing: -0.5 }}>
+            <Typography
+              variant="h4"
+              sx={{ fontWeight: 850, color: '#1A202C', letterSpacing: -0.5 }}
+            >
               {value}
             </Typography>
-            
+
             {change && (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 1.5 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.5,
+                  mt: 1.5,
+                }}
+              >
                 <Box
                   sx={{
                     display: 'flex',
@@ -67,10 +86,18 @@ export const StatCard: React.FC<StatCardProps> = ({
                     fontWeight: 700,
                   }}
                 >
-                  {change.type === 'increase' ? <ArrowUpIcon sx={{ fontSize: 16 }} /> : <ArrowDownIcon sx={{ fontSize: 16 }} />}
+                  {change.type === 'increase' ? (
+                    <ArrowUpIcon sx={{ fontSize: 16 }} />
+                  ) : (
+                    <ArrowDownIcon sx={{ fontSize: 16 }} />
+                  )}
                   <span>{change.value}</span>
                 </Box>
-                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 500 }}>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ fontWeight: 500 }}
+                >
                   vs last month
                 </Typography>
               </Box>

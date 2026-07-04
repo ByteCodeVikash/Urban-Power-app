@@ -19,7 +19,7 @@ export const theme = createTheme({
     },
     background: {
       default: '#F7FAFC', // Sleek light gray for page backgrounds
-      paper: '#FFFFFF',   // White for cards and modals
+      paper: '#FFFFFF', // White for cards and modals
     },
     text: {
       primary: '#1A202C',
@@ -78,20 +78,22 @@ export const theme = createTheme({
           '&:hover': {
             boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.05)',
           },
-          ...(ownerState?.variant === 'contained' && ownerState?.color === 'primary' && {
-            backgroundColor: '#FAD02C',
-            color: '#1A202C',
-            '&:hover': {
-              backgroundColor: '#E5BD1B',
-            },
-          }),
-          ...(ownerState?.variant === 'contained' && ownerState?.color === 'secondary' && {
-            backgroundColor: '#212529',
-            color: '#FFFFFF',
-            '&:hover': {
-              backgroundColor: '#121416',
-            },
-          }),
+          ...(ownerState?.variant === 'contained' &&
+            ownerState?.color === 'primary' && {
+              backgroundColor: '#FAD02C',
+              color: '#1A202C',
+              '&:hover': {
+                backgroundColor: '#E5BD1B',
+              },
+            }),
+          ...(ownerState?.variant === 'contained' &&
+            ownerState?.color === 'secondary' && {
+              backgroundColor: '#212529',
+              color: '#FFFFFF',
+              '&:hover': {
+                backgroundColor: '#121416',
+              },
+            }),
         }),
       },
     },

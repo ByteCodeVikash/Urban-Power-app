@@ -1,8 +1,12 @@
 import React from 'react';
 import type { Module } from '../registry';
 
-const Settings = React.lazy(() => import('../../pages/Settings').then((m) => ({ default: m.Settings })));
-const AuditLogs = React.lazy(() => import('../../pages/AuditLogs').then((m) => ({ default: m.AuditLogs })));
+const Settings = React.lazy(() =>
+  import('../../pages/Settings').then(m => ({ default: m.Settings })),
+);
+const AuditLogs = React.lazy(() =>
+  import('../../pages/AuditLogs').then(m => ({ default: m.AuditLogs })),
+);
 
 export const SettingsModule: Module = {
   id: 'settings',

@@ -1,7 +1,9 @@
 import React from 'react';
 import type { Module } from '../registry';
 
-const CouponManager = React.lazy(() => import('./CouponManager').then((m) => ({ default: m.CouponManager })));
+const CouponManager = React.lazy(() =>
+  import('./CouponManager').then(m => ({ default: m.CouponManager })),
+);
 
 export const CouponsModule: Module = {
   id: 'coupons',

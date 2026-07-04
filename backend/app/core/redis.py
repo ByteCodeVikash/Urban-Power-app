@@ -77,6 +77,35 @@ def delete_otp(phone_or_email: str) -> bool:
     key = f"otp:{phone_or_email}"
     return cache_delete(key)
 
+async def set_otp_async(phone_or_email: str, otp: str, expire_seconds: int = 300) -> bool:
+    """
+    Store an OTP in Redis asynchronously with an expiration time (default 5 minutes).
+    """
+    from datetime import datetime, timezone
+    key = f"otp:{phone_or_email}"
+    value = {
+        "otp": otp,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    return await cache_set_async(key, value, expire_seconds)
+
+async def verify_otp_async(phone_or_email: str, otp: str, delete_on_success: bool = True) -> bool:
+    """
+    Verify the provided OTP against the cached OTP dictionary asynchronously.
+    """
+    key = f"otp:{phone_or_email}"
+    try:
+        cached_data = await cache_get_async(key)
+        if cached_data and isinstance(cached_data, dict):
+            cached_otp = cached_data.get("otp")
+            if cached_otp and cached_otp == otp:
+                if delete_on_success:
+                    await cache_delete_async(key)
+                return True
+        return False
+    except Exception as e:
+        logger.error(f"Error verifying OTP in Redis asynchronously for key {key}: {e}")
+        return False
 
 # --- Temporary Session Storage Helpers ---
 

@@ -8,9 +8,11 @@ body,
   min-height: 100vh;
   box-sizing: border-box;
   font-family: 'Inter', sans-serif;
-  background-color: #F7FAFC;
+  background-color: #f7fafc;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: inherit;
 }

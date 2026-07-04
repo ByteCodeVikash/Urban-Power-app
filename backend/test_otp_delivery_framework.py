@@ -72,12 +72,12 @@ def test_otp_redis_storage_structure():
 # 3. SMS Utility (MSG91) Mocking Tests
 # ==========================================
 @pytest.mark.asyncio
-@patch("app.core.sms.httpx.AsyncClient")
+@patch("app.core.sms.get_http_client", new_callable=AsyncMock)
 @patch("app.core.sms.settings")
-async def test_sms_msg91_mocked_request_success(mock_settings, mock_client_class):
+async def test_sms_msg91_mocked_request_success(mock_settings, mock_get_client):
     """
     Test that send_sms correctly structures and sends the HTTP request to MSG91 API
-    using a mocked httpx.AsyncClient (ensuring no real SMS is sent).
+    using a mocked HTTP client (ensuring no real SMS is sent).
     """
     mock_settings.SMS_MOCK = False
     mock_settings.MSG91_AUTH_KEY = "mocked_auth_key_12345"
@@ -86,7 +86,7 @@ async def test_sms_msg91_mocked_request_success(mock_settings, mock_client_class
     
     # Setup mock client & response
     mock_client = AsyncMock()
-    mock_client_class.return_value.__aenter__.return_value = mock_client
+    mock_get_client.return_value = mock_client
     
     mock_response = MagicMock()
     mock_response.status_code = 200
@@ -119,9 +119,9 @@ async def test_sms_msg91_mocked_request_success(mock_settings, mock_client_class
 
 
 @pytest.mark.asyncio
-@patch("app.core.sms.httpx.AsyncClient")
+@patch("app.core.sms.get_http_client", new_callable=AsyncMock)
 @patch("app.core.sms.settings")
-async def test_sms_msg91_mocked_request_error(mock_settings, mock_client_class):
+async def test_sms_msg91_mocked_request_error(mock_settings, mock_get_client):
     """
     Test that send_sms returns False when MSG91 API responds with an error payload.
     """
@@ -132,7 +132,7 @@ async def test_sms_msg91_mocked_request_error(mock_settings, mock_client_class):
     
     # Setup mock client & response returning a JSON error response
     mock_client = AsyncMock()
-    mock_client_class.return_value.__aenter__.return_value = mock_client
+    mock_get_client.return_value = mock_client
     
     mock_response = MagicMock()
     mock_response.status_code = 200

@@ -7,7 +7,9 @@ interface NoPermissionProps {
   requiredPermission?: string;
 }
 
-export const NoPermission: React.FC<NoPermissionProps> = ({ requiredPermission }) => {
+export const NoPermission: React.FC<NoPermissionProps> = ({
+  requiredPermission,
+}) => {
   const navigate = useNavigate();
 
   return (
@@ -26,14 +28,34 @@ export const NoPermission: React.FC<NoPermissionProps> = ({ requiredPermission }
         border: '1px solid #E2E8F0',
       }}
     >
-      <Box sx={{ mb: 2, p: 2, borderRadius: '50%', bgcolor: 'rgba(245, 101, 101, 0.1)' }}>
+      <Box
+        sx={{
+          mb: 2,
+          p: 2,
+          borderRadius: '50%',
+          bgcolor: 'rgba(245, 101, 101, 0.1)',
+        }}
+      >
         <ShieldAlertIcon sx={{ fontSize: 64, color: '#F56565' }} />
       </Box>
-      <Typography variant="h5" sx={{ fontWeight: 800, mb: 1, color: '#2D3748', fontFamily: '"Outfit", sans-serif' }}>
+      <Typography
+        variant="h5"
+        sx={{
+          fontWeight: 800,
+          mb: 1,
+          color: '#2D3748',
+          fontFamily: '"Outfit", sans-serif',
+        }}
+      >
         Access Restricted
       </Typography>
-      <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 450, mb: 3 }}>
-        Your user role does not possess the permissions required to view this administrative interface scope.
+      <Typography
+        variant="body1"
+        color="text.secondary"
+        sx={{ maxWidth: 450, mb: 3 }}
+      >
+        Your user role does not possess the permissions required to view this
+        administrative interface scope.
       </Typography>
       {requiredPermission && (
         <Typography

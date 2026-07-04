@@ -13,6 +13,35 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Set logger level and add StreamHandler for app package to capture INFO logs
+    app_logger = logging.getLogger("app")
+    app_logger.setLevel(logging.INFO)
+    if not app_logger.handlers:
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter("[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s")
+        handler.setFormatter(formatter)
+        app_logger.addHandler(handler)
+    
+    # Initialize shared HTTP client
+    from app.core.http import http_manager, get_http_client
+    http_manager.init_client()
+
+    # Pre-heat HTTP connections to external APIs (Google Identity & MSG91)
+    import asyncio
+    async def preheat_connections():
+        try:
+            client = await get_http_client()
+            # Send OPTIONS request to pre-establish TCP+TLS connections
+            await asyncio.gather(
+                client.options("https://identitytoolkit.googleapis.com", timeout=2.0),
+                client.options("https://control.msg91.com", timeout=2.0),
+                return_exceptions=True
+            )
+            logger.info("Successfully pre-warmed external connection pools (Google Identity & MSG91).")
+        except Exception as preheat_err:
+            logger.warning(f"Could not pre-warm external connection pools: {preheat_err}")
+    asyncio.create_task(preheat_connections())
+
     # Verify Database connectivity on startup
     verify_db_connection()
     
@@ -41,6 +70,8 @@ async def lifespan(app: FastAPI):
     yield
     # Shutdown async Redis connections
     await redis_manager.close()
+    # Shutdown shared HTTP client
+    await http_manager.close()
 
 app = FastAPI(
     title=settings.PROJECT_NAME,

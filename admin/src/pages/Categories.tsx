@@ -27,9 +27,30 @@ import {
 
 // Initial Mock Categories
 const initialCategories = [
-  { id: 'CAT-01', name: 'Scrap', description: 'Domestic & office scrap pick-up services with weighing and payment processing', subCategories: 'Electronics, Metals, Cardboard & Paper', status: 'Active' },
-  { id: 'CAT-02', name: 'Maintenance', description: 'Home appliances cleaning, repairs, electrical, plumbing services', subCategories: 'AC Servicing, Water Purifier, Refrigerator, Plumbing', status: 'Active' },
-  { id: 'CAT-03', name: 'Beautician', description: 'Professional doorstep salon and beauty grooming services for ladies', subCategories: 'Makeup Packages, Facial Skin Care, Pedicure Salon', status: 'Active' },
+  {
+    id: 'CAT-01',
+    name: 'Scrap',
+    description:
+      'Domestic & office scrap pick-up services with weighing and payment processing',
+    subCategories: 'Electronics, Metals, Cardboard & Paper',
+    status: 'Active',
+  },
+  {
+    id: 'CAT-02',
+    name: 'Maintenance',
+    description:
+      'Home appliances cleaning, repairs, electrical, plumbing services',
+    subCategories: 'AC Servicing, Water Purifier, Refrigerator, Plumbing',
+    status: 'Active',
+  },
+  {
+    id: 'CAT-03',
+    name: 'Beautician',
+    description:
+      'Professional doorstep salon and beauty grooming services for ladies',
+    subCategories: 'Makeup Packages, Facial Skin Care, Pedicure Salon',
+    status: 'Active',
+  },
 ];
 
 export const Categories: React.FC = () => {
@@ -38,7 +59,9 @@ export const Categories: React.FC = () => {
   // Dialog States
   const [openFormDialog, setOpenFormDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<typeof initialCategories[0] | null>(null);
+  const [editingCategory, setEditingCategory] = useState<
+    (typeof initialCategories)[0] | null
+  >(null);
 
   // Form Fields
   const [name, setName] = useState('');
@@ -53,7 +76,7 @@ export const Categories: React.FC = () => {
     setOpenFormDialog(true);
   };
 
-  const handleOpenEdit = (categoryItem: typeof initialCategories[0]) => {
+  const handleOpenEdit = (categoryItem: (typeof initialCategories)[0]) => {
     setEditingCategory(categoryItem);
     setName(categoryItem.name);
     setDescription(categoryItem.description);
@@ -61,7 +84,7 @@ export const Categories: React.FC = () => {
     setOpenFormDialog(true);
   };
 
-  const handleOpenDelete = (categoryItem: typeof initialCategories[0]) => {
+  const handleOpenDelete = (categoryItem: (typeof initialCategories)[0]) => {
     setEditingCategory(categoryItem);
     setOpenDeleteDialog(true);
   };
@@ -69,9 +92,11 @@ export const Categories: React.FC = () => {
   const handleSave = () => {
     if (editingCategory) {
       setCategories(
-        categories.map((c) =>
-          c.id === editingCategory.id ? { ...c, name, description, subCategories } : c
-        )
+        categories.map(c =>
+          c.id === editingCategory.id
+            ? { ...c, name, description, subCategories }
+            : c,
+        ),
       );
     } else {
       const newCategory = {
@@ -88,29 +113,52 @@ export const Categories: React.FC = () => {
 
   const handleConfirmDelete = () => {
     if (editingCategory) {
-      setCategories(categories.filter((c) => c.id !== editingCategory.id));
+      setCategories(categories.filter(c => c.id !== editingCategory.id));
       setOpenDeleteDialog(false);
     }
   };
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <Box
+        sx={{
+          mb: 4,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
         <Box>
-          <Typography variant="h4" sx={{ fontWeight: 800, fontFamily: '"Outfit", sans-serif', color: '#1A202C' }}>
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 800,
+              fontFamily: '"Outfit", sans-serif',
+              color: '#1A202C',
+            }}
+          >
             Service Categories
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Manage main divisions and organize related sub-services under key catalog headings.
+            Manage main divisions and organize related sub-services under key
+            catalog headings.
           </Typography>
         </Box>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAdd}>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={handleOpenAdd}
+        >
           Add Category
         </Button>
       </Box>
 
       {/* Categories Grid Table */}
-      <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #E2E8F0' }}>
+      <TableContainer
+        component={Paper}
+        elevation={0}
+        sx={{ border: '1px solid #E2E8F0' }}
+      >
         <Table>
           <TableHead>
             <TableRow>
@@ -123,12 +171,19 @@ export const Categories: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {categories.map((cat) => (
+            {categories.map(cat => (
               <TableRow key={cat.id} hover>
                 <TableCell sx={{ fontWeight: 600 }}>{cat.id}</TableCell>
                 <TableCell>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                    <Avatar sx={{ width: 32, height: 32, bgcolor: '#FAD02C', color: '#1A202C' }}>
+                    <Avatar
+                      sx={{
+                        width: 32,
+                        height: 32,
+                        bgcolor: '#FAD02C',
+                        color: '#1A202C',
+                      }}
+                    >
                       <CategoryIcon sx={{ fontSize: 18 }} />
                     </Avatar>
                     <Typography variant="body2" sx={{ fontWeight: 700 }}>
@@ -155,11 +210,25 @@ export const Categories: React.FC = () => {
                   </Box>
                 </TableCell>
                 <TableCell align="right">
-                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
-                    <IconButton color="secondary" size="small" onClick={() => handleOpenEdit(cat)}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'flex-end',
+                      gap: 0.5,
+                    }}
+                  >
+                    <IconButton
+                      color="secondary"
+                      size="small"
+                      onClick={() => handleOpenEdit(cat)}
+                    >
                       <EditIcon fontSize="small" />
                     </IconButton>
-                    <IconButton color="error" size="small" onClick={() => handleOpenDelete(cat)}>
+                    <IconButton
+                      color="error"
+                      size="small"
+                      onClick={() => handleOpenDelete(cat)}
+                    >
                       <DeleteIcon fontSize="small" />
                     </IconButton>
                   </Box>
@@ -171,18 +240,29 @@ export const Categories: React.FC = () => {
       </TableContainer>
 
       {/* Add / Edit Category Dialog */}
-      <Dialog open={openFormDialog} onClose={() => setOpenFormDialog(false)} fullWidth maxWidth="xs">
-        <DialogTitle sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}>
-          {editingCategory ? 'Modify Category Settings' : 'Create New Category Group'}
+      <Dialog
+        open={openFormDialog}
+        onClose={() => setOpenFormDialog(false)}
+        fullWidth
+        maxWidth="xs"
+      >
+        <DialogTitle
+          sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}
+        >
+          {editingCategory
+            ? 'Modify Category Settings'
+            : 'Create New Category Group'}
         </DialogTitle>
         <DialogContent>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mt: 1.5 }}>
+          <Box
+            sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mt: 1.5 }}
+          >
             <TextField
               fullWidth
               size="small"
               label="Category Name"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={e => setName(e.target.value)}
             />
             <TextField
               fullWidth
@@ -191,14 +271,14 @@ export const Categories: React.FC = () => {
               rows={2}
               label="Description Summary"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={e => setDescription(e.target.value)}
             />
             <TextField
               fullWidth
               size="small"
               label="Sub-categories (comma separated list)"
               value={subCategories}
-              onChange={(e) => setSubCategories(e.target.value)}
+              onChange={e => setSubCategories(e.target.value)}
               placeholder="e.g. Subcategory A, Subcategory B"
             />
           </Box>
@@ -214,20 +294,31 @@ export const Categories: React.FC = () => {
       </Dialog>
 
       {/* Delete Confirmation */}
-      <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
-        <DialogTitle sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}>
+      <Dialog
+        open={openDeleteDialog}
+        onClose={() => setOpenDeleteDialog(false)}
+      >
+        <DialogTitle
+          sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}
+        >
           Delete Category
         </DialogTitle>
         <DialogContent>
           <Typography variant="body2">
-            Are you sure you want to delete category <strong>{editingCategory?.name}</strong>? All services associated with this category might be affected.
+            Are you sure you want to delete category{' '}
+            <strong>{editingCategory?.name}</strong>? All services associated
+            with this category might be affected.
           </Typography>
         </DialogContent>
         <DialogActions sx={{ p: 2.5 }}>
           <Button onClick={() => setOpenDeleteDialog(false)} color="secondary">
             Cancel
           </Button>
-          <Button onClick={handleConfirmDelete} variant="contained" color="error">
+          <Button
+            onClick={handleConfirmDelete}
+            variant="contained"
+            color="error"
+          >
             Confirm Delete
           </Button>
         </DialogActions>

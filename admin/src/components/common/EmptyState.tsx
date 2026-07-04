@@ -33,10 +33,17 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       }}
     >
       <Box sx={{ mb: 2 }}>{icon}</Box>
-      <Typography variant="h6" sx={{ fontWeight: 700, mb: 1, color: '#1A202C' }}>
+      <Typography
+        variant="h6"
+        sx={{ fontWeight: 700, mb: 1, color: '#1A202C' }}
+      >
         {title}
       </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 360, mb: 3 }}>
+      <Typography
+        variant="body2"
+        color="text.secondary"
+        sx={{ maxWidth: 360, mb: 3 }}
+      >
         {description}
       </Typography>
       {actionText && onAction && (

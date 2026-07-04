@@ -34,7 +34,9 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
       {/* Breadcrumbs */}
       {breadcrumbs && breadcrumbs.length > 0 && (
         <Breadcrumbs
-          separator={<NavigateNextIcon fontSize="small" sx={{ color: '#A0AEC0' }} />}
+          separator={
+            <NavigateNextIcon fontSize="small" sx={{ color: '#A0AEC0' }} />
+          }
           aria-label="breadcrumb"
           sx={{ mb: 0.5 }}
         >
@@ -42,7 +44,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
             underline="hover"
             color="inherit"
             href="#"
-            onClick={(e) => {
+            onClick={e => {
               e.preventDefault();
               navigate('/');
             }}
@@ -66,7 +68,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
                 underline="hover"
                 color="inherit"
                 href="#"
-                onClick={(e) => {
+                onClick={e => {
                   e.preventDefault();
                   if (item.link) navigate(item.link);
                 }}
@@ -103,13 +105,24 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
             {title}
           </Typography>
           {subtitle && (
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, fontSize: '0.9rem' }}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ mt: 0.5, fontSize: '0.9rem' }}
+            >
               {subtitle}
             </Typography>
           )}
         </Box>
 
-        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', alignSelf: { xs: 'stretch', sm: 'auto' } }}>
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 2,
+            alignItems: 'center',
+            alignSelf: { xs: 'stretch', sm: 'auto' },
+          }}
+        >
           {children}
           {actionText && onActionClick && (
             <Button

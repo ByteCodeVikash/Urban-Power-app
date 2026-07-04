@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/authStore';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api.urbanpowers.com';
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || 'https://api.urbanpowers.com';
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -13,22 +14,22 @@ export const apiClient = axios.create({
 
 // Request interceptor to attach JWT token
 apiClient.interceptors.request.use(
-  (config) => {
+  config => {
     const token = useAuthStore.getState().token;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => {
+  error => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // Response interceptor to handle global errors (like 401 Unauthorized)
 apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
+  response => response,
+  error => {
     // If the backend returns 401 Unauthorized, automatically log out the admin
     if (error.response && error.response.status === 401) {
       useAuthStore.getState().logout();
@@ -38,5 +39,5 @@ apiClient.interceptors.response.use(
       }
     }
     return Promise.reject(error);
-  }
+  },
 );

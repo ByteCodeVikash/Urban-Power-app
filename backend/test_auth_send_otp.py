@@ -18,10 +18,11 @@ def test_send_otp_success_mock_mode():
     """
     payload = {"phone": "+919876543210"}
     
-    with patch("app.api.v1.auth.set_otp", return_value=True) as mock_set_otp, \
+    with patch("app.api.v1.auth.set_otp_async", new_callable=AsyncMock) as mock_set_otp, \
          patch("app.api.v1.auth.send_sms", new_callable=AsyncMock, return_value=True) as mock_send_sms, \
          patch("app.api.v1.auth.settings") as mock_settings:
          
+        mock_set_otp.return_value = True
         mock_settings.SMS_MOCK = True
         
         response = client.post("/api/v1/auth/send-otp", json=payload)
@@ -46,10 +47,11 @@ def test_send_otp_success_real_mode():
     """
     payload = {"phone": "+919876543210"}
     
-    with patch("app.api.v1.auth.set_otp", return_value=True) as mock_set_otp, \
+    with patch("app.api.v1.auth.set_otp_async", new_callable=AsyncMock) as mock_set_otp, \
          patch("app.api.v1.auth.send_sms", new_callable=AsyncMock, return_value=True) as mock_send_sms, \
          patch("app.api.v1.auth.settings") as mock_settings:
          
+        mock_set_otp.return_value = True
         mock_settings.SMS_MOCK = False
         
         response = client.post("/api/v1/auth/send-otp", json=payload)
@@ -72,8 +74,10 @@ def test_send_otp_redis_failure():
     """
     payload = {"phone": "+919876543210"}
     
-    with patch("app.api.v1.auth.set_otp", return_value=False) as mock_set_otp, \
+    with patch("app.api.v1.auth.set_otp_async", new_callable=AsyncMock) as mock_set_otp, \
          patch("app.api.v1.auth.send_sms", new_callable=AsyncMock) as mock_send_sms:
+         
+        mock_set_otp.return_value = False
          
         response = client.post("/api/v1/auth/send-otp", json=payload)
         
@@ -90,8 +94,10 @@ def test_send_otp_sms_failure():
     """
     payload = {"phone": "+919876543210"}
     
-    with patch("app.api.v1.auth.set_otp", return_value=True) as mock_set_otp, \
+    with patch("app.api.v1.auth.set_otp_async", new_callable=AsyncMock) as mock_set_otp, \
          patch("app.api.v1.auth.send_sms", new_callable=AsyncMock, return_value=False) as mock_send_sms:
+         
+        mock_set_otp.return_value = True
          
         response = client.post("/api/v1/auth/send-otp", json=payload)
         

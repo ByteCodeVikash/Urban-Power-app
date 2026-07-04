@@ -21,15 +21,58 @@ import {
   AccountBalanceWallet as BalanceIcon,
 } from '@mui/icons-material';
 import { DataTable, type ColumnConfig } from '../components/common/DataTable';
-import { FilterPanel, type FilterField } from '../components/common/FilterPanel';
+import {
+  FilterPanel,
+  type FilterField,
+} from '../components/common/FilterPanel';
 
 // Initial Mock Transactions
 const initialTransactions = [
-  { id: 'TXN-749102', orderId: 'ORD-101', customer: 'Vikash Kumar', gateway: 'Razorpay', amount: '₹1,200', status: 'Settled', date: '2026-07-03' },
-  { id: 'TXN-839210', orderId: 'ORD-102', customer: 'Amit Sharma', gateway: 'Razorpay', amount: '₹2,500', status: 'Escrow', date: '2026-07-03' },
-  { id: 'TXN-394019', orderId: 'ORD-103', customer: 'Priya Singh', gateway: 'COD', amount: '₹1,800', status: 'Pending Cash', date: '2026-07-03' },
-  { id: 'TXN-104928', orderId: 'ORD-104', customer: 'Rohan Verma', gateway: 'Razorpay', amount: '₹800', status: 'Refunded', date: '2026-07-02' },
-  { id: 'TXN-293810', orderId: 'ORD-105', customer: 'Sneha Gupta', gateway: 'COD', amount: '₹4,200', status: 'Settled', date: '2026-07-01' },
+  {
+    id: 'TXN-749102',
+    orderId: 'ORD-101',
+    customer: 'Vikash Kumar',
+    gateway: 'Razorpay',
+    amount: '₹1,200',
+    status: 'Settled',
+    date: '2026-07-03',
+  },
+  {
+    id: 'TXN-839210',
+    orderId: 'ORD-102',
+    customer: 'Amit Sharma',
+    gateway: 'Razorpay',
+    amount: '₹2,500',
+    status: 'Escrow',
+    date: '2026-07-03',
+  },
+  {
+    id: 'TXN-394019',
+    orderId: 'ORD-103',
+    customer: 'Priya Singh',
+    gateway: 'COD',
+    amount: '₹1,800',
+    status: 'Pending Cash',
+    date: '2026-07-03',
+  },
+  {
+    id: 'TXN-104928',
+    orderId: 'ORD-104',
+    customer: 'Rohan Verma',
+    gateway: 'Razorpay',
+    amount: '₹800',
+    status: 'Refunded',
+    date: '2026-07-02',
+  },
+  {
+    id: 'TXN-293810',
+    orderId: 'ORD-105',
+    customer: 'Sneha Gupta',
+    gateway: 'COD',
+    amount: '₹4,200',
+    status: 'Settled',
+    date: '2026-07-01',
+  },
 ];
 
 export const Payments: React.FC = () => {
@@ -41,7 +84,9 @@ export const Payments: React.FC = () => {
   });
 
   const [openRefundDialog, setOpenRefundDialog] = useState(false);
-  const [selectedTxn, setSelectedTxn] = useState<typeof initialTransactions[0] | null>(null);
+  const [selectedTxn, setSelectedTxn] = useState<
+    (typeof initialTransactions)[0] | null
+  >(null);
 
   // Refund Form Fields
   const [refundAmount, setRefundAmount] = useState('');
@@ -54,20 +99,22 @@ export const Payments: React.FC = () => {
   };
 
   // Filter logic
-  const filteredTransactions = txns.filter((txn) => {
+  const filteredTransactions = txns.filter(txn => {
     const searchVal = activeFilters.search || '';
     const matchesSearch =
       txn.id.toLowerCase().includes(searchVal.toLowerCase()) ||
       txn.orderId.toLowerCase().includes(searchVal.toLowerCase()) ||
       txn.customer.toLowerCase().includes(searchVal.toLowerCase());
-    
-    const matchesGateway = !activeFilters.gateway || txn.gateway === activeFilters.gateway;
-    const matchesStatus = !activeFilters.status || txn.status === activeFilters.status;
+
+    const matchesGateway =
+      !activeFilters.gateway || txn.gateway === activeFilters.gateway;
+    const matchesStatus =
+      !activeFilters.status || txn.status === activeFilters.status;
 
     return matchesSearch && matchesGateway && matchesStatus;
   });
 
-  const handleOpenRefund = (txn: typeof initialTransactions[0]) => {
+  const handleOpenRefund = (txn: (typeof initialTransactions)[0]) => {
     setSelectedTxn(txn);
     setRefundAmount(txn.amount.replace('₹', '').replace(',', ''));
     setRefundReason('');
@@ -78,9 +125,13 @@ export const Payments: React.FC = () => {
   const handleExecuteRefund = () => {
     if (selectedTxn) {
       setTxns(
-        txns.map((t) => (t.id === selectedTxn.id ? { ...t, status: 'Refunded' } : t))
+        txns.map(t =>
+          t.id === selectedTxn.id ? { ...t, status: 'Refunded' } : t,
+        ),
       );
-      setSuccessMessage(`Refund of ₹${refundAmount} processed successfully for Transaction ${selectedTxn.id}.`);
+      setSuccessMessage(
+        `Refund of ₹${refundAmount} processed successfully for Transaction ${selectedTxn.id}.`,
+      );
       setTimeout(() => {
         setOpenRefundDialog(false);
         setSuccessMessage(null);
@@ -89,14 +140,22 @@ export const Payments: React.FC = () => {
   };
 
   // DataTable column configuration
-  const columns: ColumnConfig<typeof initialTransactions[0]>[] = [
+  const columns: ColumnConfig<(typeof initialTransactions)[0]>[] = [
     { id: 'id', label: 'Transaction ID' },
     { id: 'orderId', label: 'Order ID' },
-    { id: 'customer', label: 'Customer', render: (row) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{row.customer}</Typography> },
+    {
+      id: 'customer',
+      label: 'Customer',
+      render: row => (
+        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+          {row.customer}
+        </Typography>
+      ),
+    },
     {
       id: 'gateway',
       label: 'Gateway Mode',
-      render: (row) => (
+      render: row => (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           {row.gateway === 'Razorpay' ? (
             <RazorpayIcon fontSize="small" color="primary" />
@@ -108,12 +167,20 @@ export const Payments: React.FC = () => {
       ),
     },
     { id: 'date', label: 'Date' },
-    { id: 'amount', label: 'Paid Amount', render: (row) => <Typography variant="body2" sx={{ fontWeight: 700 }}>{row.amount}</Typography> },
+    {
+      id: 'amount',
+      label: 'Paid Amount',
+      render: row => (
+        <Typography variant="body2" sx={{ fontWeight: 700 }}>
+          {row.amount}
+        </Typography>
+      ),
+    },
     {
       id: 'status',
       label: 'Settlement Status',
       align: 'center',
-      render: (row) => (
+      render: row => (
         <Box
           sx={{
             display: 'inline-block',
@@ -126,18 +193,18 @@ export const Payments: React.FC = () => {
               row.status === 'Settled'
                 ? 'rgba(72, 187, 120, 0.15)'
                 : row.status === 'Escrow'
-                ? 'rgba(66, 153, 225, 0.15)'
-                : row.status === 'Refunded'
-                ? 'rgba(245, 101, 101, 0.15)'
-                : 'rgba(250, 208, 44, 0.2)',
+                  ? 'rgba(66, 153, 225, 0.15)'
+                  : row.status === 'Refunded'
+                    ? 'rgba(245, 101, 101, 0.15)'
+                    : 'rgba(250, 208, 44, 0.2)',
             color:
               row.status === 'Settled'
                 ? '#276749'
                 : row.status === 'Escrow'
-                ? '#2B6CB0'
-                : row.status === 'Refunded'
-                ? '#9B2C2C'
-                : '#B7791F',
+                  ? '#2B6CB0'
+                  : row.status === 'Refunded'
+                    ? '#9B2C2C'
+                    : '#B7791F',
           }}
         >
           {row.status}
@@ -148,7 +215,7 @@ export const Payments: React.FC = () => {
       id: 'actions',
       label: 'Actions',
       align: 'right',
-      render: (row) => (
+      render: row => (
         <Box>
           {row.gateway === 'Razorpay' && row.status !== 'Refunded' ? (
             <Button
@@ -197,11 +264,19 @@ export const Payments: React.FC = () => {
   return (
     <Box sx={{ flexGrow: 1 }}>
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 800, fontFamily: '"Outfit", sans-serif', color: '#1A202C' }}>
+        <Typography
+          variant="h4"
+          sx={{
+            fontWeight: 800,
+            fontFamily: '"Outfit", sans-serif',
+            color: '#1A202C',
+          }}
+        >
           Payment Accounts & Transactions
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Track transaction ledgers, compare Razorpay card gateways vs. Cash on Delivery (COD) channels, and process client refunds.
+          Track transaction ledgers, compare Razorpay card gateways vs. Cash on
+          Delivery (COD) channels, and process client refunds.
         </Typography>
       </Box>
 
@@ -210,9 +285,19 @@ export const Payments: React.FC = () => {
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Card>
             <CardContent>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
                 <Box>
-                  <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ fontWeight: 600 }}
+                  >
                     TOTAL REVENUE
                   </Typography>
                   <Typography variant="h5" sx={{ fontWeight: 800, mt: 0.5 }}>
@@ -229,9 +314,19 @@ export const Payments: React.FC = () => {
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Card>
             <CardContent>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
                 <Box>
-                  <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ fontWeight: 600 }}
+                  >
                     RAZORPAY GATEWAY
                   </Typography>
                   <Typography variant="h5" sx={{ fontWeight: 800, mt: 0.5 }}>
@@ -248,9 +343,19 @@ export const Payments: React.FC = () => {
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Card>
             <CardContent>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
                 <Box>
-                  <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ fontWeight: 600 }}
+                  >
                     CASH ON DELIVERY (COD)
                   </Typography>
                   <Typography variant="h5" sx={{ fontWeight: 800, mt: 0.5 }}>
@@ -267,12 +372,25 @@ export const Payments: React.FC = () => {
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Card>
             <CardContent>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
                 <Box>
-                  <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ fontWeight: 600 }}
+                  >
                     REFUNDED SETTLEMENTS
                   </Typography>
-                  <Typography variant="h5" sx={{ fontWeight: 800, mt: 0.5, color: '#F56565' }}>
+                  <Typography
+                    variant="h5"
+                    sx={{ fontWeight: 800, mt: 0.5, color: '#F56565' }}
+                  >
                     ₹800
                   </Typography>
                 </Box>
@@ -298,8 +416,15 @@ export const Payments: React.FC = () => {
       />
 
       {/* Process Refund Dialog */}
-      <Dialog open={openRefundDialog} onClose={() => setOpenRefundDialog(false)} fullWidth maxWidth="xs">
-        <DialogTitle sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}>
+      <Dialog
+        open={openRefundDialog}
+        onClose={() => setOpenRefundDialog(false)}
+        fullWidth
+        maxWidth="xs"
+      >
+        <DialogTitle
+          sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}
+        >
           Issue Gateway Refund
         </DialogTitle>
         <DialogContent>
@@ -308,16 +433,25 @@ export const Payments: React.FC = () => {
               {successMessage}
             </Alert>
           ) : (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mt: 1.5 }}>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 2.5,
+                mt: 1.5,
+              }}
+            >
               <Typography variant="body2" color="text.secondary">
-                You are issuing a refund for order <strong>{selectedTxn?.orderId}</strong>. This transaction will be credited back via Razorpay.
+                You are issuing a refund for order{' '}
+                <strong>{selectedTxn?.orderId}</strong>. This transaction will
+                be credited back via Razorpay.
               </Typography>
               <TextField
                 fullWidth
                 size="small"
                 label="Refund Amount (₹)"
                 value={refundAmount}
-                onChange={(e) => setRefundAmount(e.target.value)}
+                onChange={e => setRefundAmount(e.target.value)}
               />
               <TextField
                 fullWidth
@@ -326,7 +460,7 @@ export const Payments: React.FC = () => {
                 rows={2}
                 label="Reason for Refund"
                 value={refundReason}
-                onChange={(e) => setRefundReason(e.target.value)}
+                onChange={e => setRefundReason(e.target.value)}
                 placeholder="e.g. Service cancellation request by user"
               />
             </Box>
@@ -334,10 +468,17 @@ export const Payments: React.FC = () => {
         </DialogContent>
         {!successMessage && (
           <DialogActions sx={{ p: 2.5 }}>
-            <Button onClick={() => setOpenRefundDialog(false)} color="secondary">
+            <Button
+              onClick={() => setOpenRefundDialog(false)}
+              color="secondary"
+            >
               Cancel
             </Button>
-            <Button onClick={handleExecuteRefund} variant="contained" color="error">
+            <Button
+              onClick={handleExecuteRefund}
+              variant="contained"
+              color="error"
+            >
               Execute Refund
             </Button>
           </DialogActions>

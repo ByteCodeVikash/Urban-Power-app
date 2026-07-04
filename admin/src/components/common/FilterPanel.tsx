@@ -41,11 +41,11 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   // Set initial filter values based on default values
   const getInitialState = () => {
     const state: Record<string, string> = {};
-    fields.forEach((f) => {
+    fields.forEach(f => {
       state[f.id] = f.defaultValue || '';
       if (f.type === 'dateRange') {
         state[`${f.id}_start`] = '';
@@ -55,7 +55,8 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
     return state;
   };
 
-  const [filters, setFilters] = useState<Record<string, string>>(getInitialState());
+  const [filters, setFilters] =
+    useState<Record<string, string>>(getInitialState());
 
   const handleFieldChange = (id: string, value: string) => {
     const updated = { ...filters, [id]: value };
@@ -78,9 +79,23 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   };
 
   return (
-    <Card sx={{ mb: 3, border: '1px solid #E2E8F0', borderRadius: 3, boxShadow: 'none' }}>
+    <Card
+      sx={{
+        mb: 3,
+        border: '1px solid #E2E8F0',
+        borderRadius: 3,
+        boxShadow: 'none',
+      }}
+    >
       <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 2,
+            alignItems: 'center',
+            flexWrap: 'wrap',
+          }}
+        >
           {showSearch && (
             <TextField
               size="small"
@@ -90,7 +105,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
               sx={{ flexGrow: 1, minWidth: 260 }}
             />
           )}
-          
+
           <Button
             variant="outlined"
             color="secondary"
@@ -102,18 +117,25 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
             Filters
           </Button>
 
-          <IconButton onClick={handleClear} title="Clear Filters" sx={{ border: '1px solid #E2E8F0', borderRadius: 2.5 }}>
+          <IconButton
+            onClick={handleClear}
+            title="Clear Filters"
+            sx={{ border: '1px solid #E2E8F0', borderRadius: 2.5 }}
+          >
             <ClearIcon fontSize="small" />
           </IconButton>
         </Box>
 
         <Collapse in={expanded} timeout="auto" unmountOnExit>
           <Box sx={{ mt: 3, pt: 2, borderTop: '1px solid #E2E8F0' }}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 2, color: '#4A5568' }}>
+            <Typography
+              variant="subtitle2"
+              sx={{ fontWeight: 700, mb: 2, color: '#4A5568' }}
+            >
               Advanced Search Filters
             </Typography>
             <Grid container spacing={2}>
-              {fields.map((field) => (
+              {fields.map(field => (
                 <Grid size={{ xs: 12, sm: 6, md: 4 }} key={field.id}>
                   {field.type === 'select' ? (
                     <TextField
@@ -122,12 +144,14 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                       size="small"
                       label={field.label}
                       value={filters[field.id]}
-                      onChange={(e) => handleFieldChange(field.id, e.target.value)}
+                      onChange={e =>
+                        handleFieldChange(field.id, e.target.value)
+                      }
                     >
                       <MenuItem value="">
                         <em>Any {field.label}</em>
                       </MenuItem>
-                      {field.options?.map((opt) => (
+                      {field.options?.map(opt => (
                         <MenuItem key={opt.value} value={opt.value}>
                           {opt.label}
                         </MenuItem>
@@ -142,7 +166,9 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                         label={`Start ${field.label}`}
                         slotProps={{ inputLabel: { shrink: true } }}
                         value={filters[`${field.id}_start`]}
-                        onChange={(e) => handleFieldChange(`${field.id}_start`, e.target.value)}
+                        onChange={e =>
+                          handleFieldChange(`${field.id}_start`, e.target.value)
+                        }
                       />
                       <TextField
                         type="date"
@@ -151,7 +177,9 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                         label={`End ${field.label}`}
                         slotProps={{ inputLabel: { shrink: true } }}
                         value={filters[`${field.id}_end`]}
-                        onChange={(e) => handleFieldChange(`${field.id}_end`, e.target.value)}
+                        onChange={e =>
+                          handleFieldChange(`${field.id}_end`, e.target.value)
+                        }
                       />
                     </Box>
                   ) : (
@@ -160,7 +188,9 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                       size="small"
                       label={field.label}
                       value={filters[field.id]}
-                      onChange={(e) => handleFieldChange(field.id, e.target.value)}
+                      onChange={e =>
+                        handleFieldChange(field.id, e.target.value)
+                      }
                     />
                   )}
                 </Grid>

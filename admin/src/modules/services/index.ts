@@ -1,8 +1,12 @@
 import React from 'react';
 import type { Module } from '../registry';
 
-const Services = React.lazy(() => import('../../pages/Services').then((m) => ({ default: m.Services })));
-const Categories = React.lazy(() => import('../../pages/Categories').then((m) => ({ default: m.Categories })));
+const Services = React.lazy(() =>
+  import('../../pages/Services').then(m => ({ default: m.Services })),
+);
+const Categories = React.lazy(() =>
+  import('../../pages/Categories').then(m => ({ default: m.Categories })),
+);
 
 export const ServicesModule: Module = {
   id: 'services',
@@ -38,7 +42,9 @@ export const ServicesModule: Module = {
       id: 'top-services',
       title: 'Top Services',
       component: React.lazy(() =>
-        import('./widgets/TopServicesWidget').then((m) => ({ default: m.TopServicesWidget }))
+        import('./widgets/TopServicesWidget').then(m => ({
+          default: m.TopServicesWidget,
+        })),
       ),
     },
   ],

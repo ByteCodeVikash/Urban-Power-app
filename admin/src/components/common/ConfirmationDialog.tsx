@@ -58,8 +58,13 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
         },
       }}
     >
-      <DialogTitle sx={{ borderLeft: `6px solid ${getColor()}`, pl: 2, py: 1.5 }}>
-        <Typography variant="h6" sx={{ fontWeight: 800, fontFamily: '"Outfit", sans-serif' }}>
+      <DialogTitle
+        sx={{ borderLeft: `6px solid ${getColor()}`, pl: 2, py: 1.5 }}
+      >
+        <Typography
+          variant="h6"
+          sx={{ fontWeight: 800, fontFamily: '"Outfit", sans-serif' }}
+        >
           {title}
         </Typography>
       </DialogTitle>

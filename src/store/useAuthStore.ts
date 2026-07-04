@@ -34,23 +34,37 @@ interface AuthState {
 const customStorage = {
   getItem: async (name: string): Promise<string | null> => {
     try {
-      return await AsyncStorage.getItem(name);
-    } catch (e) {
+      console.log('[OTP Login Flow] AsyncStorage read start:', name);
+      const value = await AsyncStorage.getItem(name);
+      console.log('[OTP Login Flow] AsyncStorage read end. Found:', !!value);
+      return value;
+    } catch (e: any) {
       console.warn('[useAuthStore] Error reading auth session:', e);
+      console.log('[OTP Login Flow] AsyncStorage read error:', e?.message || e);
       return null;
     }
   },
   setItem: async (name: string, value: string): Promise<void> => {
     try {
+      console.log(
+        '[OTP Login Flow] AsyncStorage save start:',
+        name,
+        'payload size:',
+        value.length,
+      );
       await AsyncStorage.setItem(name, value);
-    } catch (e) {
+      console.log('[OTP Login Flow] AsyncStorage save end. Success.');
+    } catch (e: any) {
       console.warn('[useAuthStore] Error writing auth session:', e);
+      console.log('[OTP Login Flow] AsyncStorage save error:', e?.message || e);
     }
   },
   removeItem: async (name: string): Promise<void> => {
     try {
+      console.log('[OTP Login Flow] AsyncStorage remove start:', name);
       await AsyncStorage.removeItem(name);
-    } catch (e) {
+      console.log('[OTP Login Flow] AsyncStorage remove end.');
+    } catch (e: any) {
       console.warn('[useAuthStore] Error removing auth session:', e);
     }
   },

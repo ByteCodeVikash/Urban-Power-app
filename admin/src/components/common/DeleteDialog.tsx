@@ -44,7 +44,9 @@ export const DeleteDialog: React.FC<DeleteDialogProps> = ({
         },
       }}
     >
-      <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1.5, pl: 2, pb: 1.5 }}>
+      <DialogTitle
+        sx={{ display: 'flex', alignItems: 'center', gap: 1.5, pl: 2, pb: 1.5 }}
+      >
         <Box
           sx={{
             display: 'flex',
@@ -59,13 +61,21 @@ export const DeleteDialog: React.FC<DeleteDialogProps> = ({
         >
           <DeleteIcon />
         </Box>
-        <Typography variant="h6" sx={{ fontWeight: 800, fontFamily: '"Outfit", sans-serif', color: '#1A202C' }}>
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 800,
+            fontFamily: '"Outfit", sans-serif',
+            color: '#1A202C',
+          }}
+        >
           {title}
         </Typography>
       </DialogTitle>
       <DialogContent sx={{ py: 2 }}>
         <DialogContentText sx={{ color: 'text.primary', fontSize: '0.95rem' }}>
-          {message || `Are you absolutely certain you wish to permanently delete ${itemName}? This operation is destructive and cannot be undone.`}
+          {message ||
+            `Are you absolutely certain you wish to permanently delete ${itemName}? This operation is destructive and cannot be undone.`}
         </DialogContentText>
       </DialogContent>
       <DialogActions sx={{ px: 2, pb: 1.5, gap: 1.5 }}>

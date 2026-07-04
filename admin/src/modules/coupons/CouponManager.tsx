@@ -29,10 +29,42 @@ interface Coupon {
 }
 
 const mockCoupons: Coupon[] = [
-  { id: '1', code: 'UPWELCOME10', type: 'Percentage', value: 10, expiryDate: '2026-12-31', usageCount: 428, status: 'Active' },
-  { id: '2', code: 'UPFLAT200', type: 'Flat Discount', value: 200, expiryDate: '2026-08-15', usageCount: 145, status: 'Active' },
-  { id: '3', code: 'REF-VIKASH50', type: 'Referral', value: 50, expiryDate: '2027-01-01', usageCount: 22, status: 'Active' },
-  { id: '4', code: 'UPEXPIRED', type: 'Percentage', value: 15, expiryDate: '2026-05-01', usageCount: 98, status: 'Expired' },
+  {
+    id: '1',
+    code: 'UPWELCOME10',
+    type: 'Percentage',
+    value: 10,
+    expiryDate: '2026-12-31',
+    usageCount: 428,
+    status: 'Active',
+  },
+  {
+    id: '2',
+    code: 'UPFLAT200',
+    type: 'Flat Discount',
+    value: 200,
+    expiryDate: '2026-08-15',
+    usageCount: 145,
+    status: 'Active',
+  },
+  {
+    id: '3',
+    code: 'REF-VIKASH50',
+    type: 'Referral',
+    value: 50,
+    expiryDate: '2027-01-01',
+    usageCount: 22,
+    status: 'Active',
+  },
+  {
+    id: '4',
+    code: 'UPEXPIRED',
+    type: 'Percentage',
+    value: 15,
+    expiryDate: '2026-05-01',
+    usageCount: 98,
+    status: 'Expired',
+  },
 ];
 
 export const CouponManager: React.FC = () => {
@@ -43,7 +75,9 @@ export const CouponManager: React.FC = () => {
 
   // Form Fields State
   const [code, setCode] = useState('');
-  const [type, setType] = useState<'Percentage' | 'Flat Discount' | 'Referral'>('Percentage');
+  const [type, setType] = useState<'Percentage' | 'Flat Discount' | 'Referral'>(
+    'Percentage',
+  );
   const [value, setValue] = useState(0);
   const [expiryDate, setExpiryDate] = useState('');
 
@@ -68,12 +102,12 @@ export const CouponManager: React.FC = () => {
   const handleSave = () => {
     if (selectedCoupon) {
       // Update
-      setCoupons((prev) =>
-        prev.map((c) =>
+      setCoupons(prev =>
+        prev.map(c =>
           c.id === selectedCoupon.id
             ? { ...c, code, type, value, expiryDate }
-            : c
-        )
+            : c,
+        ),
       );
     } else {
       // Create
@@ -86,7 +120,7 @@ export const CouponManager: React.FC = () => {
         usageCount: 0,
         status: new Date(expiryDate) > new Date() ? 'Active' : 'Expired',
       };
-      setCoupons((prev) => [newCoupon, ...prev]);
+      setCoupons(prev => [newCoupon, ...prev]);
     }
     setOpenForm(false);
   };
@@ -98,25 +132,30 @@ export const CouponManager: React.FC = () => {
 
   const handleDeleteConfirm = () => {
     if (selectedCoupon) {
-      setCoupons((prev) => prev.filter((c) => c.id !== selectedCoupon.id));
+      setCoupons(prev => prev.filter(c => c.id !== selectedCoupon.id));
     }
     setOpenDelete(false);
   };
 
   const columns: ColumnConfig<Coupon>[] = [
-    { id: 'code', label: 'Coupon Code', render: (row) => <strong>{row.code}</strong> },
+    {
+      id: 'code',
+      label: 'Coupon Code',
+      render: row => <strong>{row.code}</strong>,
+    },
     { id: 'type', label: 'Type' },
     {
       id: 'value',
       label: 'Discount Value',
-      render: (row) => (row.type === 'Percentage' ? `${row.value}%` : `₹${row.value}`),
+      render: row =>
+        row.type === 'Percentage' ? `${row.value}%` : `₹${row.value}`,
     },
     { id: 'expiryDate', label: 'Expiry Date' },
     { id: 'usageCount', label: 'Total Usages', align: 'center' },
     {
       id: 'status',
       label: 'Status',
-      render: (row) => (
+      render: row => (
         <Chip
           label={row.status}
           size="small"
@@ -127,12 +166,21 @@ export const CouponManager: React.FC = () => {
     {
       id: 'actions',
       label: 'Actions',
-      render: (row) => (
+      render: row => (
         <Box sx={{ display: 'flex', gap: 1 }}>
-          <Button variant="text" size="small" onClick={() => handleOpenEdit(row)}>
+          <Button
+            variant="text"
+            size="small"
+            onClick={() => handleOpenEdit(row)}
+          >
             Edit
           </Button>
-          <Button variant="text" size="small" color="error" onClick={() => handleDeleteTrigger(row)}>
+          <Button
+            variant="text"
+            size="small"
+            color="error"
+            onClick={() => handleDeleteTrigger(row)}
+          >
             Delete
           </Button>
         </Box>
@@ -158,8 +206,15 @@ export const CouponManager: React.FC = () => {
       />
 
       {/* Create / Edit Form Dialog */}
-      <Dialog open={openForm} onClose={() => setOpenForm(false)} maxWidth="xs" fullWidth>
-        <DialogTitle sx={{ fontWeight: 800, fontFamily: '"Outfit", sans-serif' }}>
+      <Dialog
+        open={openForm}
+        onClose={() => setOpenForm(false)}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle
+          sx={{ fontWeight: 800, fontFamily: '"Outfit", sans-serif' }}
+        >
           {selectedCoupon ? 'Update Coupon' : 'Create New Coupon'}
         </DialogTitle>
         <DialogContent>
@@ -170,7 +225,7 @@ export const CouponManager: React.FC = () => {
                 label="Coupon Code"
                 placeholder="e.g. SUMMER50"
                 value={code}
-                onChange={(e) => setCode(e.target.value.toUpperCase())}
+                onChange={e => setCode(e.target.value.toUpperCase())}
               />
             </Grid>
             <Grid size={{ xs: 12 }}>
@@ -179,10 +234,12 @@ export const CouponManager: React.FC = () => {
                 fullWidth
                 label="Discount Type"
                 value={type}
-                onChange={(e) => setType(e.target.value as Coupon['type'])}
+                onChange={e => setType(e.target.value as Coupon['type'])}
               >
                 <MenuItem value="Percentage">Percentage Discount (%)</MenuItem>
-                <MenuItem value="Flat Discount">Flat Value Discount (₹)</MenuItem>
+                <MenuItem value="Flat Discount">
+                  Flat Value Discount (₹)
+                </MenuItem>
                 <MenuItem value="Referral">Referral Coupon</MenuItem>
               </TextField>
             </Grid>
@@ -190,9 +247,13 @@ export const CouponManager: React.FC = () => {
               <TextField
                 fullWidth
                 type="number"
-                label={type === 'Percentage' ? 'Discount Percentage (%)' : 'Discount Value (₹)'}
+                label={
+                  type === 'Percentage'
+                    ? 'Discount Percentage (%)'
+                    : 'Discount Value (₹)'
+                }
                 value={value}
-                onChange={(e) => setValue(Number(e.target.value))}
+                onChange={e => setValue(Number(e.target.value))}
               />
             </Grid>
             <Grid size={{ xs: 12 }}>
@@ -202,13 +263,17 @@ export const CouponManager: React.FC = () => {
                 label="Expiry Date"
                 slotProps={{ inputLabel: { shrink: true } }}
                 value={expiryDate}
-                onChange={(e) => setExpiryDate(e.target.value)}
+                onChange={e => setExpiryDate(e.target.value)}
               />
             </Grid>
           </Grid>
         </DialogContent>
         <DialogActions sx={{ p: 2.5 }}>
-          <Button onClick={() => setOpenForm(false)} variant="outlined" color="secondary">
+          <Button
+            onClick={() => setOpenForm(false)}
+            variant="outlined"
+            color="secondary"
+          >
             Cancel
           </Button>
           <Button onClick={handleSave} variant="contained" color="primary">

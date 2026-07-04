@@ -18,7 +18,7 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    set => ({
       user: null,
       token: null,
       isAuthenticated: false,
@@ -28,6 +28,6 @@ export const useAuthStore = create<AuthState>()(
     {
       name: 'urban-power-admin-auth',
       storage: createJSONStorage(() => localStorage),
-    }
-  )
+    },
+  ),
 );

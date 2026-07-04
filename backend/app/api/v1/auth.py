@@ -1,7 +1,7 @@
 import logging
 import random
 import jwt
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, Request
 from sqlalchemy.orm import Session
 
 from app.schemas.auth import (
@@ -12,7 +12,8 @@ from app.schemas.auth import (
     GoogleLoginRequest,
     GoogleLoginResponse
 )
-from app.core.redis import set_otp, cache_get, cache_delete
+from app.core.redis import set_otp_async, cache_get_async, cache_delete_async
+from app.core.http import get_http_client
 from app.core.sms import send_sms
 from app.core.config import settings
 from app.core.database import get_db
@@ -43,7 +44,7 @@ async def send_otp(payload: SendOTPRequest):
     otp = str(random.randint(100000, 999999))
     
     # 2. Store the OTP in Redis with default 300s TTL (5 minutes)
-    cache_success = set_otp(payload.phone, otp)
+    cache_success = await set_otp_async(payload.phone, otp)
     if not cache_success:
         logger.error(
             "Failed to store OTP in Redis",
@@ -88,7 +89,7 @@ async def send_otp(payload: SendOTPRequest):
 
 
 @router.post("/verify-otp")
-async def verify_otp(payload: VerifyOTPRequest, db: Session = Depends(get_db)):
+async def verify_otp(payload: VerifyOTPRequest, request: Request, db: Session = Depends(get_db)):
     """
     Verify the provided OTP for the given phone number.
     If the OTP is valid and the user exists in the database, generates a JWT access token.
@@ -98,6 +99,17 @@ async def verify_otp(payload: VerifyOTPRequest, db: Session = Depends(get_db)):
     """
     import os
     import httpx
+    import time
+    import uuid
+
+    start_time = time.time()
+    req_id = str(uuid.uuid4())
+
+    logger.info(
+        f"[OTP Login Flow Backend] [Req ID: {req_id}] Incoming request start.\n"
+        f"Headers: {dict(request.headers)}\n"
+        f"Payload: {payload.dict()}"
+    )
 
     is_verified = False
     
@@ -106,47 +118,59 @@ async def verify_otp(payload: VerifyOTPRequest, db: Session = Depends(get_db)):
         # Firebase token verification
         # Check if SMS_MOCK is true or token is a mock token for testing
         if settings.SMS_MOCK or payload.otp.startswith("eyJ-mock"):
+            logger.info(f"[OTP Login Flow Backend] [Req ID: {req_id}] Mock/Sandbox Firebase token detected. Skipping Google Identity lookup.")
             is_verified = True
         else:
             # Call Google Identity Toolkit to verify the token
             firebase_api_key = settings.FIREBASE_API_KEY
             if not firebase_api_key:
-                logger.error("FIREBASE_API_KEY is not configured in settings")
+                logger.error(f"[OTP Login Flow Backend] [Req ID: {req_id}] FIREBASE_API_KEY is not configured in settings")
                 raise HTTPException(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     detail="Firebase authentication is not configured on the server."
                 )
             url = f"https://identitytoolkit.googleapis.com/v1/accounts:lookup?key={firebase_api_key}"
             try:
-                with httpx.Client(timeout=10.0) as client:
-                    resp = client.post(url, json={"idToken": payload.otp})
-                    if resp.status_code == 200:
-                        data = resp.json()
-                        users = data.get("users", [])
-                        if users:
-                            fb_phone = users[0].get("phoneNumber")
-                            norm_payload_phone = "".join(filter(str.isdigit, payload.phone))
-                            norm_fb_phone = "".join(filter(str.isdigit, fb_phone)) if fb_phone else ""
-                            
-                            if norm_fb_phone and (norm_fb_phone == norm_payload_phone or norm_payload_phone.endswith(norm_fb_phone) or norm_fb_phone.endswith(norm_payload_phone)):
-                                is_verified = True
-                            else:
-                                raise HTTPException(
-                                    status_code=status.HTTP_400_BAD_REQUEST,
-                                    detail=f"Phone number mismatch. Token phone: {fb_phone}, Request phone: {payload.phone}"
-                                )
+                firebase_start = time.time()
+                logger.info(f"[OTP Login Flow Backend] [Req ID: {req_id}] Google Identity lookup start. URL: {url}")
+                client = await get_http_client()
+                resp = await client.post(url, json={"idToken": payload.otp}, timeout=10.0)
+                firebase_end = time.time()
+                logger.info(
+                    f"[OTP Login Flow Backend] [Req ID: {req_id}] Google Identity lookup end. "
+                    f"Duration: {firebase_end - firebase_start:.4f}s, HTTP Status: {resp.status_code}"
+                )
+                if resp.status_code == 200:
+                    data = resp.json()
+                    users = data.get("users", [])
+                    if users:
+                        fb_phone = users[0].get("phoneNumber")
+                        norm_payload_phone = "".join(filter(str.isdigit, payload.phone))
+                        norm_fb_phone = "".join(filter(str.isdigit, fb_phone)) if fb_phone else ""
+                        
+                        if norm_fb_phone and (norm_fb_phone == norm_payload_phone or norm_payload_phone.endswith(norm_fb_phone) or norm_fb_phone.endswith(norm_payload_phone)):
+                            is_verified = True
+                            logger.info(f"[OTP Login Flow Backend] [Req ID: {req_id}] Firebase token verified. Phone: {fb_phone}")
                         else:
+                            logger.warning(f"[OTP Login Flow Backend] [Req ID: {req_id}] Phone mismatch. Request phone: {payload.phone}, Token phone: {fb_phone}")
                             raise HTTPException(
                                 status_code=status.HTTP_400_BAD_REQUEST,
-                                detail="Invalid Firebase token: no user found."
+                                detail=f"Phone number mismatch. Token phone: {fb_phone}, Request phone: {payload.phone}"
                             )
                     else:
+                        logger.warning(f"[OTP Login Flow Backend] [Req ID: {req_id}] Firebase token lookup returned empty users list.")
                         raise HTTPException(
                             status_code=status.HTTP_400_BAD_REQUEST,
-                            detail=f"Firebase token verification failed: {resp.text}"
+                            detail="Invalid Firebase token: no user found."
                         )
+                else:
+                    logger.warning(f"[OTP Login Flow Backend] [Req ID: {req_id}] Google Identity call returned error: {resp.text}")
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail=f"Firebase token verification failed: {resp.text}"
+                    )
             except httpx.HTTPError as e:
-                logger.error(f"Error calling Firebase auth API: {e}")
+                logger.error(f"[OTP Login Flow Backend] [Req ID: {req_id}] Error calling Firebase auth API: {e}", exc_info=True)
                 raise HTTPException(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     detail="Failed to verify Firebase token due to network error"
@@ -155,7 +179,13 @@ async def verify_otp(payload: VerifyOTPRequest, db: Session = Depends(get_db)):
         # Standard Redis OTP verification
         # 1. Read OTP from Redis
         key = f"otp:{payload.phone}"
-        cached_data = cache_get(key)
+        redis_start = time.time()
+        cached_data = await cache_get_async(key)
+        redis_end = time.time()
+        logger.info(
+            f"[OTP Login Flow Backend] [Req ID: {req_id}] Redis lookup complete. "
+            f"Duration: {redis_end - redis_start:.4f}s, Key: {key}, Hit: {cached_data is not None}"
+        )
         
         # 2. Handle expired/missing OTP
         if not cached_data:
@@ -176,7 +206,7 @@ async def verify_otp(payload: VerifyOTPRequest, db: Session = Depends(get_db)):
             )
             
         # 4. Delete OTP from Redis on successful verification (prevent reuse/replay)
-        cache_delete(key)
+        await cache_delete_async(key)
         is_verified = True
 
     if not is_verified:
@@ -186,7 +216,13 @@ async def verify_otp(payload: VerifyOTPRequest, db: Session = Depends(get_db)):
         )
     
     # 5. Fetch user by phone to determine registration status & generate JWT
+    db_start = time.time()
     user = db.query(User).filter(User.phone == payload.phone).first()
+    db_end = time.time()
+    logger.info(
+        f"[OTP Login Flow Backend] [Req ID: {req_id}] Database query user complete. "
+        f"Duration: {db_end - db_start:.4f}s, User found: {user is not None}"
+    )
     
     response_data = {
         "status": "success",
@@ -217,8 +253,14 @@ async def verify_otp(payload: VerifyOTPRequest, db: Session = Depends(get_db)):
             is_verified=True
         )
         db.add(user)
+        db_write_start = time.time()
         db.commit()
         db.refresh(user)
+        db_write_end = time.time()
+        logger.info(
+            f"[OTP Login Flow Backend] [Req ID: {req_id}] New user auto-registered. "
+            f"Duration: {db_write_end - db_write_start:.4f}s, Email: {email}, Role: {role}"
+        )
     
     if user:
         # Generate JWT access token
@@ -252,6 +294,11 @@ async def verify_otp(payload: VerifyOTPRequest, db: Session = Depends(get_db)):
             "user": None
         })
         
+    total_duration = time.time() - start_time
+    logger.info(
+        f"[OTP Login Flow Backend] [Req ID: {req_id}] Request processed successfully. "
+        f"Total Duration: {total_duration:.4f}s, Response: {response_data}"
+    )
     return response_data
 
 

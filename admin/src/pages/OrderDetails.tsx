@@ -23,39 +23,100 @@ import {
 } from '@mui/icons-material';
 
 // Mock list of orders for detail view extraction
-const mockOrdersDetail: Record<string, {
-  id: string;
-  customer: string;
-  email: string;
-  phone: string;
-  address: string;
-  type: string;
-  serviceDetail: string;
-  amount: string;
-  status: string;
-  technician: string;
-  date: string;
-  timeSlot: string;
-  timeline: { title: string; desc: string; date: string; active: boolean }[];
-}> = {
+const mockOrdersDetail: Record<
+  string,
+  {
+    id: string;
+    customer: string;
+    email: string;
+    phone: string;
+    address: string;
+    type: string;
+    serviceDetail: string;
+    amount: string;
+    status: string;
+    technician: string;
+    date: string;
+    timeSlot: string;
+    timeline: { title: string; desc: string; date: string; active: boolean }[];
+  }
+> = {
   'ORD-101': {
     id: 'ORD-101',
     customer: 'Vikash Kumar',
     email: 'vikash.kumar@gmail.com',
     phone: '+91 98765 43210',
-    address: 'Flat 405, Block B, Green Glen Layout, Outer Ring Road, Bangalore - 560103',
+    address:
+      'Flat 405, Block B, Green Glen Layout, Outer Ring Road, Bangalore - 560103',
     type: 'Scrap',
-    serviceDetail: 'Electronic Scrap Pick-up (Bulk Old Computers, Printers, Keyboard & Cables)',
+    serviceDetail:
+      'Electronic Scrap Pick-up (Bulk Old Computers, Printers, Keyboard & Cables)',
     amount: '₹1,200',
     status: 'Completed',
     technician: 'Ramesh Kumar',
     date: '2026-07-03',
     timeSlot: '10:00 AM - 12:00 PM',
     timeline: [
-      { title: 'Booking Created', desc: 'Customer scheduled electronic scrap pick-up request.', date: 'July 03, 2026 - 08:15 AM', active: true },
-      { title: 'Technician Dispatched', desc: 'Ramesh Kumar assigned to carry out the pick-up inspection.', date: 'July 03, 2026 - 09:00 AM', active: true },
-      { title: 'In Transit', desc: 'Technician reached the customer location.', date: 'July 03, 2026 - 09:20 AM', active: true },
-      { title: 'Work Completed', desc: 'Scrap weighed, paid, and loaded. Order completed.', date: 'July 03, 2026 - 09:45 AM', active: true },
+      {
+        title: '1. Booking Initiated',
+        desc: 'Order registered on client application.',
+        date: 'July 03, 2026 - 08:15 AM',
+        active: true,
+      },
+      {
+        title: '2. Payment Confirmed',
+        desc: 'Pre-auth checkout verified via secure Razorpay gateway.',
+        date: 'July 03, 2026 - 08:17 AM',
+        active: true,
+      },
+      {
+        title: '3. Scanning Partners',
+        desc: 'AI routing engine scans matching local technicians.',
+        date: 'July 03, 2026 - 08:20 AM',
+        active: true,
+      },
+      {
+        title: '4. Partner Assigned',
+        desc: 'Ramesh Kumar allocated to service booking.',
+        date: 'July 03, 2026 - 08:30 AM',
+        active: true,
+      },
+      {
+        title: '5. In Transit',
+        desc: 'Partner departed towards client site with tools.',
+        date: 'July 03, 2026 - 09:00 AM',
+        active: true,
+      },
+      {
+        title: '6. Arrived at Location',
+        desc: 'Partner checked in at HSR Layout center.',
+        date: 'July 03, 2026 - 09:20 AM',
+        active: true,
+      },
+      {
+        title: '7. Inspection Commenced',
+        desc: 'Diagnostic / scrap item weighing scale setup in progress.',
+        date: 'July 03, 2026 - 09:30 AM',
+        active: true,
+      },
+      {
+        title: '8. Measurements Approved',
+        desc: 'Final quantity weights verified and accepted by customer.',
+        date: 'July 03, 2026 - 09:38 AM',
+        active: true,
+      },
+      {
+        title: '9. Payout Settled',
+        desc: 'Platform payout transferred directly to user bank account.',
+        date: 'July 03, 2026 - 09:40 AM',
+        active: true,
+      },
+      {
+        title: '10. Booking Closed',
+        desc: 'Order resolved and archived as successful transaction.',
+        date: 'July 03, 2026 - 09:45 AM',
+        active: true,
+      },
     ],
   },
   'ORD-102': {
@@ -72,9 +133,66 @@ const mockOrdersDetail: Record<string, {
     date: '2026-07-03',
     timeSlot: '02:00 PM - 04:00 PM',
     timeline: [
-      { title: 'Booking Created', desc: 'Booking created. Awaiting dispatch of technician.', date: 'July 03, 2026 - 09:30 AM', active: true },
-      { title: 'Assign Technician', desc: 'Dispatcher must assign a specialist technician.', date: 'Pending Action', active: false },
-      { title: 'Service Execution', desc: 'Awaiting technician arrival and service completion.', date: 'Pending Action', active: false },
+      {
+        title: '1. Booking Initiated',
+        desc: 'Order registered on client application.',
+        date: 'July 03, 2026 - 09:30 AM',
+        active: true,
+      },
+      {
+        title: '2. Payment Confirmed',
+        desc: 'Awaiting cash settlement on service delivery.',
+        date: 'July 03, 2026 - 09:32 AM',
+        active: true,
+      },
+      {
+        title: '3. Scanning Partners',
+        desc: 'AI routing engine scans matching local technicians.',
+        date: 'July 03, 2026 - 09:35 AM',
+        active: true,
+      },
+      {
+        title: '4. Partner Assigned',
+        desc: 'Awaiting manual assign override or auto-dispatch matching.',
+        date: 'Awaiting Allocation',
+        active: false,
+      },
+      {
+        title: '5. In Transit',
+        desc: 'Pending partner assignment.',
+        date: 'Pending',
+        active: false,
+      },
+      {
+        title: '6. Arrived at Location',
+        desc: 'Pending partner assignment.',
+        date: 'Pending',
+        active: false,
+      },
+      {
+        title: '7. Inspection Commenced',
+        desc: 'Pending partner assignment.',
+        date: 'Pending',
+        active: false,
+      },
+      {
+        title: '8. Measurements Approved',
+        desc: 'Pending partner assignment.',
+        date: 'Pending',
+        active: false,
+      },
+      {
+        title: '9. Payout Settled',
+        desc: 'Pending partner assignment.',
+        date: 'Pending',
+        active: false,
+      },
+      {
+        title: '10. Booking Closed',
+        desc: 'Pending partner assignment.',
+        date: 'Pending',
+        active: false,
+      },
     ],
   },
   'ORD-103': {
@@ -91,9 +209,66 @@ const mockOrdersDetail: Record<string, {
     date: '2026-07-03',
     timeSlot: '11:00 AM - 01:00 PM',
     timeline: [
-      { title: 'Booking Created', desc: 'Booking submitted by customer.', date: 'July 03, 2026 - 07:00 AM', active: true },
-      { title: 'Technician Assigned', desc: 'Suman Lata selected for the Beautician package dispatch.', date: 'July 03, 2026 - 08:30 AM', active: true },
-      { title: 'Service Execution', desc: 'Technician will arrive at scheduled slots.', date: 'Awaiting execution', active: false },
+      {
+        title: '1. Booking Initiated',
+        desc: 'Order registered on client application.',
+        date: 'July 03, 2026 - 07:00 AM',
+        active: true,
+      },
+      {
+        title: '2. Payment Confirmed',
+        desc: 'Payment verified via secure Razorpay gateway.',
+        date: 'July 03, 2026 - 07:02 AM',
+        active: true,
+      },
+      {
+        title: '3. Scanning Partners',
+        desc: 'AI routing engine scans matching local technicians.',
+        date: 'July 03, 2026 - 07:05 AM',
+        active: true,
+      },
+      {
+        title: '4. Partner Assigned',
+        desc: 'Suman Lata selected for the Beautician package dispatch.',
+        date: 'July 03, 2026 - 08:30 AM',
+        active: true,
+      },
+      {
+        title: '5. In Transit',
+        desc: 'Partner will depart at scheduled time.',
+        date: 'Awaiting departure',
+        active: false,
+      },
+      {
+        title: '6. Arrived at Location',
+        desc: 'Pending arrival.',
+        date: 'Pending',
+        active: false,
+      },
+      {
+        title: '7. Inspection Commenced',
+        desc: 'Pending execution.',
+        date: 'Pending',
+        active: false,
+      },
+      {
+        title: '8. Measurements Approved',
+        desc: 'Pending execution.',
+        date: 'Pending',
+        active: false,
+      },
+      {
+        title: '9. Payout Settled',
+        desc: 'Pending execution.',
+        date: 'Pending',
+        active: false,
+      },
+      {
+        title: '10. Booking Closed',
+        desc: 'Pending execution.',
+        date: 'Pending',
+        active: false,
+      },
     ],
   },
 };
@@ -119,7 +294,14 @@ export const OrderDetails: React.FC = () => {
           Back to List
         </Button>
         <Box>
-          <Typography variant="h4" sx={{ fontWeight: 800, fontFamily: '"Outfit", sans-serif', color: '#1A202C' }}>
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 800,
+              fontFamily: '"Outfit", sans-serif',
+              color: '#1A202C',
+            }}
+          >
             Order Details: {order.id}
           </Typography>
           <Typography variant="body2" color="text.secondary">
@@ -136,20 +318,37 @@ export const OrderDetails: React.FC = () => {
             <Grid size={12}>
               <Card>
                 <CardContent sx={{ p: 3 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, fontFamily: '"Outfit", sans-serif' }}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: 700,
+                      mb: 2,
+                      fontFamily: '"Outfit", sans-serif',
+                    }}
+                  >
                     Service Specification
                   </Typography>
                   <Grid container spacing={2}>
                     <Grid size={{ xs: 6, sm: 4 }}>
-                      <Typography variant="caption" color="text.secondary">Category</Typography>
-                      <Typography variant="body1" sx={{ fontWeight: 600 }}>{order.type}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Category
+                      </Typography>
+                      <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                        {order.type}
+                      </Typography>
                     </Grid>
                     <Grid size={{ xs: 6, sm: 4 }}>
-                      <Typography variant="caption" color="text.secondary">Amount Paid</Typography>
-                      <Typography variant="body1" sx={{ fontWeight: 600 }}>{order.amount}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Amount Paid
+                      </Typography>
+                      <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                        {order.amount}
+                      </Typography>
                     </Grid>
                     <Grid size={{ xs: 12, sm: 4 }}>
-                      <Typography variant="caption" color="text.secondary">Order Status</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Order Status
+                      </Typography>
                       <Box sx={{ mt: 0.5 }}>
                         <Box
                           sx={{
@@ -163,14 +362,14 @@ export const OrderDetails: React.FC = () => {
                               order.status === 'Completed'
                                 ? 'rgba(72, 187, 120, 0.15)'
                                 : order.status === 'Pending'
-                                ? 'rgba(250, 208, 44, 0.2)'
-                                : 'rgba(66, 153, 225, 0.15)',
+                                  ? 'rgba(250, 208, 44, 0.2)'
+                                  : 'rgba(66, 153, 225, 0.15)',
                             color:
                               order.status === 'Completed'
                                 ? '#276749'
                                 : order.status === 'Pending'
-                                ? '#B7791F'
-                                : '#2B6CB0',
+                                  ? '#B7791F'
+                                  : '#2B6CB0',
                           }}
                         >
                           {order.status}
@@ -179,7 +378,9 @@ export const OrderDetails: React.FC = () => {
                     </Grid>
                     <Grid size={12}>
                       <Divider sx={{ my: 1.5 }} />
-                      <Typography variant="caption" color="text.secondary">Job Scope Details</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Job Scope Details
+                      </Typography>
                       <Typography variant="body1" sx={{ mt: 0.5 }}>
                         {order.serviceDetail}
                       </Typography>
@@ -193,12 +394,25 @@ export const OrderDetails: React.FC = () => {
             <Grid size={12}>
               <Card>
                 <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2.5 }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 2,
+                      mb: 2.5,
+                    }}
+                  >
                     <Avatar sx={{ bgcolor: '#FAD02C', color: '#1A202C' }}>
                       <CustomerIcon />
                     </Avatar>
                     <Box>
-                      <Typography variant="h6" sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontWeight: 700,
+                          fontFamily: '"Outfit", sans-serif',
+                        }}
+                      >
                         Customer Record
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
@@ -208,22 +422,34 @@ export const OrderDetails: React.FC = () => {
                   </Box>
                   <Grid container spacing={2}>
                     <Grid size={{ xs: 12, sm: 6 }}>
-                      <Typography variant="caption" color="text.secondary">Name</Typography>
-                      <Typography variant="body1" sx={{ fontWeight: 600 }}>{order.customer}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Name
+                      </Typography>
+                      <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                        {order.customer}
+                      </Typography>
                     </Grid>
                     <Grid size={{ xs: 12, sm: 6 }}>
-                      <Typography variant="caption" color="text.secondary">Phone Number</Typography>
-                      <Typography variant="body1" sx={{ fontWeight: 600 }}>{order.phone}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Phone Number
+                      </Typography>
+                      <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                        {order.phone}
+                      </Typography>
                     </Grid>
                     <Grid size={12}>
-                      <Typography variant="caption" color="text.secondary">Email Address</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Email Address
+                      </Typography>
                       <Typography variant="body1">{order.email}</Typography>
                     </Grid>
                     <Grid size={12}>
                       <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
                         <LocationIcon color="action" />
                         <Box>
-                          <Typography variant="caption" color="text.secondary">Service Address</Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            Service Address
+                          </Typography>
                           <Typography variant="body2" color="text.primary">
                             {order.address}
                           </Typography>
@@ -239,12 +465,25 @@ export const OrderDetails: React.FC = () => {
             <Grid size={12}>
               <Card>
                 <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2.5 }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 2,
+                      mb: 2.5,
+                    }}
+                  >
                     <Avatar sx={{ bgcolor: '#2D3748', color: '#FFFFFF' }}>
                       <TechIcon />
                     </Avatar>
                     <Box>
-                      <Typography variant="h6" sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontWeight: 700,
+                          fontFamily: '"Outfit", sans-serif',
+                        }}
+                      >
                         Assigned Professional
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
@@ -254,9 +493,14 @@ export const OrderDetails: React.FC = () => {
                   </Box>
                   <Typography variant="body1">
                     {order.technician === 'None' ? (
-                      <span style={{ color: '#E53E3E', fontWeight: 600 }}>Unassigned (Awaiting Action)</span>
+                      <span style={{ color: '#E53E3E', fontWeight: 600 }}>
+                        Unassigned (Awaiting Action)
+                      </span>
                     ) : (
-                      <span><strong>{order.technician}</strong> has been assigned to this ticket.</span>
+                      <span>
+                        <strong>{order.technician}</strong> has been assigned to
+                        this ticket.
+                      </span>
                     )}
                   </Typography>
                 </CardContent>
@@ -269,16 +513,24 @@ export const OrderDetails: React.FC = () => {
         <Grid size={{ xs: 12, md: 5 }}>
           <Card sx={{ height: '100%' }}>
             <CardContent sx={{ p: 3 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
+              <Box
+                sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}
+              >
                 <DateIcon color="action" />
-                <Typography variant="h6" sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}>
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}
+                >
                   Booking Timeline
                 </Typography>
               </Box>
 
               <Box sx={{ pl: 1 }}>
-                <Stepper orientation="vertical" activeStep={order.timeline.filter(t => t.active).length - 1}>
-                  {order.timeline.map((step) => (
+                <Stepper
+                  orientation="vertical"
+                  activeStep={order.timeline.filter(t => t.active).length - 1}
+                >
+                  {order.timeline.map(step => (
                     <Step key={step.title} expanded>
                       <StepLabel
                         error={!step.active && order.status === 'Cancelled'}
@@ -288,7 +540,14 @@ export const OrderDetails: React.FC = () => {
                           </Typography>
                         }
                       >
-                        <Typography sx={{ fontWeight: step.active ? 600 : 400, color: step.active ? 'text.primary' : 'text.disabled' }}>
+                        <Typography
+                          sx={{
+                            fontWeight: step.active ? 600 : 400,
+                            color: step.active
+                              ? 'text.primary'
+                              : 'text.disabled',
+                          }}
+                        >
                           {step.title}
                         </Typography>
                       </StepLabel>

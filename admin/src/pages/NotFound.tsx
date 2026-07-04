@@ -43,8 +43,13 @@ export const NotFound: React.FC = () => {
       >
         Page Not Found
       </Typography>
-      <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 450, mb: 4 }}>
-        The administrative panel page you are seeking does not exist or has been relocated to another workspace coordinate.
+      <Typography
+        variant="body1"
+        color="text.secondary"
+        sx={{ maxWidth: 450, mb: 4 }}
+      >
+        The administrative panel page you are seeking does not exist or has been
+        relocated to another workspace coordinate.
       </Typography>
       <Button
         variant="contained"

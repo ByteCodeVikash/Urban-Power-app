@@ -1,7 +1,9 @@
 import React from 'react';
 import type { Module } from '../registry';
 
-const Technicians = React.lazy(() => import('../../pages/Technicians').then((m) => ({ default: m.Technicians })));
+const Technicians = React.lazy(() =>
+  import('../../pages/Technicians').then(m => ({ default: m.Technicians })),
+);
 
 export const TechniciansModule: Module = {
   id: 'technicians',
@@ -26,21 +28,27 @@ export const TechniciansModule: Module = {
       id: 'active-technicians',
       title: 'Active Technicians',
       component: React.lazy(() =>
-        import('./widgets/ActiveTechniciansWidget').then((m) => ({ default: m.ActiveTechniciansWidget }))
+        import('./widgets/ActiveTechniciansWidget').then(m => ({
+          default: m.ActiveTechniciansWidget,
+        })),
       ),
     },
     {
       id: 'top-technicians',
       title: 'Top Technicians',
       component: React.lazy(() =>
-        import('./widgets/TopTechniciansWidget').then((m) => ({ default: m.TopTechniciansWidget }))
+        import('./widgets/TopTechniciansWidget').then(m => ({
+          default: m.TopTechniciansWidget,
+        })),
       ),
     },
     {
       id: 'low-rated-technicians',
       title: 'Low Rated Technicians',
       component: React.lazy(() =>
-        import('./widgets/LowRatedTechniciansWidget').then((m) => ({ default: m.LowRatedTechniciansWidget }))
+        import('./widgets/LowRatedTechniciansWidget').then(m => ({
+          default: m.LowRatedTechniciansWidget,
+        })),
       ),
     },
   ],

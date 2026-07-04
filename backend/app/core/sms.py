@@ -1,6 +1,7 @@
 import logging
 import httpx
 from app.core.config import settings
+from app.core.http import get_http_client
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +22,7 @@ async def send_sms(phone: str, message: str) -> bool:
             "SMS sent (MOCK MODE)",
             extra={
                 "phone": phone,
-                "message": message,
+                "sms_message": message,
                 "status": "success",
                 "mock": True
             }
@@ -58,41 +59,40 @@ async def send_sms(phone: str, message: str) -> bool:
     }
 
     try:
-        async with httpx.AsyncClient(timeout=5.0) as client:
-            logger.info(
-                "Sending SMS via MSG91",
+        client = await get_http_client()
+        logger.info(
+            "Sending SMS via MSG91",
+            extra={
+                "phone": phone,
+                "template_id": settings.MSG91_TEMPLATE_ID,
+                "sender": settings.MSG91_SENDER_ID,
+                "mock": False
+            }
+        )
+        response = await client.post(url, json=payload, headers=headers, timeout=5.0)
+        response.raise_for_status()
+        response_data = response.json()
+        if response_data.get("type") == "error":
+            logger.error(
+                "MSG91 SMS API returned error response",
                 extra={
                     "phone": phone,
-                    "template_id": settings.MSG91_TEMPLATE_ID,
-                    "sender": settings.MSG91_SENDER_ID,
-                    "mock": False
-                }
-            )
-            response = await client.post(url, json=payload, headers=headers)
-            response.raise_for_status()
-            
-            response_data = response.json()
-            if response_data.get("type") == "error":
-                logger.error(
-                    "MSG91 SMS API returned error response",
-                    extra={
-                        "phone": phone,
-                        "status_code": response.status_code,
-                        "response": response_data,
-                        "mock": False
-                    }
-                )
-                return False
-
-            logger.info(
-                "SMS sent successfully via MSG91",
-                extra={
-                    "phone": phone,
+                    "status_code": response.status_code,
                     "response": response_data,
                     "mock": False
                 }
             )
-            return True
+            return False
+
+        logger.info(
+            "SMS sent successfully via MSG91",
+            extra={
+                "phone": phone,
+                "response": response_data,
+                "mock": False
+            }
+        )
+        return True
 
     except httpx.TimeoutException as e:
         logger.error(

@@ -3,7 +3,10 @@ import { Box, Typography, Button, Chip } from '@mui/material';
 import { DeleteSweep as ClearIcon } from '@mui/icons-material';
 import { useAuditStore, type AuditLogItem } from '../store/auditStore';
 import { DataTable, type ColumnConfig } from '../components/common/DataTable';
-import { FilterPanel, type FilterField } from '../components/common/FilterPanel';
+import {
+  FilterPanel,
+  type FilterField,
+} from '../components/common/FilterPanel';
 
 export const AuditLogs: React.FC = () => {
   const { logs, clearLogs } = useAuditStore();
@@ -17,14 +20,16 @@ export const AuditLogs: React.FC = () => {
     setActiveFilters(filters);
   };
 
-  const filteredLogs = logs.filter((log) => {
+  const filteredLogs = logs.filter(log => {
     const searchVal = activeFilters.search || '';
     const matchesSearch =
       log.user.toLowerCase().includes(searchVal.toLowerCase()) ||
       log.ip.includes(searchVal);
-    
-    const matchesAction = !activeFilters.action || log.action === activeFilters.action;
-    const matchesModule = !activeFilters.module || log.module === activeFilters.module;
+
+    const matchesAction =
+      !activeFilters.action || log.action === activeFilters.action;
+    const matchesModule =
+      !activeFilters.module || log.module === activeFilters.module;
 
     return matchesSearch && matchesAction && matchesModule;
   });
@@ -33,17 +38,21 @@ export const AuditLogs: React.FC = () => {
     {
       id: 'time',
       label: 'Timestamp',
-      render: (row) => new Date(row.time).toLocaleString(),
+      render: row => new Date(row.time).toLocaleString(),
     },
     {
       id: 'user',
       label: 'Administrator',
-      render: (row) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{row.user}</Typography>,
+      render: row => (
+        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+          {row.user}
+        </Typography>
+      ),
     },
     {
       id: 'action',
       label: 'Action Taken',
-      render: (row) => (
+      render: row => (
         <Chip
           label={row.action}
           size="small"
@@ -51,10 +60,10 @@ export const AuditLogs: React.FC = () => {
             row.action === 'Login'
               ? 'success'
               : row.action === 'Logout'
-              ? 'default'
-              : row.action === 'Refund Processed'
-              ? 'error'
-              : 'primary'
+                ? 'default'
+                : row.action === 'Refund Processed'
+                  ? 'error'
+                  : 'primary'
           }
           sx={{ fontWeight: 600 }}
         />
@@ -63,7 +72,9 @@ export const AuditLogs: React.FC = () => {
     {
       id: 'module',
       label: 'System Module',
-      render: (row) => <Chip label={row.module} variant="outlined" size="small" />,
+      render: row => (
+        <Chip label={row.module} variant="outlined" size="small" />
+      ),
     },
     {
       id: 'ip',
@@ -105,13 +116,30 @@ export const AuditLogs: React.FC = () => {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
+      <Box
+        sx={{
+          mb: 4,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 2,
+        }}
+      >
         <Box>
-          <Typography variant="h4" sx={{ fontWeight: 800, fontFamily: '"Outfit", sans-serif', color: '#1A202C' }}>
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 800,
+              fontFamily: '"Outfit", sans-serif',
+              color: '#1A202C',
+            }}
+          >
             System Audit & Activity Logs
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            View security checkpoints, administrative actions, updates, login history, and API client activity.
+            View security checkpoints, administrative actions, updates, login
+            history, and API client activity.
           </Typography>
         </Box>
         {logs.length > 0 && (

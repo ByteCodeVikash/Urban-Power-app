@@ -11,7 +11,8 @@ export const AuthLayout: React.FC = () => {
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: '#1A202C', // Dark gray background to make the white/yellow content pop
-        backgroundImage: 'radial-gradient(circle at 10% 20%, rgba(250, 208, 44, 0.08) 0%, transparent 40%)',
+        backgroundImage:
+          'radial-gradient(circle at 10% 20%, rgba(250, 208, 44, 0.08) 0%, transparent 40%)',
         py: 4,
       }}
     >

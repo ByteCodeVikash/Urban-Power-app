@@ -17,7 +17,10 @@ import { useAuthStore } from '../store/authStore';
 
 // Zod schema for form validation
 const loginSchema = zod.object({
-  email: zod.string().min(1, 'Email is required').email('Invalid email address'),
+  email: zod
+    .string()
+    .min(1, 'Email is required')
+    .email('Invalid email address'),
   password: zod.string().min(6, 'Password must be at least 6 characters'),
 });
 
@@ -25,7 +28,7 @@ type LoginFormValues = zod.infer<typeof loginSchema>;
 
 export const Login: React.FC = () => {
   const navigate = useNavigate();
-  const login = useAuthStore((state) => state.login);
+  const login = useAuthStore(state => state.login);
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -45,8 +48,8 @@ export const Login: React.FC = () => {
     setErrorMessage(null);
     try {
       // Simulate API call for login
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
       // Perform mock login
       login(
         {
@@ -55,9 +58,9 @@ export const Login: React.FC = () => {
           email: data.email,
           role: 'admin',
         },
-        'mock-jwt-token-urban-power'
+        'mock-jwt-token-urban-power',
       );
-      
+
       // Redirect to dashboard
       navigate('/');
     } catch {
@@ -84,10 +87,20 @@ export const Login: React.FC = () => {
         <LockOutlined sx={{ color: '#1A202C' }} />
       </Box>
 
-      <Typography variant="h5" align="center" gutterBottom sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}>
+      <Typography
+        variant="h5"
+        align="center"
+        gutterBottom
+        sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}
+      >
         Urban Power
       </Typography>
-      <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 3 }}>
+      <Typography
+        variant="body2"
+        color="text.secondary"
+        align="center"
+        sx={{ mb: 3 }}
+      >
         Sign in to access the Admin Panel
       </Typography>
 

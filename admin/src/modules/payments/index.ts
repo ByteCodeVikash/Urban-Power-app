@@ -1,7 +1,9 @@
 import React from 'react';
 import type { Module } from '../registry';
 
-const Payments = React.lazy(() => import('../../pages/Payments').then((m) => ({ default: m.Payments })));
+const Payments = React.lazy(() =>
+  import('../../pages/Payments').then(m => ({ default: m.Payments })),
+);
 
 export const PaymentsModule: Module = {
   id: 'payments',
@@ -26,21 +28,27 @@ export const PaymentsModule: Module = {
       id: 'total-revenue',
       title: 'Total Revenue',
       component: React.lazy(() =>
-        import('./widgets/TotalRevenueWidget').then((m) => ({ default: m.TotalRevenueWidget }))
+        import('./widgets/TotalRevenueWidget').then(m => ({
+          default: m.TotalRevenueWidget,
+        })),
       ),
     },
     {
       id: 'monthly-growth',
       title: 'Monthly Growth',
       component: React.lazy(() =>
-        import('./widgets/MonthlyGrowthWidget').then((m) => ({ default: m.MonthlyGrowthWidget }))
+        import('./widgets/MonthlyGrowthWidget').then(m => ({
+          default: m.MonthlyGrowthWidget,
+        })),
       ),
     },
     {
       id: 'revenue-graph',
       title: 'Revenue Graph',
       component: React.lazy(() =>
-        import('./widgets/RevenueGraphWidget').then((m) => ({ default: m.RevenueGraphWidget }))
+        import('./widgets/RevenueGraphWidget').then(m => ({
+          default: m.RevenueGraphWidget,
+        })),
       ),
     },
   ],

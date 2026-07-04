@@ -37,9 +37,9 @@ async def test_send_sms_config_missing(mock_settings):
     assert result is False
 
 
-@patch("app.core.sms.httpx.AsyncClient")
+@patch("app.core.sms.get_http_client", new_callable=AsyncMock)
 @patch("app.core.sms.settings")
-async def test_send_sms_http_success(mock_settings, mock_client_class):
+async def test_send_sms_http_success(mock_settings, mock_get_client):
     # Configure settings
     mock_settings.SMS_MOCK = False
     mock_settings.MSG91_AUTH_KEY = "531432TrNd2G8Ub0Q6a2fcd0cP1"
@@ -48,7 +48,7 @@ async def test_send_sms_http_success(mock_settings, mock_client_class):
     
     # Mock HTTP client and response
     mock_client = AsyncMock()
-    mock_client_class.return_value.__aenter__.return_value = mock_client
+    mock_get_client.return_value = mock_client
     
     mock_response = MagicMock()
     mock_response.status_code = 200
@@ -79,9 +79,9 @@ async def test_send_sms_http_success(mock_settings, mock_client_class):
     }
 
 
-@patch("app.core.sms.httpx.AsyncClient")
+@patch("app.core.sms.get_http_client", new_callable=AsyncMock)
 @patch("app.core.sms.settings")
-async def test_send_sms_api_error_response(mock_settings, mock_client_class):
+async def test_send_sms_api_error_response(mock_settings, mock_get_client):
     # Configure settings
     mock_settings.SMS_MOCK = False
     mock_settings.MSG91_AUTH_KEY = "531432TrNd2G8Ub0Q6a2fcd0cP1"
@@ -90,7 +90,7 @@ async def test_send_sms_api_error_response(mock_settings, mock_client_class):
     
     # Mock HTTP client and response returning a JSON error
     mock_client = AsyncMock()
-    mock_client_class.return_value.__aenter__.return_value = mock_client
+    mock_get_client.return_value = mock_client
     
     mock_response = MagicMock()
     mock_response.status_code = 200
@@ -101,9 +101,9 @@ async def test_send_sms_api_error_response(mock_settings, mock_client_class):
     assert result is False
 
 
-@patch("app.core.sms.httpx.AsyncClient")
+@patch("app.core.sms.get_http_client", new_callable=AsyncMock)
 @patch("app.core.sms.settings")
-async def test_send_sms_http_status_error(mock_settings, mock_client_class):
+async def test_send_sms_http_status_error(mock_settings, mock_get_client):
     # Configure settings
     mock_settings.SMS_MOCK = False
     mock_settings.MSG91_AUTH_KEY = "531432TrNd2G8Ub0Q6a2fcd0cP1"
@@ -112,7 +112,7 @@ async def test_send_sms_http_status_error(mock_settings, mock_client_class):
     
     # Mock HTTP client throwing status error
     mock_client = AsyncMock()
-    mock_client_class.return_value.__aenter__.return_value = mock_client
+    mock_get_client.return_value = mock_client
     
     mock_response = MagicMock()
     mock_response.status_code = 401
@@ -126,9 +126,9 @@ async def test_send_sms_http_status_error(mock_settings, mock_client_class):
     assert result is False
 
 
-@patch("app.core.sms.httpx.AsyncClient")
+@patch("app.core.sms.get_http_client", new_callable=AsyncMock)
 @patch("app.core.sms.settings")
-async def test_send_sms_timeout_error(mock_settings, mock_client_class):
+async def test_send_sms_timeout_error(mock_settings, mock_get_client):
     # Configure settings
     mock_settings.SMS_MOCK = False
     mock_settings.MSG91_AUTH_KEY = "531432TrNd2G8Ub0Q6a2fcd0cP1"
@@ -137,7 +137,7 @@ async def test_send_sms_timeout_error(mock_settings, mock_client_class):
     
     # Mock HTTP client throwing timeout error
     mock_client = AsyncMock()
-    mock_client_class.return_value.__aenter__.return_value = mock_client
+    mock_get_client.return_value = mock_client
     
     mock_request = httpx.Request("POST", "https://control.msg91.com/api/v5/flow/")
     exc = httpx.TimeoutException("Connection timed out", request=mock_request)
@@ -147,9 +147,9 @@ async def test_send_sms_timeout_error(mock_settings, mock_client_class):
     assert result is False
 
 
-@patch("app.core.sms.httpx.AsyncClient")
+@patch("app.core.sms.get_http_client", new_callable=AsyncMock)
 @patch("app.core.sms.settings")
-async def test_send_sms_generic_exception(mock_settings, mock_client_class):
+async def test_send_sms_generic_exception(mock_settings, mock_get_client):
     # Configure settings
     mock_settings.SMS_MOCK = False
     mock_settings.MSG91_AUTH_KEY = "531432TrNd2G8Ub0Q6a2fcd0cP1"
@@ -158,7 +158,7 @@ async def test_send_sms_generic_exception(mock_settings, mock_client_class):
     
     # Mock HTTP client throwing generic exception
     mock_client = AsyncMock()
-    mock_client_class.return_value.__aenter__.return_value = mock_client
+    mock_get_client.return_value = mock_client
     mock_client.post.side_effect = ValueError("Some unexpected error")
     
     result = await send_sms("919999999999", "Hello World")

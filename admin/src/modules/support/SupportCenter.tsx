@@ -1,5 +1,17 @@
 import React, { useState } from 'react';
-import { Box, Tab, Tabs, Chip, Button, Dialog, DialogTitle, DialogContent, DialogActions, Typography, Grid } from '@mui/material';
+import {
+  Box,
+  Tab,
+  Tabs,
+  Chip,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Typography,
+  Grid,
+} from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import PageHeader from '../../components/common/PageHeader';
 import DataTable from '../../components/common/DataTable';
@@ -25,7 +37,8 @@ const mockTickets: Ticket[] = [
     priority: 'High',
     assignedExecutive: 'Amit Patel',
     createdAt: '2026-07-03 09:30',
-    description: 'The technician has not reached the pickup point and is unreachable on phone. Customer requested immediate intervention.',
+    description:
+      'The technician has not reached the pickup point and is unreachable on phone. Customer requested immediate intervention.',
   },
   {
     id: 'TKT-1003',
@@ -35,7 +48,8 @@ const mockTickets: Ticket[] = [
     priority: 'Critical',
     assignedExecutive: 'Rohan Joshi',
     createdAt: '2026-07-03 10:15',
-    description: 'The refund was calculated for 2 items instead of 3. Difference of ₹450 pending settlement.',
+    description:
+      'The refund was calculated for 2 items instead of 3. Difference of ₹450 pending settlement.',
   },
   {
     id: 'TKT-1004',
@@ -45,7 +59,8 @@ const mockTickets: Ticket[] = [
     priority: 'Medium',
     assignedExecutive: 'Sneha Rao',
     createdAt: '2026-07-02 14:00',
-    description: 'Session timed out during payment gateway redirect. Payment confirmed via Razorpay logs and booking approved manually.',
+    description:
+      'Session timed out during payment gateway redirect. Payment confirmed via Razorpay logs and booking approved manually.',
   },
 ];
 
@@ -112,26 +127,43 @@ export const SupportCenter: React.FC = () => {
   };
 
   const columns: ColumnConfig<Ticket>[] = [
-    { id: 'id', label: 'Ticket ID', render: (row) => <strong>{row.id}</strong> },
+    { id: 'id', label: 'Ticket ID', render: row => <strong>{row.id}</strong> },
     { id: 'customer', label: 'Customer' },
     { id: 'subject', label: 'Subject' },
     {
       id: 'priority',
       label: 'Priority',
-      render: (row) => <Chip label={row.priority} size="small" color={getPriorityColor(row.priority)} />,
+      render: row => (
+        <Chip
+          label={row.priority}
+          size="small"
+          color={getPriorityColor(row.priority)}
+        />
+      ),
     },
     {
       id: 'status',
       label: 'Status',
-      render: (row) => <Chip label={row.status} size="small" variant="outlined" color={getStatusColor(row.status)} />,
+      render: row => (
+        <Chip
+          label={row.status}
+          size="small"
+          variant="outlined"
+          color={getStatusColor(row.status)}
+        />
+      ),
     },
     { id: 'assignedExecutive', label: 'Assigned Executive' },
     { id: 'createdAt', label: 'Created At' },
     {
       id: 'actions',
       label: 'Actions',
-      render: (row) => (
-        <Button variant="text" size="small" onClick={() => setSelectedTicket(row)}>
+      render: row => (
+        <Button
+          variant="text"
+          size="small"
+          onClick={() => setSelectedTicket(row)}
+        >
           View Details
         </Button>
       ),
@@ -143,11 +175,17 @@ export const SupportCenter: React.FC = () => {
     const tab = getActiveTab();
     switch (tab) {
       case 1: // Complaints
-        return mockTickets.filter((t) => t.subject.toLowerCase().includes('pickup') || t.subject.toLowerCase().includes('refund'));
+        return mockTickets.filter(
+          t =>
+            t.subject.toLowerCase().includes('pickup') ||
+            t.subject.toLowerCase().includes('refund'),
+        );
       case 2: // Customer Feedback
-        return mockTickets.filter((t) => t.status === 'Resolved');
+        return mockTickets.filter(t => t.status === 'Resolved');
       case 3: // Escalations
-        return mockTickets.filter((t) => t.priority === 'Critical' || t.status === 'Escalated');
+        return mockTickets.filter(
+          t => t.priority === 'Critical' || t.status === 'Escalated',
+        );
       default: // All Tickets / Tickets Tab
         return mockTickets;
     }
@@ -155,7 +193,10 @@ export const SupportCenter: React.FC = () => {
 
   return (
     <Box>
-      <PageHeader title="Support Center" subtitle="Manage help tickets, escalations, and feedbacks." />
+      <PageHeader
+        title="Support Center"
+        subtitle="Manage help tickets, escalations, and feedbacks."
+      />
 
       <Tabs value={getActiveTab()} onChange={handleTabChange} sx={{ mb: 3 }}>
         <Tab label="Tickets" />
@@ -172,48 +213,94 @@ export const SupportCenter: React.FC = () => {
       />
 
       {/* Ticket Details Dialog */}
-      <Dialog open={!!selectedTicket} onClose={() => setSelectedTicket(null)} maxWidth="sm" fullWidth>
+      <Dialog
+        open={!!selectedTicket}
+        onClose={() => setSelectedTicket(null)}
+        maxWidth="sm"
+        fullWidth
+      >
         {selectedTicket && (
           <>
-            <DialogTitle sx={{ fontWeight: 800, fontFamily: '"Outfit", sans-serif' }}>
+            <DialogTitle
+              sx={{ fontWeight: 800, fontFamily: '"Outfit", sans-serif' }}
+            >
               {selectedTicket.id} - Ticket Details
             </DialogTitle>
             <DialogContent dividers>
               <Grid container spacing={2}>
                 <Grid size={{ xs: 12 }}>
-                  <Typography variant="caption" color="text.secondary">Subject</Typography>
-                  <Typography variant="body1" sx={{ fontWeight: 600 }}>{selectedTicket.subject}</Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Subject
+                  </Typography>
+                  <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                    {selectedTicket.subject}
+                  </Typography>
                 </Grid>
                 <Grid size={{ xs: 6 }}>
-                  <Typography variant="caption" color="text.secondary">Customer</Typography>
-                  <Typography variant="body2">{selectedTicket.customer}</Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Customer
+                  </Typography>
+                  <Typography variant="body2">
+                    {selectedTicket.customer}
+                  </Typography>
                 </Grid>
                 <Grid size={{ xs: 6 }}>
-                  <Typography variant="caption" color="text.secondary">Assigned Executive</Typography>
-                  <Typography variant="body2">{selectedTicket.assignedExecutive}</Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Assigned Executive
+                  </Typography>
+                  <Typography variant="body2">
+                    {selectedTicket.assignedExecutive}
+                  </Typography>
                 </Grid>
                 <Grid size={{ xs: 6 }}>
-                  <Typography variant="caption" color="text.secondary">Priority</Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Priority
+                  </Typography>
                   <Box sx={{ mt: 0.5 }}>
-                    <Chip label={selectedTicket.priority} size="small" color={getPriorityColor(selectedTicket.priority)} />
+                    <Chip
+                      label={selectedTicket.priority}
+                      size="small"
+                      color={getPriorityColor(selectedTicket.priority)}
+                    />
                   </Box>
                 </Grid>
                 <Grid size={{ xs: 6 }}>
-                  <Typography variant="caption" color="text.secondary">Status</Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Status
+                  </Typography>
                   <Box sx={{ mt: 0.5 }}>
-                    <Chip label={selectedTicket.status} size="small" color={getStatusColor(selectedTicket.status)} />
+                    <Chip
+                      label={selectedTicket.status}
+                      size="small"
+                      color={getStatusColor(selectedTicket.status)}
+                    />
                   </Box>
                 </Grid>
                 <Grid size={{ xs: 12 }}>
-                  <Typography variant="caption" color="text.secondary">Issue Details</Typography>
-                  <Typography variant="body2" sx={{ bgcolor: '#F7FAFC', p: 2, borderRadius: 2, border: '1px solid #E2E8F0', mt: 0.5 }}>
+                  <Typography variant="caption" color="text.secondary">
+                    Issue Details
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      bgcolor: '#F7FAFC',
+                      p: 2,
+                      borderRadius: 2,
+                      border: '1px solid #E2E8F0',
+                      mt: 0.5,
+                    }}
+                  >
                     {selectedTicket.description}
                   </Typography>
                 </Grid>
               </Grid>
             </DialogContent>
             <DialogActions>
-              <Button onClick={() => setSelectedTicket(null)} variant="contained" color="primary">
+              <Button
+                onClick={() => setSelectedTicket(null)}
+                variant="contained"
+                color="primary"
+              >
                 Close
               </Button>
             </DialogActions>

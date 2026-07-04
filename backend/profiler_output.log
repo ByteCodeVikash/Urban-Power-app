@@ -1,0 +1,689 @@
+=== PHASE 1 LOGS (SMS_MOCK=True) ===
+INFO:     Started server process [30853]
+INFO:     Waiting for application startup.
+DB PROFILE: connection acquire | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.516196
+DB PROFILE: query execution | SQL: SELECT 1 | params: {} | duration: 1.580ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.5185726
+DB PROFILE: connection release | duration: 2.756ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.5189517
+DB PROFILE: connection acquire | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.5207665
+DB PROFILE: query execution | SQL: SELECT scrap_categories.name, scrap_categories.icon, scrap_categories.image, scrap_categories.description, scrap_categories.active, scrap_categories.id, scrap_categories.created_at, scrap_categories.updated_at 
+FROM scrap_categories 
+WHERE scrap_categories.name = %(name_1)s | params: {'name_1': 'Paper Scrap'} | duration: 4.722ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.5675833
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('f6e6887a-b4ba-40e8-ba3c-a692176e11cf'), 'name_1': 'Newspaper (Raddi)'} | duration: 1.932ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.5733035
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('f6e6887a-b4ba-40e8-ba3c-a692176e11cf'), 'name_1': 'Books & Copies'} | duration: 0.801ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.5751169
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('f6e6887a-b4ba-40e8-ba3c-a692176e11cf'), 'name_1': 'Office Paper'} | duration: 0.590ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.5766253
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('f6e6887a-b4ba-40e8-ba3c-a692176e11cf'), 'name_1': 'Carton / Cardboard'} | duration: 0.473ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.5777311
+DB PROFILE: query execution | SQL: SELECT scrap_categories.name, scrap_categories.icon, scrap_categories.image, scrap_categories.description, scrap_categories.active, scrap_categories.id, scrap_categories.created_at, scrap_categories.updated_at 
+FROM scrap_categories 
+WHERE scrap_categories.name = %(name_1)s | params: {'name_1': 'Plastic Scrap'} | duration: 0.547ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.5790052
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('ae570a4e-fc2d-4c03-8ff3-0ff522ce33f6'), 'name_1': 'Plastic Bottles'} | duration: 0.691ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.5817595
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('ae570a4e-fc2d-4c03-8ff3-0ff522ce33f6'), 'name_1': 'Hard Plastic'} | duration: 0.609ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.5831823
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('ae570a4e-fc2d-4c03-8ff3-0ff522ce33f6'), 'name_1': 'Soft Plastic'} | duration: 0.641ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.585105
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('ae570a4e-fc2d-4c03-8ff3-0ff522ce33f6'), 'name_1': 'Plastic Container'} | duration: 0.612ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.5865386
+DB PROFILE: query execution | SQL: SELECT scrap_categories.name, scrap_categories.icon, scrap_categories.image, scrap_categories.description, scrap_categories.active, scrap_categories.id, scrap_categories.created_at, scrap_categories.updated_at 
+FROM scrap_categories 
+WHERE scrap_categories.name = %(name_1)s | params: {'name_1': 'Metal Scrap'} | duration: 0.623ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.5878737
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('ebb22a81-a9a4-4285-8294-b14f4c994e5f'), 'name_1': 'Heavy Iron'} | duration: 0.587ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.5899768
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('ebb22a81-a9a4-4285-8294-b14f4c994e5f'), 'name_1': 'Light Iron'} | duration: 0.450ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.591126
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('ebb22a81-a9a4-4285-8294-b14f4c994e5f'), 'name_1': 'Steel Items'} | duration: 0.431ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.5921483
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('ebb22a81-a9a4-4285-8294-b14f4c994e5f'), 'name_1': 'Copper'} | duration: 0.476ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.5931914
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('ebb22a81-a9a4-4285-8294-b14f4c994e5f'), 'name_1': 'Aluminium'} | duration: 0.687ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.594722
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('ebb22a81-a9a4-4285-8294-b14f4c994e5f'), 'name_1': 'Brass (Peetal)'} | duration: 0.604ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.5962896
+DB PROFILE: query execution | SQL: SELECT scrap_categories.name, scrap_categories.icon, scrap_categories.image, scrap_categories.description, scrap_categories.active, scrap_categories.id, scrap_categories.created_at, scrap_categories.updated_at 
+FROM scrap_categories 
+WHERE scrap_categories.name = %(name_1)s | params: {'name_1': 'E-Waste'} | duration: 0.371ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.5973506
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('bc5d9d83-e9c8-49b4-8a9f-78b29303fed2'), 'name_1': 'Old TV / LED'} | duration: 0.545ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.599426
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('bc5d9d83-e9c8-49b4-8a9f-78b29303fed2'), 'name_1': 'Computer / Laptop'} | duration: 0.463ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.600588
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('bc5d9d83-e9c8-49b4-8a9f-78b29303fed2'), 'name_1': 'Fridge / AC'} | duration: 0.456ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.601605
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('bc5d9d83-e9c8-49b4-8a9f-78b29303fed2'), 'name_1': 'Washing Machine'} | duration: 0.410ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6025593
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('bc5d9d83-e9c8-49b4-8a9f-78b29303fed2'), 'name_1': 'Mobile Phones'} | duration: 0.507ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6036904
+DB PROFILE: query execution | SQL: SELECT scrap_categories.name, scrap_categories.icon, scrap_categories.image, scrap_categories.description, scrap_categories.active, scrap_categories.id, scrap_categories.created_at, scrap_categories.updated_at 
+FROM scrap_categories 
+WHERE scrap_categories.name = %(name_1)s | params: {'name_1': 'Automobile Scrap'} | duration: 0.418ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6046538
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('9f31c15b-a632-417f-9f15-96c7481cf1b1'), 'name_1': 'Old Car'} | duration: 0.523ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6065428
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('9f31c15b-a632-417f-9f15-96c7481cf1b1'), 'name_1': 'Bike Scrap'} | duration: 0.425ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6075935
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('9f31c15b-a632-417f-9f15-96c7481cf1b1'), 'name_1': 'Car Parts'} | duration: 0.404ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6085377
+DB PROFILE: query execution | SQL: SELECT scrap_categories.name, scrap_categories.icon, scrap_categories.image, scrap_categories.description, scrap_categories.active, scrap_categories.id, scrap_categories.created_at, scrap_categories.updated_at 
+FROM scrap_categories 
+WHERE scrap_categories.name = %(name_1)s | params: {'name_1': 'Household Scrap'} | duration: 0.526ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6095762
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('53f1e097-6197-4210-ae35-97377984a0e2'), 'name_1': 'Mixed Kabadi'} | duration: 0.660ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.611863
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('53f1e097-6197-4210-ae35-97377984a0e2'), 'name_1': 'Old Furniture'} | duration: 0.708ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.613485
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('53f1e097-6197-4210-ae35-97377984a0e2'), 'name_1': 'Broken Items'} | duration: 0.503ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.614719
+DB PROFILE: query execution | SQL: SELECT scrap_categories.name, scrap_categories.icon, scrap_categories.image, scrap_categories.description, scrap_categories.active, scrap_categories.id, scrap_categories.created_at, scrap_categories.updated_at 
+FROM scrap_categories 
+WHERE scrap_categories.name = %(name_1)s | params: {'name_1': 'Industrial Scrap'} | duration: 0.373ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6156518
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('4eeeac4e-ef9c-4d71-a7a6-d27d292ff34f'), 'name_1': 'Factory Scrap'} | duration: 0.476ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6174123
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('4eeeac4e-ef9c-4d71-a7a6-d27d292ff34f'), 'name_1': 'Construction Scrap'} | duration: 0.424ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6184595
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('4eeeac4e-ef9c-4d71-a7a6-d27d292ff34f'), 'name_1': 'Sariya'} | duration: 0.534ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.619586
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('4eeeac4e-ef9c-4d71-a7a6-d27d292ff34f'), 'name_1': 'Pipe'} | duration: 0.468ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6206903
+DB PROFILE: query execution | SQL: SELECT scrap_categories.name, scrap_categories.icon, scrap_categories.image, scrap_categories.description, scrap_categories.active, scrap_categories.id, scrap_categories.created_at, scrap_categories.updated_at 
+FROM scrap_categories 
+WHERE scrap_categories.name = %(name_1)s | params: {'name_1': 'Battery Scrap'} | duration: 0.343ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.62158
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('5d84d15a-348b-4955-b3d3-9c433e035b7c'), 'name_1': 'Inverter Battery'} | duration: 0.623ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6236978
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('5d84d15a-348b-4955-b3d3-9c433e035b7c'), 'name_1': 'Car Battery'} | duration: 0.448ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6248798
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('5d84d15a-348b-4955-b3d3-9c433e035b7c'), 'name_1': 'UPS Battery'} | duration: 0.423ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6258888
+DB PROFILE: query execution | SQL: SELECT scrap_categories.name, scrap_categories.icon, scrap_categories.image, scrap_categories.description, scrap_categories.active, scrap_categories.id, scrap_categories.created_at, scrap_categories.updated_at 
+FROM scrap_categories 
+WHERE scrap_categories.name = %(name_1)s | params: {'name_1': 'Glass Scrap'} | duration: 0.367ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6267545
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('9bfc3b7d-ba0f-4b74-b0a5-76c971ab4627'), 'name_1': 'Glass Bottles'} | duration: 0.653ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6287017
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('9bfc3b7d-ba0f-4b74-b0a5-76c971ab4627'), 'name_1': 'Window Glass'} | duration: 0.681ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6303086
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('9bfc3b7d-ba0f-4b74-b0a5-76c971ab4627'), 'name_1': 'Normal Glass'} | duration: 0.481ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.631522
+DB PROFILE: query execution | SQL: SELECT scrap_categories.name, scrap_categories.icon, scrap_categories.image, scrap_categories.description, scrap_categories.active, scrap_categories.id, scrap_categories.created_at, scrap_categories.updated_at 
+FROM scrap_categories 
+WHERE scrap_categories.name = %(name_1)s | params: {'name_1': 'Textile Scrap'} | duration: 0.372ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.632451
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('8d7755ac-2b94-475f-a1fa-2c8a6d9e2ec3'), 'name_1': 'Old Clothes'} | duration: 0.492ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6341994
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('8d7755ac-2b94-475f-a1fa-2c8a6d9e2ec3'), 'name_1': 'Fabric Waste'} | duration: 0.499ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6352973
+DB PROFILE: commit | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6361105
+DB PROFILE: connection release | duration: 115.477ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6362438
+DB PROFILE: connection acquire | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6365807
+DB PROFILE: query execution | SQL: SELECT categories.name, categories.icon, categories.description, categories.image, categories.active, categories.id, categories.created_at, categories.updated_at 
+FROM categories 
+WHERE categories.name = %(name_1)s | params: {'name_1': 'Facial & Skincare'} | duration: 1.285ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6392007
+DB PROFILE: query execution | SQL: SELECT services.category_id, services.name, services.description, services.duration, services.price, services.image, services.active, services.id, services.created_at, services.updated_at 
+FROM services 
+WHERE services.category_id = %(category_id_1)s::UUID AND services.name = %(name_1)s | params: {'category_id_1': UUID('35ef5fae-f0ca-4807-9658-c69dd34e699f'), 'name_1': 'Fruit Facial'} | duration: 1.543ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.643992
+DB PROFILE: query execution | SQL: SELECT timeslots.service_id, timeslots.start_time, timeslots.end_time, timeslots.active, timeslots.id, timeslots.created_at, timeslots.updated_at 
+FROM timeslots 
+WHERE timeslots.service_id = %(service_id_1)s::UUID | params: {'service_id_1': UUID('9cab64ce-8ad5-4c73-ad40-74bb6210ce09')} | duration: 1.400ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6484458
+DB PROFILE: query execution | SQL: SELECT services.category_id, services.name, services.description, services.duration, services.price, services.image, services.active, services.id, services.created_at, services.updated_at 
+FROM services 
+WHERE services.category_id = %(category_id_1)s::UUID AND services.name = %(name_1)s | params: {'category_id_1': UUID('35ef5fae-f0ca-4807-9658-c69dd34e699f'), 'name_1': 'Gold Facial'} | duration: 0.467ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6498978
+DB PROFILE: query execution | SQL: SELECT timeslots.service_id, timeslots.start_time, timeslots.end_time, timeslots.active, timeslots.id, timeslots.created_at, timeslots.updated_at 
+FROM timeslots 
+WHERE timeslots.service_id = %(service_id_1)s::UUID | params: {'service_id_1': UUID('e043b38f-9dcb-435b-9958-83280dab01a0')} | duration: 0.436ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6514008
+DB PROFILE: query execution | SQL: SELECT services.category_id, services.name, services.description, services.duration, services.price, services.image, services.active, services.id, services.created_at, services.updated_at 
+FROM services 
+WHERE services.category_id = %(category_id_1)s::UUID AND services.name = %(name_1)s | params: {'category_id_1': UUID('35ef5fae-f0ca-4807-9658-c69dd34e699f'), 'name_1': 'Hydra Facial'} | duration: 0.588ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6527276
+DB PROFILE: query execution | SQL: SELECT timeslots.service_id, timeslots.start_time, timeslots.end_time, timeslots.active, timeslots.id, timeslots.created_at, timeslots.updated_at 
+FROM timeslots 
+WHERE timeslots.service_id = %(service_id_1)s::UUID | params: {'service_id_1': UUID('ce9f14ed-4022-46f8-9f0c-2a08a17a93eb')} | duration: 0.407ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.65426
+DB PROFILE: query execution | SQL: SELECT categories.name, categories.icon, categories.description, categories.image, categories.active, categories.id, categories.created_at, categories.updated_at 
+FROM categories 
+WHERE categories.name = %(name_1)s | params: {'name_1': 'Waxing'} | duration: 0.392ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6554532
+DB PROFILE: query execution | SQL: SELECT services.category_id, services.name, services.description, services.duration, services.price, services.image, services.active, services.id, services.created_at, services.updated_at 
+FROM services 
+WHERE services.category_id = %(category_id_1)s::UUID AND services.name = %(name_1)s | params: {'category_id_1': UUID('6aa9c829-9073-4cac-bf5e-6d953f939d44'), 'name_1': 'Full Body Waxing'} | duration: 0.460ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6569073
+DB PROFILE: query execution | SQL: SELECT timeslots.service_id, timeslots.start_time, timeslots.end_time, timeslots.active, timeslots.id, timeslots.created_at, timeslots.updated_at 
+FROM timeslots 
+WHERE timeslots.service_id = %(service_id_1)s::UUID | params: {'service_id_1': UUID('b87ad03f-4e4f-4899-be37-b5fa91994e61')} | duration: 0.385ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6582959
+DB PROFILE: query execution | SQL: SELECT services.category_id, services.name, services.description, services.duration, services.price, services.image, services.active, services.id, services.created_at, services.updated_at 
+FROM services 
+WHERE services.category_id = %(category_id_1)s::UUID AND services.name = %(name_1)s | params: {'category_id_1': UUID('6aa9c829-9073-4cac-bf5e-6d953f939d44'), 'name_1': 'Chocolate Waxing (Arms & Legs)'} | duration: 0.371ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6593516
+DB PROFILE: query execution | SQL: SELECT timeslots.service_id, timeslots.start_time, timeslots.end_time, timeslots.active, timeslots.id, timeslots.created_at, timeslots.updated_at 
+FROM timeslots 
+WHERE timeslots.service_id = %(service_id_1)s::UUID | params: {'service_id_1': UUID('8d1081e0-8798-4217-b6d7-b4e9949975aa')} | duration: 0.418ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6607347
+DB PROFILE: query execution | SQL: SELECT categories.name, categories.icon, categories.description, categories.image, categories.active, categories.id, categories.created_at, categories.updated_at 
+FROM categories 
+WHERE categories.name = %(name_1)s | params: {'name_1': 'Hand & Feet Care'} | duration: 0.593ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.66214
+DB PROFILE: query execution | SQL: SELECT services.category_id, services.name, services.description, services.duration, services.price, services.image, services.active, services.id, services.created_at, services.updated_at 
+FROM services 
+WHERE services.category_id = %(category_id_1)s::UUID AND services.name = %(name_1)s | params: {'category_id_1': UUID('d89f02a5-8597-4179-8a92-692ea8f284bf'), 'name_1': 'Spa Pedicure'} | duration: 0.682ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.664072
+DB PROFILE: query execution | SQL: SELECT timeslots.service_id, timeslots.start_time, timeslots.end_time, timeslots.active, timeslots.id, timeslots.created_at, timeslots.updated_at 
+FROM timeslots 
+WHERE timeslots.service_id = %(service_id_1)s::UUID | params: {'service_id_1': UUID('3be9b58b-f97f-4dda-beae-e369a0946a96')} | duration: 0.499ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6658356
+DB PROFILE: query execution | SQL: SELECT services.category_id, services.name, services.description, services.duration, services.price, services.image, services.active, services.id, services.created_at, services.updated_at 
+FROM services 
+WHERE services.category_id = %(category_id_1)s::UUID AND services.name = %(name_1)s | params: {'category_id_1': UUID('d89f02a5-8597-4179-8a92-692ea8f284bf'), 'name_1': 'Spa Manicure'} | duration: 0.744ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6673913
+DB PROFILE: query execution | SQL: SELECT timeslots.service_id, timeslots.start_time, timeslots.end_time, timeslots.active, timeslots.id, timeslots.created_at, timeslots.updated_at 
+FROM timeslots 
+WHERE timeslots.service_id = %(service_id_1)s::UUID | params: {'service_id_1': UUID('eaeca396-51de-457a-85d3-4362eaa23fe1')} | duration: 0.521ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6691637
+DB PROFILE: query execution | SQL: SELECT categories.name, categories.icon, categories.description, categories.image, categories.active, categories.id, categories.created_at, categories.updated_at 
+FROM categories 
+WHERE categories.name = %(name_1)s | params: {'name_1': 'Hair Services'} | duration: 0.355ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6701903
+DB PROFILE: query execution | SQL: SELECT services.category_id, services.name, services.description, services.duration, services.price, services.image, services.active, services.id, services.created_at, services.updated_at 
+FROM services 
+WHERE services.category_id = %(category_id_1)s::UUID AND services.name = %(name_1)s | params: {'category_id_1': UUID('446c0002-323f-46a6-a85f-34035520692b'), 'name_1': 'Hair Cut & Styling'} | duration: 0.431ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6715379
+DB PROFILE: query execution | SQL: SELECT timeslots.service_id, timeslots.start_time, timeslots.end_time, timeslots.active, timeslots.id, timeslots.created_at, timeslots.updated_at 
+FROM timeslots 
+WHERE timeslots.service_id = %(service_id_1)s::UUID | params: {'service_id_1': UUID('7903098f-61b5-47d9-b43a-6a3c5fd46845')} | duration: 0.410ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6729417
+DB PROFILE: query execution | SQL: SELECT services.category_id, services.name, services.description, services.duration, services.price, services.image, services.active, services.id, services.created_at, services.updated_at 
+FROM services 
+WHERE services.category_id = %(category_id_1)s::UUID AND services.name = %(name_1)s | params: {'category_id_1': UUID('446c0002-323f-46a6-a85f-34035520692b'), 'name_1': 'Hair Spa & Nourishment'} | duration: 0.455ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6741247
+DB PROFILE: query execution | SQL: SELECT timeslots.service_id, timeslots.start_time, timeslots.end_time, timeslots.active, timeslots.id, timeslots.created_at, timeslots.updated_at 
+FROM timeslots 
+WHERE timeslots.service_id = %(service_id_1)s::UUID | params: {'service_id_1': UUID('20ef33ea-43b5-4771-94b4-a07c8160cd7f')} | duration: 0.460ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.675614
+DB PROFILE: query execution | SQL: SELECT categories.name, categories.icon, categories.description, categories.image, categories.active, categories.id, categories.created_at, categories.updated_at 
+FROM categories 
+WHERE categories.name = %(name_1)s | params: {'name_1': 'Makeup Categories'} | duration: 0.321ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6765249
+DB PROFILE: query execution | SQL: SELECT services.category_id, services.name, services.description, services.duration, services.price, services.image, services.active, services.id, services.created_at, services.updated_at 
+FROM services 
+WHERE services.category_id = %(category_id_1)s::UUID AND services.name = %(name_1)s | params: {'category_id_1': UUID('d993cc78-d9ce-46d0-a008-627914582685'), 'name_1': 'Cocktail Party Makeup'} | duration: 0.514ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6780639
+DB PROFILE: query execution | SQL: SELECT timeslots.service_id, timeslots.start_time, timeslots.end_time, timeslots.active, timeslots.id, timeslots.created_at, timeslots.updated_at 
+FROM timeslots 
+WHERE timeslots.service_id = %(service_id_1)s::UUID | params: {'service_id_1': UUID('56cc0e43-2fef-4c9c-87d4-8f26c367950b')} | duration: 0.487ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.679575
+DB PROFILE: query execution | SQL: SELECT services.category_id, services.name, services.description, services.duration, services.price, services.image, services.active, services.id, services.created_at, services.updated_at 
+FROM services 
+WHERE services.category_id = %(category_id_1)s::UUID AND services.name = %(name_1)s | params: {'category_id_1': UUID('d993cc78-d9ce-46d0-a008-627914582685'), 'name_1': 'Engagement Makeup'} | duration: 0.671ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.68114
+DB PROFILE: query execution | SQL: SELECT timeslots.service_id, timeslots.start_time, timeslots.end_time, timeslots.active, timeslots.id, timeslots.created_at, timeslots.updated_at 
+FROM timeslots 
+WHERE timeslots.service_id = %(service_id_1)s::UUID | params: {'service_id_1': UUID('36558104-93e8-4eb9-9e42-f81890ab5b48')} | duration: 0.439ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.682727
+DB PROFILE: commit | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6832952
+DB PROFILE: connection release | duration: 46.926ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.683507
+DB PROFILE: connection acquire | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6839452
+DB PROFILE: query execution | SQL: SELECT maintenance_categories.name, maintenance_categories.icon, maintenance_categories.image, maintenance_categories.description, maintenance_categories.active, maintenance_categories.id, maintenance_categories.created_at, maintenance_categories.updated_at 
+FROM maintenance_categories 
+WHERE maintenance_categories.name = %(name_1)s | params: {'name_1': 'AC Repair & Service'} | duration: 1.381ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.686902
+DB PROFILE: query execution | SQL: SELECT maintenance_services.category_id, maintenance_services.name, maintenance_services.image, maintenance_services.description, maintenance_services.price, maintenance_services.duration, maintenance_services.active, maintenance_services.id, maintenance_services.created_at, maintenance_services.updated_at 
+FROM maintenance_services 
+WHERE maintenance_services.category_id = %(category_id_1)s::UUID AND maintenance_services.name = %(name_1)s | params: {'category_id_1': UUID('09c1e4d2-d29f-41f5-92d8-c3bd70c1ff47'), 'name_1': 'AC Regular Service'} | duration: 1.510ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6911771
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8081 (Press CTRL+C to quit)
+DB PROFILE: query execution | SQL: SELECT maintenance_services.category_id, maintenance_services.name, maintenance_services.image, maintenance_services.description, maintenance_services.price, maintenance_services.duration, maintenance_services.active, maintenance_services.id, maintenance_services.created_at, maintenance_services.updated_at 
+FROM maintenance_services 
+WHERE maintenance_services.category_id = %(category_id_1)s::UUID AND maintenance_services.name = %(name_1)s | params: {'category_id_1': UUID('09c1e4d2-d29f-41f5-92d8-c3bd70c1ff47'), 'name_1': 'AC Deep Cleaning'} | duration: 0.534ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.692787
+DB PROFILE: query execution | SQL: SELECT maintenance_services.category_id, maintenance_services.name, maintenance_services.image, maintenance_services.description, maintenance_services.price, maintenance_services.duration, maintenance_services.active, maintenance_services.id, maintenance_services.created_at, maintenance_services.updated_at 
+FROM maintenance_services 
+WHERE maintenance_services.category_id = %(category_id_1)s::UUID AND maintenance_services.name = %(name_1)s | params: {'category_id_1': UUID('09c1e4d2-d29f-41f5-92d8-c3bd70c1ff47'), 'name_1': 'AC Installation'} | duration: 0.514ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6940374
+DB PROFILE: query execution | SQL: SELECT maintenance_categories.name, maintenance_categories.icon, maintenance_categories.image, maintenance_categories.description, maintenance_categories.active, maintenance_categories.id, maintenance_categories.created_at, maintenance_categories.updated_at 
+FROM maintenance_categories 
+WHERE maintenance_categories.name = %(name_1)s | params: {'name_1': 'Electrical Services'} | duration: 0.415ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6949801
+DB PROFILE: query execution | SQL: SELECT maintenance_services.category_id, maintenance_services.name, maintenance_services.image, maintenance_services.description, maintenance_services.price, maintenance_services.duration, maintenance_services.active, maintenance_services.id, maintenance_services.created_at, maintenance_services.updated_at 
+FROM maintenance_services 
+WHERE maintenance_services.category_id = %(category_id_1)s::UUID AND maintenance_services.name = %(name_1)s | params: {'category_id_1': UUID('e7bb2b65-a8ea-44a9-99f4-b286a29688c8'), 'name_1': 'Switch / Socket Repair'} | duration: 0.520ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6970003
+DB PROFILE: query execution | SQL: SELECT maintenance_services.category_id, maintenance_services.name, maintenance_services.image, maintenance_services.description, maintenance_services.price, maintenance_services.duration, maintenance_services.active, maintenance_services.id, maintenance_services.created_at, maintenance_services.updated_at 
+FROM maintenance_services 
+WHERE maintenance_services.category_id = %(category_id_1)s::UUID AND maintenance_services.name = %(name_1)s | params: {'category_id_1': UUID('e7bb2b65-a8ea-44a9-99f4-b286a29688c8'), 'name_1': 'Ceiling Fan Repair'} | duration: 0.509ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6981606
+DB PROFILE: query execution | SQL: SELECT maintenance_services.category_id, maintenance_services.name, maintenance_services.image, maintenance_services.description, maintenance_services.price, maintenance_services.duration, maintenance_services.active, maintenance_services.id, maintenance_services.created_at, maintenance_services.updated_at 
+FROM maintenance_services 
+WHERE maintenance_services.category_id = %(category_id_1)s::UUID AND maintenance_services.name = %(name_1)s | params: {'category_id_1': UUID('e7bb2b65-a8ea-44a9-99f4-b286a29688c8'), 'name_1': 'Complete House Inspection'} | duration: 0.780ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.6997445
+DB PROFILE: query execution | SQL: SELECT maintenance_categories.name, maintenance_categories.icon, maintenance_categories.image, maintenance_categories.description, maintenance_categories.active, maintenance_categories.id, maintenance_categories.created_at, maintenance_categories.updated_at 
+FROM maintenance_categories 
+WHERE maintenance_categories.name = %(name_1)s | params: {'name_1': 'Plumbing Services'} | duration: 1.470ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.7020404
+DB PROFILE: query execution | SQL: SELECT maintenance_services.category_id, maintenance_services.name, maintenance_services.image, maintenance_services.description, maintenance_services.price, maintenance_services.duration, maintenance_services.active, maintenance_services.id, maintenance_services.created_at, maintenance_services.updated_at 
+FROM maintenance_services 
+WHERE maintenance_services.category_id = %(category_id_1)s::UUID AND maintenance_services.name = %(name_1)s | params: {'category_id_1': UUID('3d485ba4-4298-44b0-a177-ba45c9c589fb'), 'name_1': 'Tap Repair / Replacement'} | duration: 0.549ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.7042572
+DB PROFILE: query execution | SQL: SELECT maintenance_services.category_id, maintenance_services.name, maintenance_services.image, maintenance_services.description, maintenance_services.price, maintenance_services.duration, maintenance_services.active, maintenance_services.id, maintenance_services.created_at, maintenance_services.updated_at 
+FROM maintenance_services 
+WHERE maintenance_services.category_id = %(category_id_1)s::UUID AND maintenance_services.name = %(name_1)s | params: {'category_id_1': UUID('3d485ba4-4298-44b0-a177-ba45c9c589fb'), 'name_1': 'Drain Unclogging'} | duration: 0.488ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.7054052
+DB PROFILE: query execution | SQL: SELECT maintenance_services.category_id, maintenance_services.name, maintenance_services.image, maintenance_services.description, maintenance_services.price, maintenance_services.duration, maintenance_services.active, maintenance_services.id, maintenance_services.created_at, maintenance_services.updated_at 
+FROM maintenance_services 
+WHERE maintenance_services.category_id = %(category_id_1)s::UUID AND maintenance_services.name = %(name_1)s | params: {'category_id_1': UUID('3d485ba4-4298-44b0-a177-ba45c9c589fb'), 'name_1': 'Toilet Jet Spray Install'} | duration: 0.445ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.7064521
+DB PROFILE: commit | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.7072797
+DB PROFILE: connection release | duration: 23.479ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.7074244
+HTTP PROFILE: DNS lookup | host: localhost | duration: 0.064ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.7117362
+HTTP PROFILE: TCP connect | host: 127.0.0.1 | duration: 0.082ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.7118652
+REDIS PROFILE: connect/ping | duration: 2.984ms | thread: 137466604941312 | request id: N/A | timestamp: 1783135506.7135665
+STAGE PROFILE: Request received | thread: 137466604941312 | request id: 8a0716f7-bb9d-40b5-b80f-d6527fe79160 | timestamp: 1783135507.0914237
+FASTAPI PROFILE: middleware starts | path: /health | timestamp: 1783135507.0914237
+DB PROFILE: connection acquire | thread: 137466604941312 | request id: 8a0716f7-bb9d-40b5-b80f-d6527fe79160 | timestamp: 1783135507.156647
+DB PROFILE: query execution | SQL: SELECT 1 | params: {} | duration: 0.405ms | thread: 137466604941312 | request id: 8a0716f7-bb9d-40b5-b80f-d6527fe79160 | timestamp: 1783135507.1572645
+DB PROFILE: connection release | duration: 0.858ms | thread: 137466604941312 | request id: 8a0716f7-bb9d-40b5-b80f-d6527fe79160 | timestamp: 1783135507.157505
+REDIS PROFILE: connect/ping | duration: 0.335ms | thread: 137466604941312 | request id: 8a0716f7-bb9d-40b5-b80f-d6527fe79160 | timestamp: 1783135507.1578832
+STAGE PROFILE: Response serialization | duration: 0.031ms | thread: 137466604941312 | request id: 8a0716f7-bb9d-40b5-b80f-d6527fe79160 | timestamp: 1783135507.1585085
+FASTAPI PROFILE: response serialization | duration: 0.031ms | thread: 137466604941312 | request id: 8a0716f7-bb9d-40b5-b80f-d6527fe79160 | timestamp: 1783135507.158514
+STAGE PROFILE: Response sent | duration: 67.224ms | thread: 137466604941312 | request id: 8a0716f7-bb9d-40b5-b80f-d6527fe79160 | timestamp: 1783135507.1586478
+FASTAPI PROFILE: middleware ends | path: /health | duration: 67.224ms | timestamp: 1783135507.1586478
+INFO:     127.0.0.1:43260 - "GET /health HTTP/1.1" 200 OK
+STAGE PROFILE: Request received | thread: 137466604941312 | request id: fac4e8f5-7b80-47ae-9cb9-1e50e2e6eca9 | timestamp: 1783135508.1628387
+FASTAPI PROFILE: middleware starts | path: /api/v1/auth/send-otp | timestamp: 1783135508.1628387
+REDIS PROFILE: setex/set | key: otp:+919999900008 | duration: 0.631ms | thread: 137466604941312 | request id: fac4e8f5-7b80-47ae-9cb9-1e50e2e6eca9 | timestamp: 1783135508.1663864
+STAGE PROFILE: Response serialization | duration: 0.035ms | thread: 137466604941312 | request id: fac4e8f5-7b80-47ae-9cb9-1e50e2e6eca9 | timestamp: 1783135508.1665363
+FASTAPI PROFILE: response serialization | duration: 0.035ms | thread: 137466604941312 | request id: fac4e8f5-7b80-47ae-9cb9-1e50e2e6eca9 | timestamp: 1783135508.1665456
+STAGE PROFILE: Response sent | duration: 3.918ms | thread: 137466604941312 | request id: fac4e8f5-7b80-47ae-9cb9-1e50e2e6eca9 | timestamp: 1783135508.166757
+FASTAPI PROFILE: middleware ends | path: /api/v1/auth/send-otp | duration: 3.918ms | timestamp: 1783135508.166757
+INFO:     127.0.0.1:43276 - "POST /api/v1/auth/send-otp HTTP/1.1" 200 OK
+STAGE PROFILE: Request received | thread: 137466604941312 | request id: 937db2e3-8b93-4e9f-8ae9-6edbb968c13a | timestamp: 1783135508.16836
+FASTAPI PROFILE: middleware starts | path: /api/v1/auth/verify-otp | timestamp: 1783135508.16836
+FASTAPI PROFILE: dependency (get_db) starts | timestamp: 1783135508.1751487
+STAGE PROFILE: Redis read | thread: 137466604941312 | request id: 937db2e3-8b93-4e9f-8ae9-6edbb968c13a | timestamp: 1783135508.175463
+REDIS PROFILE: get | key: otp:+919999900008 | duration: 0.371ms | thread: 137466604941312 | request id: 937db2e3-8b93-4e9f-8ae9-6edbb968c13a | timestamp: 1783135508.1758513
+STAGE PROFILE: Redis write | thread: 137466604941312 | request id: 937db2e3-8b93-4e9f-8ae9-6edbb968c13a | timestamp: 1783135508.175872
+REDIS PROFILE: delete | key: otp:+919999900008 | duration: 0.180ms | thread: 137466604941312 | request id: 937db2e3-8b93-4e9f-8ae9-6edbb968c13a | timestamp: 1783135508.176061
+STAGE PROFILE: User lookup | thread: 137466604941312 | request id: 937db2e3-8b93-4e9f-8ae9-6edbb968c13a | timestamp: 1783135508.1760657
+DB PROFILE: connection acquire | thread: 137466604941312 | request id: 937db2e3-8b93-4e9f-8ae9-6edbb968c13a | timestamp: 1783135508.176692
+DB PROFILE: query execution | SQL: SELECT users.full_name AS users_full_name, users.email AS users_email, users.phone AS users_phone, users.profile_image AS users_profile_image, users.is_active AS users_is_active, users.is_verified AS users_is_verified, users.role AS users_role, users.id AS users_id, users.created_at AS users_created_at, users.updated_at AS users_updated_at 
+FROM users 
+WHERE users.phone = %(phone_1)s 
+ LIMIT %(param_1)s | params: {'phone_1': '+919999900008', 'param_1': 1} | duration: 1.789ms | thread: 137466604941312 | request id: 937db2e3-8b93-4e9f-8ae9-6edbb968c13a | timestamp: 1783135508.1808333
+STAGE PROFILE: Response serialization | duration: 0.031ms | thread: 137466604941312 | request id: 937db2e3-8b93-4e9f-8ae9-6edbb968c13a | timestamp: 1783135508.1813674
+FASTAPI PROFILE: response serialization | duration: 0.031ms | thread: 137466604941312 | request id: 937db2e3-8b93-4e9f-8ae9-6edbb968c13a | timestamp: 1783135508.1813724
+STAGE PROFILE: Response sent | duration: 13.162ms | thread: 137466604941312 | request id: 937db2e3-8b93-4e9f-8ae9-6edbb968c13a | timestamp: 1783135508.1815221
+FASTAPI PROFILE: middleware ends | path: /api/v1/auth/verify-otp | duration: 13.162ms | timestamp: 1783135508.1815221
+INFO:     127.0.0.1:43280 - "POST /api/v1/auth/verify-otp HTTP/1.1" 200 OK
+STAGE PROFILE: Request received | thread: 137466604941312 | request id: 9488a421-6435-49c6-ae54-c86dafbdfb9b | timestamp: 1783135508.1830354
+FASTAPI PROFILE: middleware starts | path: /api/v1/auth/verify-otp | timestamp: 1783135508.1830354
+FASTAPI PROFILE: dependency (get_db) starts | timestamp: 1783135508.1845727
+STAGE PROFILE: User lookup | thread: 137466604941312 | request id: 9488a421-6435-49c6-ae54-c86dafbdfb9b | timestamp: 1783135508.184861
+DB PROFILE: connection release | duration: 9.833ms | thread: 137466439657024 | request id: 937db2e3-8b93-4e9f-8ae9-6edbb968c13a | timestamp: 1783135508.186525
+FASTAPI PROFILE: dependency (get_db) ends | duration: 11.462ms | timestamp: 1783135508.1866107
+DB PROFILE: connection acquire | thread: 137466604941312 | request id: 9488a421-6435-49c6-ae54-c86dafbdfb9b | timestamp: 1783135508.1969814
+DB PROFILE: query execution | SQL: SELECT users.full_name AS users_full_name, users.email AS users_email, users.phone AS users_phone, users.profile_image AS users_profile_image, users.is_active AS users_is_active, users.is_verified AS users_is_verified, users.role AS users_role, users.id AS users_id, users.created_at AS users_created_at, users.updated_at AS users_updated_at 
+FROM users 
+WHERE users.phone = %(phone_1)s 
+ LIMIT %(param_1)s | params: {'phone_1': '+919999911118', 'param_1': 1} | duration: 5.063ms | thread: 137466604941312 | request id: 9488a421-6435-49c6-ae54-c86dafbdfb9b | timestamp: 1783135508.2024858
+STAGE PROFILE: User create | thread: 137466604941312 | request id: 9488a421-6435-49c6-ae54-c86dafbdfb9b | timestamp: 1783135508.2027853
+STAGE PROFILE: Commit | thread: 137466604941312 | request id: 9488a421-6435-49c6-ae54-c86dafbdfb9b | timestamp: 1783135508.2029455
+DB PROFILE: query execution | SQL: INSERT INTO users (full_name, email, phone, profile_image, is_active, is_verified, role, id) VALUES (%(full_name)s, %(email)s, %(phone)s, %(profile_image)s, %(is_active)s, %(is_verified)s, %(role)s, %(id)s::UUID) RETURNING users.created_at, users.updated_at | params: {'full_name': 'Urban Power User', 'email': 'user_919999911118@urbanpower.com', 'phone': '+919999911118', 'profile_image': None, 'is_active': True, 'is_verified': True, 'role': 'client', 'id': UUID('53dd7527-bae5-4bce-bb77-35cfca68ed0c')} | duration: 1.368ms | thread: 137466604941312 | request id: 9488a421-6435-49c6-ae54-c86dafbdfb9b | timestamp: 1783135508.2065966
+DB PROFILE: commit | thread: 137466604941312 | request id: 9488a421-6435-49c6-ae54-c86dafbdfb9b | timestamp: 1783135508.2086792
+DB PROFILE: connection release | duration: 11.905ms | thread: 137466604941312 | request id: 9488a421-6435-49c6-ae54-c86dafbdfb9b | timestamp: 1783135508.2088864
+STAGE PROFILE: Refresh | thread: 137466604941312 | request id: 9488a421-6435-49c6-ae54-c86dafbdfb9b | timestamp: 1783135508.2089372
+DB PROFILE: connection acquire | thread: 137466604941312 | request id: 9488a421-6435-49c6-ae54-c86dafbdfb9b | timestamp: 1783135508.209533
+DB PROFILE: query execution | SQL: SELECT users.full_name, users.email, users.phone, users.profile_image, users.is_active, users.is_verified, users.role, users.id, users.created_at, users.updated_at 
+FROM users 
+WHERE users.id = %(pk_1)s::UUID | params: {'pk_1': UUID('53dd7527-bae5-4bce-bb77-35cfca68ed0c')} | duration: 0.651ms | thread: 137466604941312 | request id: 9488a421-6435-49c6-ae54-c86dafbdfb9b | timestamp: 1783135508.21137
+STAGE PROFILE: JWT access token | duration: 0.155ms | thread: 137466604941312 | request id: 9488a421-6435-49c6-ae54-c86dafbdfb9b | timestamp: 1783135508.2119174
+STAGE PROFILE: JWT refresh token | duration: 0.047ms | thread: 137466604941312 | request id: 9488a421-6435-49c6-ae54-c86dafbdfb9b | timestamp: 1783135508.2119777
+STAGE PROFILE: Response serialization | duration: 0.020ms | thread: 137466604941312 | request id: 9488a421-6435-49c6-ae54-c86dafbdfb9b | timestamp: 1783135508.2120936
+FASTAPI PROFILE: response serialization | duration: 0.020ms | thread: 137466604941312 | request id: 9488a421-6435-49c6-ae54-c86dafbdfb9b | timestamp: 1783135508.2120976
+STAGE PROFILE: Response sent | duration: 29.315ms | thread: 137466604941312 | request id: 9488a421-6435-49c6-ae54-c86dafbdfb9b | timestamp: 1783135508.2123506
+FASTAPI PROFILE: middleware ends | path: /api/v1/auth/verify-otp | duration: 29.315ms | timestamp: 1783135508.2123506
+INFO:     127.0.0.1:43292 - "POST /api/v1/auth/verify-otp HTTP/1.1" 200 OK
+DB PROFILE: connection release | duration: 3.743ms | thread: 137466439657024 | request id: 9488a421-6435-49c6-ae54-c86dafbdfb9b | timestamp: 1783135508.2132761
+FASTAPI PROFILE: dependency (get_db) ends | duration: 28.763ms | timestamp: 1783135508.213336
+STAGE PROFILE: Request received | thread: 137466604941312 | request id: 03037c48-38d3-4102-bedf-6c0e2d46ad42 | timestamp: 1783135508.2138467
+FASTAPI PROFILE: middleware starts | path: /api/v1/auth/verify-otp | timestamp: 1783135508.2138467
+FASTAPI PROFILE: dependency (get_db) starts | timestamp: 1783135508.2148457
+STAGE PROFILE: User lookup | thread: 137466604941312 | request id: 03037c48-38d3-4102-bedf-6c0e2d46ad42 | timestamp: 1783135508.214998
+DB PROFILE: connection acquire | thread: 137466604941312 | request id: 03037c48-38d3-4102-bedf-6c0e2d46ad42 | timestamp: 1783135508.2154183
+DB PROFILE: query execution | SQL: SELECT users.full_name AS users_full_name, users.email AS users_email, users.phone AS users_phone, users.profile_image AS users_profile_image, users.is_active AS users_is_active, users.is_verified AS users_is_verified, users.role AS users_role, users.id AS users_id, users.created_at AS users_created_at, users.updated_at AS users_updated_at 
+FROM users 
+WHERE users.phone = %(phone_1)s 
+ LIMIT %(param_1)s | params: {'phone_1': '+919999911118', 'param_1': 1} | duration: 0.618ms | thread: 137466604941312 | request id: 03037c48-38d3-4102-bedf-6c0e2d46ad42 | timestamp: 1783135508.2163086
+STAGE PROFILE: JWT access token | duration: 0.136ms | thread: 137466604941312 | request id: 03037c48-38d3-4102-bedf-6c0e2d46ad42 | timestamp: 1783135508.2167444
+STAGE PROFILE: JWT refresh token | duration: 0.043ms | thread: 137466604941312 | request id: 03037c48-38d3-4102-bedf-6c0e2d46ad42 | timestamp: 1783135508.2168
+STAGE PROFILE: Response serialization | duration: 0.023ms | thread: 137466604941312 | request id: 03037c48-38d3-4102-bedf-6c0e2d46ad42 | timestamp: 1783135508.2169154
+FASTAPI PROFILE: response serialization | duration: 0.023ms | thread: 137466604941312 | request id: 03037c48-38d3-4102-bedf-6c0e2d46ad42 | timestamp: 1783135508.216919
+STAGE PROFILE: Response sent | duration: 3.205ms | thread: 137466604941312 | request id: 03037c48-38d3-4102-bedf-6c0e2d46ad42 | timestamp: 1783135508.2170517
+FASTAPI PROFILE: middleware ends | path: /api/v1/auth/verify-otp | duration: 3.205ms | timestamp: 1783135508.2170517
+INFO:     127.0.0.1:43294 - "POST /api/v1/auth/verify-otp HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [30853]
+
+
+=== PHASE 2 LOGS (SMS_MOCK=False) ===
+INFO:     Started server process [30899]
+INFO:     Waiting for application startup.
+DB PROFILE: connection acquire | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.8509736
+DB PROFILE: query execution | SQL: SELECT 1 | params: {} | duration: 0.231ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.8518116
+DB PROFILE: connection release | duration: 1.078ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.8520517
+DB PROFILE: connection acquire | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.8534126
+DB PROFILE: query execution | SQL: SELECT scrap_categories.name, scrap_categories.icon, scrap_categories.image, scrap_categories.description, scrap_categories.active, scrap_categories.id, scrap_categories.created_at, scrap_categories.updated_at 
+FROM scrap_categories 
+WHERE scrap_categories.name = %(name_1)s | params: {'name_1': 'Paper Scrap'} | duration: 4.050ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.8959773
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('f6e6887a-b4ba-40e8-ba3c-a692176e11cf'), 'name_1': 'Newspaper (Raddi)'} | duration: 1.715ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9007516
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('f6e6887a-b4ba-40e8-ba3c-a692176e11cf'), 'name_1': 'Books & Copies'} | duration: 0.663ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9023445
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('f6e6887a-b4ba-40e8-ba3c-a692176e11cf'), 'name_1': 'Office Paper'} | duration: 1.548ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9047492
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('f6e6887a-b4ba-40e8-ba3c-a692176e11cf'), 'name_1': 'Carton / Cardboard'} | duration: 0.605ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9061797
+DB PROFILE: query execution | SQL: SELECT scrap_categories.name, scrap_categories.icon, scrap_categories.image, scrap_categories.description, scrap_categories.active, scrap_categories.id, scrap_categories.created_at, scrap_categories.updated_at 
+FROM scrap_categories 
+WHERE scrap_categories.name = %(name_1)s | params: {'name_1': 'Plastic Scrap'} | duration: 0.453ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9072747
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('ae570a4e-fc2d-4c03-8ff3-0ff522ce33f6'), 'name_1': 'Plastic Bottles'} | duration: 0.604ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9096458
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('ae570a4e-fc2d-4c03-8ff3-0ff522ce33f6'), 'name_1': 'Hard Plastic'} | duration: 0.624ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9110742
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('ae570a4e-fc2d-4c03-8ff3-0ff522ce33f6'), 'name_1': 'Soft Plastic'} | duration: 0.450ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.912189
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('ae570a4e-fc2d-4c03-8ff3-0ff522ce33f6'), 'name_1': 'Plastic Container'} | duration: 0.503ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.913249
+DB PROFILE: query execution | SQL: SELECT scrap_categories.name, scrap_categories.icon, scrap_categories.image, scrap_categories.description, scrap_categories.active, scrap_categories.id, scrap_categories.created_at, scrap_categories.updated_at 
+FROM scrap_categories 
+WHERE scrap_categories.name = %(name_1)s | params: {'name_1': 'Metal Scrap'} | duration: 0.414ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9141982
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('ebb22a81-a9a4-4285-8294-b14f4c994e5f'), 'name_1': 'Heavy Iron'} | duration: 0.724ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9163685
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('ebb22a81-a9a4-4285-8294-b14f4c994e5f'), 'name_1': 'Light Iron'} | duration: 0.705ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9178772
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('ebb22a81-a9a4-4285-8294-b14f4c994e5f'), 'name_1': 'Steel Items'} | duration: 0.477ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9190881
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('ebb22a81-a9a4-4285-8294-b14f4c994e5f'), 'name_1': 'Copper'} | duration: 0.525ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.92017
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('ebb22a81-a9a4-4285-8294-b14f4c994e5f'), 'name_1': 'Aluminium'} | duration: 0.527ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9213443
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('ebb22a81-a9a4-4285-8294-b14f4c994e5f'), 'name_1': 'Brass (Peetal)'} | duration: 0.494ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9224577
+DB PROFILE: query execution | SQL: SELECT scrap_categories.name, scrap_categories.icon, scrap_categories.image, scrap_categories.description, scrap_categories.active, scrap_categories.id, scrap_categories.created_at, scrap_categories.updated_at 
+FROM scrap_categories 
+WHERE scrap_categories.name = %(name_1)s | params: {'name_1': 'E-Waste'} | duration: 0.443ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9234133
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('bc5d9d83-e9c8-49b4-8a9f-78b29303fed2'), 'name_1': 'Old TV / LED'} | duration: 0.529ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.925258
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('bc5d9d83-e9c8-49b4-8a9f-78b29303fed2'), 'name_1': 'Computer / Laptop'} | duration: 0.562ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.926506
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('bc5d9d83-e9c8-49b4-8a9f-78b29303fed2'), 'name_1': 'Fridge / AC'} | duration: 0.556ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9277153
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('bc5d9d83-e9c8-49b4-8a9f-78b29303fed2'), 'name_1': 'Washing Machine'} | duration: 0.634ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.929146
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('bc5d9d83-e9c8-49b4-8a9f-78b29303fed2'), 'name_1': 'Mobile Phones'} | duration: 0.526ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9304326
+DB PROFILE: query execution | SQL: SELECT scrap_categories.name, scrap_categories.icon, scrap_categories.image, scrap_categories.description, scrap_categories.active, scrap_categories.id, scrap_categories.created_at, scrap_categories.updated_at 
+FROM scrap_categories 
+WHERE scrap_categories.name = %(name_1)s | params: {'name_1': 'Automobile Scrap'} | duration: 0.375ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9313679
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('9f31c15b-a632-417f-9f15-96c7481cf1b1'), 'name_1': 'Old Car'} | duration: 0.584ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9333363
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('9f31c15b-a632-417f-9f15-96c7481cf1b1'), 'name_1': 'Bike Scrap'} | duration: 2.603ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9366784
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('9f31c15b-a632-417f-9f15-96c7481cf1b1'), 'name_1': 'Car Parts'} | duration: 0.664ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9382472
+DB PROFILE: query execution | SQL: SELECT scrap_categories.name, scrap_categories.icon, scrap_categories.image, scrap_categories.description, scrap_categories.active, scrap_categories.id, scrap_categories.created_at, scrap_categories.updated_at 
+FROM scrap_categories 
+WHERE scrap_categories.name = %(name_1)s | params: {'name_1': 'Household Scrap'} | duration: 0.410ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9392583
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('53f1e097-6197-4210-ae35-97377984a0e2'), 'name_1': 'Mixed Kabadi'} | duration: 0.884ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9414065
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('53f1e097-6197-4210-ae35-97377984a0e2'), 'name_1': 'Old Furniture'} | duration: 0.591ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9428566
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('53f1e097-6197-4210-ae35-97377984a0e2'), 'name_1': 'Broken Items'} | duration: 0.498ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9441075
+DB PROFILE: query execution | SQL: SELECT scrap_categories.name, scrap_categories.icon, scrap_categories.image, scrap_categories.description, scrap_categories.active, scrap_categories.id, scrap_categories.created_at, scrap_categories.updated_at 
+FROM scrap_categories 
+WHERE scrap_categories.name = %(name_1)s | params: {'name_1': 'Industrial Scrap'} | duration: 0.453ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9451394
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('4eeeac4e-ef9c-4d71-a7a6-d27d292ff34f'), 'name_1': 'Factory Scrap'} | duration: 0.559ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.946947
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('4eeeac4e-ef9c-4d71-a7a6-d27d292ff34f'), 'name_1': 'Construction Scrap'} | duration: 0.501ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.948061
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('4eeeac4e-ef9c-4d71-a7a6-d27d292ff34f'), 'name_1': 'Sariya'} | duration: 0.506ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9491956
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('4eeeac4e-ef9c-4d71-a7a6-d27d292ff34f'), 'name_1': 'Pipe'} | duration: 0.494ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9503186
+DB PROFILE: query execution | SQL: SELECT scrap_categories.name, scrap_categories.icon, scrap_categories.image, scrap_categories.description, scrap_categories.active, scrap_categories.id, scrap_categories.created_at, scrap_categories.updated_at 
+FROM scrap_categories 
+WHERE scrap_categories.name = %(name_1)s | params: {'name_1': 'Battery Scrap'} | duration: 0.549ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9514227
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('5d84d15a-348b-4955-b3d3-9c433e035b7c'), 'name_1': 'Inverter Battery'} | duration: 0.666ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9536886
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('5d84d15a-348b-4955-b3d3-9c433e035b7c'), 'name_1': 'Car Battery'} | duration: 0.537ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9550164
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('5d84d15a-348b-4955-b3d3-9c433e035b7c'), 'name_1': 'UPS Battery'} | duration: 0.664ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.956467
+DB PROFILE: query execution | SQL: SELECT scrap_categories.name, scrap_categories.icon, scrap_categories.image, scrap_categories.description, scrap_categories.active, scrap_categories.id, scrap_categories.created_at, scrap_categories.updated_at 
+FROM scrap_categories 
+WHERE scrap_categories.name = %(name_1)s | params: {'name_1': 'Glass Scrap'} | duration: 0.480ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9576583
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('9bfc3b7d-ba0f-4b74-b0a5-76c971ab4627'), 'name_1': 'Glass Bottles'} | duration: 0.517ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9594653
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('9bfc3b7d-ba0f-4b74-b0a5-76c971ab4627'), 'name_1': 'Window Glass'} | duration: 0.498ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9606698
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('9bfc3b7d-ba0f-4b74-b0a5-76c971ab4627'), 'name_1': 'Normal Glass'} | duration: 0.484ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9618182
+DB PROFILE: query execution | SQL: SELECT scrap_categories.name, scrap_categories.icon, scrap_categories.image, scrap_categories.description, scrap_categories.active, scrap_categories.id, scrap_categories.created_at, scrap_categories.updated_at 
+FROM scrap_categories 
+WHERE scrap_categories.name = %(name_1)s | params: {'name_1': 'Textile Scrap'} | duration: 0.384ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9627972
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('8d7755ac-2b94-475f-a1fa-2c8a6d9e2ec3'), 'name_1': 'Old Clothes'} | duration: 0.534ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.964599
+DB PROFILE: query execution | SQL: SELECT scrap_items.category_id, scrap_items.name, scrap_items.image, scrap_items.description, scrap_items.price_per_kg, scrap_items.active, scrap_items.id, scrap_items.created_at, scrap_items.updated_at 
+FROM scrap_items 
+WHERE scrap_items.category_id = %(category_id_1)s::UUID AND scrap_items.name = %(name_1)s | params: {'category_id_1': UUID('8d7755ac-2b94-475f-a1fa-2c8a6d9e2ec3'), 'name_1': 'Fabric Waste'} | duration: 0.475ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.96576
+DB PROFILE: commit | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9668283
+DB PROFILE: connection release | duration: 113.568ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9669807
+DB PROFILE: connection acquire | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9673555
+DB PROFILE: query execution | SQL: SELECT categories.name, categories.icon, categories.description, categories.image, categories.active, categories.id, categories.created_at, categories.updated_at 
+FROM categories 
+WHERE categories.name = %(name_1)s | params: {'name_1': 'Facial & Skincare'} | duration: 1.668ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9704418
+DB PROFILE: query execution | SQL: SELECT services.category_id, services.name, services.description, services.duration, services.price, services.image, services.active, services.id, services.created_at, services.updated_at 
+FROM services 
+WHERE services.category_id = %(category_id_1)s::UUID AND services.name = %(name_1)s | params: {'category_id_1': UUID('35ef5fae-f0ca-4807-9658-c69dd34e699f'), 'name_1': 'Fruit Facial'} | duration: 1.575ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9753172
+DB PROFILE: query execution | SQL: SELECT timeslots.service_id, timeslots.start_time, timeslots.end_time, timeslots.active, timeslots.id, timeslots.created_at, timeslots.updated_at 
+FROM timeslots 
+WHERE timeslots.service_id = %(service_id_1)s::UUID | params: {'service_id_1': UUID('9cab64ce-8ad5-4c73-ad40-74bb6210ce09')} | duration: 1.646ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9803603
+DB PROFILE: query execution | SQL: SELECT services.category_id, services.name, services.description, services.duration, services.price, services.image, services.active, services.id, services.created_at, services.updated_at 
+FROM services 
+WHERE services.category_id = %(category_id_1)s::UUID AND services.name = %(name_1)s | params: {'category_id_1': UUID('35ef5fae-f0ca-4807-9658-c69dd34e699f'), 'name_1': 'Gold Facial'} | duration: 0.654ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9823134
+DB PROFILE: query execution | SQL: SELECT timeslots.service_id, timeslots.start_time, timeslots.end_time, timeslots.active, timeslots.id, timeslots.created_at, timeslots.updated_at 
+FROM timeslots 
+WHERE timeslots.service_id = %(service_id_1)s::UUID | params: {'service_id_1': UUID('e043b38f-9dcb-435b-9958-83280dab01a0')} | duration: 1.150ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.984912
+DB PROFILE: query execution | SQL: SELECT services.category_id, services.name, services.description, services.duration, services.price, services.image, services.active, services.id, services.created_at, services.updated_at 
+FROM services 
+WHERE services.category_id = %(category_id_1)s::UUID AND services.name = %(name_1)s | params: {'category_id_1': UUID('35ef5fae-f0ca-4807-9658-c69dd34e699f'), 'name_1': 'Hydra Facial'} | duration: 0.701ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9866352
+DB PROFILE: query execution | SQL: SELECT timeslots.service_id, timeslots.start_time, timeslots.end_time, timeslots.active, timeslots.id, timeslots.created_at, timeslots.updated_at 
+FROM timeslots 
+WHERE timeslots.service_id = %(service_id_1)s::UUID | params: {'service_id_1': UUID('ce9f14ed-4022-46f8-9f0c-2a08a17a93eb')} | duration: 0.648ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9890294
+DB PROFILE: query execution | SQL: SELECT categories.name, categories.icon, categories.description, categories.image, categories.active, categories.id, categories.created_at, categories.updated_at 
+FROM categories 
+WHERE categories.name = %(name_1)s | params: {'name_1': 'Waxing'} | duration: 0.535ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9906673
+DB PROFILE: query execution | SQL: SELECT services.category_id, services.name, services.description, services.duration, services.price, services.image, services.active, services.id, services.created_at, services.updated_at 
+FROM services 
+WHERE services.category_id = %(category_id_1)s::UUID AND services.name = %(name_1)s | params: {'category_id_1': UUID('6aa9c829-9073-4cac-bf5e-6d953f939d44'), 'name_1': 'Full Body Waxing'} | duration: 0.764ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9928858
+DB PROFILE: query execution | SQL: SELECT timeslots.service_id, timeslots.start_time, timeslots.end_time, timeslots.active, timeslots.id, timeslots.created_at, timeslots.updated_at 
+FROM timeslots 
+WHERE timeslots.service_id = %(service_id_1)s::UUID | params: {'service_id_1': UUID('b87ad03f-4e4f-4899-be37-b5fa91994e61')} | duration: 0.619ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9951398
+DB PROFILE: query execution | SQL: SELECT services.category_id, services.name, services.description, services.duration, services.price, services.image, services.active, services.id, services.created_at, services.updated_at 
+FROM services 
+WHERE services.category_id = %(category_id_1)s::UUID AND services.name = %(name_1)s | params: {'category_id_1': UUID('6aa9c829-9073-4cac-bf5e-6d953f939d44'), 'name_1': 'Chocolate Waxing (Arms & Legs)'} | duration: 0.599ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.996807
+DB PROFILE: query execution | SQL: SELECT timeslots.service_id, timeslots.start_time, timeslots.end_time, timeslots.active, timeslots.id, timeslots.created_at, timeslots.updated_at 
+FROM timeslots 
+WHERE timeslots.service_id = %(service_id_1)s::UUID | params: {'service_id_1': UUID('8d1081e0-8798-4217-b6d7-b4e9949975aa')} | duration: 0.703ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135509.9990814
+DB PROFILE: query execution | SQL: SELECT categories.name, categories.icon, categories.description, categories.image, categories.active, categories.id, categories.created_at, categories.updated_at 
+FROM categories 
+WHERE categories.name = %(name_1)s | params: {'name_1': 'Hand & Feet Care'} | duration: 9.103ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.0091455
+DB PROFILE: query execution | SQL: SELECT services.category_id, services.name, services.description, services.duration, services.price, services.image, services.active, services.id, services.created_at, services.updated_at 
+FROM services 
+WHERE services.category_id = %(category_id_1)s::UUID AND services.name = %(name_1)s | params: {'category_id_1': UUID('d89f02a5-8597-4179-8a92-692ea8f284bf'), 'name_1': 'Spa Pedicure'} | duration: 0.680ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.0112782
+DB PROFILE: query execution | SQL: SELECT timeslots.service_id, timeslots.start_time, timeslots.end_time, timeslots.active, timeslots.id, timeslots.created_at, timeslots.updated_at 
+FROM timeslots 
+WHERE timeslots.service_id = %(service_id_1)s::UUID | params: {'service_id_1': UUID('3be9b58b-f97f-4dda-beae-e369a0946a96')} | duration: 1.399ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.0147805
+DB PROFILE: query execution | SQL: SELECT services.category_id, services.name, services.description, services.duration, services.price, services.image, services.active, services.id, services.created_at, services.updated_at 
+FROM services 
+WHERE services.category_id = %(category_id_1)s::UUID AND services.name = %(name_1)s | params: {'category_id_1': UUID('d89f02a5-8597-4179-8a92-692ea8f284bf'), 'name_1': 'Spa Manicure'} | duration: 0.597ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.0162725
+DB PROFILE: query execution | SQL: SELECT timeslots.service_id, timeslots.start_time, timeslots.end_time, timeslots.active, timeslots.id, timeslots.created_at, timeslots.updated_at 
+FROM timeslots 
+WHERE timeslots.service_id = %(service_id_1)s::UUID | params: {'service_id_1': UUID('eaeca396-51de-457a-85d3-4362eaa23fe1')} | duration: 0.553ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.018035
+DB PROFILE: query execution | SQL: SELECT categories.name, categories.icon, categories.description, categories.image, categories.active, categories.id, categories.created_at, categories.updated_at 
+FROM categories 
+WHERE categories.name = %(name_1)s | params: {'name_1': 'Hair Services'} | duration: 0.522ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.0193465
+DB PROFILE: query execution | SQL: SELECT services.category_id, services.name, services.description, services.duration, services.price, services.image, services.active, services.id, services.created_at, services.updated_at 
+FROM services 
+WHERE services.category_id = %(category_id_1)s::UUID AND services.name = %(name_1)s | params: {'category_id_1': UUID('446c0002-323f-46a6-a85f-34035520692b'), 'name_1': 'Hair Cut & Styling'} | duration: 0.678ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.0211866
+DB PROFILE: query execution | SQL: SELECT timeslots.service_id, timeslots.start_time, timeslots.end_time, timeslots.active, timeslots.id, timeslots.created_at, timeslots.updated_at 
+FROM timeslots 
+WHERE timeslots.service_id = %(service_id_1)s::UUID | params: {'service_id_1': UUID('7903098f-61b5-47d9-b43a-6a3c5fd46845')} | duration: 0.583ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.0235238
+DB PROFILE: query execution | SQL: SELECT services.category_id, services.name, services.description, services.duration, services.price, services.image, services.active, services.id, services.created_at, services.updated_at 
+FROM services 
+WHERE services.category_id = %(category_id_1)s::UUID AND services.name = %(name_1)s | params: {'category_id_1': UUID('446c0002-323f-46a6-a85f-34035520692b'), 'name_1': 'Hair Spa & Nourishment'} | duration: 0.739ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.0252974
+DB PROFILE: query execution | SQL: SELECT timeslots.service_id, timeslots.start_time, timeslots.end_time, timeslots.active, timeslots.id, timeslots.created_at, timeslots.updated_at 
+FROM timeslots 
+WHERE timeslots.service_id = %(service_id_1)s::UUID | params: {'service_id_1': UUID('20ef33ea-43b5-4771-94b4-a07c8160cd7f')} | duration: 0.511ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.0270867
+DB PROFILE: query execution | SQL: SELECT categories.name, categories.icon, categories.description, categories.image, categories.active, categories.id, categories.created_at, categories.updated_at 
+FROM categories 
+WHERE categories.name = %(name_1)s | params: {'name_1': 'Makeup Categories'} | duration: 0.493ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.0285037
+DB PROFILE: query execution | SQL: SELECT services.category_id, services.name, services.description, services.duration, services.price, services.image, services.active, services.id, services.created_at, services.updated_at 
+FROM services 
+WHERE services.category_id = %(category_id_1)s::UUID AND services.name = %(name_1)s | params: {'category_id_1': UUID('d993cc78-d9ce-46d0-a008-627914582685'), 'name_1': 'Cocktail Party Makeup'} | duration: 0.598ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.0302446
+DB PROFILE: query execution | SQL: SELECT timeslots.service_id, timeslots.start_time, timeslots.end_time, timeslots.active, timeslots.id, timeslots.created_at, timeslots.updated_at 
+FROM timeslots 
+WHERE timeslots.service_id = %(service_id_1)s::UUID | params: {'service_id_1': UUID('56cc0e43-2fef-4c9c-87d4-8f26c367950b')} | duration: 0.564ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.0320437
+DB PROFILE: query execution | SQL: SELECT services.category_id, services.name, services.description, services.duration, services.price, services.image, services.active, services.id, services.created_at, services.updated_at 
+FROM services 
+WHERE services.category_id = %(category_id_1)s::UUID AND services.name = %(name_1)s | params: {'category_id_1': UUID('d993cc78-d9ce-46d0-a008-627914582685'), 'name_1': 'Engagement Makeup'} | duration: 0.510ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.0334764
+DB PROFILE: query execution | SQL: SELECT timeslots.service_id, timeslots.start_time, timeslots.end_time, timeslots.active, timeslots.id, timeslots.created_at, timeslots.updated_at 
+FROM timeslots 
+WHERE timeslots.service_id = %(service_id_1)s::UUID | params: {'service_id_1': UUID('36558104-93e8-4eb9-9e42-f81890ab5b48')} | duration: 1.287ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.0369647
+DB PROFILE: commit | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.0392516
+DB PROFILE: connection release | duration: 72.141ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.0394962
+DB PROFILE: connection acquire | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.0399053
+DB PROFILE: query execution | SQL: SELECT maintenance_categories.name, maintenance_categories.icon, maintenance_categories.image, maintenance_categories.description, maintenance_categories.active, maintenance_categories.id, maintenance_categories.created_at, maintenance_categories.updated_at 
+FROM maintenance_categories 
+WHERE maintenance_categories.name = %(name_1)s | params: {'name_1': 'AC Repair & Service'} | duration: 5.490ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.0467737
+DB PROFILE: query execution | SQL: SELECT maintenance_services.category_id, maintenance_services.name, maintenance_services.image, maintenance_services.description, maintenance_services.price, maintenance_services.duration, maintenance_services.active, maintenance_services.id, maintenance_services.created_at, maintenance_services.updated_at 
+FROM maintenance_services 
+WHERE maintenance_services.category_id = %(category_id_1)s::UUID AND maintenance_services.name = %(name_1)s | params: {'category_id_1': UUID('09c1e4d2-d29f-41f5-92d8-c3bd70c1ff47'), 'name_1': 'AC Regular Service'} | duration: 7.690ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.0580711
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8081 (Press CTRL+C to quit)
+DB PROFILE: query execution | SQL: SELECT maintenance_services.category_id, maintenance_services.name, maintenance_services.image, maintenance_services.description, maintenance_services.price, maintenance_services.duration, maintenance_services.active, maintenance_services.id, maintenance_services.created_at, maintenance_services.updated_at 
+FROM maintenance_services 
+WHERE maintenance_services.category_id = %(category_id_1)s::UUID AND maintenance_services.name = %(name_1)s | params: {'category_id_1': UUID('09c1e4d2-d29f-41f5-92d8-c3bd70c1ff47'), 'name_1': 'AC Deep Cleaning'} | duration: 1.557ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.0608184
+DB PROFILE: query execution | SQL: SELECT maintenance_services.category_id, maintenance_services.name, maintenance_services.image, maintenance_services.description, maintenance_services.price, maintenance_services.duration, maintenance_services.active, maintenance_services.id, maintenance_services.created_at, maintenance_services.updated_at 
+FROM maintenance_services 
+WHERE maintenance_services.category_id = %(category_id_1)s::UUID AND maintenance_services.name = %(name_1)s | params: {'category_id_1': UUID('09c1e4d2-d29f-41f5-92d8-c3bd70c1ff47'), 'name_1': 'AC Installation'} | duration: 0.681ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.0626206
+DB PROFILE: query execution | SQL: SELECT maintenance_categories.name, maintenance_categories.icon, maintenance_categories.image, maintenance_categories.description, maintenance_categories.active, maintenance_categories.id, maintenance_categories.created_at, maintenance_categories.updated_at 
+FROM maintenance_categories 
+WHERE maintenance_categories.name = %(name_1)s | params: {'name_1': 'Electrical Services'} | duration: 0.530ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.0640025
+DB PROFILE: query execution | SQL: SELECT maintenance_services.category_id, maintenance_services.name, maintenance_services.image, maintenance_services.description, maintenance_services.price, maintenance_services.duration, maintenance_services.active, maintenance_services.id, maintenance_services.created_at, maintenance_services.updated_at 
+FROM maintenance_services 
+WHERE maintenance_services.category_id = %(category_id_1)s::UUID AND maintenance_services.name = %(name_1)s | params: {'category_id_1': UUID('e7bb2b65-a8ea-44a9-99f4-b286a29688c8'), 'name_1': 'Switch / Socket Repair'} | duration: 0.632ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.0667555
+DB PROFILE: query execution | SQL: SELECT maintenance_services.category_id, maintenance_services.name, maintenance_services.image, maintenance_services.description, maintenance_services.price, maintenance_services.duration, maintenance_services.active, maintenance_services.id, maintenance_services.created_at, maintenance_services.updated_at 
+FROM maintenance_services 
+WHERE maintenance_services.category_id = %(category_id_1)s::UUID AND maintenance_services.name = %(name_1)s | params: {'category_id_1': UUID('e7bb2b65-a8ea-44a9-99f4-b286a29688c8'), 'name_1': 'Ceiling Fan Repair'} | duration: 0.601ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.0683796
+DB PROFILE: query execution | SQL: SELECT maintenance_services.category_id, maintenance_services.name, maintenance_services.image, maintenance_services.description, maintenance_services.price, maintenance_services.duration, maintenance_services.active, maintenance_services.id, maintenance_services.created_at, maintenance_services.updated_at 
+FROM maintenance_services 
+WHERE maintenance_services.category_id = %(category_id_1)s::UUID AND maintenance_services.name = %(name_1)s | params: {'category_id_1': UUID('e7bb2b65-a8ea-44a9-99f4-b286a29688c8'), 'name_1': 'Complete House Inspection'} | duration: 0.787ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.0699642
+DB PROFILE: query execution | SQL: SELECT maintenance_categories.name, maintenance_categories.icon, maintenance_categories.image, maintenance_categories.description, maintenance_categories.active, maintenance_categories.id, maintenance_categories.created_at, maintenance_categories.updated_at 
+FROM maintenance_categories 
+WHERE maintenance_categories.name = %(name_1)s | params: {'name_1': 'Plumbing Services'} | duration: 0.561ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.0713227
+DB PROFILE: query execution | SQL: SELECT maintenance_services.category_id, maintenance_services.name, maintenance_services.image, maintenance_services.description, maintenance_services.price, maintenance_services.duration, maintenance_services.active, maintenance_services.id, maintenance_services.created_at, maintenance_services.updated_at 
+FROM maintenance_services 
+WHERE maintenance_services.category_id = %(category_id_1)s::UUID AND maintenance_services.name = %(name_1)s | params: {'category_id_1': UUID('3d485ba4-4298-44b0-a177-ba45c9c589fb'), 'name_1': 'Tap Repair / Replacement'} | duration: 0.767ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.073833
+DB PROFILE: query execution | SQL: SELECT maintenance_services.category_id, maintenance_services.name, maintenance_services.image, maintenance_services.description, maintenance_services.price, maintenance_services.duration, maintenance_services.active, maintenance_services.id, maintenance_services.created_at, maintenance_services.updated_at 
+FROM maintenance_services 
+WHERE maintenance_services.category_id = %(category_id_1)s::UUID AND maintenance_services.name = %(name_1)s | params: {'category_id_1': UUID('3d485ba4-4298-44b0-a177-ba45c9c589fb'), 'name_1': 'Drain Unclogging'} | duration: 0.665ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.0754027
+DB PROFILE: query execution | SQL: SELECT maintenance_services.category_id, maintenance_services.name, maintenance_services.image, maintenance_services.description, maintenance_services.price, maintenance_services.duration, maintenance_services.active, maintenance_services.id, maintenance_services.created_at, maintenance_services.updated_at 
+FROM maintenance_services 
+WHERE maintenance_services.category_id = %(category_id_1)s::UUID AND maintenance_services.name = %(name_1)s | params: {'category_id_1': UUID('3d485ba4-4298-44b0-a177-ba45c9c589fb'), 'name_1': 'Toilet Jet Spray Install'} | duration: 0.547ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.0767689
+DB PROFILE: commit | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.0776265
+DB PROFILE: connection release | duration: 37.842ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.077747
+HTTP PROFILE: DNS lookup | host: localhost | duration: 0.087ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.0834222
+HTTP PROFILE: TCP connect | host: 127.0.0.1 | duration: 0.093ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.0835705
+REDIS PROFILE: connect/ping | duration: 8.511ms | thread: 135981581336576 | request id: N/A | timestamp: 1783135510.0905428
+STAGE PROFILE: Request received | thread: 135981581336576 | request id: 0285dcb6-e05c-478a-9153-0e681bae302a | timestamp: 1783135510.4530077
+FASTAPI PROFILE: middleware starts | path: /health | timestamp: 1783135510.4530077
+DB PROFILE: connection acquire | thread: 135981581336576 | request id: 0285dcb6-e05c-478a-9153-0e681bae302a | timestamp: 1783135510.5369508
+DB PROFILE: query execution | SQL: SELECT 1 | params: {} | duration: 0.414ms | thread: 135981581336576 | request id: 0285dcb6-e05c-478a-9153-0e681bae302a | timestamp: 1783135510.5376015
+DB PROFILE: connection release | duration: 0.897ms | thread: 135981581336576 | request id: 0285dcb6-e05c-478a-9153-0e681bae302a | timestamp: 1783135510.5378475
+REDIS PROFILE: connect/ping | duration: 0.362ms | thread: 135981581336576 | request id: 0285dcb6-e05c-478a-9153-0e681bae302a | timestamp: 1783135510.5382538
+STAGE PROFILE: Response serialization | duration: 0.036ms | thread: 135981581336576 | request id: 0285dcb6-e05c-478a-9153-0e681bae302a | timestamp: 1783135510.5389779
+FASTAPI PROFILE: response serialization | duration: 0.036ms | thread: 135981581336576 | request id: 0285dcb6-e05c-478a-9153-0e681bae302a | timestamp: 1783135510.5389872
+STAGE PROFILE: Response sent | duration: 86.174ms | thread: 135981581336576 | request id: 0285dcb6-e05c-478a-9153-0e681bae302a | timestamp: 1783135510.5391817
+FASTAPI PROFILE: middleware ends | path: /health | duration: 86.174ms | timestamp: 1783135510.5391817
+INFO:     127.0.0.1:42118 - "GET /health HTTP/1.1" 200 OK
+HTTP 400 client error on path /api/v1/auth/verify-otp: Firebase token verification failed: {
+  "error": {
+    "code": 400,
+    "message": "INVALID_ID_TOKEN",
+    "errors": [
+      {
+        "message": "INVALID_ID_TOKEN",
+        "domain": "global",
+        "reason": "invalid"
+      }
+    ]
+  }
+}
+
+STAGE PROFILE: Request received | thread: 135981581336576 | request id: a101ebb6-0e06-4f28-bf2a-8ad69724e7d8 | timestamp: 1783135511.544929
+FASTAPI PROFILE: middleware starts | path: /api/v1/auth/verify-otp | timestamp: 1783135511.544929
+FASTAPI PROFILE: dependency (get_db) starts | timestamp: 1783135511.553483
+STAGE PROFILE: Firebase verify starts | thread: 135981581336576 | request id: a101ebb6-0e06-4f28-bf2a-8ad69724e7d8 | timestamp: 1783135511.5540147
+HTTP PROFILE: DNS lookup | host: identitytoolkit.googleapis.com | duration: 117.794ms | thread: 135981581336576 | request id: a101ebb6-0e06-4f28-bf2a-8ad69724e7d8 | timestamp: 1783135511.7804344
+HTTP PROFILE: TCP connect | host: 2001:4860:4802:34::223 | duration: 85.744ms | thread: 135981581336576 | request id: a101ebb6-0e06-4f28-bf2a-8ad69724e7d8 | timestamp: 1783135511.8662755
+HTTP PROFILE: TLS handshake | host: identitytoolkit.googleapis.com | duration: 220.754ms | thread: 135981581336576 | request id: a101ebb6-0e06-4f28-bf2a-8ad69724e7d8 | timestamp: 1783135512.0872169
+HTTP PROFILE: Google Identity Toolkit request | url: https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=AIzaSyDQzI2sUQ6bB4khy_N12huhB6rc34DpEE4 | total_duration: 829.971ms | thread: 135981581336576 | request id: a101ebb6-0e06-4f28-bf2a-8ad69724e7d8 | timestamp: 1783135512.4922216
+STAGE PROFILE: Firebase verify ends | thread: 135981581336576 | request id: a101ebb6-0e06-4f28-bf2a-8ad69724e7d8 | timestamp: 1783135512.492237
+FASTAPI PROFILE: dependency (get_db) ends | duration: 939.631ms | timestamp: 1783135512.4931145
+STAGE PROFILE: Response serialization | duration: 0.049ms | thread: 135981581336576 | request id: a101ebb6-0e06-4f28-bf2a-8ad69724e7d8 | timestamp: 1783135512.4937446
+FASTAPI PROFILE: response serialization | duration: 0.049ms | thread: 135981581336576 | request id: a101ebb6-0e06-4f28-bf2a-8ad69724e7d8 | timestamp: 1783135512.4937522
+STAGE PROFILE: Response sent | duration: 948.937ms | thread: 135981581336576 | request id: a101ebb6-0e06-4f28-bf2a-8ad69724e7d8 | timestamp: 1783135512.4938664
+FASTAPI PROFILE: middleware ends | path: /api/v1/auth/verify-otp | duration: 948.937ms | timestamp: 1783135512.4938664
+INFO:     127.0.0.1:42128 - "POST /api/v1/auth/verify-otp HTTP/1.1" 400 Bad Request
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [30899]

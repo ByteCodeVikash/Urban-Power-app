@@ -53,13 +53,28 @@ export const Reports: React.FC = () => {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <Box
+        sx={{
+          mb: 4,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
         <Box>
-          <Typography variant="h4" sx={{ fontWeight: 800, fontFamily: '"Outfit", sans-serif', color: '#1A202C' }}>
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 800,
+              fontFamily: '"Outfit", sans-serif',
+              color: '#1A202C',
+            }}
+          >
             Analytics & Performance Reports
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Visual statistics, monthly category performance, and client payment channel splits.
+            Visual statistics, monthly category performance, and client payment
+            channel splits.
           </Typography>
         </Box>
         <TextField
@@ -67,7 +82,7 @@ export const Reports: React.FC = () => {
           size="small"
           label="Timeframe"
           value={timeframe}
-          onChange={(e) => setTimeframe(e.target.value)}
+          onChange={e => setTimeframe(e.target.value)}
           sx={{ minWidth: 160 }}
         >
           <MenuItem value="7_days">Last 7 Days</MenuItem>
@@ -82,20 +97,55 @@ export const Reports: React.FC = () => {
         <Grid size={12}>
           <Card>
             <CardContent sx={{ p: 3 }}>
-              <Typography variant="h6" sx={{ fontWeight: 700, mb: 3, fontFamily: '"Outfit", sans-serif' }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 700,
+                  mb: 3,
+                  fontFamily: '"Outfit", sans-serif',
+                }}
+              >
                 Operational Revenue Streams Growth (₹)
               </Typography>
               <Box sx={{ width: '100%', height: 350 }}>
                 <ResponsiveContainer>
-                  <AreaChart data={revenueReportData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                  <AreaChart
+                    data={revenueReportData}
+                    margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      vertical={false}
+                      stroke="#E2E8F0"
+                    />
                     <XAxis dataKey="month" stroke="#718096" fontSize={12} />
                     <YAxis stroke="#718096" fontSize={12} />
                     <ChartTooltip />
                     <Legend />
-                    <Area type="monotone" dataKey="Scrap" stroke="#2D3748" fill="#2D3748" fillOpacity={0.1} name="Scrap Category (₹)" />
-                    <Area type="monotone" dataKey="Maintenance" stroke="#FAD02C" fill="#FAD02C" fillOpacity={0.2} name="Maintenance Category (₹)" />
-                    <Area type="monotone" dataKey="Beautician" stroke="#ED64A6" fill="#ED64A6" fillOpacity={0.1} name="Beautician Category (₹)" />
+                    <Area
+                      type="monotone"
+                      dataKey="Scrap"
+                      stroke="#2D3748"
+                      fill="#2D3748"
+                      fillOpacity={0.1}
+                      name="Scrap Category (₹)"
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="Maintenance"
+                      stroke="#FAD02C"
+                      fill="#FAD02C"
+                      fillOpacity={0.2}
+                      name="Maintenance Category (₹)"
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="Beautician"
+                      stroke="#ED64A6"
+                      fill="#ED64A6"
+                      fillOpacity={0.1}
+                      name="Beautician Category (₹)"
+                    />
                   </AreaChart>
                 </ResponsiveContainer>
               </Box>
@@ -107,18 +157,34 @@ export const Reports: React.FC = () => {
         <Grid size={{ xs: 12, md: 6 }}>
           <Card sx={{ height: '100%' }}>
             <CardContent sx={{ p: 3 }}>
-              <Typography variant="h6" sx={{ fontWeight: 700, mb: 3, fontFamily: '"Outfit", sans-serif' }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 700,
+                  mb: 3,
+                  fontFamily: '"Outfit", sans-serif',
+                }}
+              >
                 Total Order Shares per Main Category
               </Typography>
               <Box sx={{ width: '100%', height: 300 }}>
                 <ResponsiveContainer>
                   <BarChart data={categoryDistribution}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      vertical={false}
+                      stroke="#E2E8F0"
+                    />
                     <XAxis dataKey="name" stroke="#718096" fontSize={12} />
                     <YAxis stroke="#718096" fontSize={12} />
                     <ChartTooltip />
                     <Legend />
-                    <Bar dataKey="orders" fill="#2D3748" name="Orders Executed" radius={[4, 4, 0, 0]} />
+                    <Bar
+                      dataKey="orders"
+                      fill="#2D3748"
+                      name="Orders Executed"
+                      radius={[4, 4, 0, 0]}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </Box>
@@ -130,7 +196,14 @@ export const Reports: React.FC = () => {
         <Grid size={{ xs: 12, md: 6 }}>
           <Card sx={{ height: '100%' }}>
             <CardContent sx={{ p: 3 }}>
-              <Typography variant="h6" sx={{ fontWeight: 700, mb: 3, fontFamily: '"Outfit", sans-serif' }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 700,
+                  mb: 3,
+                  fontFamily: '"Outfit", sans-serif',
+                }}
+              >
                 Payment Gateways Split Share (%)
               </Typography>
               <Grid container sx={{ alignItems: 'center' }} spacing={2}>
@@ -148,7 +221,10 @@ export const Reports: React.FC = () => {
                           dataKey="value"
                         >
                           {paymentModeSplit.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            <Cell
+                              key={`cell-${index}`}
+                              fill={COLORS[index % COLORS.length]}
+                            />
                           ))}
                         </Pie>
                         <ChartTooltip />
@@ -157,10 +233,22 @@ export const Reports: React.FC = () => {
                   </Box>
                 </Grid>
                 <Grid size={{ xs: 12, sm: 5 }}>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                  <Box
+                    sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}
+                  >
                     {paymentModeSplit.map((mode, idx) => (
-                      <Box key={mode.name} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: COLORS[idx % COLORS.length] }} />
+                      <Box
+                        key={mode.name}
+                        sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+                      >
+                        <Box
+                          sx={{
+                            width: 12,
+                            height: 12,
+                            borderRadius: '50%',
+                            bgcolor: COLORS[idx % COLORS.length],
+                          }}
+                        />
                         <Typography variant="body2" sx={{ fontWeight: 600 }}>
                           {mode.name} ({mode.value}%)
                         </Typography>

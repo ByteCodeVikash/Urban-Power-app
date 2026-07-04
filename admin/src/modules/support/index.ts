@@ -1,7 +1,9 @@
 import React from 'react';
 import type { Module } from '../registry';
 
-const SupportCenter = React.lazy(() => import('./SupportCenter').then((m) => ({ default: m.SupportCenter })));
+const SupportCenter = React.lazy(() =>
+  import('./SupportCenter').then(m => ({ default: m.SupportCenter })),
+);
 
 export const SupportModule: Module = {
   id: 'support',

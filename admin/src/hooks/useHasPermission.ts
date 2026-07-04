@@ -3,7 +3,7 @@ import type { Permission } from '../config/roles';
 import { useAuthStore } from '../store/authStore';
 
 export const useHasPermission = () => {
-  const user = useAuthStore((state) => state.user);
+  const user = useAuthStore(state => state.user);
 
   const checkPermission = (permission?: Permission): boolean => {
     if (!permission) return true; // if no permission required, allow

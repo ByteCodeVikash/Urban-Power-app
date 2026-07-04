@@ -1,7 +1,9 @@
 import React from 'react';
 import type { Module } from '../registry';
 
-const Reports = React.lazy(() => import('../../pages/Reports').then((m) => ({ default: m.Reports })));
+const Reports = React.lazy(() =>
+  import('../../pages/Reports').then(m => ({ default: m.Reports })),
+);
 
 export const ReportsModule: Module = {
   id: 'reports',

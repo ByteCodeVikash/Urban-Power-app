@@ -4,7 +4,7 @@ import os
 import uuid
 import jwt
 from datetime import datetime
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, AsyncMock
 from fastapi.testclient import TestClient
 
 # Add current directory to path
@@ -59,8 +59,10 @@ def test_verify_otp_success_user_exists():
     
     mock_db.query.return_value.filter.return_value.first.return_value = mock_user
     
-    with patch("app.api.v1.auth.cache_get", return_value={"otp": "123456"}) as mock_get, \
-         patch("app.api.v1.auth.cache_delete", return_value=True) as mock_delete:
+    with patch("app.api.v1.auth.cache_get_async", new_callable=AsyncMock) as mock_get, \
+         patch("app.api.v1.auth.cache_delete_async", new_callable=AsyncMock) as mock_delete:
+        mock_get.return_value = {"otp": "123456"}
+        mock_delete.return_value = True
          
         response = client.post("/api/v1/auth/verify-otp", json=payload)
         
@@ -102,8 +104,10 @@ def test_verify_otp_success_new_user():
     
     mock_db.query.return_value.filter.return_value.first.return_value = None
     
-    with patch("app.api.v1.auth.cache_get", return_value={"otp": "123456"}) as mock_get, \
-         patch("app.api.v1.auth.cache_delete", return_value=True) as mock_delete:
+    with patch("app.api.v1.auth.cache_get_async", new_callable=AsyncMock) as mock_get, \
+         patch("app.api.v1.auth.cache_delete_async", new_callable=AsyncMock) as mock_delete:
+        mock_get.return_value = {"otp": "123456"}
+        mock_delete.return_value = True
          
         response = client.post("/api/v1/auth/verify-otp", json=payload)
         
@@ -130,9 +134,11 @@ def test_verify_otp_expired():
         "otp": "123456"
     }
     
-    # Mock cache_get returning None
-    with patch("app.api.v1.auth.cache_get", return_value=None) as mock_get, \
-         patch("app.api.v1.auth.cache_delete") as mock_delete:
+    # Mock cache_get_async returning None
+    with patch("app.api.v1.auth.cache_get_async", new_callable=AsyncMock) as mock_get, \
+         patch("app.api.v1.auth.cache_delete_async", new_callable=AsyncMock) as mock_delete:
+        mock_get.return_value = None
+        mock_delete.return_value = True
          
         response = client.post("/api/v1/auth/verify-otp", json=payload)
         
@@ -153,9 +159,11 @@ def test_verify_otp_invalid():
         "otp": "123456"
     }
     
-    # Mock cache_get returning non-matching OTP
-    with patch("app.api.v1.auth.cache_get", return_value={"otp": "654321"}) as mock_get, \
-         patch("app.api.v1.auth.cache_delete") as mock_delete:
+    # Mock cache_get_async returning non-matching OTP
+    with patch("app.api.v1.auth.cache_get_async", new_callable=AsyncMock) as mock_get, \
+         patch("app.api.v1.auth.cache_delete_async", new_callable=AsyncMock) as mock_delete:
+        mock_get.return_value = {"otp": "654321"}
+        mock_delete.return_value = True
          
         response = client.post("/api/v1/auth/verify-otp", json=payload)
         

@@ -44,7 +44,9 @@ class Registry {
    */
   public register(module: Module): void {
     if (this.modules.has(module.id)) {
-      console.warn(`Module with ID "${module.id}" is already registered. Overwriting.`);
+      console.warn(
+        `Module with ID "${module.id}" is already registered. Overwriting.`,
+      );
     }
     this.modules.set(module.id, module);
   }
@@ -68,7 +70,7 @@ class Registry {
    */
   public getRoutes(): ModuleRoute[] {
     const routes: ModuleRoute[] = [];
-    this.getModules().forEach((mod) => {
+    this.getModules().forEach(mod => {
       routes.push(...mod.routes);
     });
     return routes;
@@ -79,7 +81,7 @@ class Registry {
    */
   public getMenuItems(): MenuItemConfig[] {
     const menuItems: MenuItemConfig[] = [];
-    this.getModules().forEach((mod) => {
+    this.getModules().forEach(mod => {
       menuItems.push(...mod.menuItems);
     });
     return menuItems;
@@ -90,7 +92,7 @@ class Registry {
    */
   public getDashboardWidgets(): DashboardWidgetConfig[] {
     const widgets: DashboardWidgetConfig[] = [];
-    this.getModules().forEach((mod) => {
+    this.getModules().forEach(mod => {
       if (mod.dashboardWidgets) {
         widgets.push(...mod.dashboardWidgets);
       }

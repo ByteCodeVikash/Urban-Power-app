@@ -15,4 +15,4 @@ export const AverageOrderValueWidget: React.FC = () => {
 };
 
 export default AverageOrderValueWidget;
-// 
+//

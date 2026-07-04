@@ -24,7 +24,7 @@ interface AuditState {
   clearLogs: () => void;
 }
 
-export const useAuditStore = create<AuditState>((set) => ({
+export const useAuditStore = create<AuditState>(set => ({
   logs: [
     {
       id: 'log1',
@@ -60,13 +60,13 @@ export const useAuditStore = create<AuditState>((set) => ({
     },
   ],
 
-  addLog: (log) => {
+  addLog: log => {
     const newLog: AuditLogItem = {
       ...log,
       id: `log_${Math.random().toString(36).substr(2, 9)}`,
       time: new Date().toISOString(),
     };
-    set((state) => ({
+    set(state => ({
       logs: [newLog, ...state.logs],
     }));
   },

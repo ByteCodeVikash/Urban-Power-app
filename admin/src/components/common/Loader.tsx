@@ -6,7 +6,10 @@ interface LoaderProps {
   minHeight?: string | number;
 }
 
-export const Loader: React.FC<LoaderProps> = ({ message = 'Loading workspace data...', minHeight = '50vh' }) => {
+export const Loader: React.FC<LoaderProps> = ({
+  message = 'Loading workspace data...',
+  minHeight = '50vh',
+}) => {
   return (
     <Box
       sx={{
@@ -20,7 +23,11 @@ export const Loader: React.FC<LoaderProps> = ({ message = 'Loading workspace dat
       }}
     >
       <CircularProgress size={44} thickness={4} sx={{ color: '#FAD02C' }} />
-      <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+      <Typography
+        variant="body2"
+        color="text.secondary"
+        sx={{ fontWeight: 500 }}
+      >
         {message}
       </Typography>
     </Box>

@@ -32,19 +32,78 @@ import {
 // Initial Mock Services Catalog
 const initialServices = [
   // Scrap Services
-  { id: 'S-001', name: 'Electronic Scrap Pick-up', category: 'Scrap', basePrice: '₹10/kg', description: 'Computers, printers, keyboard, mouse, and old server hardware' },
-  { id: 'S-002', name: 'Metal Scrap Pick-up', category: 'Scrap', basePrice: '₹15/kg', description: 'Iron rods, copper wires, aluminium sheets, and domestic alloys' },
-  { id: 'S-003', name: 'Cardboard & Paper Scrap', category: 'Scrap', basePrice: '₹6/kg', description: 'Office packaging boxes, old newspapers, and shred papers' },
-  
+  {
+    id: 'S-001',
+    name: 'Electronic Scrap Pick-up',
+    category: 'Scrap',
+    basePrice: '₹10/kg',
+    description:
+      'Computers, printers, keyboard, mouse, and old server hardware',
+  },
+  {
+    id: 'S-002',
+    name: 'Metal Scrap Pick-up',
+    category: 'Scrap',
+    basePrice: '₹15/kg',
+    description:
+      'Iron rods, copper wires, aluminium sheets, and domestic alloys',
+  },
+  {
+    id: 'S-003',
+    name: 'Cardboard & Paper Scrap',
+    category: 'Scrap',
+    basePrice: '₹6/kg',
+    description: 'Office packaging boxes, old newspapers, and shred papers',
+  },
+
   // Maintenance Services
-  { id: 'S-101', name: 'AC Deep Cleaning', category: 'Maintenance', basePrice: '₹1,200', description: 'High-pressure water cleaning of indoor unit filters and outdoor condenser check' },
-  { id: 'S-102', name: 'Water Purifier Service', category: 'Maintenance', basePrice: '₹800', description: 'Filter inspection, RO membrane check, and water TDS testing' },
-  { id: 'S-103', name: 'Refrigerator Repair', category: 'Maintenance', basePrice: '₹1,500', description: 'Compressor health check, thermostat repairs, and coolant gas refilling' },
-  
+  {
+    id: 'S-101',
+    name: 'AC Deep Cleaning',
+    category: 'Maintenance',
+    basePrice: '₹1,200',
+    description:
+      'High-pressure water cleaning of indoor unit filters and outdoor condenser check',
+  },
+  {
+    id: 'S-102',
+    name: 'Water Purifier Service',
+    category: 'Maintenance',
+    basePrice: '₹800',
+    description: 'Filter inspection, RO membrane check, and water TDS testing',
+  },
+  {
+    id: 'S-103',
+    name: 'Refrigerator Repair',
+    category: 'Maintenance',
+    basePrice: '₹1,500',
+    description:
+      'Compressor health check, thermostat repairs, and coolant gas refilling',
+  },
+
   // Beautician Services
-  { id: 'S-201', name: 'Bridal Make-up Pack', category: 'Beautician', basePrice: '₹12,000', description: 'HD makeup with premium cosmetics, hairstyling, and draping services' },
-  { id: 'S-202', name: 'Facial & Skin Polish', category: 'Beautician', basePrice: '₹2,200', description: 'Deep exfoliation, herbal mask pack, and facial massage' },
-  { id: 'S-203', name: 'Pedicure & Foot Reflexology', category: 'Beautician', basePrice: '₹1,000', description: 'Classic massage therapy, sanitization, and foot scrub' },
+  {
+    id: 'S-201',
+    name: 'Bridal Make-up Pack',
+    category: 'Beautician',
+    basePrice: '₹12,000',
+    description:
+      'HD makeup with premium cosmetics, hairstyling, and draping services',
+  },
+  {
+    id: 'S-202',
+    name: 'Facial & Skin Polish',
+    category: 'Beautician',
+    basePrice: '₹2,200',
+    description: 'Deep exfoliation, herbal mask pack, and facial massage',
+  },
+  {
+    id: 'S-203',
+    name: 'Pedicure & Foot Reflexology',
+    category: 'Beautician',
+    basePrice: '₹1,000',
+    description: 'Classic massage therapy, sanitization, and foot scrub',
+  },
 ];
 
 export const Services: React.FC = () => {
@@ -54,7 +113,9 @@ export const Services: React.FC = () => {
   // Dialog States
   const [openFormDialog, setOpenFormDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const [editingService, setEditingService] = useState<typeof initialServices[0] | null>(null);
+  const [editingService, setEditingService] = useState<
+    (typeof initialServices)[0] | null
+  >(null);
 
   // Form Fields
   const [name, setName] = useState('');
@@ -77,7 +138,7 @@ export const Services: React.FC = () => {
     setOpenFormDialog(true);
   };
 
-  const handleOpenEdit = (serviceItem: typeof initialServices[0]) => {
+  const handleOpenEdit = (serviceItem: (typeof initialServices)[0]) => {
     setEditingService(serviceItem);
     setName(serviceItem.name);
     setCategory(serviceItem.category);
@@ -86,7 +147,7 @@ export const Services: React.FC = () => {
     setOpenFormDialog(true);
   };
 
-  const handleOpenDelete = (serviceItem: typeof initialServices[0]) => {
+  const handleOpenDelete = (serviceItem: (typeof initialServices)[0]) => {
     setEditingService(serviceItem);
     setOpenDeleteDialog(true);
   };
@@ -94,12 +155,19 @@ export const Services: React.FC = () => {
   const handleSave = () => {
     if (editingService) {
       setServices(
-        services.map((s) =>
-          s.id === editingService.id ? { ...s, name, category, basePrice, description } : s
-        )
+        services.map(s =>
+          s.id === editingService.id
+            ? { ...s, name, category, basePrice, description }
+            : s,
+        ),
       );
     } else {
-      const prefix = category === 'Scrap' ? 'S-0' : category === 'Maintenance' ? 'S-1' : 'S-2';
+      const prefix =
+        category === 'Scrap'
+          ? 'S-0'
+          : category === 'Maintenance'
+            ? 'S-1'
+            : 'S-2';
       const newService = {
         id: `${prefix}${services.length + 10}`,
         name,
@@ -114,32 +182,55 @@ export const Services: React.FC = () => {
 
   const handleConfirmDelete = () => {
     if (editingService) {
-      setServices(services.filter((s) => s.id !== editingService.id));
+      setServices(services.filter(s => s.id !== editingService.id));
       setOpenDeleteDialog(false);
     }
   };
 
   const currentCategory = tabsMapping[activeTab];
-  const displayedServices = services.filter((s) => s.category === currentCategory);
+  const displayedServices = services.filter(
+    s => s.category === currentCategory,
+  );
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <Box
+        sx={{
+          mb: 4,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
         <Box>
-          <Typography variant="h4" sx={{ fontWeight: 800, fontFamily: '"Outfit", sans-serif', color: '#1A202C' }}>
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 800,
+              fontFamily: '"Outfit", sans-serif',
+              color: '#1A202C',
+            }}
+          >
             Service Catalog Catalog
           </Typography>
           <Typography variant="body2" color="text.secondary">
             Configure, add, or edit available services offered by Urban Power.
           </Typography>
         </Box>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAdd}>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={handleOpenAdd}
+        >
           Add Service
         </Button>
       </Box>
 
       {/* Tab Selectors */}
-      <Paper elevation={0} sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+      <Paper
+        elevation={0}
+        sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}
+      >
         <Tabs
           value={activeTab}
           onChange={handleTabChange}
@@ -153,14 +244,30 @@ export const Services: React.FC = () => {
             },
           }}
         >
-          <Tab icon={<ScrapIcon />} iconPosition="start" label="Scrap Management" />
-          <Tab icon={<MaintenanceIcon />} iconPosition="start" label="Maintenance & Repairs" />
-          <Tab icon={<BeauticianIcon />} iconPosition="start" label="Beautician & Salon" />
+          <Tab
+            icon={<ScrapIcon />}
+            iconPosition="start"
+            label="Scrap Management"
+          />
+          <Tab
+            icon={<MaintenanceIcon />}
+            iconPosition="start"
+            label="Maintenance & Repairs"
+          />
+          <Tab
+            icon={<BeauticianIcon />}
+            iconPosition="start"
+            label="Beautician & Salon"
+          />
         </Tabs>
       </Paper>
 
       {/* Service Table Grid */}
-      <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #E2E8F0' }}>
+      <TableContainer
+        component={Paper}
+        elevation={0}
+        sx={{ border: '1px solid #E2E8F0' }}
+      >
         <Table>
           <TableHead>
             <TableRow>
@@ -172,18 +279,38 @@ export const Services: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {displayedServices.map((serviceItem) => (
+            {displayedServices.map(serviceItem => (
               <TableRow key={serviceItem.id} hover>
                 <TableCell sx={{ fontWeight: 600 }}>{serviceItem.id}</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>{serviceItem.name}</TableCell>
-                <TableCell sx={{ color: '#C29D0A', fontWeight: 700 }}>{serviceItem.basePrice}</TableCell>
-                <TableCell sx={{ maxWidth: 300 }}>{serviceItem.description}</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>
+                  {serviceItem.name}
+                </TableCell>
+                <TableCell sx={{ color: '#C29D0A', fontWeight: 700 }}>
+                  {serviceItem.basePrice}
+                </TableCell>
+                <TableCell sx={{ maxWidth: 300 }}>
+                  {serviceItem.description}
+                </TableCell>
                 <TableCell align="right">
-                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
-                    <IconButton color="secondary" size="small" onClick={() => handleOpenEdit(serviceItem)}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'flex-end',
+                      gap: 0.5,
+                    }}
+                  >
+                    <IconButton
+                      color="secondary"
+                      size="small"
+                      onClick={() => handleOpenEdit(serviceItem)}
+                    >
                       <EditIcon fontSize="small" />
                     </IconButton>
-                    <IconButton color="error" size="small" onClick={() => handleOpenDelete(serviceItem)}>
+                    <IconButton
+                      color="error"
+                      size="small"
+                      onClick={() => handleOpenDelete(serviceItem)}
+                    >
                       <DeleteIcon fontSize="small" />
                     </IconButton>
                   </Box>
@@ -204,18 +331,27 @@ export const Services: React.FC = () => {
       </TableContainer>
 
       {/* Create / Edit Service Dialog */}
-      <Dialog open={openFormDialog} onClose={() => setOpenFormDialog(false)} fullWidth maxWidth="xs">
-        <DialogTitle sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}>
+      <Dialog
+        open={openFormDialog}
+        onClose={() => setOpenFormDialog(false)}
+        fullWidth
+        maxWidth="xs"
+      >
+        <DialogTitle
+          sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}
+        >
           {editingService ? 'Modify Service Details' : 'Introduce New Service'}
         </DialogTitle>
         <DialogContent>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mt: 1.5 }}>
+          <Box
+            sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mt: 1.5 }}
+          >
             <TextField
               fullWidth
               size="small"
               label="Service Name"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={e => setName(e.target.value)}
             />
             <TextField
               select
@@ -223,9 +359,9 @@ export const Services: React.FC = () => {
               size="small"
               label="Category"
               value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              onChange={e => setCategory(e.target.value)}
             >
-              {tabsMapping.map((cat) => (
+              {tabsMapping.map(cat => (
                 <MenuItem key={cat} value={cat}>
                   {cat}
                 </MenuItem>
@@ -236,7 +372,7 @@ export const Services: React.FC = () => {
               size="small"
               label="Base Pricing (e.g. ₹500 or ₹10/kg)"
               value={basePrice}
-              onChange={(e) => setBasePrice(e.target.value)}
+              onChange={e => setBasePrice(e.target.value)}
             />
             <TextField
               fullWidth
@@ -245,7 +381,7 @@ export const Services: React.FC = () => {
               rows={3}
               label="Service Description Details"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={e => setDescription(e.target.value)}
             />
           </Box>
         </DialogContent>
@@ -260,20 +396,31 @@ export const Services: React.FC = () => {
       </Dialog>
 
       {/* Delete Dialog */}
-      <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
-        <DialogTitle sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}>
+      <Dialog
+        open={openDeleteDialog}
+        onClose={() => setOpenDeleteDialog(false)}
+      >
+        <DialogTitle
+          sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}
+        >
           Remove Service Item
         </DialogTitle>
         <DialogContent>
           <Typography variant="body2">
-            Are you sure you want to delete the service <strong>{editingService?.name}</strong>? This will remove it from the mobile app catalog.
+            Are you sure you want to delete the service{' '}
+            <strong>{editingService?.name}</strong>? This will remove it from
+            the mobile app catalog.
           </Typography>
         </DialogContent>
         <DialogActions sx={{ p: 2.5 }}>
           <Button onClick={() => setOpenDeleteDialog(false)} color="secondary">
             Cancel
           </Button>
-          <Button onClick={handleConfirmDelete} variant="contained" color="error">
+          <Button
+            onClick={handleConfirmDelete}
+            variant="contained"
+            color="error"
+          >
             Confirm Delete
           </Button>
         </DialogActions>

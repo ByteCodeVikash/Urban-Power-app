@@ -20,8 +20,8 @@ export const exportToCSV = (data: any[], filename: string): void => {
   const headers = Object.keys(data[0]);
   const csvRows = [
     headers.join(','), // Header row
-    ...data.map((row) =>
-      headers.map((fieldName) => cleanValue(row[fieldName])).join(',')
+    ...data.map(row =>
+      headers.map(fieldName => cleanValue(row[fieldName])).join(','),
     ),
   ];
 
@@ -46,13 +46,15 @@ export const exportToExcel = (data: any[], filename: string): void => {
   const headers = Object.keys(data[0]);
   const csvRows = [
     headers.join(','),
-    ...data.map((row) =>
-      headers.map((fieldName) => cleanValue(row[fieldName])).join(',')
+    ...data.map(row =>
+      headers.map(fieldName => cleanValue(row[fieldName])).join(','),
     ),
   ];
 
   const csvString = '\uFEFF' + csvRows.join('\n'); // Add UTF-8 BOM for Excel
-  const blob = new Blob([csvString], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+  const blob = new Blob([csvString], {
+    type: 'application/vnd.ms-excel;charset=utf-8;',
+  });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.setAttribute('href', url);
@@ -70,7 +72,7 @@ export const exportToPDF = (
   title: string,
   headers: string[],
   rows: any[][],
-  filename: string
+  filename: string,
 ): void => {
   const printWindow = window.open('', '_blank');
   if (!printWindow) {
@@ -105,17 +107,17 @@ export const exportToPDF = (
         <table>
           <thead>
             <tr>
-              ${headers.map((h) => `<th>${h}</th>`).join('')}
+              ${headers.map(h => `<th>${h}</th>`).join('')}
             </tr>
           </thead>
           <tbody>
             ${rows
               .map(
-                (row) => `
+                row => `
               <tr>
-                ${row.map((cell) => `<td>${cell !== null && cell !== undefined ? cell : ''}</td>`).join('')}
+                ${row.map(cell => `<td>${cell !== null && cell !== undefined ? cell : ''}</td>`).join('')}
               </tr>
-            `
+            `,
               )
               .join('')}
           </tbody>
@@ -137,6 +139,10 @@ export const exportToPDF = (
 /**
  * Triggers document printing on a target data list
  */
-export const printTable = (title: string, headers: string[], rows: any[][]): void => {
+export const printTable = (
+  title: string,
+  headers: string[],
+  rows: any[][],
+): void => {
   exportToPDF(title, headers, rows, 'print_export');
 };

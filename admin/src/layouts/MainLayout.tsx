@@ -45,7 +45,7 @@ export const MainLayout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuthStore();
-  
+
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -86,7 +86,15 @@ export const MainLayout: React.FC = () => {
   ];
 
   const drawerContent = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#1A202C', color: '#FFFFFF' }}>
+    <Box
+      sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        bgcolor: '#1A202C',
+        color: '#FFFFFF',
+      }}
+    >
       {/* Brand logo container */}
       <Box
         sx={{
@@ -113,15 +121,23 @@ export const MainLayout: React.FC = () => {
         >
           UP
         </Box>
-        <Typography variant="h6" sx={{ fontWeight: 800, fontFamily: '"Outfit", sans-serif', letterSpacing: 0.5, color: '#FFFFFF' }}>
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 800,
+            fontFamily: '"Outfit", sans-serif',
+            letterSpacing: 0.5,
+            color: '#FFFFFF',
+          }}
+        >
           Urban Power
         </Typography>
       </Box>
       <Divider sx={{ bgcolor: 'rgba(255, 255, 255, 0.08)' }} />
-      
+
       {/* Navigation List */}
       <List sx={{ px: 1.5, py: 2, flexGrow: 1 }}>
-        {sidebarItems.map((item) => {
+        {sidebarItems.map(item => {
           const isActive =
             item.path === '/'
               ? location.pathname === '/'
@@ -159,7 +175,12 @@ export const MainLayout: React.FC = () => {
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText
                 primary={
-                  <Typography sx={{ fontSize: '0.95rem', fontWeight: isActive ? 600 : 500 }}>
+                  <Typography
+                    sx={{
+                      fontSize: '0.95rem',
+                      fontWeight: isActive ? 600 : 500,
+                    }}
+                  >
                     {item.text}
                   </Typography>
                 }
@@ -205,7 +226,9 @@ export const MainLayout: React.FC = () => {
 
   const getPageTitle = () => {
     if (location.pathname === '/') return 'Dashboard';
-    const activeItem = sidebarItems.find(item => item.path !== '/' && location.pathname.startsWith(item.path));
+    const activeItem = sidebarItems.find(
+      item => item.path !== '/' && location.pathname.startsWith(item.path),
+    );
     return activeItem ? activeItem.text : 'Admin Panel';
   };
 
@@ -229,18 +252,31 @@ export const MainLayout: React.FC = () => {
           >
             <MenuIcon />
           </IconButton>
-          
-          <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}>
+
+          <Typography
+            variant="h6"
+            noWrap
+            component="div"
+            sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}
+          >
             {getPageTitle()}
           </Typography>
 
           {/* User Account Controls */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Box sx={{ display: { xs: 'none', sm: 'block' }, textAlign: 'right' }}>
-              <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#1A202C' }}>
+            <Box
+              sx={{ display: { xs: 'none', sm: 'block' }, textAlign: 'right' }}
+            >
+              <Typography
+                variant="subtitle2"
+                sx={{ fontWeight: 600, color: '#1A202C' }}
+              >
                 {user?.name || 'Admin'}
               </Typography>
-              <Typography variant="caption" sx={{ color: '#718096', textTransform: 'capitalize' }}>
+              <Typography
+                variant="caption"
+                sx={{ color: '#718096', textTransform: 'capitalize' }}
+              >
                 {user?.role || 'Administrator'}
               </Typography>
             </Box>
@@ -286,8 +322,13 @@ export const MainLayout: React.FC = () => {
                 My Profile
               </MenuItem>
               <Divider sx={{ my: 1 }} />
-              <MenuItem onClick={handleLogout} sx={{ py: 1.2, color: '#F56565' }}>
-                <ListItemIcon sx={{ '& .MuiSvgIcon-root': { color: '#F56565' } }}>
+              <MenuItem
+                onClick={handleLogout}
+                sx={{ py: 1.2, color: '#F56565' }}
+              >
+                <ListItemIcon
+                  sx={{ '& .MuiSvgIcon-root': { color: '#F56565' } }}
+                >
                   <LogoutIcon fontSize="small" />
                 </ListItemIcon>
                 Logout
@@ -313,18 +354,25 @@ export const MainLayout: React.FC = () => {
           }}
           sx={{
             display: { xs: 'block', md: 'none' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
+              width: drawerWidth,
+            },
           }}
         >
           {drawerContent}
         </Drawer>
-        
+
         {/* Desktop Permanent Drawer */}
         <Drawer
           variant="permanent"
           sx={{
             display: { xs: 'none', md: 'block' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, borderRight: '1px solid #E2E8F0' },
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
+              width: drawerWidth,
+              borderRight: '1px solid #E2E8F0',
+            },
           }}
           open
         >

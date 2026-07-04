@@ -109,16 +109,16 @@ if sheets_service.is_configured:
     try:
         # Build authorized Google Sheets API client
         client = sheets_service.get_sheets_client()
-        
+
         # Get target Spreadsheet ID
         spreadsheet_id = sheets_service.spreadsheet_id
-        
+
         # Example API read call
         result = client.spreadsheets().values().get(
             spreadsheetId=spreadsheet_id,
             range="Sheet1!A1:D10"
         ).execute()
-        
+
         # Example API append call
         client.spreadsheets().values().append(
             spreadsheetId=spreadsheet_id,
@@ -126,7 +126,7 @@ if sheets_service.is_configured:
             valueInputOption="RAW",
             body={"values": [["New User", "User Email", "Created At"]]}
         ).execute()
-        
+
     except Exception as e:
         # Handle exceptions gracefully
         print(f"Google Sheets Sync Error: {e}")

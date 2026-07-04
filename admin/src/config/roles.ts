@@ -45,7 +45,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     'technicians.view',
     'technicians.manage',
   ],
-  'Admin': [
+  Admin: [
     'dashboard.view',
     'orders.view',
     'orders.edit',
@@ -72,7 +72,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     'technicians.view',
     'technicians.manage',
   ],
-  'Dispatcher': [
+  Dispatcher: [
     'dashboard.view',
     'orders.view',
     'orders.edit',
@@ -97,14 +97,13 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     'technicians.view',
     'technicians.manage',
   ],
-  'Content Manager': [
-    'dashboard.view',
-    'services.manage',
-    'cms.manage',
-  ],
+  'Content Manager': ['dashboard.view', 'services.manage', 'cms.manage'],
 };
 
-export const hasPermission = (userRole: string, requiredPermission: Permission): boolean => {
+export const hasPermission = (
+  userRole: string,
+  requiredPermission: Permission,
+): boolean => {
   // Safe cast since roles can be arbitrary strings from future DB migrations
   const role = userRole as Role;
   if (role === 'Super Admin') return true;

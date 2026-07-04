@@ -1,7 +1,9 @@
 import React from 'react';
 import type { Module } from '../registry';
 
-const Users = React.lazy(() => import('../../pages/Users').then((m) => ({ default: m.Users })));
+const Users = React.lazy(() =>
+  import('../../pages/Users').then(m => ({ default: m.Users })),
+);
 
 export const UsersModule: Module = {
   id: 'users',
@@ -26,7 +28,9 @@ export const UsersModule: Module = {
       id: 'total-users',
       title: 'Total Users',
       component: React.lazy(() =>
-        import('./widgets/TotalUsersWidget').then((m) => ({ default: m.TotalUsersWidget }))
+        import('./widgets/TotalUsersWidget').then(m => ({
+          default: m.TotalUsersWidget,
+        })),
       ),
     },
   ],

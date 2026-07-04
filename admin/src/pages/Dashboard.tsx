@@ -11,9 +11,7 @@ import {
   TextField,
   Paper,
 } from '@mui/material';
-import {
-  TrendingUp as TrendingIcon,
-} from '@mui/icons-material';
+import { TrendingUp as TrendingIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { ModuleRegistry } from '../modules/registry';
 
@@ -26,7 +24,7 @@ export const Dashboard: React.FC = () => {
   const allWidgets = ModuleRegistry.getDashboardWidgets();
 
   // Categorize widgets based on their functional scope/layout needs
-  const kpiWidgets = allWidgets.filter((w) =>
+  const kpiWidgets = allWidgets.filter(w =>
     [
       'total-orders',
       'pending-orders',
@@ -37,15 +35,17 @@ export const Dashboard: React.FC = () => {
       'total-revenue',
       'monthly-growth',
       'active-technicians',
-    ].includes(w.id)
+    ].includes(w.id),
   );
 
-  const graphWidgets = allWidgets.filter((w) =>
-    ['bookings-graph', 'revenue-graph', 'top-services'].includes(w.id)
+  const graphWidgets = allWidgets.filter(w =>
+    ['bookings-graph', 'revenue-graph', 'top-services'].includes(w.id),
   );
 
-  const listWidgets = allWidgets.filter((w) =>
-    ['latest-orders', 'top-technicians', 'low-rated-technicians'].includes(w.id)
+  const listWidgets = allWidgets.filter(w =>
+    ['latest-orders', 'top-technicians', 'low-rated-technicians'].includes(
+      w.id,
+    ),
   );
 
   return (
@@ -62,7 +62,14 @@ export const Dashboard: React.FC = () => {
         }}
       >
         <Box>
-          <Typography variant="h4" sx={{ fontWeight: 800, fontFamily: '"Outfit", sans-serif', color: '#1A202C' }}>
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 800,
+              fontFamily: '"Outfit", sans-serif',
+              color: '#1A202C',
+            }}
+          >
             Overview Dashboard
           </Typography>
           <Typography variant="body2" color="text.secondary">
@@ -86,7 +93,7 @@ export const Dashboard: React.FC = () => {
           <FormControl size="small" sx={{ minWidth: 140 }}>
             <Select
               value={dateRange}
-              onChange={(e) => setDateRange(e.target.value)}
+              onChange={e => setDateRange(e.target.value)}
               sx={{ borderRadius: 2.5, fontSize: '0.85rem' }}
             >
               <MenuItem value="today">Today</MenuItem>
@@ -102,18 +109,30 @@ export const Dashboard: React.FC = () => {
                 type="date"
                 size="small"
                 value={customStart}
-                onChange={(e) => setCustomStart(e.target.value)}
+                onChange={e => setCustomStart(e.target.value)}
                 slotProps={{ inputLabel: { shrink: true } }}
-                sx={{ '& .MuiInputBase-root': { borderRadius: 2, fontSize: '0.85rem' } }}
+                sx={{
+                  '& .MuiInputBase-root': {
+                    borderRadius: 2,
+                    fontSize: '0.85rem',
+                  },
+                }}
               />
-              <Typography variant="caption" color="text.secondary">to</Typography>
+              <Typography variant="caption" color="text.secondary">
+                to
+              </Typography>
               <TextField
                 type="date"
                 size="small"
                 value={customEnd}
-                onChange={(e) => setCustomEnd(e.target.value)}
+                onChange={e => setCustomEnd(e.target.value)}
                 slotProps={{ inputLabel: { shrink: true } }}
-                sx={{ '& .MuiInputBase-root': { borderRadius: 2, fontSize: '0.85rem' } }}
+                sx={{
+                  '& .MuiInputBase-root': {
+                    borderRadius: 2,
+                    fontSize: '0.85rem',
+                  },
+                }}
               />
             </Box>
           )}
@@ -131,11 +150,20 @@ export const Dashboard: React.FC = () => {
       </Box>
 
       {/* KPI Metrics Dashboard Cards */}
-      <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#4A5568', mb: 2, textTransform: 'uppercase', letterSpacing: 0.8 }}>
+      <Typography
+        variant="subtitle2"
+        sx={{
+          fontWeight: 700,
+          color: '#4A5568',
+          mb: 2,
+          textTransform: 'uppercase',
+          letterSpacing: 0.8,
+        }}
+      >
         Operational Health KPIs
       </Typography>
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        {kpiWidgets.map((widget) => {
+        {kpiWidgets.map(widget => {
           const WidgetComponent = widget.component;
           return (
             <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={widget.id}>
@@ -164,11 +192,20 @@ export const Dashboard: React.FC = () => {
       </Grid>
 
       {/* Visual Analytics Graphs Section */}
-      <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#4A5568', mb: 2, textTransform: 'uppercase', letterSpacing: 0.8 }}>
+      <Typography
+        variant="subtitle2"
+        sx={{
+          fontWeight: 700,
+          color: '#4A5568',
+          mb: 2,
+          textTransform: 'uppercase',
+          letterSpacing: 0.8,
+        }}
+      >
         System Growth & Revenue Analytics
       </Typography>
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        {graphWidgets.map((widget) => {
+        {graphWidgets.map(widget => {
           const WidgetComponent = widget.component;
           return (
             <Grid size={{ xs: 12, lg: 6 }} key={widget.id}>
@@ -197,11 +234,20 @@ export const Dashboard: React.FC = () => {
       </Grid>
 
       {/* Actionable Roster, Feedbacks, and Latest Orders Section */}
-      <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#4A5568', mb: 2, textTransform: 'uppercase', letterSpacing: 0.8 }}>
+      <Typography
+        variant="subtitle2"
+        sx={{
+          fontWeight: 700,
+          color: '#4A5568',
+          mb: 2,
+          textTransform: 'uppercase',
+          letterSpacing: 0.8,
+        }}
+      >
         Real-time Dispatch Logs & Ratings
       </Typography>
       <Grid container spacing={3}>
-        {listWidgets.map((widget) => {
+        {listWidgets.map(widget => {
           const WidgetComponent = widget.component;
           return (
             <Grid size={{ xs: 12, lg: 6 }} key={widget.id}>

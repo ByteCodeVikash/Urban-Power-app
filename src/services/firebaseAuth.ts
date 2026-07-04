@@ -23,13 +23,35 @@ export const firebaseAuthService = {
       }
     }
 
+    console.log(
+      '[OTP Login Flow] Firebase sendOtp() start. Phone:',
+      formattedPhone,
+    );
+
     if (isFirebaseAvailable) {
       const firebaseAuth = require('@react-native-firebase/auth').default;
       console.log('[FirebaseAuthService] Sending OTP to:', formattedPhone);
-      const confirmation =
-        await firebaseAuth().signInWithPhoneNumber(formattedPhone);
-      return confirmation;
+      try {
+        const confirmation =
+          await firebaseAuth().signInWithPhoneNumber(formattedPhone);
+        console.log(
+          '[OTP Login Flow] Firebase sendOtp() success. Verification ID:',
+          confirmation ? confirmation.verificationId : 'null',
+        );
+        return confirmation;
+      } catch (error: any) {
+        console.error(
+          '[OTP Login Flow] Firebase sendOtp() failed. Error:',
+          error?.message || error,
+          'Stack:',
+          error?.stack,
+        );
+        throw error;
+      }
     } else {
+      console.error(
+        '[OTP Login Flow] Firebase sendOtp() failed: Firebase not available in environment.',
+      );
       throw new Error(
         'Firebase Authentication is not available in the current environment.',
       );

@@ -21,7 +21,9 @@ export interface NotificationItem {
 interface NotificationState {
   notifications: NotificationItem[];
   unreadCount: number;
-  addNotification: (notification: Omit<NotificationItem, 'id' | 'isRead' | 'timestamp'>) => void;
+  addNotification: (
+    notification: Omit<NotificationItem, 'id' | 'isRead' | 'timestamp'>,
+  ) => void;
   markAsRead: (id: string) => void;
   markAllAsRead: () => void;
   clearAll: () => void;
@@ -53,37 +55,37 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
   ],
   unreadCount: 2,
 
-  addNotification: (item) => {
+  addNotification: item => {
     const newNotif: NotificationItem = {
       ...item,
       id: `notif_${Math.random().toString(36).substr(2, 9)}`,
       timestamp: new Date().toISOString(),
       isRead: false,
     };
-    set((state) => {
+    set(state => {
       const newList = [newNotif, ...state.notifications];
       return {
         notifications: newList,
-        unreadCount: newList.filter((n) => !n.isRead).length,
+        unreadCount: newList.filter(n => !n.isRead).length,
       };
     });
   },
 
-  markAsRead: (id) => {
-    set((state) => {
-      const newList = state.notifications.map((n) =>
-        n.id === id ? { ...n, isRead: true } : n
+  markAsRead: id => {
+    set(state => {
+      const newList = state.notifications.map(n =>
+        n.id === id ? { ...n, isRead: true } : n,
       );
       return {
         notifications: newList,
-        unreadCount: newList.filter((n) => !n.isRead).length,
+        unreadCount: newList.filter(n => !n.isRead).length,
       };
     });
   },
 
   markAllAsRead: () => {
-    set((state) => {
-      const newList = state.notifications.map((n) => ({ ...n, isRead: true }));
+    set(state => {
+      const newList = state.notifications.map(n => ({ ...n, isRead: true }));
       return {
         notifications: newList,
         unreadCount: 0,
