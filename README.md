@@ -604,7 +604,7 @@ All global state is managed by Zustand (in-memory only, resets on app restart):
 ## 🚀 Future Improvements
 
 - [ ] Real backend API (Node.js + MongoDB or Firebase)
-- [ ] Real OTP authentication (Firebase Auth / MSG91)
+- [ ] Real OTP authentication (Firebase Auth)
 - [ ] Data persistence (AsyncStorage + Zustand persist)
 - [ ] Payment gateway (Razorpay / PhonePe)
 - [ ] Push notifications (Firebase FCM)

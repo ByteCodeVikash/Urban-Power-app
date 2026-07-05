@@ -26,18 +26,14 @@ async def lifespan(app: FastAPI):
     from app.core.http import http_manager, get_http_client
     http_manager.init_client()
 
-    # Pre-heat HTTP connections to external APIs (Google Identity & MSG91)
+    # Pre-heat HTTP connections to external APIs (Google Identity)
     import asyncio
     async def preheat_connections():
         try:
             client = await get_http_client()
             # Send OPTIONS request to pre-establish TCP+TLS connections
-            await asyncio.gather(
-                client.options("https://identitytoolkit.googleapis.com", timeout=2.0),
-                client.options("https://control.msg91.com", timeout=2.0),
-                return_exceptions=True
-            )
-            logger.info("Successfully pre-warmed external connection pools (Google Identity & MSG91).")
+            await client.options("https://identitytoolkit.googleapis.com", timeout=2.0)
+            logger.info("Successfully pre-warmed external connection pools (Google Identity).")
         except Exception as preheat_err:
             logger.warning(f"Could not pre-warm external connection pools: {preheat_err}")
     asyncio.create_task(preheat_connections())

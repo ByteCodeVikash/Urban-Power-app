@@ -64,7 +64,7 @@ def main():
         # Connect to local Redis
         r_client = redis.Redis(host="localhost", port=6379, db=0, decode_responses=True)
         
-        # Test 1: Send OTP 1 (Cold start for MSG91 connection)
+        # Test 1: Send OTP 1 (Cold start for SMS simulation)
         print("\n--- TEST 1: send-otp 1 (Cold Connection) ---")
         code, body, client_dur1 = make_request("http://127.0.0.1:8081/api/v1/auth/send-otp", {"phone": "+919999999901"})
         print(f"Status: {code}, Client duration: {client_dur1:.2f}ms")
@@ -76,7 +76,7 @@ def main():
             otp1 = json.loads(otp1_data).get("otp")
             print(f"Retrieved OTP 1 from Redis: {otp1}")
         
-        # Test 2: Send OTP 2 (Warm connection - reuse MSG91 connection)
+        # Test 2: Send OTP 2 (Warm connection - reuse SMS simulation)
         print("\n--- TEST 2: send-otp 2 (Warm Connection - Reused) ---")
         code, body, client_dur2 = make_request("http://127.0.0.1:8081/api/v1/auth/send-otp", {"phone": "+919999999902"})
         print(f"Status: {code}, Client duration: {client_dur2:.2f}ms")

@@ -49,46 +49,7 @@ class Settings(BaseSettings):
     REDIS_PORT: int = 6379
     REDIS_DB: int = 0
 
-    # MSG91 Settings
-    MSG91_AUTH_KEY: str | None = None
-    MSG91_TEMPLATE_ID: str | None = None
-    MSG91_SENDER_ID: str | None = None
     SMS_MOCK: bool = True
-
-    @model_validator(mode="after")
-    def validate_msg91_settings(self) -> "Settings":
-        # Check if any MSG91 setting is set
-        msg91_values = [self.MSG91_AUTH_KEY, self.MSG91_TEMPLATE_ID, self.MSG91_SENDER_ID]
-        configured_count = sum(1 for val in msg91_values if val and str(val).strip())
-        
-        if configured_count > 0:
-            if configured_count < 3:
-                missing = []
-                if not (self.MSG91_AUTH_KEY and str(self.MSG91_AUTH_KEY).strip()):
-                    missing.append("MSG91_AUTH_KEY")
-                if not (self.MSG91_TEMPLATE_ID and str(self.MSG91_TEMPLATE_ID).strip()):
-                    missing.append("MSG91_TEMPLATE_ID")
-                if not (self.MSG91_SENDER_ID and str(self.MSG91_SENDER_ID).strip()):
-                    missing.append("MSG91_SENDER_ID")
-                raise ValueError(
-                    f"Incomplete MSG91 configuration. Missing: {', '.join(missing)}"
-                )
-            
-            # Format validation
-            auth_key = str(self.MSG91_AUTH_KEY).strip()
-            sender_id = str(self.MSG91_SENDER_ID).strip()
-            template_id = str(self.MSG91_TEMPLATE_ID).strip()
-            
-            if len(auth_key) < 10:
-                raise ValueError("MSG91_AUTH_KEY is invalid (too short)")
-            
-            if len(sender_id) != 6:
-                raise ValueError("MSG91_SENDER_ID must be exactly 6 characters")
-                
-            if not template_id.isalnum():
-                raise ValueError("MSG91_TEMPLATE_ID must be alphanumeric")
-                
-        return self
         
     # JWT Authentication Settings
     SECRET_KEY: str = "super-secret-urban-power-key-change-in-prod"

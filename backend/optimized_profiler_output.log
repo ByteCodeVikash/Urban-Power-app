@@ -1,175 +1,47 @@
-INFO:     Started server process [59216]
+INFO:     Started server process [20764]
 INFO:     Waiting for application startup.
-[2026-07-04 10:20:14,489] [INFO] [app.core.http] Initializing shared httpx.AsyncClient connection pool.
-[2026-07-04 10:20:14,625] [INFO] [app.core.database] Successfully connected to the database.
-[2026-07-04 10:20:14,627] [INFO] [app.core.seeding] Seeding default Scrap catalog data...
-[2026-07-04 10:20:14,843] [INFO] [app.core.seeding] Scrap seeding complete: 0 categories created, 10 updated; 0 items created, 37 updated.
-[2026-07-04 10:20:14,843] [INFO] [app.core.seeding] Seeding default Beautician catalog data...
-[2026-07-04 10:20:14,950] [INFO] [app.core.seeding] Beautician seeding complete: 0 categories created, 5 updated; 0 services created, 11 updated.
-[2026-07-04 10:20:14,950] [INFO] [app.core.seeding] Seeding default Maintenance catalog data...
-[2026-07-04 10:20:14,996] [INFO] [app.core.seeding] Maintenance seeding complete: 0 categories created, 3 updated; 0 services created, 9 updated.
-[2026-07-04 10:20:14,997] [INFO] [app.core.redis] Initializing async Redis connection to localhost:6379/0
-[2026-07-04 10:20:15,024] [INFO] [app.core.redis] Successfully connected to async Redis.
-[2026-07-04 10:20:15,029] [INFO] [app.core.redis] Successfully connected to Redis.
+[2026-07-05 17:24:07,567] [INFO] [app.core.http] Initializing shared httpx.AsyncClient connection pool.
+[2026-07-05 17:24:07,712] [INFO] [app.core.database] Successfully connected to the database.
+[2026-07-05 17:24:07,714] [INFO] [app.core.seeding] Seeding default Scrap catalog data...
+[2026-07-05 17:24:07,929] [INFO] [app.core.seeding] Scrap seeding complete: 0 categories created, 10 updated; 0 items created, 37 updated.
+[2026-07-05 17:24:07,929] [INFO] [app.core.seeding] Seeding default Beautician catalog data...
+[2026-07-05 17:24:08,017] [INFO] [app.core.seeding] Beautician seeding complete: 0 categories created, 5 updated; 0 services created, 11 updated.
+[2026-07-05 17:24:08,017] [INFO] [app.core.seeding] Seeding default Maintenance catalog data...
+[2026-07-05 17:24:08,057] [INFO] [app.core.seeding] Maintenance seeding complete: 0 categories created, 3 updated; 0 services created, 9 updated.
+[2026-07-05 17:24:08,058] [INFO] [app.core.redis] Initializing async Redis connection to localhost:6379/0
+[2026-07-05 17:24:08,086] [INFO] [app.core.redis] Successfully connected to async Redis.
+[2026-07-05 17:24:08,091] [INFO] [app.core.redis] Successfully connected to Redis.
 INFO:     Application startup complete.
-[2026-07-04 10:20:17,065] [INFO] [app.main] Successfully pre-warmed external connection pools (Google Identity & MSG91).
 INFO:     Uvicorn running on http://127.0.0.1:8081 (Press CTRL+C to quit)
-[2026-07-04 10:20:20,736] [INFO] [app.core.database] Successfully connected to the database.
-[2026-07-04 10:20:20,736] [INFO] [app.core.redis] Successfully connected to Redis.
-[2026-07-04 10:20:20,739] [INFO] [app.core.redis] Successfully connected to async Redis.
-INFO:     127.0.0.1:40084 - "GET /health HTTP/1.1" 200 OK
-[2026-07-04 10:20:20,754] [INFO] [app.core.sms] Sending SMS via MSG91
-[2026-07-04 10:20:25,758] [ERROR] [app.core.sms] Timeout error occurred while sending SMS via MSG91
-Traceback (most recent call last):
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpx/_transports/default.py", line 101, in map_httpcore_exceptions
-    yield
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpx/_transports/default.py", line 394, in handle_async_request
-    resp = await self._pool.handle_async_request(req)
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpcore/_async/connection_pool.py", line 256, in handle_async_request
-    raise exc from None
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpcore/_async/connection_pool.py", line 236, in handle_async_request
-    response = await connection.handle_async_request(
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpcore/_async/connection.py", line 101, in handle_async_request
-    raise exc
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpcore/_async/connection.py", line 78, in handle_async_request
-    stream = await self._connect(request)
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpcore/_async/connection.py", line 124, in _connect
-    stream = await self._network_backend.connect_tcp(**kwargs)
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpcore/_backends/auto.py", line 31, in connect_tcp
-    return await self._backend.connect_tcp(
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpcore/_backends/anyio.py", line 113, in connect_tcp
-    with map_exceptions(exc_map):
-  File "/usr/lib/python3.10/contextlib.py", line 153, in __exit__
-    self.gen.throw(typ, value, traceback)
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpcore/_exceptions.py", line 14, in map_exceptions
-    raise to_exc(exc) from exc
-httpcore.ConnectTimeout
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/app/core/sms.py", line 72, in send_sms
-    response = await client.post(url, json=payload, headers=headers, timeout=5.0)
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpx/_client.py", line 1859, in post
-    return await self.request(
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpx/_client.py", line 1540, in request
-    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpx/_client.py", line 1629, in send
-    response = await self._send_handling_auth(
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpx/_client.py", line 1657, in _send_handling_auth
-    response = await self._send_handling_redirects(
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpx/_client.py", line 1694, in _send_handling_redirects
-    response = await self._send_single_request(request)
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpx/_client.py", line 1730, in _send_single_request
-    response = await transport.handle_async_request(request)
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpx/_transports/default.py", line 393, in handle_async_request
-    with map_httpcore_exceptions():
-  File "/usr/lib/python3.10/contextlib.py", line 153, in __exit__
-    self.gen.throw(typ, value, traceback)
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpx/_transports/default.py", line 118, in map_httpcore_exceptions
-    raise mapped_exc(message) from exc
-httpx.ConnectTimeout
-[2026-07-04 10:20:25,763] [ERROR] [app.api.v1.auth] Failed to send OTP via SMS utility
-[2026-07-04 10:20:25,763] [ERROR] [app.core.exceptions] HTTP 500 Error: Failed to send OTP via SMS on path /api/v1/auth/send-otp
-Traceback (most recent call last):
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
-    await app(scope, receive, sender)
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/fastapi/routing.py", line 136, in app
-    response = await f(request)
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/fastapi/routing.py", line 690, in app
-    raw_response = await run_endpoint_function(
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/fastapi/routing.py", line 344, in run_endpoint_function
-    return await dependant.call(**values)
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/app/api/v1/auth.py", line 72, in send_otp
-    raise HTTPException(
-fastapi.exceptions.HTTPException: 500: Failed to send OTP via SMS
-INFO:     127.0.0.1:40092 - "POST /api/v1/auth/send-otp HTTP/1.1" 500 Internal Server Error
-[2026-07-04 10:20:25,779] [INFO] [app.core.sms] Sending SMS via MSG91
-[2026-07-04 10:20:30,784] [ERROR] [app.core.sms] Timeout error occurred while sending SMS via MSG91
-Traceback (most recent call last):
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpx/_transports/default.py", line 101, in map_httpcore_exceptions
-    yield
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpx/_transports/default.py", line 394, in handle_async_request
-    resp = await self._pool.handle_async_request(req)
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpcore/_async/connection_pool.py", line 256, in handle_async_request
-    raise exc from None
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpcore/_async/connection_pool.py", line 236, in handle_async_request
-    response = await connection.handle_async_request(
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpcore/_async/connection.py", line 101, in handle_async_request
-    raise exc
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpcore/_async/connection.py", line 78, in handle_async_request
-    stream = await self._connect(request)
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpcore/_async/connection.py", line 124, in _connect
-    stream = await self._network_backend.connect_tcp(**kwargs)
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpcore/_backends/auto.py", line 31, in connect_tcp
-    return await self._backend.connect_tcp(
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpcore/_backends/anyio.py", line 113, in connect_tcp
-    with map_exceptions(exc_map):
-  File "/usr/lib/python3.10/contextlib.py", line 153, in __exit__
-    self.gen.throw(typ, value, traceback)
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpcore/_exceptions.py", line 14, in map_exceptions
-    raise to_exc(exc) from exc
-httpcore.ConnectTimeout
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/app/core/sms.py", line 72, in send_sms
-    response = await client.post(url, json=payload, headers=headers, timeout=5.0)
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpx/_client.py", line 1859, in post
-    return await self.request(
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpx/_client.py", line 1540, in request
-    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpx/_client.py", line 1629, in send
-    response = await self._send_handling_auth(
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpx/_client.py", line 1657, in _send_handling_auth
-    response = await self._send_handling_redirects(
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpx/_client.py", line 1694, in _send_handling_redirects
-    response = await self._send_single_request(request)
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpx/_client.py", line 1730, in _send_single_request
-    response = await transport.handle_async_request(request)
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpx/_transports/default.py", line 393, in handle_async_request
-    with map_httpcore_exceptions():
-  File "/usr/lib/python3.10/contextlib.py", line 153, in __exit__
-    self.gen.throw(typ, value, traceback)
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/httpx/_transports/default.py", line 118, in map_httpcore_exceptions
-    raise mapped_exc(message) from exc
-httpx.ConnectTimeout
-[2026-07-04 10:20:30,785] [ERROR] [app.api.v1.auth] Failed to send OTP via SMS utility
-[2026-07-04 10:20:30,786] [ERROR] [app.core.exceptions] HTTP 500 Error: Failed to send OTP via SMS on path /api/v1/auth/send-otp
-Traceback (most recent call last):
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
-    await app(scope, receive, sender)
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/fastapi/routing.py", line 136, in app
-    response = await f(request)
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/fastapi/routing.py", line 690, in app
-    raw_response = await run_endpoint_function(
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/venv/lib/python3.10/site-packages/fastapi/routing.py", line 344, in run_endpoint_function
-    return await dependant.call(**values)
-  File "/media/H-Drive/Project/shivam_project/urban-power-app-project-updated/backend/app/api/v1/auth.py", line 72, in send_otp
-    raise HTTPException(
-fastapi.exceptions.HTTPException: 500: Failed to send OTP via SMS
-INFO:     127.0.0.1:40106 - "POST /api/v1/auth/send-otp HTTP/1.1" 500 Internal Server Error
-[2026-07-04 10:20:30,807] [INFO] [app.api.v1.auth] [OTP Login Flow Backend] [Req ID: 977f631c-6460-48b1-a1ff-cd58ef26366f] Incoming request start.
+[2026-07-05 17:24:08,546] [INFO] [app.core.database] Successfully connected to the database.
+[2026-07-05 17:24:08,546] [INFO] [app.core.redis] Successfully connected to Redis.
+[2026-07-05 17:24:08,547] [INFO] [app.core.redis] Successfully connected to async Redis.
+INFO:     127.0.0.1:36664 - "GET /health HTTP/1.1" 200 OK
+[2026-07-05 17:24:08,566] [INFO] [app.core.sms] SMS send simulated (MSG91 removed)
+INFO:     127.0.0.1:36672 - "POST /api/v1/auth/send-otp HTTP/1.1" 200 OK
+[2026-07-05 17:24:08,575] [INFO] [app.core.sms] SMS send simulated (MSG91 removed)
+INFO:     127.0.0.1:36678 - "POST /api/v1/auth/send-otp HTTP/1.1" 200 OK
+[2026-07-05 17:24:08,594] [INFO] [app.api.v1.auth] [OTP Login Flow Backend] [Req ID: 44c0263d-82c2-48e0-82e4-7a32caf3e02a] Incoming request start.
 Headers: {'accept-encoding': 'identity', 'content-length': '43', 'host': '127.0.0.1:8081', 'user-agent': 'Python-urllib/3.10', 'content-type': 'application/json', 'connection': 'close'}
-Payload: {'phone': '+919999999901', 'otp': '932119'}
-[2026-07-04 10:20:30,811] [INFO] [app.api.v1.auth] [OTP Login Flow Backend] [Req ID: 977f631c-6460-48b1-a1ff-cd58ef26366f] Redis lookup complete. Duration: 0.0034s, Key: otp:+919999999901, Hit: True
-[2026-07-04 10:20:30,845] [INFO] [app.api.v1.auth] [OTP Login Flow Backend] [Req ID: 977f631c-6460-48b1-a1ff-cd58ef26366f] Database query user complete. Duration: 0.0300s, User found: False
-[2026-07-04 10:20:30,845] [INFO] [app.api.v1.auth] [OTP Login Flow Backend] [Req ID: 977f631c-6460-48b1-a1ff-cd58ef26366f] Request processed successfully. Total Duration: 0.0386s, Response: {'status': 'success', 'message': 'OTP verified successfully.', 'phone': '+919999999901', 'is_new_user': True, 'access_token': None, 'refresh_token': None, 'token_type': None, 'user': None}
-INFO:     127.0.0.1:49664 - "POST /api/v1/auth/verify-otp HTTP/1.1" 200 OK
-[2026-07-04 10:20:30,855] [INFO] [app.api.v1.auth] [OTP Login Flow Backend] [Req ID: b6455d0e-0c16-48a4-aa2d-f44d0fc3f654] Incoming request start.
+Payload: {'phone': '+919999999901', 'otp': '649794'}
+[2026-07-05 17:24:08,596] [INFO] [app.api.v1.auth] [OTP Login Flow Backend] [Req ID: 44c0263d-82c2-48e0-82e4-7a32caf3e02a] Redis lookup complete. Duration: 0.0016s, Key: otp:+919999999901, Hit: True
+[2026-07-05 17:24:08,608] [INFO] [app.api.v1.auth] [OTP Login Flow Backend] [Req ID: 44c0263d-82c2-48e0-82e4-7a32caf3e02a] Database query user complete. Duration: 0.0111s, User found: False
+[2026-07-05 17:24:08,609] [INFO] [app.api.v1.auth] [OTP Login Flow Backend] [Req ID: 44c0263d-82c2-48e0-82e4-7a32caf3e02a] Request processed successfully. Total Duration: 0.0145s, Response: {'status': 'success', 'message': 'OTP verified successfully.', 'phone': '+919999999901', 'is_new_user': True, 'access_token': None, 'refresh_token': None, 'token_type': None, 'user': None}
+INFO:     127.0.0.1:36690 - "POST /api/v1/auth/verify-otp HTTP/1.1" 200 OK
+[2026-07-05 17:24:08,613] [INFO] [app.api.v1.auth] [OTP Login Flow Backend] [Req ID: 38b45bee-f360-4f10-ae9a-bf11c1075440] Incoming request start.
 Headers: {'accept-encoding': 'identity', 'content-length': '43', 'host': '127.0.0.1:8081', 'user-agent': 'Python-urllib/3.10', 'content-type': 'application/json', 'connection': 'close'}
-Payload: {'phone': '+919999999902', 'otp': '507290'}
-[2026-07-04 10:20:30,856] [INFO] [app.api.v1.auth] [OTP Login Flow Backend] [Req ID: b6455d0e-0c16-48a4-aa2d-f44d0fc3f654] Redis lookup complete. Duration: 0.0013s, Key: otp:+919999999902, Hit: True
-[2026-07-04 10:20:30,864] [INFO] [app.api.v1.auth] [OTP Login Flow Backend] [Req ID: b6455d0e-0c16-48a4-aa2d-f44d0fc3f654] Database query user complete. Duration: 0.0057s, User found: False
-[2026-07-04 10:20:30,864] [INFO] [app.api.v1.auth] [OTP Login Flow Backend] [Req ID: b6455d0e-0c16-48a4-aa2d-f44d0fc3f654] Request processed successfully. Total Duration: 0.0095s, Response: {'status': 'success', 'message': 'OTP verified successfully.', 'phone': '+919999999902', 'is_new_user': True, 'access_token': None, 'refresh_token': None, 'token_type': None, 'user': None}
-INFO:     127.0.0.1:49680 - "POST /api/v1/auth/verify-otp HTTP/1.1" 200 OK
-[2026-07-04 10:20:30,876] [INFO] [app.api.v1.auth] [OTP Login Flow Backend] [Req ID: 13dc2fe7-55e5-4c55-ab56-73c94e8b5acd] Incoming request start.
+Payload: {'phone': '+919999999902', 'otp': '317246'}
+[2026-07-05 17:24:08,615] [INFO] [app.api.v1.auth] [OTP Login Flow Backend] [Req ID: 38b45bee-f360-4f10-ae9a-bf11c1075440] Redis lookup complete. Duration: 0.0014s, Key: otp:+919999999902, Hit: True
+[2026-07-05 17:24:08,619] [INFO] [app.api.v1.auth] [OTP Login Flow Backend] [Req ID: 38b45bee-f360-4f10-ae9a-bf11c1075440] Database query user complete. Duration: 0.0031s, User found: False
+[2026-07-05 17:24:08,619] [INFO] [app.api.v1.auth] [OTP Login Flow Backend] [Req ID: 38b45bee-f360-4f10-ae9a-bf11c1075440] Request processed successfully. Total Duration: 0.0065s, Response: {'status': 'success', 'message': 'OTP verified successfully.', 'phone': '+919999999902', 'is_new_user': True, 'access_token': None, 'refresh_token': None, 'token_type': None, 'user': None}
+INFO:     127.0.0.1:36704 - "POST /api/v1/auth/verify-otp HTTP/1.1" 200 OK
+[2026-07-05 17:24:08,624] [INFO] [app.api.v1.auth] [OTP Login Flow Backend] [Req ID: 55c469c5-735b-48a5-860f-f0c246928a61] Incoming request start.
 Headers: {'accept-encoding': 'identity', 'content-length': '54', 'host': '127.0.0.1:8081', 'user-agent': 'Python-urllib/3.10', 'content-type': 'application/json', 'connection': 'close'}
 Payload: {'phone': '+919999999901', 'otp': 'eyJ-google-call-1'}
-[2026-07-04 10:20:30,877] [INFO] [app.api.v1.auth] [OTP Login Flow Backend] [Req ID: 13dc2fe7-55e5-4c55-ab56-73c94e8b5acd] Google Identity lookup start. URL: https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=AIzaSyDQzI2sUQ6bB4khy_N12huhB6rc34DpEE4
-[2026-07-04 10:20:31,488] [INFO] [app.api.v1.auth] [OTP Login Flow Backend] [Req ID: 13dc2fe7-55e5-4c55-ab56-73c94e8b5acd] Google Identity lookup end. Duration: 0.6117s, HTTP Status: 400
-[2026-07-04 10:20:31,489] [WARNING] [app.api.v1.auth] [OTP Login Flow Backend] [Req ID: 13dc2fe7-55e5-4c55-ab56-73c94e8b5acd] Google Identity call returned error: {
+[2026-07-05 17:24:08,624] [INFO] [app.api.v1.auth] [OTP Login Flow Backend] [Req ID: 55c469c5-735b-48a5-860f-f0c246928a61] Google Identity lookup start. URL: https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=AIzaSyDQzI2sUQ6bB4khy_N12huhB6rc34DpEE4
+[2026-07-05 17:24:08,654] [INFO] [app.main] Successfully pre-warmed external connection pools (Google Identity).
+[2026-07-05 17:24:09,240] [INFO] [app.api.v1.auth] [OTP Login Flow Backend] [Req ID: 55c469c5-735b-48a5-860f-f0c246928a61] Google Identity lookup end. Duration: 0.6154s, HTTP Status: 400
+[2026-07-05 17:24:09,241] [WARNING] [app.api.v1.auth] [OTP Login Flow Backend] [Req ID: 55c469c5-735b-48a5-860f-f0c246928a61] Google Identity call returned error: {
   "error": {
     "code": 400,
     "message": "INVALID_ID_TOKEN",
@@ -183,7 +55,7 @@ Payload: {'phone': '+919999999901', 'otp': 'eyJ-google-call-1'}
   }
 }
 
-[2026-07-04 10:20:31,489] [WARNING] [app.core.exceptions] HTTP 400 client error on path /api/v1/auth/verify-otp: Firebase token verification failed: {
+[2026-07-05 17:24:09,243] [WARNING] [app.core.exceptions] HTTP 400 client error on path /api/v1/auth/verify-otp: Firebase token verification failed: {
   "error": {
     "code": 400,
     "message": "INVALID_ID_TOKEN",
@@ -197,13 +69,13 @@ Payload: {'phone': '+919999999901', 'otp': 'eyJ-google-call-1'}
   }
 }
 
-INFO:     127.0.0.1:49692 - "POST /api/v1/auth/verify-otp HTTP/1.1" 400 Bad Request
-[2026-07-04 10:20:31,494] [INFO] [app.api.v1.auth] [OTP Login Flow Backend] [Req ID: acc3ba64-d0d8-4ff0-bde4-eff19ffbfb01] Incoming request start.
+INFO:     127.0.0.1:36712 - "POST /api/v1/auth/verify-otp HTTP/1.1" 400 Bad Request
+[2026-07-05 17:24:09,248] [INFO] [app.api.v1.auth] [OTP Login Flow Backend] [Req ID: a61a4331-0519-40dc-993d-6788f1b64e08] Incoming request start.
 Headers: {'accept-encoding': 'identity', 'content-length': '54', 'host': '127.0.0.1:8081', 'user-agent': 'Python-urllib/3.10', 'content-type': 'application/json', 'connection': 'close'}
 Payload: {'phone': '+919999999902', 'otp': 'eyJ-google-call-2'}
-[2026-07-04 10:20:31,495] [INFO] [app.api.v1.auth] [OTP Login Flow Backend] [Req ID: acc3ba64-d0d8-4ff0-bde4-eff19ffbfb01] Google Identity lookup start. URL: https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=AIzaSyDQzI2sUQ6bB4khy_N12huhB6rc34DpEE4
-[2026-07-04 10:20:31,859] [INFO] [app.api.v1.auth] [OTP Login Flow Backend] [Req ID: acc3ba64-d0d8-4ff0-bde4-eff19ffbfb01] Google Identity lookup end. Duration: 0.3644s, HTTP Status: 400
-[2026-07-04 10:20:31,859] [WARNING] [app.api.v1.auth] [OTP Login Flow Backend] [Req ID: acc3ba64-d0d8-4ff0-bde4-eff19ffbfb01] Google Identity call returned error: {
+[2026-07-05 17:24:09,248] [INFO] [app.api.v1.auth] [OTP Login Flow Backend] [Req ID: a61a4331-0519-40dc-993d-6788f1b64e08] Google Identity lookup start. URL: https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=AIzaSyDQzI2sUQ6bB4khy_N12huhB6rc34DpEE4
+[2026-07-05 17:24:09,608] [INFO] [app.api.v1.auth] [OTP Login Flow Backend] [Req ID: a61a4331-0519-40dc-993d-6788f1b64e08] Google Identity lookup end. Duration: 0.3598s, HTTP Status: 400
+[2026-07-05 17:24:09,608] [WARNING] [app.api.v1.auth] [OTP Login Flow Backend] [Req ID: a61a4331-0519-40dc-993d-6788f1b64e08] Google Identity call returned error: {
   "error": {
     "code": 400,
     "message": "INVALID_ID_TOKEN",
@@ -217,7 +89,7 @@ Payload: {'phone': '+919999999902', 'otp': 'eyJ-google-call-2'}
   }
 }
 
-[2026-07-04 10:20:31,860] [WARNING] [app.core.exceptions] HTTP 400 client error on path /api/v1/auth/verify-otp: Firebase token verification failed: {
+[2026-07-05 17:24:09,609] [WARNING] [app.core.exceptions] HTTP 400 client error on path /api/v1/auth/verify-otp: Firebase token verification failed: {
   "error": {
     "code": 400,
     "message": "INVALID_ID_TOKEN",
@@ -231,11 +103,11 @@ Payload: {'phone': '+919999999902', 'otp': 'eyJ-google-call-2'}
   }
 }
 
-INFO:     127.0.0.1:49702 - "POST /api/v1/auth/verify-otp HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:36722 - "POST /api/v1/auth/verify-otp HTTP/1.1" 400 Bad Request
 INFO:     Shutting down
 INFO:     Waiting for application shutdown.
-[2026-07-04 10:20:32,065] [INFO] [app.core.redis] Closing async Redis client.
-[2026-07-04 10:20:32,065] [INFO] [app.core.redis] Disconnecting async Redis connection pool.
-[2026-07-04 10:20:32,066] [INFO] [app.core.http] Closing shared httpx.AsyncClient.
+[2026-07-05 17:24:09,771] [INFO] [app.core.redis] Closing async Redis client.
+[2026-07-05 17:24:09,771] [INFO] [app.core.redis] Disconnecting async Redis connection pool.
+[2026-07-05 17:24:09,772] [INFO] [app.core.http] Closing shared httpx.AsyncClient.
 INFO:     Application shutdown complete.
-INFO:     Finished server process [59216]
+INFO:     Finished server process [20764]
