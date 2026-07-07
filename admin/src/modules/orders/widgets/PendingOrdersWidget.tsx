@@ -1,18 +1,12 @@
 import React from 'react';
 import StatCard from '../../../components/common/StatCard';
 import { PendingActions as PendingIcon } from '@mui/icons-material';
-import { useBookings } from '../../../hooks/useBookings';
+import { useAdminOrderStats } from '../../../hooks/useAdminOrders';
 
 export const PendingOrdersWidget: React.FC = () => {
-  const { data: bookings, isLoading } = useBookings();
+  const { data: stats, isLoading } = useAdminOrderStats();
 
-  const pendingCount = bookings
-    ? bookings.filter(
-        b => b.status !== 'completed' && b.status !== 'cancelled',
-      ).length
-    : 0;
-
-  const displayValue = isLoading ? '...' : pendingCount.toLocaleString();
+  const displayValue = isLoading ? '...' : (stats?.pending_all ?? 0).toLocaleString();
 
   return (
     <StatCard

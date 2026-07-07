@@ -110,12 +110,67 @@ export interface BookingTypeStats {
   cancelled: number;
 }
 
+export interface MonthlyGrowthStats {
+  percentage: number;
+  this_month_count: number;
+  last_month_count: number;
+}
+
+export interface GraphDataPoint {
+  name: string;
+  bookings: number;
+  revenue: number;
+}
+
+export interface GraphStats {
+  weekly: GraphDataPoint[];
+  monthly: GraphDataPoint[];
+  yearly: GraphDataPoint[];
+}
+
+export interface ServiceStatItem {
+  name: string;
+  count: number;
+  revenue: number;
+}
+
 export interface AdminOrderStatistics {
   total_all: number;
+  pending_all: number;
+  confirmed_all: number;
+  assigned_all: number;
+  in_progress_all: number;
+  completed_all: number;
+  cancelled_all: number;
+  revenue_all: number;
+  aov_all: number;
+  today_all: number;
+  monthly_growth: MonthlyGrowthStats;
+  graphs: GraphStats;
+  top_services: ServiceStatItem[];
   beautician: BookingTypeStats;
   scrap: BookingTypeStats;
   maintenance: BookingTypeStats;
   recent_statuses: Record<string, number>;
+}
+
+export interface TechnicianOrderResponse {
+  bookingId: string;
+  bookingReference: string;
+  status: string;
+  bookingDate: string;
+  serviceName: string;
+  totalPrice: number;
+}
+
+export interface AdminTechnicianResponse {
+  name: string;
+  service: string;
+  phone: string;
+  isAvailable: boolean;
+  jobsCompleted: number;
+  assignedOrders: TechnicianOrderResponse[];
+  rating: number;
 }
 
 // ─── Filter params ────────────────────────────────────────────────────────────
@@ -165,6 +220,24 @@ export const adminOrderService = {
    */
   async getStatistics(): Promise<AdminOrderStatistics> {
     const res = await apiClient.get<AdminOrderStatistics>('/api/v1/admin/orders/statistics');
+    return res.data;
+  },
+
+  /**
+   * GET /api/v1/admin/orders/users/count
+   * Real database-backed count of registered users.
+   */
+  async getUsersCount(): Promise<number> {
+    const res = await apiClient.get<{ count: number }>('/api/v1/admin/orders/users/count');
+    return res.data.count;
+  },
+
+  /**
+   * GET /api/v1/admin/orders/technicians
+   * Compiles the list of technicians and their performance metrics.
+   */
+  async getTechnicians(): Promise<AdminTechnicianResponse[]> {
+    const res = await apiClient.get<AdminTechnicianResponse[]>('/api/v1/admin/orders/technicians');
     return res.data;
   },
 

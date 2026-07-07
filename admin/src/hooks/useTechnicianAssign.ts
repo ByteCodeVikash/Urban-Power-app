@@ -1,31 +1,21 @@
-/**
- * useTechnicianAssign — mutation hook for assigning, reassigning, and
- * unassigning a technician from a booking via PUT /api/v1/bookings/{id}.
- *
- * All state is stored in the booking's `notes` field using the convention
- * already established by parseBookingNotes / buildBookingNotes in useBookings.ts.
- */
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { parseBookingNotes, buildBookingNotes } from './useBookings';
-import { updateBookingAsOwner } from '../api/bookingAggregator';
+import { adminOrderService } from '../api/adminOrderService';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface AssignPayload {
   bookingId: string;
-  userId: string;
-  /** Current raw notes string from the booking */
-  currentNotes: string | null | undefined;
+  bookingType: 'beautician' | 'scrap' | 'maintenance';
   /** Technician name to assign. Pass null / '' to unassign. */
   technicianName: string | null;
   /** Optionally also update status (e.g. 'assigned') */
   newStatus?: string;
+  currentStatus: string;
 }
 
 export interface AssignResult {
   bookingId: string;
   technicianName: string | null;
-  notes: string;
 }
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
@@ -34,43 +24,29 @@ export const useTechnicianAssign = () => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation<AssignResult, Error, AssignPayload>({
-    mutationFn: async ({ bookingId, userId, currentNotes, technicianName, newStatus }) => {
-      const parsed = parseBookingNotes(currentNotes);
+    mutationFn: async ({ bookingId, bookingType, technicianName, newStatus, currentStatus }) => {
+      const statusToUse = newStatus || currentStatus;
 
-      // Rebuild notes with the new (or removed) technician name
-      const newTechName = technicianName && technicianName.trim() !== ''
-        ? technicianName.trim()
-        : 'None';
-
-      const updatedNotes = buildBookingNotes(
-        parsed.customerName,
-        parsed.phone,
-        newTechName,
-        parsed.customNotes,
-      );
-
-      const body: Record<string, any> = { notes: updatedNotes };
-
-      // If a new status was requested (e.g. 'assigned'), include it
-      if (newStatus) {
-        body.status = newStatus;
-      }
-
-      await updateBookingAsOwner(bookingId, userId, currentNotes, body);
+      await adminOrderService.updateOrder(bookingType, bookingId, {
+        status: statusToUse,
+        assigned_technician: technicianName || '',
+      });
 
       return {
         bookingId,
-        technicianName: newTechName !== 'None' ? newTechName : null,
-        notes: updatedNotes,
+        technicianName,
       };
     },
 
     onSuccess: (_data, variables) => {
-      // Invalidate both the list query and the single-booking query
-      queryClient.invalidateQueries({ queryKey: ['bookings'] });
-      queryClient.invalidateQueries({ queryKey: ['booking', variables.bookingId] });
-      // Invalidate derived technician roster
-      queryClient.invalidateQueries({ queryKey: ['technicians'] });
+      // Invalidate all admin order queries to reflect the change
+      queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
+      queryClient.invalidateQueries({
+        queryKey: ['admin-order-detail', variables.bookingType, variables.bookingId],
+      });
+      queryClient.invalidateQueries({ queryKey: ['admin-order-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-technicians-list'] });
+      queryClient.invalidateQueries({ queryKey: ['technicians-aggregated'] });
     },
   });
 
@@ -80,47 +56,51 @@ export const useTechnicianAssign = () => {
    */
   const assignTechnician = (
     bookingId: string,
-    userId: string,
-    currentNotes: string | null | undefined,
+    bookingType: 'beautician' | 'scrap' | 'maintenance',
     technicianName: string,
-    currentStatus?: string,
+    currentStatus: string,
   ) => {
     const shouldUpdateStatus =
-      currentStatus === 'pending' || currentStatus === 'confirmed';
+      currentStatus === 'pending' || currentStatus === 'confirmed' || currentStatus === 'requested';
     return mutation.mutateAsync({
       bookingId,
-      userId,
-      currentNotes,
+      bookingType,
       technicianName,
       newStatus: shouldUpdateStatus ? 'assigned' : undefined,
+      currentStatus,
     });
   };
 
   /**
-   * Reassign: same as assign — simply replaces the technician name in notes.
+   * Reassign: same as assign — simply replaces the technician name.
    */
   const reassignTechnician = (
     bookingId: string,
-    userId: string,
-    currentNotes: string | null | undefined,
+    bookingType: 'beautician' | 'scrap' | 'maintenance',
     technicianName: string,
-  ) => {
-    return mutation.mutateAsync({ bookingId, userId, currentNotes, technicianName });
-  };
-
-  /**
-   * Unassign: clears the technician field in notes.
-   */
-  const unassignTechnician = (
-    bookingId: string,
-    userId: string,
-    currentNotes: string | null | undefined,
+    currentStatus: string,
   ) => {
     return mutation.mutateAsync({
       bookingId,
-      userId,
-      currentNotes,
+      bookingType,
+      technicianName,
+      currentStatus,
+    });
+  };
+
+  /**
+   * Unassign: clears the technician field.
+   */
+  const unassignTechnician = (
+    bookingId: string,
+    bookingType: 'beautician' | 'scrap' | 'maintenance',
+    currentStatus: string,
+  ) => {
+    return mutation.mutateAsync({
+      bookingId,
+      bookingType,
       technicianName: null,
+      currentStatus,
     });
   };
 

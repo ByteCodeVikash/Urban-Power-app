@@ -1,12 +1,12 @@
 import React from 'react';
 import StatCard from '../../../components/common/StatCard';
 import { ShoppingBag as OrderIcon } from '@mui/icons-material';
-import { useBookings } from '../../../hooks/useBookings';
+import { useAdminOrderStats } from '../../../hooks/useAdminOrders';
 
 export const TotalOrdersWidget: React.FC = () => {
-  const { data: bookings, isLoading } = useBookings();
+  const { data: stats, isLoading } = useAdminOrderStats();
 
-  const displayValue = isLoading ? '...' : (bookings?.length || 0).toLocaleString();
+  const displayValue = isLoading ? '...' : (stats?.total_all ?? 0).toLocaleString();
 
   return (
     <StatCard

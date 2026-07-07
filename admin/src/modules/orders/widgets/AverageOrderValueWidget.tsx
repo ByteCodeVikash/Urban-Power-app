@@ -1,16 +1,12 @@
 import React from 'react';
 import StatCard from '../../../components/common/StatCard';
 import { AttachMoney as MoneyIcon } from '@mui/icons-material';
-import { useBookings } from '../../../hooks/useBookings';
+import { useAdminOrderStats } from '../../../hooks/useAdminOrders';
 
 export const AverageOrderValueWidget: React.FC = () => {
-  const { data: bookings, isLoading } = useBookings();
+  const { data: stats, isLoading } = useAdminOrderStats();
 
-  const nonCancelled = bookings ? bookings.filter(b => b.status !== 'cancelled') : [];
-  const total = nonCancelled.reduce((sum, b) => sum + (b.total_price || 0), 0);
-  const aov = nonCancelled.length > 0 ? Math.round(total / nonCancelled.length) : 0;
-
-  const displayValue = isLoading ? '...' : `₹${aov.toLocaleString()}`;
+  const displayValue = isLoading ? '...' : `₹${(stats?.aov_all ?? 0).toLocaleString()}`;
 
   return (
     <StatCard

@@ -76,6 +76,25 @@ export const useAdminOrderStatusUpdate = () => {
         queryKey: ['admin-order-detail', variables.bookingType, variables.bookingId],
       });
       queryClient.invalidateQueries({ queryKey: ['admin-order-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-technicians-list'] });
     },
+  });
+};
+
+export const useAdminUserCount = () => {
+  return useQuery({
+    queryKey: ['admin-users-count'],
+    queryFn: () => adminOrderService.getUsersCount(),
+    refetchInterval: 60_000,
+    staleTime: 55_000,
+  });
+};
+
+export const useAdminTechniciansList = () => {
+  return useQuery({
+    queryKey: ['admin-technicians-list'],
+    queryFn: () => adminOrderService.getTechnicians(),
+    refetchInterval: 30_000,
+    staleTime: 25_000,
   });
 };

@@ -44,9 +44,9 @@ import {
 } from '@mui/material';
 import { useTechnicians, type TechnicianOrder } from '../hooks/useTechnicians';
 import { useTechnicianAssign } from '../hooks/useTechnicianAssign';
+import { useAdminOrders } from '../hooks/useAdminOrders';
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../api/apiClient';
-import { parseBookingNotes, useBookings } from '../hooks/useBookings';
 import { useNavigate } from 'react-router-dom';
 import {
   Add as AddIcon,
@@ -106,7 +106,8 @@ export const Technicians: React.FC = () => {
   // Real technician roster from API
   const { data: techData = [], isLoading: techLoading } = useTechnicians();
 
-  const { data: allBookings = [], isLoading: bookingsLoading } = useBookings();
+  const { data: adminOrdersData, isLoading: bookingsLoading } = useAdminOrders({ page_size: 1000 });
+  const allBookings = adminOrdersData?.items || [];
 
   // Technician assignment mutation
   const { assignTechnician, reassignTechnician, isPending: assignPending } = useTechnicianAssign();
@@ -306,13 +307,11 @@ export const Technicians: React.FC = () => {
 
   // Assignments tab data: bookings that have a technician assigned
   const assignedBookings = allBookings.filter(b => {
-    const parsed = parseBookingNotes(b.notes);
-    return parsed.technician && parsed.technician !== 'None' && parsed.technician !== '';
+    return b.assigned_technician && b.assigned_technician !== 'None' && b.assigned_technician !== '';
   });
 
   const filteredAssignedBookings = allBookings.filter(b => {
-    const parsed = parseBookingNotes(b.notes);
-    const hasTech = parsed.technician && parsed.technician !== 'None' && parsed.technician !== '';
+    const hasTech = b.assigned_technician && b.assigned_technician !== 'None' && b.assigned_technician !== '';
 
     // 1. Status Filter
     if (assignStatusFilter === 'assigned' && !hasTech) return false;
@@ -320,16 +319,15 @@ export const Technicians: React.FC = () => {
 
     // 2. Technician Name filter
     if (assignFilterTech) {
-      return parsed.technician.toLowerCase().includes(assignFilterTech.toLowerCase());
+      return b.assigned_technician ? b.assigned_technician.toLowerCase().includes(assignFilterTech.toLowerCase()) : false;
     }
 
     return true;
   });
 
   const handleOpenReassign = (booking: any) => {
-    const parsed = parseBookingNotes(booking.notes);
     setReassignBooking(booking);
-    setReassignTechName(parsed.technician !== 'None' ? parsed.technician : '');
+    setReassignTechName(booking.assigned_technician && booking.assigned_technician !== 'None' ? booking.assigned_technician : '');
     setOpenReassignDialog(true);
   };
 
@@ -337,9 +335,8 @@ export const Technicians: React.FC = () => {
     if (!reassignBooking) return;
     try {
       await assignTechnician(
-        reassignBooking.id || reassignBooking.booking_id,
-        String(reassignBooking.user_id),
-        reassignBooking.notes,
+        reassignBooking.booking_id || reassignBooking.id,
+        reassignBooking.booking_type,
         reassignTechName,
         reassignBooking.status,
       );
@@ -749,9 +746,8 @@ export const Technicians: React.FC = () => {
                 </TableHead>
                 <TableBody>
                   {filteredAssignedBookings.map(b => {
-                    const parsed = parseBookingNotes(b.notes);
-                    const hasTech = parsed.technician && parsed.technician !== 'None' && parsed.technician !== '';
-                    const tech = hasTech ? techData.find(t => t.name.toLowerCase() === parsed.technician.toLowerCase()) : null;
+                    const hasTech = b.assigned_technician && b.assigned_technician !== 'None' && b.assigned_technician !== '';
+                    const tech = hasTech ? techData.find(t => t.name.toLowerCase() === b.assigned_technician!.toLowerCase()) : null;
                     const normalStatus = (b.status || '').toLowerCase();
                     const statusColors: Record<string, { bg: string; color: string }> = {
                       completed: { bg: 'rgba(72,187,120,0.15)', color: '#276749' },
@@ -763,7 +759,7 @@ export const Technicians: React.FC = () => {
                     };
                     const sc = statusColors[normalStatus] || statusColors.pending;
                     return (
-                      <TableRow key={b.id || b.booking_id} hover>
+                      <TableRow key={b.booking_id} hover>
                         <TableCell sx={{ fontWeight: 600 }}>
                           <Typography
                             variant="body2"
@@ -773,9 +769,9 @@ export const Technicians: React.FC = () => {
                               cursor: 'pointer',
                               '&:hover': { textDecoration: 'underline' }
                             }}
-                            onClick={() => navigate(`/orders/${b.id || b.booking_id}`)}
+                            onClick={() => navigate(`/orders/${b.booking_id}`)}
                           >
-                            {b.booking_reference || String(b.id).slice(0, 8).toUpperCase()}
+                            {b.booking_reference || String(b.booking_id).slice(0, 8).toUpperCase()}
                           </Typography>
                         </TableCell>
                         <TableCell>
@@ -784,15 +780,15 @@ export const Technicians: React.FC = () => {
                           </Box>
                         </TableCell>
                         <TableCell>
-                          {new Date(b.booking_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                          {b.created_at ? new Date(b.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
                         </TableCell>
                         <TableCell>
-                          {hasTech ? (
+                          {hasTech && b.assigned_technician ? (
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                               <Avatar sx={{ width: 28, height: 28, bgcolor: '#2D3748', fontSize: '0.75rem' }}>
-                                {parsed.technician.charAt(0)}
+                                {b.assigned_technician.charAt(0)}
                               </Avatar>
-                              <Typography variant="body2" sx={{ fontWeight: 600 }}>{parsed.technician}</Typography>
+                              <Typography variant="body2" sx={{ fontWeight: 600 }}>{b.assigned_technician}</Typography>
                             </Box>
                           ) : (
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -836,7 +832,7 @@ export const Technicians: React.FC = () => {
       {/* Reassign Dialog */}
       <Dialog open={openReassignDialog} onClose={() => setOpenReassignDialog(false)} fullWidth maxWidth="xs">
         <DialogTitle sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}>
-          {reassignBooking && parseBookingNotes(reassignBooking.notes).technician && parseBookingNotes(reassignBooking.notes).technician !== 'None' ? 'Reassign Technician' : 'Assign Technician'}
+          {reassignBooking && reassignBooking.assigned_technician && reassignBooking.assigned_technician !== 'None' ? 'Reassign Technician' : 'Assign Technician'}
         </DialogTitle>
         <DialogContent>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>

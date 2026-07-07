@@ -1,16 +1,12 @@
 import React from 'react';
 import StatCard from '../../../components/common/StatCard';
 import { CheckCircle as CompleteIcon } from '@mui/icons-material';
-import { useBookings } from '../../../hooks/useBookings';
+import { useAdminOrderStats } from '../../../hooks/useAdminOrders';
 
 export const CompletedOrdersWidget: React.FC = () => {
-  const { data: bookings, isLoading } = useBookings();
+  const { data: stats, isLoading } = useAdminOrderStats();
 
-  const completedCount = bookings
-    ? bookings.filter(b => b.status === 'completed').length
-    : 0;
-
-  const displayValue = isLoading ? '...' : completedCount.toLocaleString();
+  const displayValue = isLoading ? '...' : (stats?.completed_all ?? 0).toLocaleString();
 
   return (
     <StatCard

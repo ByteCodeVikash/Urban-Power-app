@@ -147,8 +147,47 @@ class BookingTypeStats(BaseModel):
     cancelled: int
 
 
+class MonthlyGrowthStats(BaseModel):
+    percentage: float
+    this_month_count: int
+    last_month_count: int
+
+
+class GraphDataPoint(BaseModel):
+    name: str
+    bookings: int
+    revenue: float
+
+
+class GraphStats(BaseModel):
+    weekly: List[GraphDataPoint]
+    monthly: List[GraphDataPoint]
+    yearly: List[GraphDataPoint]
+
+
+class ServiceStatItem(BaseModel):
+    name: str
+    count: int
+    revenue: float
+
+
 class AdminOrderStatistics(BaseModel):
     total_all: int
+    pending_all: int
+    confirmed_all: int
+    assigned_all: int
+    in_progress_all: int
+    completed_all: int
+    cancelled_all: int
+
+    revenue_all: float
+    aov_all: float
+    today_all: int
+
+    monthly_growth: MonthlyGrowthStats
+    graphs: GraphStats
+    top_services: List[ServiceStatItem]
+
     beautician: BookingTypeStats
     scrap: BookingTypeStats
     maintenance: BookingTypeStats
@@ -156,3 +195,24 @@ class AdminOrderStatistics(BaseModel):
         default_factory=dict,
         description="Count by status across all booking types"
     )
+
+
+# ─── Technicians ──────────────────────────────────────────────────────────────
+
+class TechnicianOrderResponse(BaseModel):
+    bookingId: str
+    bookingReference: str
+    status: str
+    bookingDate: datetime
+    serviceName: str
+    totalPrice: float
+
+
+class AdminTechnicianResponse(BaseModel):
+    name: str
+    service: str
+    phone: str
+    isAvailable: bool
+    jobsCompleted: int
+    assignedOrders: List[TechnicianOrderResponse] = []
+    rating: float

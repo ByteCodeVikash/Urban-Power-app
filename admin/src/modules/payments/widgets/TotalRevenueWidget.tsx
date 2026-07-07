@@ -1,17 +1,12 @@
 import React from 'react';
 import StatCard from '../../../components/common/StatCard';
 import { AttachMoney as MoneyIcon } from '@mui/icons-material';
-import { useBookings } from '../../../hooks/useBookings';
+import { useAdminOrderStats } from '../../../hooks/useAdminOrders';
 
 export const TotalRevenueWidget: React.FC = () => {
-  const { data: bookings, isLoading } = useBookings();
+  const { data: stats, isLoading } = useAdminOrderStats();
 
-  const paidBookings = bookings
-    ? bookings.filter(b => b.status === 'completed' || b.status === 'confirmed')
-    : [];
-  const revenue = paidBookings.reduce((sum, b) => sum + (b.total_price || 0), 0);
-
-  const displayValue = isLoading ? '...' : `₹${revenue.toLocaleString()}`;
+  const displayValue = isLoading ? '...' : `₹${(stats?.revenue_all ?? 0).toLocaleString()}`;
 
   return (
     <StatCard

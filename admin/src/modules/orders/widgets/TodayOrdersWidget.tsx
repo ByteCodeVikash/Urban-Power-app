@@ -1,21 +1,12 @@
 import React from 'react';
 import StatCard from '../../../components/common/StatCard';
 import { Today as TodayIcon } from '@mui/icons-material';
-import { useBookings } from '../../../hooks/useBookings';
+import { useAdminOrderStats } from '../../../hooks/useAdminOrders';
 
 export const TodayOrdersWidget: React.FC = () => {
-  const { data: bookings, isLoading } = useBookings();
+  const { data: stats, isLoading } = useAdminOrderStats();
 
-  const todayStr = new Date().toISOString().split('T')[0];
-  const todayCount = bookings
-    ? bookings.filter(b => {
-        if (!b.booking_date) return false;
-        const datePart = b.booking_date.split('T')[0];
-        return datePart === todayStr;
-      }).length
-    : 0;
-
-  const displayValue = isLoading ? '...' : todayCount.toLocaleString();
+  const displayValue = isLoading ? '...' : (stats?.today_all ?? 0).toLocaleString();
 
   return (
     <StatCard

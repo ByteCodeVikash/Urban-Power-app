@@ -3,6 +3,7 @@ from app.api.v1 import (
     auth, users, services, bookings, addresses, geocoding,
     scrap, beautician, maintenance, media, payments,
     scrap_bookings, maintenance_bookings, admin_orders,
+    admin,
 )
 
 api_router = APIRouter()
@@ -24,6 +25,8 @@ api_router.include_router(maintenance_bookings.router)
 
 # Admin-only order management (no user impersonation — uses admin JWT directly)
 api_router.include_router(admin_orders.router)
+api_router.include_router(admin.router)
+
 
 
 

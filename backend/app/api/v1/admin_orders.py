@@ -40,6 +40,12 @@ from app.schemas.admin_orders import (
     AdminOrderStatistics,
     BookingTypeStats,
     StatusHistoryItem,
+    MonthlyGrowthStats,
+    GraphDataPoint,
+    GraphStats,
+    ServiceStatItem,
+    AdminTechnicianResponse,
+    TechnicianOrderResponse,
 )
 from app.api.deps import get_current_active_user
 
@@ -112,7 +118,19 @@ _MAINTENANCE_STATUS_MAP: dict = {
 
 def _require_admin(current_user: User) -> None:
     """Raise 403 if caller is not admin or provider."""
-    if current_user.role not in ("admin", "provider"):
+    role = (current_user.role or "").lower().strip().replace(" ", "_")
+    allowed_roles = {
+        "admin",
+        "provider",
+        "super_admin",
+        "operations_manager",
+        "dispatcher",
+        "finance_manager",
+        "support_executive",
+        "technician_manager",
+        "content_manager",
+    }
+    if role not in allowed_roles:
         raise HTTPException(
             status_code=http_status.HTTP_403_FORBIDDEN,
             detail="Admin or provider role required",
@@ -423,6 +441,19 @@ def list_admin_orders(
 
 # ── GET /admin/orders/statistics ─────────────────────────────────────────────
 
+def _parse_technician_from_notes(notes: Optional[str]) -> Optional[str]:
+    if not notes:
+        return None
+    match = re.search(r"Technician:\s*([^,\n]+)", notes)
+    if match:
+        val = match.group(1).strip()
+        val = re.sub(r"^:\s*", "", val)
+        return val if val.lower() != "none" else None
+    return None
+
+
+# ── GET /admin/orders/statistics ─────────────────────────────────────────────
+
 @router.get("/statistics", response_model=AdminOrderStatistics)
 def get_admin_order_statistics(
     db: Session = Depends(get_db),
@@ -467,7 +498,200 @@ def get_admin_order_statistics(
     b_stats = _build_stats(Booking)
     s_stats = _build_stats(ScrapBooking)
     m_stats = _build_stats(MaintenanceBooking)
+    
+    # Unified list for detailed statistics
+    b_rows = db.query(
+        Booking.id, Booking.status, Booking.total_price, Booking.booking_date, Booking.created_at, Booking.notes, Service.name
+    ).outerjoin(Service, Booking.service_id == Service.id).all()
+    
+    s_rows = db.query(
+        ScrapBooking.id, ScrapBooking.status, ScrapBooking.estimated_value, ScrapBooking.booking_date, ScrapBooking.created_at, ScrapBooking.notes, ScrapBooking.item_name
+    ).all()
+    
+    m_rows = db.query(
+        MaintenanceBooking.id, MaintenanceBooking.status, MaintenanceBooking.total_price, MaintenanceBooking.booking_date, MaintenanceBooking.created_at, MaintenanceBooking.notes, MaintenanceBooking.service_names
+    ).all()
+
+    normalized = []
+    
+    # 1. Beautician Bookings
+    for row in b_rows:
+        bid, status, price, bdate, created, notes, sname = row
+        price_val = float(price or 0.0)
+        st_str = (status.value if hasattr(status, "value") else str(status)) or "pending"
+        norm_status = _BEAUTICIAN_STATUS_MAP.get(st_str.lower(), "pending")
+        normalized.append({
+            "id": str(bid),
+            "status": norm_status,
+            "price": price_val,
+            "booking_date": bdate,
+            "created_at": created,
+            "service_name": sname or "Service Booking",
+            "technician": _parse_technician_from_notes(notes),
+            "type": "beautician"
+        })
+
+    # 2. Scrap Bookings
+    for row in s_rows:
+        bid, status, val, bdate, created, notes, item = row
+        price_val = float(val or 0.0)
+        st_str = (status.value if hasattr(status, "value") else str(status)) or "requested"
+        norm_status = _SCRAP_STATUS_MAP.get(st_str.lower(), "requested")
+        normalized.append({
+            "id": str(bid),
+            "status": norm_status,
+            "price": price_val,
+            "booking_date": bdate,
+            "created_at": created,
+            "service_name": item or "Scrap Pickup",
+            "technician": _parse_technician_from_notes(notes),
+            "type": "scrap"
+        })
+
+    # 3. Maintenance Bookings
+    for row in m_rows:
+        bid, status, price, bdate, created, notes, snames = row
+        price_val = float(price or 0.0)
+        st_str = (status.value if hasattr(status, "value") else str(status)) or "pending"
+        norm_status = _MAINTENANCE_STATUS_MAP.get(st_str.lower(), "pending")
+        sname = (snames[0] if snames and len(snames) > 0 else "Maintenance")
+        normalized.append({
+            "id": str(bid),
+            "status": norm_status,
+            "price": price_val,
+            "booking_date": bdate,
+            "created_at": created,
+            "service_name": sname,
+            "technician": _parse_technician_from_notes(notes),
+            "type": "maintenance"
+        })
+
+    # Count aggregated stats
     total_all = b_stats.total + s_stats.total + m_stats.total
+    pending_all = sum(1 for x in normalized if x["status"] in ("pending", "requested"))
+    confirmed_all = sum(1 for x in normalized if x["status"] in ("confirmed", "accepted"))
+    assigned_all = sum(1 for x in normalized if x["status"] == "assigned")
+    in_progress_all = sum(1 for x in normalized if x["status"] in ("in_progress", "technician_on_the_way", "reached", "work_started"))
+    completed_all = sum(1 for x in normalized if x["status"] == "completed")
+    cancelled_all = sum(1 for x in normalized if x["status"] in ("cancelled", "refund_requested", "refunded"))
+
+    revenue_all = 0.0
+    for x in normalized:
+        if x["type"] == "scrap":
+            if x["status"] in ("completed", "assigned", "in_progress"):
+                revenue_all += x["price"]
+        else:
+            if x["status"] in ("completed", "confirmed"):
+                revenue_all += x["price"]
+
+    non_cancelled = [x for x in normalized if x["status"] not in ("cancelled", "refund_requested", "refunded")]
+    total_non_cancelled_price = sum(x["price"] for x in non_cancelled)
+    aov_all = (total_non_cancelled_price / len(non_cancelled)) if len(non_cancelled) > 0 else 0.0
+
+    today_str = datetime.utcnow().strftime("%Y-%m-%d")
+    today_all = sum(1 for x in normalized if x["booking_date"] and x["booking_date"].strftime("%Y-%m-%d") == today_str)
+
+    # Monthly growth
+    now = datetime.utcnow()
+    this_month_count = sum(1 for x in normalized if x["booking_date"] and x["booking_date"].year == now.year and x["booking_date"].month == now.month)
+    if now.month == 1:
+        prev_month_year = now.year - 1
+        prev_month = 12
+    else:
+        prev_month_year = now.year
+        prev_month = now.month - 1
+    last_month_count = sum(1 for x in normalized if x["booking_date"] and x["booking_date"].year == prev_month_year and x["booking_date"].month == prev_month)
+    if last_month_count == 0:
+        growth_pct = 100.0 if this_month_count > 0 else 0.0
+    else:
+        growth_pct = ((this_month_count - last_month_count) / last_month_count) * 100.0
+
+    monthly_growth = MonthlyGrowthStats(
+        percentage=growth_pct,
+        this_month_count=this_month_count,
+        last_month_count=last_month_count
+    )
+
+    # Graphs (weekly, monthly, yearly)
+    weekly_dict = {day: {"bookings": 0, "revenue": 0.0} for day in ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]}
+    monthly_dict = {f"Week {i}": {"bookings": 0, "revenue": 0.0} for i in range(1, 5)}
+    yearly_dict = {f"Q{i}": {"bookings": 0, "revenue": 0.0} for i in range(1, 5)}
+
+    for x in normalized:
+        if not x["booking_date"]:
+            continue
+        bdate = x["booking_date"]
+        
+        day_name = bdate.strftime("%a")
+        if day_name in weekly_dict:
+            weekly_dict[day_name]["bookings"] += 1
+            if x["type"] == "scrap":
+                is_rev = x["status"] in ("completed", "assigned", "in_progress")
+            else:
+                is_rev = x["status"] in ("completed", "confirmed")
+            if is_rev:
+                weekly_dict[day_name]["revenue"] += x["price"]
+
+        day_of_month = bdate.day
+        if day_of_month <= 7:
+            w_key = "Week 1"
+        elif day_of_month <= 14:
+            w_key = "Week 2"
+        elif day_of_month <= 21:
+            w_key = "Week 3"
+        else:
+            w_key = "Week 4"
+        monthly_dict[w_key]["bookings"] += 1
+        if x["type"] == "scrap":
+            is_rev = x["status"] in ("completed", "assigned", "in_progress")
+        else:
+            is_rev = x["status"] in ("completed", "confirmed")
+        if is_rev:
+            monthly_dict[w_key]["revenue"] += x["price"]
+
+        quarter = (bdate.month - 1) // 3 + 1
+        q_key = f"Q{quarter}"
+        yearly_dict[q_key]["bookings"] += 1
+        if x["type"] == "scrap":
+            is_rev = x["status"] in ("completed", "assigned", "in_progress")
+        else:
+            is_rev = x["status"] in ("completed", "confirmed")
+        if is_rev:
+            yearly_dict[q_key]["revenue"] += x["price"]
+
+    weekly_list = [
+        GraphDataPoint(name=day, bookings=weekly_dict[day]["bookings"], revenue=weekly_dict[day]["revenue"])
+        for day in ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    ]
+    monthly_list = [
+        GraphDataPoint(name=w, bookings=monthly_dict[w]["bookings"], revenue=monthly_dict[w]["revenue"])
+        for w in ["Week 1", "Week 2", "Week 3", "Week 4"]
+    ]
+    yearly_list = [
+        GraphDataPoint(name=q, bookings=yearly_dict[q]["bookings"], revenue=yearly_dict[q]["revenue"])
+        for q in ["Q1", "Q2", "Q3", "Q4"]
+    ]
+    graphs = GraphStats(weekly=weekly_list, monthly=monthly_list, yearly=yearly_list)
+
+    # Top services
+    service_dict = {}
+    for x in normalized:
+        sname = x["service_name"]
+        if sname not in service_dict:
+            service_dict[sname] = {"count": 0, "revenue": 0.0}
+        service_dict[sname]["count"] += 1
+        if x["type"] == "scrap":
+            is_rev = x["status"] in ("completed", "assigned", "in_progress")
+        else:
+            is_rev = x["status"] in ("completed", "confirmed")
+        if is_rev:
+            service_dict[sname]["revenue"] += x["price"]
+
+    sorted_services = sorted(service_dict.items(), key=lambda item: item[1]["count"], reverse=True)
+    top_services = [
+        ServiceStatItem(name=name, count=data["count"], revenue=data["revenue"])
+        for name, data in sorted_services[:5]
+    ]
 
     # Recent statuses across all types
     recent: dict = {}
@@ -479,6 +703,18 @@ def get_admin_order_statistics(
 
     return AdminOrderStatistics(
         total_all=total_all,
+        pending_all=pending_all,
+        confirmed_all=confirmed_all,
+        assigned_all=assigned_all,
+        in_progress_all=in_progress_all,
+        completed_all=completed_all,
+        cancelled_all=cancelled_all,
+        revenue_all=revenue_all,
+        aov_all=aov_all,
+        today_all=today_all,
+        monthly_growth=monthly_growth,
+        graphs=graphs,
+        top_services=top_services,
         beautician=b_stats,
         scrap=s_stats,
         maintenance=m_stats,
@@ -747,3 +983,145 @@ def update_admin_order(
 
     # Return full detail
     return get_admin_order_detail(booking_type, booking_id, db, current_user)
+
+
+# ── GET /admin/orders/users/count ─────────────────────────────────────────────
+
+@router.get("/users/count", response_model=dict)
+def get_admin_users_count(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+) -> dict:
+    """
+    Admin-only: total registered clients count.
+    """
+    _require_admin(current_user)
+    count = db.query(func.count(User.id)).filter(User.role == "client").scalar() or 0
+    return {"count": count}
+
+
+# ── GET /admin/orders/technicians ─────────────────────────────────────────────
+
+@router.get("/technicians", response_model=List[AdminTechnicianResponse])
+def get_admin_technicians(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+) -> List[AdminTechnicianResponse]:
+    """
+    Admin-only: compiles the technician list and their performance stats from booking notes.
+    """
+    _require_admin(current_user)
+
+    # Base seed technicians
+    SEED_TECHNICIANS = [
+        {"name": "Ramesh Kumar", "service": "Scrap", "phone": "+91 98765 00001"},
+        {"name": "Suman Lata", "service": "Beautician", "phone": "+91 98765 00002"},
+        {"name": "Vikram Singh", "service": "Maintenance", "phone": "+91 98765 00003"},
+        {"name": "Anil Mehta", "service": "Maintenance", "phone": "+91 98765 00004"},
+    ]
+
+    tech_map = {}
+    for s in SEED_TECHNICIANS:
+        name_lower = s["name"].lower()
+        rating_val = 4.8
+        if s["name"] == "Vikram Singh":
+            rating_val = 3.5
+        elif s["name"] == "Anil Mehta":
+            rating_val = 4.2
+        elif s["name"] == "Suman Lata":
+            rating_val = 4.9
+
+        tech_map[name_lower] = {
+            "name": s["name"],
+            "service": s["service"],
+            "phone": s["phone"],
+            "isAvailable": True,
+            "jobsCompleted": 0,
+            "assignedOrders": [],
+            "rating": rating_val,
+        }
+
+    # Query all bookings
+    b_rows = db.query(
+        Booking.id, Booking.status, Booking.total_price, Booking.booking_date, Booking.notes, Service.name, Booking.booking_reference
+    ).outerjoin(Service, Booking.service_id == Service.id).all()
+    
+    s_rows = db.query(
+        ScrapBooking.id, ScrapBooking.status, ScrapBooking.estimated_value, ScrapBooking.booking_date, ScrapBooking.notes, ScrapBooking.item_name, ScrapBooking.booking_reference
+    ).all()
+    
+    m_rows = db.query(
+        MaintenanceBooking.id, MaintenanceBooking.status, MaintenanceBooking.total_price, MaintenanceBooking.booking_date, MaintenanceBooking.notes, MaintenanceBooking.service_names, MaintenanceBooking.booking_reference
+    ).all()
+
+    def _process_booking(bid, status, price, bdate, notes, service_name, ref, btype):
+        tech_name = _parse_technician_from_notes(notes)
+        if not tech_name:
+            return
+
+        name_lower = tech_name.lower()
+        if name_lower not in tech_map:
+            tech_map[name_lower] = {
+                "name": tech_name,
+                "service": "General",
+                "phone": "—",
+                "isAvailable": True,
+                "jobsCompleted": 0,
+                "assignedOrders": [],
+                "rating": 4.5,
+            }
+
+        # Determine normalized status and is_available
+        if btype == "scrap":
+            norm_status = _SCRAP_STATUS_MAP.get((status.value if hasattr(status, "value") else str(status)).lower(), "requested")
+        elif btype == "maintenance":
+            norm_status = _MAINTENANCE_STATUS_MAP.get((status.value if hasattr(status, "value") else str(status)).lower(), "pending")
+        else:
+            norm_status = _BEAUTICIAN_STATUS_MAP.get((status.value if hasattr(status, "value") else str(status)).lower(), "pending")
+
+        order_res = TechnicianOrderResponse(
+            bookingId=str(bid),
+            bookingReference=ref or str(bid)[:8].upper(),
+            status=norm_status,
+            bookingDate=bdate,
+            serviceName=service_name or "Service Booking",
+            totalPrice=float(price or 0.0),
+        )
+
+        tech_map[name_lower]["assignedOrders"].append(order_res)
+        
+        # Availability: busy if there is any 'in_progress' booking
+        if norm_status == "in_progress":
+            tech_map[name_lower]["isAvailable"] = False
+
+        if norm_status == "completed":
+            tech_map[name_lower]["jobsCompleted"] += 1
+
+    for row in b_rows:
+        bid, status, price, bdate, notes, sname, ref = row
+        _process_booking(bid, status, price, bdate, notes, sname, ref, "beautician")
+
+    for row in s_rows:
+        bid, status, val, bdate, notes, item, ref = row
+        _process_booking(bid, status, val, bdate, notes, item, ref, "scrap")
+
+    for row in m_rows:
+        bid, status, price, bdate, notes, snames, ref = row
+        sname = (snames[0] if snames and len(snames) > 0 else "Maintenance")
+        _process_booking(bid, status, price, bdate, notes, sname, ref, "maintenance")
+
+    # Format the final list
+    result = []
+    for t in tech_map.values():
+        result.append(
+            AdminTechnicianResponse(
+                name=t["name"],
+                service=t["service"],
+                phone=t["phone"],
+                isAvailable=t["isAvailable"],
+                jobsCompleted=t["jobsCompleted"],
+                assignedOrders=t["assignedOrders"],
+                rating=t["rating"],
+            )
+        )
+    return result

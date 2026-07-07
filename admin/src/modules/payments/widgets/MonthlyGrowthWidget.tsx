@@ -1,41 +1,24 @@
 import React from 'react';
 import StatCard from '../../../components/common/StatCard';
 import { TrendingUp as TrendingIcon } from '@mui/icons-material';
-import { useBookings } from '../../../hooks/useBookings';
+import { useAdminOrderStats } from '../../../hooks/useAdminOrders';
 
 export const MonthlyGrowthWidget: React.FC = () => {
-  const { data: bookings = [], isLoading } = useBookings();
+  const { data: stats, isLoading } = useAdminOrderStats();
 
   let growthDisplay = '…';
   let changeVal: string | undefined;
   let changeType: 'increase' | 'decrease' = 'increase';
 
-  if (!isLoading) {
-    const now = new Date();
-    const thisMonth = now.getMonth();
-    const thisYear = now.getFullYear();
-    const lastMonthDate = new Date(thisYear, thisMonth - 1, 1);
-    const lastMonth = lastMonthDate.getMonth();
-    const lastMonthYear = lastMonthDate.getFullYear();
-
-    const thisMonthCount = bookings.filter((b: any) => {
-      const d = new Date(b.booking_date || b.created_at);
-      return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
-    }).length;
-
-    const lastMonthCount = bookings.filter((b: any) => {
-      const d = new Date(b.booking_date || b.created_at);
-      return d.getMonth() === lastMonth && d.getFullYear() === lastMonthYear;
-    }).length;
-
-    if (lastMonthCount === 0) {
-      growthDisplay = thisMonthCount > 0 ? '+∞' : '0%';
+  if (!isLoading && stats?.monthly_growth) {
+    const { percentage, this_month_count, last_month_count } = stats.monthly_growth;
+    if (last_month_count === 0) {
+      growthDisplay = this_month_count > 0 ? '+100%' : '0%';
       changeVal = undefined;
     } else {
-      const pct = ((thisMonthCount - lastMonthCount) / lastMonthCount) * 100;
-      growthDisplay = `${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%`;
-      changeType = pct >= 0 ? 'increase' : 'decrease';
-      changeVal = `vs last month (${lastMonthCount} → ${thisMonthCount})`;
+      growthDisplay = `${percentage >= 0 ? '+' : ''}${percentage.toFixed(1)}%`;
+      changeType = percentage >= 0 ? 'increase' : 'decrease';
+      changeVal = `vs last month (${last_month_count} → ${this_month_count})`;
     }
   }
 

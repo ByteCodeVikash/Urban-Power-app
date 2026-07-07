@@ -17,75 +17,19 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { useBookings } from '../../../hooks/useBookings';
+import { useAdminOrderStats } from '../../../hooks/useAdminOrders';
 
 export const BookingsGraphWidget: React.FC = () => {
   const [range, setRange] = useState('weekly');
-  const { data: bookings = [] } = useBookings();
+  const { data: stats } = useAdminOrderStats();
 
-  const getWeeklyData = (items: any[]) => {
-    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const counts = { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0, Sun: 0 } as Record<string, number>;
-    items.forEach(b => {
-      if (!b.booking_date) return;
-      const dayName = days[new Date(b.booking_date).getDay()];
-      if (counts[dayName] !== undefined) {
-        counts[dayName]++;
-      }
-    });
-    return [
-      { name: 'Mon', bookings: counts.Mon },
-      { name: 'Tue', bookings: counts.Tue },
-      { name: 'Wed', bookings: counts.Wed },
-      { name: 'Thu', bookings: counts.Thu },
-      { name: 'Fri', bookings: counts.Fri },
-      { name: 'Sat', bookings: counts.Sat },
-      { name: 'Sun', bookings: counts.Sun },
-    ];
-  };
-
-  const getMonthlyData = (items: any[]) => {
-    const counts = { 'Week 1': 0, 'Week 2': 0, 'Week 3': 0, 'Week 4': 0 } as Record<string, number>;
-    items.forEach(b => {
-      if (!b.booking_date) return;
-      const day = new Date(b.booking_date).getDate();
-      if (day <= 7) counts['Week 1']++;
-      else if (day <= 14) counts['Week 2']++;
-      else if (day <= 21) counts['Week 3']++;
-      else counts['Week 4']++;
-    });
-    return [
-      { name: 'Week 1', bookings: counts['Week 1'] },
-      { name: 'Week 2', bookings: counts['Week 2'] },
-      { name: 'Week 3', bookings: counts['Week 3'] },
-      { name: 'Week 4', bookings: counts['Week 4'] },
-    ];
-  };
-
-  const getYearlyData = (items: any[]) => {
-    const counts = { Q1: 0, Q2: 0, Q3: 0, Q4: 0 } as Record<string, number>;
-    items.forEach(b => {
-      if (!b.booking_date) return;
-      const month = new Date(b.booking_date).getMonth();
-      if (month < 3) counts.Q1++;
-      else if (month < 6) counts.Q2++;
-      else if (month < 9) counts.Q3++;
-      else counts.Q4++;
-    });
-    return [
-      { name: 'Q1', bookings: counts.Q1 },
-      { name: 'Q2', bookings: counts.Q2 },
-      { name: 'Q3', bookings: counts.Q3 },
-      { name: 'Q4', bookings: counts.Q4 },
-    ];
-  };
-
-  const chartData =
-    range === 'weekly'
-      ? getWeeklyData(bookings)
-      : range === 'monthly'
-      ? getMonthlyData(bookings)
-      : getYearlyData(bookings);
+  const chartData = React.useMemo(() => {
+    if (!stats || !stats.graphs) {
+      return [];
+    }
+    const graphKey = range === 'weekly' ? 'weekly' : range === 'monthly' ? 'monthly' : 'yearly';
+    return stats.graphs[graphKey] || [];
+  }, [stats, range]);
 
   return (
     <Card

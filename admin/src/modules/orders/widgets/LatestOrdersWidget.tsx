@@ -12,8 +12,7 @@ import {
   Paper,
   Box,
 } from '@mui/material';
-import { useBookings } from '../../../hooks/useBookings';
-import { useAuthStore } from '../../../store/authStore';
+import { useAdminOrders } from '../../../hooks/useAdminOrders';
 
 const getStatusStyles = (status: string) => {
   const normalized = status.toLowerCase();
@@ -42,15 +41,8 @@ const formatStatus = (status: string) => {
 };
 
 export const LatestOrdersWidget: React.FC = () => {
-  const { data: bookings = [], isLoading } = useBookings();
-  const { user } = useAuthStore();
-
-  const userName = user?.name || user?.email || 'Customer';
-
-  // Sort and take top 5
-  const recentBookings = [...bookings]
-    .sort((a, b) => new Date(b.booking_date).getTime() - new Date(a.booking_date).getTime())
-    .slice(0, 5);
+  const { data: adminOrdersData, isLoading } = useAdminOrders({ page_size: 5 });
+  const recentBookings = adminOrdersData?.items || [];
 
   return (
     <Card
@@ -122,10 +114,10 @@ export const LatestOrdersWidget: React.FC = () => {
               ) : (
                 recentBookings.map(order => {
                   const styles = getStatusStyles(order.status);
-                  const displayId = order.booking_reference || (order.id ? `ORD-${order.id.slice(0, 4).toUpperCase()}` : 'ORD-NEW');
+                  const displayId = order.booking_reference || (order.booking_id ? `ORD-${order.booking_id.slice(0, 4).toUpperCase()}` : 'ORD-NEW');
                   return (
                     <TableRow
-                      key={order.id}
+                      key={order.booking_id}
                       hover
                       sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                     >
@@ -134,7 +126,7 @@ export const LatestOrdersWidget: React.FC = () => {
                       </TableCell>
                       <TableCell sx={{ py: 1.5 }}>{order.customer_name || 'Customer'}</TableCell>
                       <TableCell sx={{ py: 1.5 }}>{order.service_name}</TableCell>
-                      <TableCell sx={{ py: 1.5 }}>₹{order.total_price?.toLocaleString() || 0}</TableCell>
+                      <TableCell sx={{ py: 1.5 }}>₹{order.price?.toLocaleString() || 0}</TableCell>
                       <TableCell align="center" sx={{ py: 1.5 }}>
                         <Box
                           sx={{

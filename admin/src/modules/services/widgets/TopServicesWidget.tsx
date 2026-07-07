@@ -7,7 +7,7 @@ import {
   LinearProgress,
   Skeleton,
 } from '@mui/material';
-import { useBookings } from '../../../hooks/useBookings';
+import { useAdminOrderStats } from '../../../hooks/useAdminOrders';
 
 interface ServiceStat {
   name: string;
@@ -20,38 +20,18 @@ interface ServiceStat {
 const COLORS = ['#3182CE', '#48BB78', '#ED8936', '#E53E3E', '#9F7AEA'];
 
 export const TopServicesWidget: React.FC = () => {
-  const { data: bookings = [], isLoading } = useBookings();
+  const { data: stats, isLoading } = useAdminOrderStats();
 
   const serviceStats: ServiceStat[] = useMemo(() => {
-    // Aggregate booking counts and revenue by service name
-    const map = new Map<string, { count: number; revenue: number }>();
+    const list = stats?.top_services || [];
+    const maxCount = list[0]?.count || 1;
 
-    bookings.forEach(b => {
-      const name = b.service_name || 'Unknown Service';
-      const price = Number(b.total_price) || 0;
-      const isRevenue = b.status === 'completed' || b.status === 'confirmed';
-
-      if (!map.has(name)) {
-        map.set(name, { count: 0, revenue: 0 });
-      }
-      const entry = map.get(name)!;
-      entry.count++;
-      if (isRevenue) entry.revenue += price;
-    });
-
-    const sorted = Array.from(map.entries())
-      .map(([name, { count, revenue }]) => ({ name, count, revenue }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 5);
-
-    const maxCount = sorted[0]?.count || 1;
-
-    return sorted.map((s, i) => ({
+    return list.map((s, i) => ({
       ...s,
       percentage: Math.round((s.count / maxCount) * 100),
       color: COLORS[i % COLORS.length],
     }));
-  }, [bookings]);
+  }, [stats]);
 
   return (
     <Card sx={{ border: '1px solid #E2E8F0', borderRadius: 3.5, boxShadow: 'none' }}>

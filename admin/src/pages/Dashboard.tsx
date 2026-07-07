@@ -16,11 +16,11 @@ import {
 import { TrendingUp as TrendingIcon, Refresh as RefreshIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { ModuleRegistry } from '../modules/registry';
-import { useBookings } from '../hooks/useBookings';
+import { useAdminOrderStats } from '../hooks/useAdminOrders';
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { isError, refetch } = useBookings();
+  const { isError, refetch } = useAdminOrderStats();
   const [dateRange, setDateRange] = useState('7days');
   const [customStart, setCustomStart] = useState('');
   const [customEnd, setCustomEnd] = useState('');

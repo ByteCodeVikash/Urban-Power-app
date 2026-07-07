@@ -1,5 +1,6 @@
 from app.models.base import BaseModel
 from app.models.user import User
+from app.models.admin import Admin
 from app.models.category import Category
 from app.models.service import Service
 from app.models.booking import Booking, BookingStatus
@@ -15,6 +16,7 @@ from app.models.booking_status_history import BookingStatusHistory
 __all__ = [
     "BaseModel",
     "User",
+    "Admin",
     "Category",
     "Service",
     "Booking",
@@ -32,4 +34,5 @@ __all__ = [
     "MaintenanceBookingStatus",
     "BookingStatusHistory",
 ]
+
 

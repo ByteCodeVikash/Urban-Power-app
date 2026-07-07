@@ -30,7 +30,7 @@ const profileSchema = zod.object({
 type ProfileFormValues = zod.infer<typeof profileSchema>;
 
 export const Profile: React.FC = () => {
-  const { user, login, token, refreshToken } = useAuthStore();
+  const { user, login, token, refreshToken, permissions } = useAuthStore();
   const [successText, setSuccessText] = useState<string | null>(null);
   const [errorText, setErrorText] = useState<string | null>(null);
 
@@ -99,6 +99,7 @@ export const Profile: React.FC = () => {
           },
           token,
           refreshToken,
+          permissions || []
         );
       }
       setSuccessText('Profile details saved successfully.');

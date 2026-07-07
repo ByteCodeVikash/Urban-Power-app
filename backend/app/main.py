@@ -66,6 +66,28 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning(f"Could not auto-create booking_status_history table: {e}")
 
+    # Ensure admins table exists
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS admins (
+                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                    username VARCHAR(100) UNIQUE NOT NULL,
+                    email VARCHAR(255) UNIQUE NOT NULL,
+                    password_hash VARCHAR(255) NOT NULL,
+                    role VARCHAR(50) NOT NULL DEFAULT 'admin',
+                    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+                    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                )
+            """))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS idx_admins_username ON admins (username)"))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS idx_admins_email ON admins (email)"))
+            conn.commit()
+        logger.info("admins table verified/created.")
+    except Exception as e:
+        logger.warning(f"Could not auto-create admins table: {e}")
+
     # Seed default Scrap and Beautician data
     from app.core.database import SessionLocal
     from app.core.seeding import seed_scrap_data, seed_beautician_data, seed_maintenance_data
@@ -74,10 +96,28 @@ async def lifespan(app: FastAPI):
         seed_scrap_data(db)
         seed_beautician_data(db)
         seed_maintenance_data(db)
+
+        # Seed default admin if none exists
+        from app.models.admin import Admin
+        import bcrypt
+        admin_exists = db.query(Admin).first()
+        if not admin_exists:
+            hashed_pw = bcrypt.hashpw("adminpassword".encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+            default_admin = Admin(
+                username="admin",
+                email="admin@urbanpower.com",
+                password_hash=hashed_pw,
+                role="super_admin",
+                is_active=True
+            )
+            db.add(default_admin)
+            db.commit()
+            logger.info("Default admin user seeded successfully (admin / adminpassword).")
     except Exception as e:
         logger.error(f"Error during database startup seeding: {e}")
     finally:
         db.close()
+
 
     # Initialize and verify async Redis on startup
     redis_manager.init_redis(

@@ -1,16 +1,12 @@
 import React from 'react';
 import StatCard from '../../../components/common/StatCard';
 import { Cancel as CancelIcon } from '@mui/icons-material';
-import { useBookings } from '../../../hooks/useBookings';
+import { useAdminOrderStats } from '../../../hooks/useAdminOrders';
 
 export const CancelledOrdersWidget: React.FC = () => {
-  const { data: bookings, isLoading } = useBookings();
+  const { data: stats, isLoading } = useAdminOrderStats();
 
-  const cancelledCount = bookings
-    ? bookings.filter(b => b.status === 'cancelled').length
-    : 0;
-
-  const displayValue = isLoading ? '...' : cancelledCount.toLocaleString();
+  const displayValue = isLoading ? '...' : (stats?.cancelled_all ?? 0).toLocaleString();
 
   return (
     <StatCard
