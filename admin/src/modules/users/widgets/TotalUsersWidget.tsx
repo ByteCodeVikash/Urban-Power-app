@@ -1,15 +1,18 @@
 import React from 'react';
 import StatCard from '../../../components/common/StatCard';
 import { People as PeopleIcon } from '@mui/icons-material';
+import { useUserCount } from '../../../hooks/useUsers';
 
 export const TotalUsersWidget: React.FC = () => {
+  const { data: count, isLoading } = useUserCount();
+
   return (
     <StatCard
       title="Total Registered Users"
-      value="8,429"
+      value={isLoading ? '…' : String(count ?? 0)}
       icon={<PeopleIcon />}
       color="#319795"
-      change={{ value: '14%', type: 'increase' }}
+      dataSource={{ type: 'real' }}
     />
   );
 };

@@ -211,7 +211,9 @@ export default function MaintenanceBookingScreen() {
     setUploadError(null);
   };
 
-  const handleSubmit = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async () => {
     if (!name || !phone || !address || !date) {
       alert('Please fill all details');
       return;
@@ -220,34 +222,64 @@ export default function MaintenanceBookingScreen() {
       alert('Please wait for the image upload to complete.');
       return;
     }
+    if (isSubmitting) return;
 
-    const title =
-      selectedServices.length > 1
-        ? `${selectedServices[0].name} & ${selectedServices.length - 1} more`
-        : selectedServices[0]?.name || 'Maintenance Service';
+    setIsSubmitting(true);
+    try {
+      const title =
+        selectedServices.length > 1
+          ? `${selectedServices[0].name} & ${selectedServices.length - 1} more`
+          : selectedServices[0]?.name || 'Maintenance Service';
 
-    addBooking({
-      type: 'Service',
-      title: title,
-      subtitle: 'Maintenance Booking',
-      customerName: name,
-      phone: phone,
-      address: address,
-      date: date,
-      price: getTotalPrice,
-      image: uploadedUrl || undefined,
-    });
+      // Build ISO booking date from selected date string (YYYY-MM-DD)
+      const bookingDateISO = date ? `${date}T09:00:00.000Z` : new Date().toISOString();
 
-    // Clear maintenance cart selection
-    clearSelection();
+      // Persist to PostgreSQL via backend API
+      await api.maintenance.createBooking({
+        address_text: address,
+        booking_date: bookingDateISO,
+        service_ids: selectedServices.map(s => String(s.id)),
+        service_names: selectedServices.map(s => s.name),
+        total_price: getTotalPrice,
+        customer_name: name,
+        customer_phone: phone,
+        photos: uploadedUrl ? [uploadedUrl] : [],
+      });
 
-    // Navigate to booking success
-    navigation.navigate('GeneralBookingSuccess', {
-      title: title,
-      date: date,
-      address: address,
-    });
+      // Also update local Zustand store for UI state (secondary mirror)
+      addBooking({
+        type: 'Service',
+        title: title,
+        subtitle: 'Maintenance Booking',
+        customerName: name,
+        phone: phone,
+        address: address,
+        date: date,
+        price: getTotalPrice,
+        image: uploadedUrl || undefined,
+      });
+
+      // Clear maintenance cart selection
+      clearSelection();
+
+      // Navigate to booking success
+      navigation.navigate('GeneralBookingSuccess', {
+        title: title,
+        date: date,
+        address: address,
+      });
+    } catch (err: any) {
+      console.error('Maintenance booking API error:', err);
+      const errMsg =
+        err?.response?.data?.detail ||
+        err?.message ||
+        'Failed to book maintenance service. Please try again.';
+      alert(errMsg);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
 
   return (
     <SafeAreaView style={styles.safeArea}>

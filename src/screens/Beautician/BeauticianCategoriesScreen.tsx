@@ -12,7 +12,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/Types';
 import { Typography } from '../../components/Typography';
 import { Header } from '../../components/Header';
-import { NetworkImage } from '../../components/NetworkImage';
+import { CategoryCard } from '../../components/CategoryCard';
 import { Colors, Spacing, BorderRadius, Shadows } from '../../constants/Theme';
 import { useBeauticianCategories } from '../../hooks/useBeautician';
 import { useBeauticianStore } from '../../store/useBeauticianStore';
@@ -71,8 +71,15 @@ export default function BeauticianCategoriesScreen() {
         ) : (
           <View style={styles.categoryGrid}>
             {categories.map((item: any) => (
-              <Pressable
+              <CategoryCard
                 key={item.id}
+                category={{
+                  id: item.id,
+                  name: item.name,
+                  icon: item.icon,
+                  image: item.image,
+                }}
+                imageHeight={120}
                 style={styles.categoryCard}
                 onPress={() =>
                   navigation.navigate('BeauticianServices', {
@@ -80,31 +87,7 @@ export default function BeauticianCategoriesScreen() {
                     categoryName: item.name,
                   })
                 }
-              >
-                <View style={styles.imageContainer}>
-                  {item.image ? (
-                    <NetworkImage
-                      source={{ uri: item.image }}
-                      style={styles.image}
-                      resizeMode="cover"
-                    />
-                  ) : (
-                    <View style={styles.fallbackImage}>
-                      <Typography variant="h2" color={Colors.light.primary}>
-                        {item.name.charAt(0)}
-                      </Typography>
-                    </View>
-                  )}
-                </View>
-                <Typography
-                  variant="body2"
-                  weight="700"
-                  style={styles.categoryTitle}
-                  numberOfLines={2}
-                >
-                  {item.name}
-                </Typography>
-              </Pressable>
+              />
             ))}
           </View>
         )}
@@ -173,32 +156,7 @@ const styles = StyleSheet.create({
   },
   categoryCard: {
     width: '47%',
-    backgroundColor: Colors.light.white,
-    borderRadius: 16,
-    overflow: 'hidden',
-    ...Shadows.light.sm,
     marginBottom: Spacing.sm,
-  },
-  imageContainer: {
-    width: '100%',
-    height: 120,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    overflow: 'hidden',
-  },
-  image: { width: '100%', height: '100%' },
-  fallbackImage: {
-    width: '100%',
-    height: '100%',
-    backgroundColor: Colors.light.primaryLight,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  categoryTitle: {
-    textAlign: 'center',
-    color: Colors.light.text,
-    paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.xs,
   },
   infoBox: {
     marginTop: Spacing.xl,

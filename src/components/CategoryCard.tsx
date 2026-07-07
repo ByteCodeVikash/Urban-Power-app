@@ -18,10 +18,14 @@ import {
   Briefcase,
   Users,
   PawPrint,
+  Smile,
+  Droplet,
+  Paintbrush,
+  Wind,
+  Zap,
   LucideIcon,
 } from 'lucide-react-native';
 import { NetworkImage } from './NetworkImage';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Typography } from './Typography';
 import { Colors, BorderRadius, Shadows, Spacing } from '../constants/Theme';
 
@@ -44,6 +48,13 @@ const ICON_MAP: Record<string, LucideIcon> = {
   business: Briefcase,
   workforce: Users,
   petcare: PawPrint,
+  'face-woman': Smile,
+  water: Droplet,
+  droplet: Droplet,
+  spa: Flower2,
+  brush: Paintbrush,
+  wind: Wind,
+  zap: Zap,
 };
 
 interface CategoryCardProps {
@@ -51,12 +62,14 @@ interface CategoryCardProps {
     id: string;
     name: string;
     icon: string;
+    image?: string;
     color?: string;
   };
   loading?: boolean;
   onPress?: () => void;
   style?: ViewStyle;
   hideText?: boolean;
+  imageHeight?: number;
 }
 
 export const CategoryCard: React.FC<CategoryCardProps> = ({
@@ -65,17 +78,25 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
   onPress,
   style,
   hideText = false,
+  imageHeight,
 }) => {
   if (loading || !category) {
     return (
       <View style={[styles.container, style]}>
-        <View style={styles.skeletonImage} />
+        <View
+          style={[
+            styles.skeletonImage,
+            imageHeight !== undefined && { height: imageHeight },
+          ]}
+        />
         {!hideText && <View style={styles.skeletonText} />}
       </View>
     );
   }
 
-  const isUrl = category.icon.startsWith('http');
+  const imageUrl =
+    category.image ||
+    (category.icon?.startsWith('http') ? category.icon : null);
   const IconComponent = ICON_MAP[category.icon] ?? Sparkles;
 
   return (
@@ -84,10 +105,15 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
       style={[styles.container, style]}
       onPress={onPress}
     >
-      <View style={styles.imageContainer}>
-        {isUrl ? (
+      <View
+        style={[
+          styles.imageContainer,
+          imageHeight !== undefined && { height: imageHeight },
+        ]}
+      >
+        {imageUrl ? (
           <NetworkImage
-            source={{ uri: category.icon }}
+            source={{ uri: imageUrl }}
             style={styles.image}
             resizeMode="cover"
           />

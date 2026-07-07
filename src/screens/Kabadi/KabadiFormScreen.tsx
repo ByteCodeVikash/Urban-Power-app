@@ -220,7 +220,9 @@ export default function KabadiFormScreen() {
     };
   });
 
-  const handleSchedule = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSchedule = async () => {
     if (!name || !phone || !weight) {
       alert('Please enter your name, phone and estimated weight.');
       return;
@@ -229,19 +231,56 @@ export default function KabadiFormScreen() {
       alert('Please wait for the image upload to complete.');
       return;
     }
-    schedulePickup({
-      categories: [`${categoryName} - ${subcategoryName}`],
-      address: pickupAddress,
-      date: dates[selectedDate].full,
-      timeSlot: selectedSlot,
-      estimatedValue: (
-        (subcategory?.price || 0) * (parseFloat(weight) || 0)
-      ).toString(),
-      image: uploadedUrl || undefined,
-    });
-    alert('Pickup scheduled successfully!');
-    navigation.navigate('KabadiBooking' as any); // Navigate to confirmation/booking flow
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+    try {
+      // Build booking date from selected date
+      const selectedDateObj = new Date();
+      selectedDateObj.setDate(selectedDateObj.getDate() + selectedDate + 1);
+      const bookingDateISO = selectedDateObj.toISOString();
+
+      const estimatedVal =
+        (subcategory?.price || 0) * (parseFloat(weight) || 0);
+
+      // Persist to PostgreSQL via backend API
+      await api.kabadi.createBooking({
+        address_text: pickupAddress,
+        booking_date: bookingDateISO,
+        time_slot: selectedSlot,
+        category_name: categoryName,
+        item_name: subcategoryName || 'General Scrap',
+        estimated_weight_kg: parseFloat(weight) || 0,
+        estimated_value: estimatedVal,
+        price_per_kg: subcategory?.price || 0,
+        notes: instructions || undefined,
+        photos: uploadedUrl ? [uploadedUrl] : [],
+      });
+
+      // Also update local Zustand store for UI state (secondary mirror)
+      schedulePickup({
+        categories: [`${categoryName} - ${subcategoryName}`],
+        address: pickupAddress,
+        date: dates[selectedDate].full,
+        timeSlot: selectedSlot,
+        estimatedValue: estimatedVal.toString(),
+        image: uploadedUrl || undefined,
+      });
+
+      alert('Pickup scheduled successfully!');
+      navigation.navigate('KabadiBooking' as any);
+    } catch (err: any) {
+      console.error('Scrap booking API error:', err);
+      const errMsg =
+        err?.response?.data?.detail ||
+        err?.message ||
+        'Failed to schedule pickup. Please try again.';
+      alert(errMsg);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
 
   return (
     <SafeAreaView style={styles.safeArea}>

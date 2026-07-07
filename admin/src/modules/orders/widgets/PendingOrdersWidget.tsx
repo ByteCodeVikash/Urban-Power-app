@@ -1,16 +1,27 @@
 import React from 'react';
 import StatCard from '../../../components/common/StatCard';
 import { PendingActions as PendingIcon } from '@mui/icons-material';
+import { useBookings } from '../../../hooks/useBookings';
 
 export const PendingOrdersWidget: React.FC = () => {
+  const { data: bookings, isLoading } = useBookings();
+
+  const pendingCount = bookings
+    ? bookings.filter(
+        b => b.status !== 'completed' && b.status !== 'cancelled',
+      ).length
+    : 0;
+
+  const displayValue = isLoading ? '...' : pendingCount.toLocaleString();
+
   return (
     <StatCard
       title="Pending Orders"
-      value="34"
+      value={displayValue}
       icon={<PendingIcon />}
       color="#FAD02C"
       textColor="#1A202C"
-      change={{ value: '4%', type: 'decrease' }}
+      dataSource={{ type: 'real' }}
     />
   );
 };

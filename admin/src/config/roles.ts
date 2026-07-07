@@ -104,8 +104,29 @@ export const hasPermission = (
   userRole: string,
   requiredPermission: Permission,
 ): boolean => {
+  // Map backend roles (case-insensitive) to frontend Role types
+  let mappedRole = userRole;
+  const normalized = userRole.toLowerCase().trim();
+  if (normalized === 'admin') {
+    mappedRole = 'Admin';
+  } else if (normalized === 'super admin' || normalized === 'super_admin') {
+    mappedRole = 'Super Admin';
+  } else if (normalized === 'operations manager' || normalized === 'operations_manager') {
+    mappedRole = 'Operations Manager';
+  } else if (normalized === 'dispatcher') {
+    mappedRole = 'Dispatcher';
+  } else if (normalized === 'finance manager' || normalized === 'finance_manager') {
+    mappedRole = 'Finance Manager';
+  } else if (normalized === 'support executive' || normalized === 'support_executive') {
+    mappedRole = 'Support Executive';
+  } else if (normalized === 'technician manager' || normalized === 'technician_manager') {
+    mappedRole = 'Technician Manager';
+  } else if (normalized === 'content manager' || normalized === 'content_manager') {
+    mappedRole = 'Content Manager';
+  }
+
   // Safe cast since roles can be arbitrary strings from future DB migrations
-  const role = userRole as Role;
+  const role = mappedRole as Role;
   if (role === 'Super Admin') return true;
   const permissions = ROLE_PERMISSIONS[role];
   if (!permissions) return false;

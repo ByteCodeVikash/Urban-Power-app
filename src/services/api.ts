@@ -16,7 +16,6 @@ import {
   DetailedService,
   REVIEWS,
   FAQS,
-  KABADI_ITEMS,
 } from '../constants/MockData';
 
 // Simulated Network delay helper
@@ -222,6 +221,30 @@ export const api = {
         throw error;
       }
     },
+    createBooking: async (data: {
+      address_text?: string;
+      address_id?: string;
+      booking_date: string;
+      time_slot?: string;
+      category_name?: string;
+      item_name?: string;
+      estimated_weight_kg?: number;
+      estimated_value?: number;
+      price_per_kg?: number;
+      notes?: string;
+      photos?: string[];
+    }) => {
+      const response = await API.post('/api/v1/scrap-bookings/', data);
+      return response.data;
+    },
+    getMyBookings: async () => {
+      const response = await API.get('/api/v1/scrap-bookings/me');
+      return response.data;
+    },
+    getBookingDetails: async (bookingId: string) => {
+      const response = await API.get(`/api/v1/scrap-bookings/${bookingId}`);
+      return response.data;
+    },
   },
   beautician: {
     getCategories: async () => {
@@ -267,6 +290,31 @@ export const api = {
         console.error('Maintenance Services API Error:', error);
         return [];
       }
+    },
+    createBooking: async (data: {
+      address_text?: string;
+      address_id?: string;
+      booking_date: string;
+      service_ids?: string[];
+      service_names?: string[];
+      total_price: number;
+      notes?: string;
+      photos?: string[];
+      customer_name?: string;
+      customer_phone?: string;
+    }) => {
+      const response = await API.post('/api/v1/maintenance-bookings/', data);
+      return response.data;
+    },
+    getMyBookings: async () => {
+      const response = await API.get('/api/v1/maintenance-bookings/me');
+      return response.data;
+    },
+    getBookingDetails: async (bookingId: string) => {
+      const response = await API.get(
+        `/api/v1/maintenance-bookings/${bookingId}`,
+      );
+      return response.data;
     },
   },
   address: {
@@ -364,6 +412,11 @@ export const api = {
 
     getBookingHistory: async (): Promise<any[]> => {
       const response = await API.get('/api/v1/bookings/history');
+      return response.data;
+    },
+
+    getBookingDetails: async (bookingId: string): Promise<any> => {
+      const response = await API.get(`/api/v1/bookings/${bookingId}`);
       return response.data;
     },
 

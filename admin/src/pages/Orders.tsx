@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -12,271 +12,318 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Alert,
+  Snackbar,
+  CircularProgress,
+  Chip,
+  TextField,
+  InputAdornment,
+  Pagination,
+  Stack,
+  Skeleton,
 } from '@mui/material';
 import {
   Visibility as ViewIcon,
-  Engineering as AssignIcon,
   Edit as EditIcon,
+  Search as SearchIcon,
+  Refresh as RefreshIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { DataTable, type ColumnConfig } from '../components/common/DataTable';
-import {
-  FilterPanel,
-  type FilterField,
-} from '../components/common/FilterPanel';
+import { useAdminOrders, useAdminOrderStatusUpdate } from '../hooks/useAdminOrders';
+import type { AdminOrderItem, AdminOrderFilters } from '../api/adminOrderService';
 
-// Mock list of orders
-const initialOrders = [
-  {
-    id: 'ORD-101',
-    customer: 'Vikash Kumar',
-    phone: '+91 98765 43210',
-    type: 'Scrap',
-    amount: '₹1,200',
-    status: 'Completed',
-    technician: 'Ramesh Kumar',
-    date: '2026-07-03',
-  },
-  {
-    id: 'ORD-102',
-    customer: 'Amit Sharma',
-    phone: '+91 98765 12345',
-    type: 'Maintenance',
-    amount: '₹2,500',
-    status: 'Pending',
-    technician: 'None',
-    date: '2026-07-03',
-  },
-  {
-    id: 'ORD-103',
-    customer: 'Priya Singh',
-    phone: '+91 91234 56789',
-    type: 'Beautician',
-    amount: '₹1,800',
-    status: 'Assigned',
-    technician: 'Suman Lata',
-    date: '2026-07-03',
-  },
-  {
-    id: 'ORD-104',
-    customer: 'Rohan Verma',
-    phone: '+91 99988 77766',
-    type: 'Scrap',
-    amount: '₹800',
-    status: 'Cancelled',
-    technician: 'None',
-    date: '2026-07-02',
-  },
-  {
-    id: 'ORD-105',
-    customer: 'Sneha Gupta',
-    phone: '+91 92233 44556',
-    type: 'Maintenance',
-    amount: '₹4,200',
-    status: 'Completed',
-    technician: 'Vikram Singh',
-    date: '2026-07-01',
-  },
-  {
-    id: 'ORD-106',
-    customer: 'Kunal Sen',
-    phone: '+91 93344 55667',
-    type: 'Beautician',
-    amount: '₹950',
-    status: 'Pending',
-    technician: 'None',
-    date: '2026-06-30',
-  },
+// ─── Status constants ─────────────────────────────────────────────────────────
+
+const ADMIN_STATUS_OPTIONS = [
+  { value: 'pending', label: 'Pending' },
+  { value: 'accepted', label: 'Accepted' },
+  { value: 'assigned', label: 'Assigned' },
+  { value: 'technician_on_the_way', label: 'Technician On The Way' },
+  { value: 'reached', label: 'Reached' },
+  { value: 'work_started', label: 'Work Started' },
+  { value: 'completed', label: 'Completed' },
+  { value: 'cancelled', label: 'Cancelled' },
+  { value: 'refund_requested', label: 'Refund Requested' },
+  { value: 'refunded', label: 'Refunded' },
 ];
 
-const mockTechnicians = [
-  { id: 'T-1', name: 'Ramesh Kumar', service: 'Scrap' },
-  { id: 'T-2', name: 'Suman Lata', service: 'Beautician' },
-  { id: 'T-3', name: 'Vikram Singh', service: 'Maintenance' },
-  { id: 'T-4', name: 'Anil Mehta', service: 'Maintenance' },
-];
+const STATUS_LABEL: Record<string, string> = {
+  pending: 'Pending',
+  accepted: 'Accepted',
+  confirmed: 'Confirmed',
+  assigned: 'Assigned',
+  technician_on_the_way: 'On The Way',
+  reached: 'Reached',
+  work_started: 'Work Started',
+  in_progress: 'In Progress',
+  requested: 'Requested',
+  completed: 'Completed',
+  cancelled: 'Cancelled',
+  refund_requested: 'Refund Requested',
+  refunded: 'Refunded',
+};
 
-const mockStatuses = [
-  'Pending',
-  'Assigned',
-  'In Progress',
-  'Completed',
-  'Cancelled',
-];
+const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
+  completed: { bg: 'rgba(72, 187, 120, 0.15)', color: '#276749' },
+  pending: { bg: 'rgba(250, 208, 44, 0.2)', color: '#B7791F' },
+  requested: { bg: 'rgba(250, 208, 44, 0.2)', color: '#B7791F' },
+  confirmed: { bg: 'rgba(66, 153, 225, 0.15)', color: '#2B6CB0' },
+  accepted: { bg: 'rgba(66, 153, 225, 0.15)', color: '#2B6CB0' },
+  assigned: { bg: 'rgba(102, 126, 234, 0.15)', color: '#553C9A' },
+  technician_on_the_way: { bg: 'rgba(159, 122, 234, 0.15)', color: '#6B46C1' },
+  reached: { bg: 'rgba(159, 122, 234, 0.15)', color: '#6B46C1' },
+  work_started: { bg: 'rgba(237, 137, 54, 0.15)', color: '#DD6B20' },
+  in_progress: { bg: 'rgba(237, 137, 54, 0.15)', color: '#DD6B20' },
+  cancelled: { bg: 'rgba(245, 101, 101, 0.15)', color: '#9B2C2C' },
+  refund_requested: { bg: 'rgba(245, 101, 101, 0.1)', color: '#9B2C2C' },
+  refunded: { bg: 'rgba(160, 174, 192, 0.15)', color: '#4A5568' },
+};
+
+const BOOKING_TYPE_COLORS: Record<string, { bg: string; color: string }> = {
+  beautician: { bg: 'rgba(233, 30, 99, 0.12)', color: '#C2185B' },
+  scrap: { bg: 'rgba(76, 175, 80, 0.12)', color: '#2E7D32' },
+  maintenance: { bg: 'rgba(33, 150, 243, 0.12)', color: '#1565C0' },
+};
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
+  const key = status?.toLowerCase() || 'pending';
+  const colors = STATUS_COLORS[key] || STATUS_COLORS.pending;
+  return (
+    <Box
+      sx={{
+        display: 'inline-block',
+        px: 1.5,
+        py: 0.5,
+        borderRadius: 2,
+        fontSize: '0.72rem',
+        fontWeight: 700,
+        bgcolor: colors.bg,
+        color: colors.color,
+        whiteSpace: 'nowrap',
+      }}
+    >
+      {STATUS_LABEL[key] || status}
+    </Box>
+  );
+};
+
+const formatDate = (dateStr: string) => {
+  try {
+    return new Date(dateStr).toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
+  } catch {
+    return dateStr;
+  }
+};
+
+// ─── Main component ───────────────────────────────────────────────────────────
 
 export const Orders: React.FC = () => {
   const navigate = useNavigate();
-  const [orders, setOrders] = useState(initialOrders);
-  const [activeFilters, setActiveFilters] = useState<Record<string, any>>({
-    search: '',
-    status: '',
-    type: '',
-  });
 
-  // Dialog management states
-  const [selectedOrder, setSelectedOrder] = useState<
-    (typeof initialOrders)[0] | null
-  >(null);
-  const [openAssignDialog, setOpenAssignDialog] = useState(false);
+  // ── Pagination state ──────────────────────────────────────────────────────
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 20;
+
+  // ── Filter state ──────────────────────────────────────────────────────────
+  const [searchInput, setSearchInput] = useState('');
+  const [searchApplied, setSearchApplied] = useState('');
+  const [filterStatus, setFilterStatus] = useState('');
+  const [filterType, setFilterType] = useState('');
+  const [filterDateFrom, setFilterDateFrom] = useState('');
+  const [filterDateTo, setFilterDateTo] = useState('');
+
+  // Build query filters
+  const filters: AdminOrderFilters = {
+    page,
+    page_size: PAGE_SIZE,
+    ...(filterStatus && { status: filterStatus }),
+    ...(filterType && { booking_type: filterType }),
+    ...(searchApplied && { search: searchApplied }),
+    ...(filterDateFrom && { date_from: filterDateFrom }),
+    ...(filterDateTo && { date_to: filterDateTo }),
+  };
+
+  const { data, isLoading, isError, refetch, isFetching } = useAdminOrders(filters);
+  const updateStatusMutation = useAdminOrderStatusUpdate();
+
+  const orders = data?.items || [];
+  const totalPages = data?.total_pages || 1;
+  const total = data?.total || 0;
+
+  // ── Status update dialog ─────────────────────────────────────────────────
+  const [selectedOrder, setSelectedOrder] = useState<AdminOrderItem | null>(null);
   const [openStatusDialog, setOpenStatusDialog] = useState(false);
-  const [assignedTech, setAssignedTech] = useState('');
   const [orderStatus, setOrderStatus] = useState('');
 
-  // Handle Search & Filter logic
-  const handleFilterChange = (filters: Record<string, any>) => {
-    setActiveFilters(filters);
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'error';
+  }>({ open: false, message: '', severity: 'success' });
+
+  const showSnackbar = (message: string, severity: 'success' | 'error') => {
+    setSnackbar({ open: true, message, severity });
   };
 
-  const filteredOrders = orders.filter(order => {
-    const searchStr = activeFilters.search || '';
-    const matchesSearch =
-      order.customer.toLowerCase().includes(searchStr.toLowerCase()) ||
-      order.id.toLowerCase().includes(searchStr.toLowerCase()) ||
-      order.phone.includes(searchStr);
-
-    const matchesStatus =
-      !activeFilters.status || order.status === activeFilters.status;
-    const matchesType =
-      !activeFilters.type || order.type === activeFilters.type;
-
-    return matchesSearch && matchesStatus && matchesType;
-  });
-
-  const handleOpenAssign = (order: (typeof initialOrders)[0]) => {
+  const handleOpenStatus = (order: AdminOrderItem) => {
     setSelectedOrder(order);
-    setAssignedTech(order.technician === 'None' ? '' : order.technician);
-    setOpenAssignDialog(true);
-  };
-
-  const handleOpenStatus = (order: (typeof initialOrders)[0]) => {
-    setSelectedOrder(order);
-    setOrderStatus(order.status);
+    setOrderStatus(order.status?.toLowerCase() || 'pending');
     setOpenStatusDialog(true);
   };
 
-  const handleSaveAssign = () => {
-    if (selectedOrder) {
-      setOrders(
-        orders.map(o =>
-          o.id === selectedOrder.id
-            ? {
-                ...o,
-                technician: assignedTech || 'None',
-                status: assignedTech ? 'Assigned' : o.status,
-              }
-            : o,
-        ),
-      );
-      setOpenAssignDialog(false);
+  const handleSaveStatus = async () => {
+    if (!selectedOrder) return;
+    try {
+      await updateStatusMutation.mutateAsync({
+        bookingType: selectedOrder.booking_type,
+        bookingId: selectedOrder.booking_id,
+        payload: { status: orderStatus },
+      });
+      showSnackbar('Booking status updated successfully.', 'success');
+    } catch {
+      showSnackbar('Failed to update booking status.', 'error');
     }
+    setOpenStatusDialog(false);
   };
 
-  const handleSaveStatus = () => {
-    if (selectedOrder) {
-      setOrders(
-        orders.map(o =>
-          o.id === selectedOrder.id ? { ...o, status: orderStatus } : o,
-        ),
-      );
-      setOpenStatusDialog(false);
-    }
+  const handleSearch = useCallback(() => {
+    setSearchApplied(searchInput);
+    setPage(1);
+  }, [searchInput]);
+
+  const handleFilterChange = useCallback(() => {
+    setPage(1);
+  }, []);
+
+  const handleClearFilters = () => {
+    setSearchInput('');
+    setSearchApplied('');
+    setFilterStatus('');
+    setFilterType('');
+    setFilterDateFrom('');
+    setFilterDateTo('');
+    setPage(1);
   };
 
-  // Define column configuration for DataTable
-  const columns: ColumnConfig<(typeof initialOrders)[0]>[] = [
-    { id: 'id', label: 'Order ID' },
+  // ── Table columns ─────────────────────────────────────────────────────────
+  const columns: ColumnConfig<AdminOrderItem>[] = [
     {
-      id: 'customer',
-      label: 'Customer Details',
+      id: 'booking_reference',
+      label: 'Order ID',
+      render: row => (
+        <Typography
+          variant="body2"
+          sx={{ fontWeight: 700, fontFamily: 'monospace', color: '#553C9A', fontSize: '0.8rem' }}
+        >
+          {row.booking_reference}
+        </Typography>
+      ),
+    },
+    {
+      id: 'customer_name',
+      label: 'Customer',
       render: row => (
         <Box>
           <Typography variant="body2" sx={{ fontWeight: 600 }}>
-            {row.customer}
+            {row.customer_name || '—'}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            {row.phone}
+            {row.customer_phone || '—'}
           </Typography>
         </Box>
       ),
     },
-    { id: 'type', label: 'Service Category' },
-    { id: 'date', label: 'Date' },
-    { id: 'amount', label: 'Amount' },
     {
-      id: 'technician',
-      label: 'Assigned Tech',
+      id: 'booking_type',
+      label: 'Type',
+      render: row => {
+        const colors = BOOKING_TYPE_COLORS[row.booking_type] || BOOKING_TYPE_COLORS.beautician;
+        return (
+          <Chip
+            label={row.booking_type.charAt(0).toUpperCase() + row.booking_type.slice(1)}
+            size="small"
+            sx={{ fontWeight: 700, bgcolor: colors.bg, color: colors.color, fontSize: '0.72rem' }}
+          />
+        );
+      },
+    },
+    {
+      id: 'service_name',
+      label: 'Service',
       render: row => (
         <Box>
-          {row.technician === 'None' ? (
-            <Button
-              size="small"
-              color="warning"
-              variant="outlined"
-              startIcon={<AssignIcon fontSize="inherit" />}
-              onClick={() => handleOpenAssign(row)}
-              sx={{ fontSize: '0.75rem', px: 1, py: 0.2 }}
-            >
-              Assign Tech
-            </Button>
-          ) : (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <Typography variant="body2">{row.technician}</Typography>
-              <IconButton size="small" onClick={() => handleOpenAssign(row)}>
-                <EditIcon sx={{ fontSize: 14 }} />
-              </IconButton>
-            </Box>
-          )}
+          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+            {row.service_name || '—'}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            {row.category || '—'}
+          </Typography>
         </Box>
+      ),
+    },
+    {
+      id: 'address',
+      label: 'Address',
+      render: row => (
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+        >
+          {row.address || 'No address'}
+        </Typography>
+      ),
+    },
+    {
+      id: 'price',
+      label: 'Amount',
+      render: row => (
+        <Typography variant="body2" sx={{ fontWeight: 700, color: '#2B6CB0' }}>
+          ₹{Number(row.price || 0).toLocaleString('en-IN')}
+        </Typography>
+      ),
+    },
+    {
+      id: 'created_at',
+      label: 'Date',
+      render: row => (
+        <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
+          {formatDate(row.created_at)}
+        </Typography>
+      ),
+    },
+    {
+      id: 'assigned_technician',
+      label: 'Technician',
+      render: row => (
+        <Typography variant="body2" sx={{ color: row.assigned_technician ? '#2D3748' : '#A0AEC0' }}>
+          {row.assigned_technician || 'Unassigned'}
+        </Typography>
       ),
     },
     {
       id: 'status',
       label: 'Status',
       align: 'center',
-      render: row => (
-        <Box
-          sx={{
-            display: 'inline-block',
-            px: 1.5,
-            py: 0.5,
-            borderRadius: 2,
-            fontSize: '0.75rem',
-            fontWeight: 700,
-            bgcolor:
-              row.status === 'Completed'
-                ? 'rgba(72, 187, 120, 0.15)'
-                : row.status === 'Pending'
-                  ? 'rgba(250, 208, 44, 0.2)'
-                  : row.status === 'Assigned'
-                    ? 'rgba(66, 153, 225, 0.15)'
-                    : row.status === 'In Progress'
-                      ? 'rgba(237, 137, 54, 0.15)'
-                      : 'rgba(245, 101, 101, 0.15)',
-            color:
-              row.status === 'Completed'
-                ? '#276749'
-                : row.status === 'Pending'
-                  ? '#B7791F'
-                  : row.status === 'Assigned'
-                    ? '#2B6CB0'
-                    : row.status === 'In Progress'
-                      ? '#DD6B20'
-                      : '#9B2C2C',
-          }}
-        >
-          {row.status}
-        </Box>
-      ),
+      render: row => <StatusBadge status={row.status} />,
     },
     {
       id: 'actions',
       label: 'Actions',
       align: 'right',
       render: row => (
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
           <IconButton
             color="secondary"
             size="small"
+            title="Update Status"
             onClick={() => handleOpenStatus(row)}
           >
             <EditIcon fontSize="small" />
@@ -284,7 +331,10 @@ export const Orders: React.FC = () => {
           <IconButton
             color="primary"
             size="small"
-            onClick={() => navigate(`/orders/${row.id}`)}
+            title="View Details"
+            onClick={() =>
+              navigate(`/orders/${row.booking_type}/${row.booking_id}`)
+            }
           >
             <ViewIcon fontSize="small" />
           </IconButton>
@@ -293,29 +343,29 @@ export const Orders: React.FC = () => {
     },
   ];
 
-  // Define filter fields for FilterPanel
-  const filterFields: FilterField[] = [
-    {
-      id: 'status',
-      label: 'Status Filter',
-      type: 'select',
-      options: mockStatuses.map(s => ({ value: s, label: s })),
-    },
-    {
-      id: 'type',
-      label: 'Category Filter',
-      type: 'select',
-      options: [
-        { value: 'Scrap', label: 'Scrap' },
-        { value: 'Maintenance', label: 'Maintenance' },
-        { value: 'Beautician', label: 'Beautician' },
-      ],
-    },
-  ];
+  // ── Error state ───────────────────────────────────────────────────────────
+  if (isError) {
+    return (
+      <Box sx={{ flexGrow: 1 }}>
+        <Alert
+          severity="error"
+          sx={{ mt: 2 }}
+          action={
+            <Button color="inherit" size="small" onClick={() => refetch()}>
+              Retry
+            </Button>
+          }
+        >
+          Failed to load bookings from server. Please check backend connectivity and try again.
+        </Alert>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <Box sx={{ mb: 4 }}>
+      {/* Header */}
+      <Box sx={{ mb: 3 }}>
         <Typography
           variant="h4"
           sx={{
@@ -327,78 +377,158 @@ export const Orders: React.FC = () => {
           Manage Bookings & Orders
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Track and dispatch orders, filter statuses, and coordinate service
-          technicians.
+          Track and manage all customer bookings — Beautician, Scrap, Maintenance.
+          {!isLoading && !isFetching && (
+            <strong style={{ color: '#553C9A', marginLeft: 8 }}>
+              {total} total booking{total !== 1 ? 's' : ''}
+            </strong>
+          )}
         </Typography>
       </Box>
 
-      {/* Unified Filter Panel */}
-      <FilterPanel fields={filterFields} onFilterChange={handleFilterChange} />
+      {/* Filters */}
+      <Box
+        sx={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 1.5,
+          mb: 3,
+          p: 2,
+          bgcolor: '#F7FAFC',
+          borderRadius: 3,
+          border: '1px solid rgba(226, 232, 240, 0.8)',
+        }}
+      >
+        {/* Search */}
+        <TextField
+          placeholder="Search reference, name, phone..."
+          size="small"
+          value={searchInput}
+          onChange={e => setSearchInput(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && handleSearch()}
+          sx={{ minWidth: 260, bgcolor: 'white', borderRadius: 2 }}
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon sx={{ color: '#A0AEC0', fontSize: 18 }} />
+                </InputAdornment>
+              ),
+              endAdornment: searchInput && (
+                <InputAdornment position="end">
+                  <Button size="small" onClick={handleSearch} sx={{ minWidth: 'unset', px: 1 }}>
+                    Go
+                  </Button>
+                </InputAdornment>
+              ),
+            }
+          }}
+        />
 
-      {/* Orders DataTable */}
+        {/* Booking Type */}
+        <FormControl size="small" sx={{ minWidth: 150, bgcolor: 'white', borderRadius: 2 }}>
+          <InputLabel>Booking Type</InputLabel>
+          <Select
+            value={filterType}
+            label="Booking Type"
+            onChange={e => { setFilterType(e.target.value); handleFilterChange(); }}
+          >
+            <MenuItem value=""><em>All Types</em></MenuItem>
+            <MenuItem value="beautician">Beautician</MenuItem>
+            <MenuItem value="scrap">Scrap</MenuItem>
+            <MenuItem value="maintenance">Maintenance</MenuItem>
+          </Select>
+        </FormControl>
+
+        {/* Status */}
+        <FormControl size="small" sx={{ minWidth: 160, bgcolor: 'white', borderRadius: 2 }}>
+          <InputLabel>Status</InputLabel>
+          <Select
+            value={filterStatus}
+            label="Status"
+            onChange={e => { setFilterStatus(e.target.value); handleFilterChange(); }}
+          >
+            <MenuItem value=""><em>All Statuses</em></MenuItem>
+            {ADMIN_STATUS_OPTIONS.map(opt => (
+              <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        {/* Date From */}
+        <TextField
+          label="From Date"
+          type="date"
+          size="small"
+          value={filterDateFrom}
+          onChange={e => { setFilterDateFrom(e.target.value); handleFilterChange(); }}
+          slotProps={{ inputLabel: { shrink: true } }}
+          sx={{ minWidth: 150, bgcolor: 'white', borderRadius: 2 }}
+        />
+
+        {/* Date To */}
+        <TextField
+          label="To Date"
+          type="date"
+          size="small"
+          value={filterDateTo}
+          onChange={e => { setFilterDateTo(e.target.value); handleFilterChange(); }}
+          slotProps={{ inputLabel: { shrink: true } }}
+          sx={{ minWidth: 150, bgcolor: 'white', borderRadius: 2 }}
+        />
+
+        {/* Refresh + Clear */}
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', ml: 'auto' }}>
+          {isFetching && <CircularProgress size={16} />}
+          <Button
+            size="small"
+            variant="outlined"
+            color="secondary"
+            startIcon={<RefreshIcon />}
+            onClick={() => refetch()}
+            sx={{ borderRadius: 2, textTransform: 'none' }}
+          >
+            Refresh
+          </Button>
+          <Button
+            size="small"
+            variant="text"
+            color="secondary"
+            onClick={handleClearFilters}
+            sx={{ borderRadius: 2, textTransform: 'none' }}
+          >
+            Clear
+          </Button>
+        </Box>
+      </Box>
+
+      {/* Table */}
       <DataTable
         title="Bookings & Orders"
         filename="bookings_report"
         columns={columns}
-        data={filteredOrders}
-        emptyMessage="No orders found matching search filters."
+        data={orders}
+        isLoading={isLoading}
+        emptyMessage="No orders found. Adjust your filters or check backend connectivity."
       />
 
-      {/* Assign Technician Dialog */}
-      <Dialog
-        open={openAssignDialog}
-        onClose={() => setOpenAssignDialog(false)}
-        fullWidth
-        maxWidth="xs"
-      >
-        <DialogTitle
-          sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}
-        >
-          Assign Dispatch Technician
-        </DialogTitle>
-        <DialogContent>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Assign a field professional to service order{' '}
-            <strong>{selectedOrder?.id}</strong> ({selectedOrder?.type}).
-          </Typography>
-          <FormControl fullWidth size="small" sx={{ mt: 1 }}>
-            <InputLabel id="assign-tech-label">Select Technician</InputLabel>
-            <Select
-              labelId="assign-tech-label"
-              id="assign-tech"
-              value={assignedTech}
-              label="Select Technician"
-              onChange={e => setAssignedTech(e.target.value)}
-            >
-              <MenuItem value="">
-                <em>Unassigned / Remove</em>
-              </MenuItem>
-              {mockTechnicians
-                .filter(
-                  t =>
-                    selectedOrder === null || t.service === selectedOrder.type,
-                )
-                .map(t => (
-                  <MenuItem key={t.id} value={t.name}>
-                    {t.name} (Specialist)
-                  </MenuItem>
-                ))}
-            </Select>
-          </FormControl>
-        </DialogContent>
-        <DialogActions sx={{ p: 2.5 }}>
-          <Button onClick={() => setOpenAssignDialog(false)} color="secondary">
-            Cancel
-          </Button>
-          <Button
-            onClick={handleSaveAssign}
-            variant="contained"
+      {/* Pagination */}
+      {!isLoading && total > PAGE_SIZE && (
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 3 }}>
+          <Pagination
+            count={totalPages}
+            page={page}
+            onChange={(_, val) => setPage(val)}
             color="primary"
-          >
-            Confirm Assignment
-          </Button>
-        </DialogActions>
-      </Dialog>
+            shape="rounded"
+            showFirstButton
+            showLastButton
+          />
+          <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
+            Page {page} of {totalPages} · {total} total records
+          </Typography>
+        </Box>
+      )}
 
       {/* Update Status Dialog */}
       <Dialog
@@ -407,15 +537,14 @@ export const Orders: React.FC = () => {
         fullWidth
         maxWidth="xs"
       >
-        <DialogTitle
-          sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}
-        >
+        <DialogTitle sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}>
           Change Order Status
         </DialogTitle>
         <DialogContent>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Set operations status for order <strong>{selectedOrder?.id}</strong>
-            .
+            Update status for order{' '}
+            <strong>{selectedOrder?.booking_reference}</strong>
+            {' '}({selectedOrder?.booking_type}).
           </Typography>
           <FormControl fullWidth size="small" sx={{ mt: 1 }}>
             <InputLabel id="status-label">Select Status</InputLabel>
@@ -425,9 +554,9 @@ export const Orders: React.FC = () => {
               label="Select Status"
               onChange={e => setOrderStatus(e.target.value)}
             >
-              {mockStatuses.map(s => (
-                <MenuItem key={s} value={s}>
-                  {s}
+              {ADMIN_STATUS_OPTIONS.map(opt => (
+                <MenuItem key={opt.value} value={opt.value}>
+                  {opt.label}
                 </MenuItem>
               ))}
             </Select>
@@ -441,11 +570,32 @@ export const Orders: React.FC = () => {
             onClick={handleSaveStatus}
             variant="contained"
             color="primary"
+            disabled={updateStatusMutation.isPending}
+            startIcon={
+              updateStatusMutation.isPending ? (
+                <CircularProgress size={16} color="inherit" />
+              ) : undefined
+            }
           >
             Update Status
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Snackbar */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar(s => ({ ...s, open: false }))}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert
+          severity={snackbar.severity}
+          onClose={() => setSnackbar(s => ({ ...s, open: false }))}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

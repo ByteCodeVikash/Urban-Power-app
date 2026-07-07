@@ -30,7 +30,24 @@ import {
   Divider,
   Tooltip,
   TextField,
+  Skeleton,
+  CircularProgress,
+  Snackbar,
+  Alert,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
 } from '@mui/material';
+import { useTechnicians, type TechnicianOrder } from '../hooks/useTechnicians';
+import { useTechnicianAssign } from '../hooks/useTechnicianAssign';
+import { useQuery } from '@tanstack/react-query';
+import { apiClient } from '../api/apiClient';
+import { parseBookingNotes, useBookings } from '../hooks/useBookings';
+import { useNavigate } from 'react-router-dom';
 import {
   Add as AddIcon,
   Edit as EditIcon,
@@ -40,10 +57,8 @@ import {
   Map as MapIcon,
   Star as StarIcon,
   Description as DocIcon,
-  CellTower as SpeedIcon,
-  Battery90 as BatteryIcon,
-  Navigation as NavIcon,
   ThumbsUpDown as ThumbsIcon,
+  Visibility as ViewIcon,
 } from '@mui/icons-material';
 import { DataTable, type ColumnConfig } from '../components/common/DataTable';
 import {
@@ -51,51 +66,15 @@ import {
   type FilterField,
 } from '../components/common/FilterPanel';
 
-// Initial Mock Technicians Data
-const initialTechnicians = [
-  {
-    id: 'T-001',
-    name: 'Ramesh Kumar',
-    phone: '+91 98765 00001',
-    service: 'Scrap',
-    area: 'Green Glen Layout, HSR Layout',
-    available: true,
-    rating: 4.8,
-    jobsCompleted: 142,
-  },
-  {
-    id: 'T-002',
-    name: 'Suman Lata',
-    phone: '+91 98765 00002',
-    service: 'Beautician',
-    area: 'Gachibowli, Madhapur',
-    available: true,
-    rating: 4.9,
-    jobsCompleted: 98,
-  },
-  {
-    id: 'T-003',
-    name: 'Vikram Singh',
-    phone: '+91 98765 00003',
-    service: 'Maintenance',
-    area: 'Sector 7 Dwarka, Sector 12',
-    available: false,
-    rating: 4.2,
-    jobsCompleted: 210,
-  },
-  {
-    id: 'T-004',
-    name: 'Anil Mehta',
-    phone: '+91 98765 00004',
-    service: 'Maintenance',
-    area: 'Indiranagar, Koramangala',
-    available: true,
-    rating: 4.5,
-    jobsCompleted: 85,
-  },
-];
+// Static service/area reference lists (used in Add/Edit dialog)
+// Technician directory data now comes from useTechnicians hook.
 
-const mockAreas = [
+// Service types sourced from the platform's real service domains.
+const SERVICES = ['Scrap', 'Maintenance', 'Beautician'];
+
+// Common service areas. Pending backend API: no /areas endpoint exists yet.
+// When GET /api/v1/areas is available, fetch and replace this list.
+const SERVICE_AREAS = [
   'Green Glen Layout',
   'HSR Layout',
   'Gachibowli',
@@ -105,98 +84,98 @@ const mockAreas = [
   'Indiranagar',
   'Koramangala',
 ];
-const mockServices = ['Scrap', 'Maintenance', 'Beautician'];
 
-// Verification Queue Mock Data
-const initialVerificationQueue = [
-  {
-    id: 'V-001',
-    name: 'Rajesh Patil',
-    phone: '+91 91234 11223',
-    service: 'Maintenance',
-    docType: 'Aadhar Card & Electrical License',
-    docName: 'EE_License_Rajesh.pdf',
-    status: 'Pending',
-  },
-  {
-    id: 'V-002',
-    name: 'Amit Solanki',
-    phone: '+91 94567 44556',
-    service: 'Scrap',
-    docType: 'Pan Card & Driving License',
-    docName: 'DL_Amit.pdf',
-    status: 'Pending',
-  },
-];
 
-// Live tracking simulated coordinates
-const initialLiveTracking = [
-  {
-    id: 'T-001',
-    name: 'Ramesh Kumar',
-    lat: 12.9141,
-    lng: 77.6413,
-    status: 'Active (On The Way)',
-    battery: '85%',
-    speed: '24 km/h',
-    currentOrder: 'ORD-103',
-  },
-  {
-    id: 'T-002',
-    name: 'Suman Lata',
-    lat: 12.9082,
-    lng: 77.6325,
-    status: 'Idle (Available)',
-    battery: '92%',
-    speed: '0 km/h',
-    currentOrder: 'None',
-  },
-  {
-    id: 'T-004',
-    name: 'Anil Mehta',
-    lat: 12.9225,
-    lng: 77.6508,
-    status: 'Busy (Working)',
-    battery: '45%',
-    speed: '0 km/h',
-    currentOrder: 'ORD-105',
-  },
-];
-
-// Feedback reviews logs
-const mockReviews = [
-  {
-    id: 'R-1',
-    customer: 'Vikash Kumar',
-    rating: 5,
-    comment: 'Excellent behavior and clean work by Ramesh. Very professional!',
-    technician: 'Ramesh Kumar',
-    date: '2026-07-03',
-  },
-  {
-    id: 'R-2',
-    customer: 'Priya Singh',
-    rating: 4,
-    comment:
-      'Suman Lata was punctual, though she could have finished 10 mins earlier.',
-    technician: 'Suman Lata',
-    date: '2026-07-02',
-  },
-  {
-    id: 'R-3',
-    customer: 'Amit Sharma',
-    rating: 5,
-    comment:
-      'Vikram resolved a complex AC pipe leakage within an hour. Excellent!',
-    technician: 'Vikram Singh',
-    date: '2026-07-01',
-  },
-];
+// Types for local state
+interface LocalTech {
+  id: string;
+  name: string;
+  phone: string;
+  service: string;
+  area: string;
+  available: boolean;
+  rating: number;
+  jobsCompleted: number;
+  assignedOrders?: TechnicianOrder[];
+}
 
 export const Technicians: React.FC = () => {
+  const navigate = useNavigate();
   const [tabIndex, setTabIndex] = useState(0);
-  const [techs, setTechs] = useState(initialTechnicians);
-  const [verifyQueue, setVerifyQueue] = useState(initialVerificationQueue);
+
+  // Real technician roster from API
+  const { data: techData = [], isLoading: techLoading } = useTechnicians();
+
+  const { data: allBookings = [], isLoading: bookingsLoading } = useBookings();
+
+  // Technician assignment mutation
+  const { assignTechnician, reassignTechnician, isPending: assignPending } = useTechnicianAssign();
+
+  // Local mirror for Directory tab (allows add/edit/delete in UI with persistence)
+  const [techs, setTechs] = useState<LocalTech[]>(() => {
+    const saved = localStorage.getItem('urban_power_technicians_directory');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  React.useEffect(() => {
+    if (techLoading) return;
+
+    setTechs(prevTechs => {
+      const existingMap = new Map(prevTechs.map(t => [t.name.toLowerCase(), t]));
+      const newTechs = [...prevTechs];
+
+      techData.forEach((t, idx) => {
+        const key = t.name.toLowerCase();
+        const existing = existingMap.get(key);
+
+        if (existing) {
+          const updatedIndex = newTechs.findIndex(nt => nt.name.toLowerCase() === key);
+          if (updatedIndex !== -1) {
+            newTechs[updatedIndex] = {
+              ...newTechs[updatedIndex],
+              jobsCompleted: t.jobsCompleted,
+              assignedOrders: t.assignedOrders || [],
+              available: newTechs[updatedIndex].available !== undefined ? newTechs[updatedIndex].available : t.isAvailable,
+            };
+          }
+        } else {
+          newTechs.push({
+            id: `T-${String(newTechs.length + 1).padStart(3, '0')}`,
+            name: t.name,
+            phone: t.phone,
+            service: t.service,
+            area: 'Service Area',
+            available: t.isAvailable,
+            rating: 4.5,
+            jobsCompleted: t.jobsCompleted,
+            assignedOrders: t.assignedOrders || [],
+          });
+        }
+      });
+
+      // If local storage is empty, initialize it
+      if (newTechs.length > 0) {
+        localStorage.setItem('urban_power_technicians_directory', JSON.stringify(newTechs));
+      }
+      return newTechs;
+    });
+  }, [techData, techLoading]);
+
+  // Assignments tab state
+  const [assignFilterTech, setAssignFilterTech] = useState('');
+  const [assignStatusFilter, setAssignStatusFilter] = useState<'all' | 'assigned' | 'unassigned'>('all');
+  const [openReassignDialog, setOpenReassignDialog] = useState(false);
+  const [reassignBooking, setReassignBooking] = useState<any>(null);
+  const [reassignTechName, setReassignTechName] = useState('');
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({
+    open: false, message: '', severity: 'success',
+  });
+
+  // Details dialog state
+  const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
+  const [selectedTechForDetails, setSelectedTechForDetails] = useState<LocalTech | null>(null);
+
+  const [verifyQueue] = useState<any[]>([]); // Pending Backend API: no verification queue endpoint
 
   // Filter state for Tab 0 Directory
   const [activeFilters, setActiveFilters] = useState<Record<string, any>>({
@@ -207,9 +186,7 @@ export const Technicians: React.FC = () => {
   // Dialog States
   const [openFormDialog, setOpenFormDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const [editingTech, setEditingTech] = useState<
-    (typeof initialTechnicians)[0] | null
-  >(null);
+  const [editingTech, setEditingTech] = useState<LocalTech | null>(null);
 
   // Form Fields
   const [name, setName] = useState('');
@@ -235,7 +212,7 @@ export const Technicians: React.FC = () => {
   };
 
   // Open Edit Dialog
-  const handleOpenEdit = (tech: (typeof initialTechnicians)[0]) => {
+  const handleOpenEdit = (tech: LocalTech) => {
     setEditingTech(tech);
     setName(tech.name);
     setPhone(tech.phone);
@@ -246,31 +223,36 @@ export const Technicians: React.FC = () => {
   };
 
   // Open Delete Dialog
-  const handleOpenDelete = (tech: (typeof initialTechnicians)[0]) => {
+  const handleOpenDelete = (tech: LocalTech) => {
     setEditingTech(tech);
     setOpenDeleteDialog(true);
   };
 
+  // Open Details Dialog
+  const handleOpenDetails = (tech: LocalTech) => {
+    setSelectedTechForDetails(tech);
+    setOpenDetailsDialog(true);
+  };
+
   // Save Add/Edit
   const handleSave = () => {
+    let updatedTechs: LocalTech[];
     if (editingTech) {
-      setTechs(
-        techs.map(t =>
-          t.id === editingTech.id
-            ? {
-                ...t,
-                name,
-                phone,
-                service,
-                area: selectedAreas.join(', '),
-                available,
-              }
-            : t,
-        ),
+      updatedTechs = techs.map(t =>
+        t.id === editingTech.id
+          ? {
+              ...t,
+              name,
+              phone,
+              service,
+              area: selectedAreas.join(', '),
+              available,
+            }
+          : t,
       );
     } else {
-      const newTech = {
-        id: `T-00${techs.length + 1}`,
+      const newTech: LocalTech = {
+        id: `T-${String(techs.length + 1).padStart(3, '0')}`,
         name,
         phone,
         service,
@@ -278,50 +260,33 @@ export const Technicians: React.FC = () => {
         available,
         rating: 5.0,
         jobsCompleted: 0,
+        assignedOrders: [],
       };
-      setTechs([...techs, newTech]);
+      updatedTechs = [...techs, newTech];
     }
+    setTechs(updatedTechs);
+    localStorage.setItem('urban_power_technicians_directory', JSON.stringify(updatedTechs));
     setOpenFormDialog(false);
   };
 
   // Confirm Delete
   const handleConfirmDelete = () => {
     if (editingTech) {
-      setTechs(techs.filter(t => t.id !== editingTech.id));
+      const updatedTechs = techs.filter(t => t.id !== editingTech.id);
+      setTechs(updatedTechs);
+      localStorage.setItem('urban_power_technicians_directory', JSON.stringify(updatedTechs));
       setOpenDeleteDialog(false);
     }
   };
 
   const handleToggleAvailability = (techId: string) => {
-    setTechs(
-      techs.map(t => (t.id === techId ? { ...t, available: !t.available } : t)),
-    );
+    const updatedTechs = techs.map(t => (t.id === techId ? { ...t, available: !t.available } : t));
+    setTechs(updatedTechs);
+    localStorage.setItem('urban_power_technicians_directory', JSON.stringify(updatedTechs));
   };
 
-  const handleApproveVerify = (
-    id: string,
-    nameStr: string,
-    svc: string,
-    ph: string,
-  ) => {
-    // Add verified tech to list
-    const newTech = {
-      id: `T-00${techs.length + 1}`,
-      name: nameStr,
-      phone: ph,
-      service: svc,
-      area: 'HSR Layout',
-      available: true,
-      rating: 5.0,
-      jobsCompleted: 0,
-    };
-    setTechs([...techs, newTech]);
-    setVerifyQueue(verifyQueue.filter(v => v.id !== id));
-  };
 
-  const handleRejectVerify = (id: string) => {
-    setVerifyQueue(verifyQueue.filter(v => v.id !== id));
-  };
+
 
   // Tab 0 Filter logic
   const handleFilterChange = (filters: Record<string, any>) => {
@@ -334,21 +299,74 @@ export const Technicians: React.FC = () => {
       t.name.toLowerCase().includes(query.toLowerCase()) ||
       t.area.toLowerCase().includes(query.toLowerCase()) ||
       t.service.toLowerCase().includes(query.toLowerCase());
-
     const matchesService =
       !activeFilters.service || t.service === activeFilters.service;
-
     return matchesSearch && matchesService;
   });
 
+  // Assignments tab data: bookings that have a technician assigned
+  const assignedBookings = allBookings.filter(b => {
+    const parsed = parseBookingNotes(b.notes);
+    return parsed.technician && parsed.technician !== 'None' && parsed.technician !== '';
+  });
+
+  const filteredAssignedBookings = allBookings.filter(b => {
+    const parsed = parseBookingNotes(b.notes);
+    const hasTech = parsed.technician && parsed.technician !== 'None' && parsed.technician !== '';
+
+    // 1. Status Filter
+    if (assignStatusFilter === 'assigned' && !hasTech) return false;
+    if (assignStatusFilter === 'unassigned' && hasTech) return false;
+
+    // 2. Technician Name filter
+    if (assignFilterTech) {
+      return parsed.technician.toLowerCase().includes(assignFilterTech.toLowerCase());
+    }
+
+    return true;
+  });
+
+  const handleOpenReassign = (booking: any) => {
+    const parsed = parseBookingNotes(booking.notes);
+    setReassignBooking(booking);
+    setReassignTechName(parsed.technician !== 'None' ? parsed.technician : '');
+    setOpenReassignDialog(true);
+  };
+
+  const handleConfirmReassign = async () => {
+    if (!reassignBooking) return;
+    try {
+      await assignTechnician(
+        reassignBooking.id || reassignBooking.booking_id,
+        String(reassignBooking.user_id),
+        reassignBooking.notes,
+        reassignTechName,
+        reassignBooking.status,
+      );
+      setSnackbar({ open: true, message: 'Technician assignment updated successfully.', severity: 'success' });
+    } catch {
+      setSnackbar({ open: true, message: 'Failed to assign technician.', severity: 'error' });
+    }
+    setOpenReassignDialog(false);
+  };
+
   // Table Column Definitions for Tab 0 (Directory)
-  const columns: ColumnConfig<(typeof initialTechnicians)[0]>[] = [
+  const columns: ColumnConfig<LocalTech>[] = [
     { id: 'id', label: 'Tech ID' },
     {
       id: 'name',
       label: 'Full Name',
       render: row => (
-        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            fontWeight: 600,
+            color: 'primary.main',
+            cursor: 'pointer',
+            '&:hover': { textDecoration: 'underline' }
+          }}
+          onClick={() => handleOpenDetails(row)}
+        >
           {row.name}
         </Typography>
       ),
@@ -418,6 +436,13 @@ export const Technicians: React.FC = () => {
       render: row => (
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
           <IconButton
+            color="primary"
+            size="small"
+            onClick={() => handleOpenDetails(row)}
+          >
+            <ViewIcon fontSize="small" />
+          </IconButton>
+          <IconButton
             color="secondary"
             size="small"
             onClick={() => handleOpenEdit(row)}
@@ -441,7 +466,7 @@ export const Technicians: React.FC = () => {
       id: 'service',
       label: 'Service Specialization',
       type: 'select',
-      options: mockServices.map(s => ({ value: s, label: s })),
+      options: SERVICES.map(s => ({ value: s, label: s })),
     },
   ];
 
@@ -489,671 +514,513 @@ export const Technicians: React.FC = () => {
         value={tabIndex}
         onChange={handleTabChange}
         sx={{ borderBottom: '1px solid #E2E8F0', mb: 3 }}
+        variant="scrollable"
+        scrollButtons="auto"
       >
         <Tab label="Directory" sx={{ fontWeight: 600 }} />
         <Tab
-          label={`Verification Queue (${verifyQueue.length})`}
+          label="Verification Queue"
           sx={{ fontWeight: 600 }}
         />
         <Tab label="Live Map Tracker" sx={{ fontWeight: 600 }} />
         <Tab label="Performance & Ratings" sx={{ fontWeight: 600 }} />
+        <Tab
+          label={`Assignments (${assignedBookings.length})`}
+          sx={{ fontWeight: 600 }}
+        />
       </Tabs>
 
       {/* Tab Panels */}
       {tabIndex === 0 && (
         <Box>
-          <FilterPanel
-            fields={filterFields}
-            onFilterChange={handleFilterChange}
-          />
-          <DataTable
-            title="Technicians Directory"
-            filename="technicians_directory"
-            columns={columns}
-            data={filteredTechs}
-          />
+          {techLoading ? (
+            <Box>
+              {[1, 2, 3, 4].map(i => (
+                <Skeleton key={i} variant="rectangular" height={56} sx={{ borderRadius: 2, mb: 1.5 }} />
+              ))}
+            </Box>
+          ) : (
+            <>
+              <FilterPanel
+                fields={filterFields}
+                onFilterChange={handleFilterChange}
+              />
+              <DataTable
+                title="Technicians Directory"
+                filename="technicians_directory"
+                columns={columns}
+                data={filteredTechs}
+              />
+            </>
+          )}
         </Box>
       )}
 
       {tabIndex === 1 && (
         <Box>
-          <Grid container spacing={3}>
-            {verifyQueue.length === 0 ? (
-              <Grid size={12}>
-                <Card
-                  sx={{
-                    border: '1px solid #E2E8F0',
-                    borderRadius: 3,
-                    boxShadow: 'none',
-                    textAlign: 'center',
-                    py: 4,
-                  }}
-                >
-                  <DocIcon sx={{ fontSize: 48, color: '#A0AEC0', mb: 1 }} />
-                  <Typography variant="body1" color="text.secondary">
-                    All document verifications are up to date! No pending
-                    applications.
-                  </Typography>
-                </Card>
-              </Grid>
-            ) : (
-              verifyQueue.map(item => (
-                <Grid size={{ xs: 12, md: 6 }} key={item.id}>
-                  <Card
-                    sx={{
-                      border: '1px solid #E2E8F0',
-                      borderRadius: 3.5,
-                      boxShadow: 'none',
-                    }}
-                  >
-                    <CardContent>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          mb: 2,
-                        }}
-                      >
-                        <Box>
-                          <Typography
-                            variant="h6"
-                            sx={{
-                              fontWeight: 700,
-                              fontFamily: '"Outfit", sans-serif',
-                            }}
-                          >
-                            {item.name}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {item.phone} | Specialization:{' '}
-                            <strong>{item.service}</strong>
-                          </Typography>
-                        </Box>
-                        <Chip
-                          label="Pending Review"
-                          color="warning"
-                          size="small"
-                          sx={{ fontWeight: 600 }}
-                        />
-                      </Box>
-                      <Divider sx={{ my: 1.5 }} />
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 1.5,
-                          p: 1.5,
-                          bgcolor: '#F8FAFC',
-                          borderRadius: 2,
-                          mb: 2,
-                        }}
-                      >
-                        <DocIcon color="primary" />
-                        <Box sx={{ flexGrow: 1 }}>
-                          <Typography
-                            variant="body2"
-                            sx={{ fontWeight: 600, color: '#2D3748' }}
-                          >
-                            {item.docType}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            File: {item.docName}
-                          </Typography>
-                        </Box>
-                        <Button
-                          size="small"
-                          variant="text"
-                          color="primary"
-                          sx={{ fontWeight: 600 }}
-                        >
-                          View File
-                        </Button>
-                      </Box>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          justifyContent: 'flex-end',
-                          gap: 1,
-                        }}
-                      >
-                        <Button
-                          variant="outlined"
-                          color="error"
-                          startIcon={<RejectedIcon />}
-                          onClick={() => handleRejectVerify(item.id)}
-                        >
-                          Reject
-                        </Button>
-                        <Button
-                          variant="contained"
-                          color="success"
-                          startIcon={<ApprovedIcon />}
-                          onClick={() =>
-                            handleApproveVerify(
-                              item.id,
-                              item.name,
-                              item.service,
-                              item.phone,
-                            )
-                          }
-                        >
-                          Approve & Activate
-                        </Button>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))
-            )}
-          </Grid>
+          <Alert
+            severity="warning"
+            sx={{ mb: 3, borderRadius: 2, fontWeight: 600 }}
+          >
+            <strong>Pending Backend API</strong> — No technician document
+            verification endpoint exists. A dedicated{' '}
+            <code>GET /api/v1/technicians/verification-queue</code> API is
+            required to populate this module.
+          </Alert>
+          <Card sx={{ border: '1px solid #E2E8F0', borderRadius: 3, boxShadow: 'none' }}>
+            <CardContent sx={{ textAlign: 'center', py: 8 }}>
+              <DocIcon sx={{ fontSize: 56, color: '#CBD5E0', mb: 2 }} />
+              <Typography variant="h6" sx={{ fontWeight: 700, color: '#4A5568', mb: 1 }}>
+                Verification Queue — Awaiting Backend Integration
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 480, mx: 'auto' }}>
+                This section will show real document verification requests once
+                the backend provides a verification queue API. No mock data is
+                shown.
+              </Typography>
+            </CardContent>
+          </Card>
         </Box>
       )}
 
       {tabIndex === 2 && (
         <Box>
-          <Grid container spacing={3}>
-            {/* Map Container Mock */}
-            <Grid size={{ xs: 12, lg: 8 }}>
-              <Card
-                sx={{
-                  height: 480,
-                  border: '1px solid #E2E8F0',
-                  borderRadius: 3.5,
-                  position: 'relative',
-                  overflow: 'hidden',
-                  bgcolor: '#E5E9F0',
-                }}
-              >
-                {/* Simulated Grid Overlay representing Map Layout */}
-                <Box
-                  sx={{
-                    width: '100%',
-                    height: '100%',
-                    background:
-                      'radial-gradient(circle, #D3D8E2 10%, transparent 11%), radial-gradient(circle, #D3D8E2 10%, transparent 11%)',
-                    backgroundSize: '24px 24px',
-                    backgroundPosition: '0 0, 12px 12px',
-                    position: 'absolute',
-                    opacity: 0.6,
-                  }}
-                />
-                {/* Simulated Roads/Lanes */}
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    width: '100%',
-                    height: 16,
-                    bgcolor: '#FFF',
-                    top: '30%',
-                    transform: 'rotate(-5deg)',
-                    boxShadow: 1,
-                  }}
-                />
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    width: '100%',
-                    height: 16,
-                    bgcolor: '#FFF',
-                    top: '65%',
-                    transform: 'rotate(10deg)',
-                    boxShadow: 1,
-                  }}
-                />
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    width: 16,
-                    height: '100%',
-                    bgcolor: '#FFF',
-                    left: '40%',
-                    transform: 'rotate(15deg)',
-                    boxShadow: 1,
-                  }}
-                />
-
-                {/* Technician pins on Map */}
-                {initialLiveTracking.map((tech, idx) => (
-                  <Tooltip
-                    key={tech.id}
-                    title={`${tech.name} - ${tech.status}`}
-                    arrow
-                  >
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        left: `${20 + idx * 25}%`,
-                        top: `${40 + (idx % 2) * 20}%`,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        cursor: 'pointer',
-                        zIndex: 10,
-                      }}
-                    >
-                      <Avatar
-                        sx={{
-                          bgcolor: tech.status.includes('Active')
-                            ? '#FAD02C'
-                            : tech.status.includes('Busy')
-                              ? '#E53E3E'
-                              : '#48BB78',
-                          color: '#1A202C',
-                          width: 36,
-                          height: 36,
-                          border: '2px solid white',
-                          boxShadow: 2,
-                        }}
-                      >
-                        <NavIcon
-                          sx={{ transform: 'rotate(45deg)', fontSize: 16 }}
-                        />
-                      </Avatar>
-                      <Box
-                        sx={{
-                          bgcolor: 'rgba(26, 32, 44, 0.85)',
-                          color: 'white',
-                          px: 1,
-                          py: 0.2,
-                          borderRadius: 1,
-                          mt: 0.5,
-                          boxShadow: 1,
-                        }}
-                      >
-                        <Typography
-                          sx={{ fontSize: '0.65rem', fontWeight: 600 }}
-                        >
-                          {tech.name}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Tooltip>
-                ))}
-
-                {/* Map HUD controller */}
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    bottom: 16,
-                    right: 16,
-                    bgcolor: 'rgba(255,255,255,0.9)',
-                    p: 1.5,
-                    borderRadius: 2,
-                    border: '1px solid #E2E8F0',
-                    zIndex: 20,
-                  }}
-                >
-                  <Typography
-                    variant="caption"
-                    sx={{ fontWeight: 700, display: 'block', mb: 0.5 }}
-                  >
-                    MAP LEGEND:
-                  </Typography>
-                  <Box
-                    sx={{ display: 'flex', gap: 1.5, flexDirection: 'column' }}
-                  >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Box
-                        sx={{
-                          width: 8,
-                          height: 8,
-                          bgcolor: '#FAD02C',
-                          borderRadius: '50%',
-                        }}
-                      />
-                      <Typography variant="caption">En-route order</Typography>
-                    </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Box
-                        sx={{
-                          width: 8,
-                          height: 8,
-                          bgcolor: '#E53E3E',
-                          borderRadius: '50%',
-                        }}
-                      />
-                      <Typography variant="caption">Active site job</Typography>
-                    </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Box
-                        sx={{
-                          width: 8,
-                          height: 8,
-                          bgcolor: '#48BB78',
-                          borderRadius: '50%',
-                        }}
-                      />
-                      <Typography variant="caption">Available</Typography>
-                    </Box>
-                  </Box>
-                </Box>
-              </Card>
-            </Grid>
-
-            {/* Live Stats side panel */}
-            <Grid size={{ xs: 12, lg: 4 }}>
-              <Card
-                sx={{
-                  border: '1px solid #E2E8F0',
-                  borderRadius: 3.5,
-                  boxShadow: 'none',
-                  height: 480,
-                  display: 'flex',
-                  flexDirection: 'column',
-                }}
-              >
-                <CardContent sx={{ pb: 1 }}>
-                  <Typography
-                    variant="h6"
-                    sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}
-                  >
-                    Live Field Roster
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    Real-time battery metrics and speed data.
-                  </Typography>
-                </CardContent>
-                <Divider />
-                <Box sx={{ overflowY: 'auto', flexGrow: 1, p: 1.5 }}>
-                  {initialLiveTracking.map(tech => (
-                    <Box
-                      key={tech.id}
-                      sx={{
-                        p: 1.5,
-                        border: '1px solid #E2E8F0',
-                        borderRadius: 2.5,
-                        mb: 1.5,
-                        '&:last-child': { mb: 0 },
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          mb: 1,
-                        }}
-                      >
-                        <Typography
-                          variant="subtitle2"
-                          sx={{ fontWeight: 700 }}
-                        >
-                          {tech.name}
-                        </Typography>
-                        <Chip
-                          label={tech.status}
-                          size="small"
-                          sx={{
-                            fontSize: '0.65rem',
-                            fontWeight: 700,
-                            bgcolor: tech.status.includes('Active')
-                              ? 'rgba(250, 208, 44, 0.2)'
-                              : tech.status.includes('Busy')
-                                ? 'rgba(245, 101, 101, 0.15)'
-                                : 'rgba(72, 187, 120, 0.15)',
-                            color: tech.status.includes('Active')
-                              ? '#B7791F'
-                              : tech.status.includes('Busy')
-                                ? '#9B2C2C'
-                                : '#276749',
-                          }}
-                        />
-                      </Box>
-                      <Grid container spacing={1}>
-                        <Grid
-                          size={6}
-                          sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 0.5,
-                          }}
-                        >
-                          <BatteryIcon
-                            sx={{ fontSize: 14, color: '#718096' }}
-                          />
-                          <Typography variant="caption" color="text.secondary">
-                            Battery: {tech.battery}
-                          </Typography>
-                        </Grid>
-                        <Grid
-                          size={6}
-                          sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 0.5,
-                          }}
-                        >
-                          <SpeedIcon sx={{ fontSize: 14, color: '#718096' }} />
-                          <Typography variant="caption" color="text.secondary">
-                            Speed: {tech.speed}
-                          </Typography>
-                        </Grid>
-                        <Grid size={12} sx={{ mt: 0.5 }}>
-                          <Typography variant="caption" color="text.secondary">
-                            Current Task: <strong>{tech.currentOrder}</strong>
-                          </Typography>
-                        </Grid>
-                      </Grid>
-                    </Box>
-                  ))}
-                </Box>
-              </Card>
-            </Grid>
-          </Grid>
+          <Alert
+            severity="warning"
+            sx={{ mb: 3, borderRadius: 2, fontWeight: 600 }}
+          >
+            <strong>Pending Backend API</strong> — Live GPS tracking requires a
+            real-time location data API (e.g.{' '}
+            <code>GET /api/v1/technicians/locations</code>). No simulated
+            coordinates are shown.
+          </Alert>
+          <Card sx={{ border: '1px solid #E2E8F0', borderRadius: 3, boxShadow: 'none' }}>
+            <CardContent sx={{ textAlign: 'center', py: 8 }}>
+              <MapIcon sx={{ fontSize: 56, color: '#CBD5E0', mb: 2 }} />
+              <Typography variant="h6" sx={{ fontWeight: 700, color: '#4A5568', mb: 1 }}>
+                Live Map Tracker — Awaiting Backend Integration
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 480, mx: 'auto' }}>
+                Once a real-time location broadcast API is available, this panel
+                will display live technician positions, battery status, and
+                current task details. No mock location data is shown.
+              </Typography>
+            </CardContent>
+          </Card>
         </Box>
       )}
 
       {tabIndex === 3 && (
         <Box>
+          <Alert
+            severity="warning"
+            sx={{ mb: 3, borderRadius: 2, fontWeight: 600 }}
+          >
+            <strong>Pending Backend API</strong> — Technician ratings, completion
+            rates, and customer feedback require a dedicated reviews / analytics
+            API (e.g. <code>GET /api/v1/technicians/performance</code>).
+          </Alert>
+
+          {/* Real derived stats from booking data */}
           <Grid container spacing={3}>
-            {/* Stats Aggregates */}
             <Grid size={{ xs: 12, md: 4 }}>
-              <Card
-                sx={{
-                  border: '1px solid #E2E8F0',
-                  borderRadius: 3.5,
-                  boxShadow: 'none',
-                }}
-              >
+              <Card sx={{ border: '1px solid #E2E8F0', borderRadius: 3.5, boxShadow: 'none' }}>
                 <CardContent>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{ fontWeight: 700, textTransform: 'uppercase' }}
-                  >
+                  <Typography variant="caption" color="text.secondary"
+                    sx={{ fontWeight: 700, textTransform: 'uppercase' }}>
+                    Total Jobs Assigned
+                  </Typography>
+                  <Typography variant="h3" sx={{ fontWeight: 800, mt: 1 }}>
+                    {techs.reduce((sum, t) => sum + (t.jobsCompleted ?? 0), 0)}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary"
+                    sx={{ display: 'block', mt: 1 }}>
+                    Derived from real booking assignments.
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid size={{ xs: 12, md: 4 }}>
+              <Card sx={{ border: '1px solid #E2E8F0', borderRadius: 3.5, boxShadow: 'none' }}>
+                <CardContent>
+                  <Typography variant="caption" color="text.secondary"
+                    sx={{ fontWeight: 700, textTransform: 'uppercase' }}>
+                    Active Technicians
+                  </Typography>
+                  <Typography variant="h3" sx={{ fontWeight: 800, mt: 1 }}>
+                    {techs.filter(t => t.available).length}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary"
+                    sx={{ display: 'block', mt: 1 }}>
+                    Currently available / online.
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid size={{ xs: 12, md: 4 }}>
+              <Card sx={{ border: '1px solid #E2E8F0', borderRadius: 3.5, boxShadow: 'none' }}>
+                <CardContent>
+                  <Typography variant="caption" color="text.secondary"
+                    sx={{ fontWeight: 700, textTransform: 'uppercase' }}>
                     Average Rating
                   </Typography>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 1,
-                      mt: 1,
-                    }}
-                  >
-                    <Typography variant="h3" sx={{ fontWeight: 800 }}>
-                      4.65
-                    </Typography>
-                    <Box sx={{ color: '#FAD02C', display: 'flex' }}>
-                      <StarIcon sx={{ fontSize: 28 }} />
-                    </Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+                    <Typography variant="h3" sx={{ fontWeight: 800 }}>N/A</Typography>
+                    <StarIcon sx={{ fontSize: 28, color: '#CBD5E0' }} />
                   </Box>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{ display: 'block', mt: 1 }}
-                  >
-                    Calculated over 535 reviews this month.
+                  <Typography variant="caption" color="text.secondary"
+                    sx={{ display: 'block', mt: 1 }}>
+                    Pending Backend API: no reviews endpoint.
                   </Typography>
                 </CardContent>
               </Card>
             </Grid>
 
-            <Grid size={{ xs: 12, md: 4 }}>
-              <Card
-                sx={{
-                  border: '1px solid #E2E8F0',
-                  borderRadius: 3.5,
-                  boxShadow: 'none',
-                }}
-              >
-                <CardContent>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{ fontWeight: 700, textTransform: 'uppercase' }}
-                  >
-                    Job Completion Rate
-                  </Typography>
-                  <Typography variant="h3" sx={{ fontWeight: 800, mt: 1 }}>
-                    96.4%
-                  </Typography>
-                  <Box sx={{ width: '100%', mt: 2 }}>
-                    <LinearProgress
-                      variant="determinate"
-                      value={96.4}
-                      sx={{
-                        height: 6,
-                        borderRadius: 3,
-                        bgcolor: '#E2E8F0',
-                        '& .MuiLinearProgress-bar': { bgcolor: '#48BB78' },
-                      }}
-                    />
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-
-            <Grid size={{ xs: 12, md: 4 }}>
-              <Card
-                sx={{
-                  border: '1px solid #E2E8F0',
-                  borderRadius: 3.5,
-                  boxShadow: 'none',
-                }}
-              >
-                <CardContent>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{ fontWeight: 700, textTransform: 'uppercase' }}
-                  >
-                    Customer Satisfaction
-                  </Typography>
-                  <Typography variant="h3" sx={{ fontWeight: 800, mt: 1 }}>
-                    98.1%
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{ display: 'block', mt: 1.5 }}
-                  >
-                    Net positive feedback ratio.
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-
-            {/* Detailed logs */}
             <Grid size={12}>
-              <Card
-                sx={{
-                  border: '1px solid #E2E8F0',
-                  borderRadius: 3.5,
-                  boxShadow: 'none',
-                }}
-              >
-                <CardContent>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      fontWeight: 700,
-                      mb: 2,
-                      fontFamily: '"Outfit", sans-serif',
-                    }}
-                  >
-                    Recent Client Reviews & Feedback
+              <Card sx={{ border: '1px solid #E2E8F0', borderRadius: 3.5, boxShadow: 'none' }}>
+                <CardContent sx={{ textAlign: 'center', py: 6 }}>
+                  <ThumbsIcon sx={{ fontSize: 48, color: '#CBD5E0', mb: 2 }} />
+                  <Typography variant="h6" sx={{ fontWeight: 700, color: '#4A5568', mb: 1 }}>
+                    Recent Reviews — Awaiting Backend Integration
                   </Typography>
-                  <List>
-                    {mockReviews.map(rev => (
-                      <Box key={rev.id}>
-                        <ListItem alignItems="flex-start" sx={{ px: 0, py: 2 }}>
-                          <ListItemAvatar>
-                            <Avatar
-                              sx={{
-                                bgcolor: '#FAD02C',
-                                color: '#1A202C',
-                                fontWeight: 600,
-                              }}
-                            >
-                              {rev.customer.substring(0, 1)}
-                            </Avatar>
-                          </ListItemAvatar>
-                          <Box sx={{ flexGrow: 1 }}>
-                            <Box
-                              sx={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                              }}
-                            >
-                              <Typography
-                                variant="subtitle2"
-                                sx={{ fontWeight: 700 }}
-                              >
-                                {rev.customer}
-                              </Typography>
-                              <Typography
-                                variant="caption"
-                                color="text.secondary"
-                              >
-                                {rev.date}
-                              </Typography>
-                            </Box>
-                            <Box
-                              sx={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 0.5,
-                                my: 0.5,
-                                color: '#FAD02C',
-                              }}
-                            >
-                              {Array.from({ length: rev.rating }).map(
-                                (_, i) => (
-                                  <StarIcon key={i} sx={{ fontSize: 16 }} />
-                                ),
-                              )}
-                            </Box>
-                            <Typography
-                              variant="body2"
-                              color="text.secondary"
-                              sx={{ fontStyle: 'italic' }}
-                            >
-                              "{rev.comment}"
-                            </Typography>
-                            <Typography
-                              variant="caption"
-                              sx={{
-                                display: 'block',
-                                mt: 0.5,
-                                color: '#718096',
-                              }}
-                            >
-                              Technician: <strong>{rev.technician}</strong>
-                            </Typography>
-                          </Box>
-                        </ListItem>
-                        <Divider variant="inset" component="li" />
-                      </Box>
-                    ))}
-                  </List>
+                  <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 480, mx: 'auto' }}>
+                    Customer reviews and ratings will appear here once a{' '}
+                    <code>GET /api/v1/reviews</code> API is available. No mock
+                    review data is shown.
+                  </Typography>
                 </CardContent>
               </Card>
             </Grid>
           </Grid>
         </Box>
       )}
+      {tabIndex === 4 && (
+        <Box>
+          <Box sx={{ mb: 2, display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+            <Typography variant="h6" sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif', flexGrow: 1 }}>
+              Technician Assignments
+            </Typography>
+            <FormControl size="small" sx={{ minWidth: 180 }}>
+              <InputLabel id="assign-status-filter-label">Assignment Status</InputLabel>
+              <Select
+                labelId="assign-status-filter-label"
+                value={assignStatusFilter}
+                label="Assignment Status"
+                onChange={e => setAssignStatusFilter(e.target.value as any)}
+              >
+                <MenuItem value="all">All Bookings</MenuItem>
+                <MenuItem value="assigned">Assigned Only</MenuItem>
+                <MenuItem value="unassigned">Unassigned Only</MenuItem>
+              </Select>
+            </FormControl>
+            <TextField
+              size="small"
+              placeholder="Filter by technician name…"
+              value={assignFilterTech}
+              onChange={e => setAssignFilterTech(e.target.value)}
+              sx={{ minWidth: 240 }}
+            />
+          </Box>
+
+          {bookingsLoading ? (
+            <Box>{[1, 2, 3].map(i => <Skeleton key={i} variant="rectangular" height={56} sx={{ borderRadius: 2, mb: 1.5 }} />)}</Box>
+          ) : filteredAssignedBookings.length === 0 ? (
+            <Card sx={{ border: '1px solid #E2E8F0', borderRadius: 3, boxShadow: 'none' }}>
+              <CardContent sx={{ textAlign: 'center', py: 5 }}>
+                <Typography color="text.secondary">
+                  {assignFilterTech ? 'No assignments match that filter.' : 'No bookings found.'}
+                </Typography>
+              </CardContent>
+            </Card>
+          ) : (
+            <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #E2E8F0', borderRadius: 3 }}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow sx={{ bgcolor: '#F8FAFC' }}>
+                    <TableCell sx={{ fontWeight: 700 }}>Booking Ref</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>Date</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>Assigned Technician</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>Availability</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>Action</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {filteredAssignedBookings.map(b => {
+                    const parsed = parseBookingNotes(b.notes);
+                    const hasTech = parsed.technician && parsed.technician !== 'None' && parsed.technician !== '';
+                    const tech = hasTech ? techData.find(t => t.name.toLowerCase() === parsed.technician.toLowerCase()) : null;
+                    const normalStatus = (b.status || '').toLowerCase();
+                    const statusColors: Record<string, { bg: string; color: string }> = {
+                      completed: { bg: 'rgba(72,187,120,0.15)', color: '#276749' },
+                      pending: { bg: 'rgba(250,208,44,0.2)', color: '#B7791F' },
+                      confirmed: { bg: 'rgba(66,153,225,0.15)', color: '#2B6CB0' },
+                      assigned: { bg: 'rgba(66,153,225,0.15)', color: '#2B6CB0' },
+                      in_progress: { bg: 'rgba(237,137,54,0.15)', color: '#DD6B20' },
+                      cancelled: { bg: 'rgba(245,101,101,0.15)', color: '#9B2C2C' },
+                    };
+                    const sc = statusColors[normalStatus] || statusColors.pending;
+                    return (
+                      <TableRow key={b.id || b.booking_id} hover>
+                        <TableCell sx={{ fontWeight: 600 }}>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              fontWeight: 600,
+                              color: 'primary.main',
+                              cursor: 'pointer',
+                              '&:hover': { textDecoration: 'underline' }
+                            }}
+                            onClick={() => navigate(`/orders/${b.id || b.booking_id}`)}
+                          >
+                            {b.booking_reference || String(b.id).slice(0, 8).toUpperCase()}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Box sx={{ display: 'inline-block', px: 1.5, py: 0.4, borderRadius: 2, fontSize: '0.72rem', fontWeight: 700, bgcolor: sc.bg, color: sc.color }}>
+                            {normalStatus.replace('_', ' ')}
+                          </Box>
+                        </TableCell>
+                        <TableCell>
+                          {new Date(b.booking_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                        </TableCell>
+                        <TableCell>
+                          {hasTech ? (
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Avatar sx={{ width: 28, height: 28, bgcolor: '#2D3748', fontSize: '0.75rem' }}>
+                                {parsed.technician.charAt(0)}
+                              </Avatar>
+                              <Typography variant="body2" sx={{ fontWeight: 600 }}>{parsed.technician}</Typography>
+                            </Box>
+                          ) : (
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Avatar sx={{ width: 28, height: 28, bgcolor: '#E2E8F0', color: '#718096', fontSize: '0.75rem' }}>
+                                ?
+                              </Avatar>
+                              <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>Unassigned</Typography>
+                            </Box>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {hasTech && tech ? (
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                              <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: tech.isAvailable ? '#48BB78' : '#E53E3E' }} />
+                              <Typography variant="caption" sx={{ fontWeight: 600, color: tech.isAvailable ? '#276749' : '#9B2C2C' }}>
+                                {tech.isAvailable ? 'Available' : 'Busy'}
+                              </Typography>
+                            </Box>
+                          ) : <Typography variant="caption" color="text.secondary">—</Typography>}
+                        </TableCell>
+                        <TableCell align="right">
+                          <Button
+                            size="small"
+                            variant={hasTech ? "outlined" : "contained"}
+                            color={hasTech ? "warning" : "primary"}
+                            onClick={() => handleOpenReassign(b)}
+                          >
+                            {hasTech ? "Reassign" : "Assign"}
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </Box>
+      )}
+
+      {/* Reassign Dialog */}
+      <Dialog open={openReassignDialog} onClose={() => setOpenReassignDialog(false)} fullWidth maxWidth="xs">
+        <DialogTitle sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}>
+          {reassignBooking && parseBookingNotes(reassignBooking.notes).technician && parseBookingNotes(reassignBooking.notes).technician !== 'None' ? 'Reassign Technician' : 'Assign Technician'}
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Booking: <strong>{reassignBooking?.booking_reference || '—'}</strong>
+          </Typography>
+          <FormControl fullWidth size="small" sx={{ mt: 1 }}>
+            <InputLabel id="reassign-tech-label">Select Technician</InputLabel>
+            <Select
+              labelId="reassign-tech-label"
+              value={reassignTechName}
+              label="Select Technician"
+              onChange={e => setReassignTechName(e.target.value)}
+            >
+              <MenuItem value=""><em>Unassign / None</em></MenuItem>
+              {techs.map(t => (
+                <MenuItem key={t.name} value={t.name}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
+                    <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: t.available ? '#48BB78' : '#E53E3E' }} />
+                    <Box sx={{ flexGrow: 1 }}>{t.name}</Box>
+                    <Box component="span" sx={{ fontSize: '0.7rem', color: t.available ? '#276749' : '#9B2C2C' }}>
+                      {t.available ? 'Available' : 'Busy'}
+                    </Box>
+                  </Box>
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions sx={{ p: 2.5 }}>
+          <Button onClick={() => setOpenReassignDialog(false)} color="secondary">Cancel</Button>
+          <Button
+            onClick={handleConfirmReassign}
+            variant="contained"
+            color="primary"
+            disabled={assignPending}
+            startIcon={assignPending ? <CircularProgress size={16} color="inherit" /> : undefined}
+          >
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Technician Details Dialog */}
+      <Dialog
+        open={openDetailsDialog}
+        onClose={() => setOpenDetailsDialog(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif', pb: 1 }}>
+          Technician Profile & Assigned Orders
+        </DialogTitle>
+        <DialogContent>
+          {selectedTechForDetails && (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mt: 1 }}>
+              {/* Profile Card */}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, p: 2, bgcolor: '#F8FAFC', borderRadius: 3 }}>
+                <Avatar sx={{ width: 56, height: 56, bgcolor: 'primary.main', fontSize: '1.25rem' }}>
+                  {selectedTechForDetails.name.charAt(0)}
+                </Avatar>
+                <Box sx={{ flexGrow: 1 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                    {selectedTechForDetails.name}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {selectedTechForDetails.phone} · {selectedTechForDetails.service} Specialization
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mt: 0.5 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <StarIcon sx={{ fontSize: 16, color: '#FAD02C' }} />
+                      <Typography variant="caption" sx={{ fontWeight: 600 }}>{selectedTechForDetails.rating}</Typography>
+                    </Box>
+                    <Typography variant="caption" color="text.secondary">|</Typography>
+                    <Typography variant="caption" sx={{ fontWeight: 600 }}>{selectedTechForDetails.jobsCompleted} Jobs Completed</Typography>
+                  </Box>
+                </Box>
+                <Chip
+                  label={selectedTechForDetails.available ? 'Online' : 'Offline'}
+                  color={selectedTechForDetails.available ? 'success' : 'default'}
+                  size="small"
+                  sx={{ fontWeight: 600 }}
+                />
+              </Box>
+
+              {/* Service Areas */}
+              <Box>
+                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700, textTransform: 'uppercase' }}>
+                  Service Areas
+                </Typography>
+                <Typography variant="body2" sx={{ mt: 0.5, fontWeight: 500 }}>
+                  {selectedTechForDetails.area || 'Service Area'}
+                </Typography>
+              </Box>
+
+              {/* Assigned Orders Section */}
+              <Box>
+                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700, textTransform: 'uppercase', display: 'block', mb: 1 }}>
+                  Active Assigned Orders ({selectedTechForDetails.assignedOrders?.length || 0})
+                </Typography>
+
+                {!selectedTechForDetails.assignedOrders || selectedTechForDetails.assignedOrders.length === 0 ? (
+                  <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+                    No active bookings assigned to this technician.
+                  </Typography>
+                ) : (
+                  <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #E2E8F0', borderRadius: 2 }}>
+                    <Table size="small">
+                      <TableHead sx={{ bgcolor: '#F8FAFC' }}>
+                        <TableRow>
+                          <TableCell sx={{ fontWeight: 700, fontSize: '0.75rem' }}>Booking Ref</TableCell>
+                          <TableCell sx={{ fontWeight: 700, fontSize: '0.75rem' }}>Service</TableCell>
+                          <TableCell sx={{ fontWeight: 700, fontSize: '0.75rem' }}>Date</TableCell>
+                          <TableCell sx={{ fontWeight: 700, fontSize: '0.75rem' }}>Status</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {selectedTechForDetails.assignedOrders.map(order => {
+                          const normalStatus = (order.status || '').toLowerCase();
+                          const statusColors: Record<string, { bg: string; color: string }> = {
+                            completed: { bg: 'rgba(72,187,120,0.15)', color: '#276749' },
+                            pending: { bg: 'rgba(250,208,44,0.2)', color: '#B7791F' },
+                            confirmed: { bg: 'rgba(66,153,225,0.15)', color: '#2B6CB0' },
+                            assigned: { bg: 'rgba(66,153,225,0.15)', color: '#2B6CB0' },
+                            in_progress: { bg: 'rgba(237,137,54,0.15)', color: '#DD6B20' },
+                            cancelled: { bg: 'rgba(245,101,101,0.15)', color: '#9B2C2C' },
+                          };
+                          const sc = statusColors[normalStatus] || statusColors.pending;
+                          return (
+                            <TableRow key={order.bookingId} hover>
+                              <TableCell sx={{ fontSize: '0.75rem', fontWeight: 600 }}>
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    fontWeight: 700,
+                                    color: 'primary.main',
+                                    cursor: 'pointer',
+                                    '&:hover': { textDecoration: 'underline' }
+                                  }}
+                                  onClick={() => {
+                                    setOpenDetailsDialog(false);
+                                    navigate(`/orders/${order.bookingId}`);
+                                  }}
+                                >
+                                  {order.bookingReference}
+                                </Typography>
+                              </TableCell>
+                              <TableCell sx={{ fontSize: '0.75rem' }}>{order.serviceName}</TableCell>
+                              <TableCell sx={{ fontSize: '0.75rem' }}>
+                                {new Date(order.bookingDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
+                              </TableCell>
+                              <TableCell>
+                                <Box sx={{ display: 'inline-block', px: 1, py: 0.2, borderRadius: 1, fontSize: '0.65rem', fontWeight: 700, bgcolor: sc.bg, color: sc.color }}>
+                                  {normalStatus.replace('_', ' ')}
+                                </Box>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                )}
+              </Box>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ p: 2.5 }}>
+          <Button onClick={() => setOpenDetailsDialog(false)} variant="contained" color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Snackbar */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar(s => ({ ...s, open: false }))}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert severity={snackbar.severity} onClose={() => setSnackbar(s => ({ ...s, open: false }))}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
 
       {/* Add / Edit Technician Form Dialog */}
       <Dialog
@@ -1201,7 +1068,7 @@ export const Technicians: React.FC = () => {
                 label="Assign Service Specialization"
                 onChange={e => setService(e.target.value)}
               >
-                {mockServices.map(s => (
+                {SERVICES.map(s => (
                   <MenuItem key={s} value={s}>
                     {s}
                   </MenuItem>
@@ -1227,7 +1094,7 @@ export const Technicians: React.FC = () => {
                 }
                 renderValue={selected => selected.join(', ')}
               >
-                {mockAreas.map(area => (
+                {SERVICE_AREAS.map(area => (
                   <MenuItem key={area} value={area}>
                     <Checkbox checked={selectedAreas.indexOf(area) > -1} />
                     <ListItemText primary={area} />

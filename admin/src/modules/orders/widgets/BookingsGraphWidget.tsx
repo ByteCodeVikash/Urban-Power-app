@@ -17,35 +17,75 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-
-const dataOptions: Record<string, { name: string; bookings: number }[]> = {
-  weekly: [
-    { name: 'Mon', bookings: 24 },
-    { name: 'Tue', bookings: 18 },
-    { name: 'Wed', bookings: 45 },
-    { name: 'Thu', bookings: 20 },
-    { name: 'Fri', bookings: 30 },
-    { name: 'Sat', bookings: 55 },
-    { name: 'Sun', bookings: 40 },
-  ],
-  monthly: [
-    { name: 'Week 1', bookings: 120 },
-    { name: 'Week 2', bookings: 140 },
-    { name: 'Week 3', bookings: 160 },
-    { name: 'Week 4', bookings: 210 },
-  ],
-  yearly: [
-    { name: 'Q1', bookings: 540 },
-    { name: 'Q2', bookings: 620 },
-    { name: 'Q3', bookings: 880 },
-    { name: 'Q4', bookings: 1100 },
-  ],
-};
+import { useBookings } from '../../../hooks/useBookings';
 
 export const BookingsGraphWidget: React.FC = () => {
   const [range, setRange] = useState('weekly');
+  const { data: bookings = [] } = useBookings();
 
-  const chartData = dataOptions[range] || dataOptions.weekly;
+  const getWeeklyData = (items: any[]) => {
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const counts = { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0, Sun: 0 } as Record<string, number>;
+    items.forEach(b => {
+      if (!b.booking_date) return;
+      const dayName = days[new Date(b.booking_date).getDay()];
+      if (counts[dayName] !== undefined) {
+        counts[dayName]++;
+      }
+    });
+    return [
+      { name: 'Mon', bookings: counts.Mon },
+      { name: 'Tue', bookings: counts.Tue },
+      { name: 'Wed', bookings: counts.Wed },
+      { name: 'Thu', bookings: counts.Thu },
+      { name: 'Fri', bookings: counts.Fri },
+      { name: 'Sat', bookings: counts.Sat },
+      { name: 'Sun', bookings: counts.Sun },
+    ];
+  };
+
+  const getMonthlyData = (items: any[]) => {
+    const counts = { 'Week 1': 0, 'Week 2': 0, 'Week 3': 0, 'Week 4': 0 } as Record<string, number>;
+    items.forEach(b => {
+      if (!b.booking_date) return;
+      const day = new Date(b.booking_date).getDate();
+      if (day <= 7) counts['Week 1']++;
+      else if (day <= 14) counts['Week 2']++;
+      else if (day <= 21) counts['Week 3']++;
+      else counts['Week 4']++;
+    });
+    return [
+      { name: 'Week 1', bookings: counts['Week 1'] },
+      { name: 'Week 2', bookings: counts['Week 2'] },
+      { name: 'Week 3', bookings: counts['Week 3'] },
+      { name: 'Week 4', bookings: counts['Week 4'] },
+    ];
+  };
+
+  const getYearlyData = (items: any[]) => {
+    const counts = { Q1: 0, Q2: 0, Q3: 0, Q4: 0 } as Record<string, number>;
+    items.forEach(b => {
+      if (!b.booking_date) return;
+      const month = new Date(b.booking_date).getMonth();
+      if (month < 3) counts.Q1++;
+      else if (month < 6) counts.Q2++;
+      else if (month < 9) counts.Q3++;
+      else counts.Q4++;
+    });
+    return [
+      { name: 'Q1', bookings: counts.Q1 },
+      { name: 'Q2', bookings: counts.Q2 },
+      { name: 'Q3', bookings: counts.Q3 },
+      { name: 'Q4', bookings: counts.Q4 },
+    ];
+  };
+
+  const chartData =
+    range === 'weekly'
+      ? getWeeklyData(bookings)
+      : range === 'monthly'
+      ? getMonthlyData(bookings)
+      : getYearlyData(bookings);
 
   return (
     <Card
@@ -60,12 +100,39 @@ export const BookingsGraphWidget: React.FC = () => {
             mb: 2,
           }}
         >
-          <Typography
-            variant="h6"
-            sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}
-          >
-            Bookings Growth
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}
+            >
+              Bookings Growth
+            </Typography>
+            <Box
+              sx={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 0.5,
+                px: 1,
+                py: 0.2,
+                borderRadius: 1.5,
+                fontSize: '0.65rem',
+                fontWeight: 700,
+                bgcolor: 'rgba(72, 187, 120, 0.12)',
+                color: '#276749',
+                border: '1px solid rgba(72, 187, 120, 0.25)',
+              }}
+            >
+              <Box
+                sx={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: '50%',
+                  bgcolor: '#48BB78',
+                }}
+              />
+              <span>Real API</span>
+            </Box>
+          </Box>
           <FormControl size="small" sx={{ minWidth: 120 }}>
             <Select
               value={range}

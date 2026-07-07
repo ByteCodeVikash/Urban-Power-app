@@ -12,84 +12,84 @@ import {
   Paper,
   Box,
 } from '@mui/material';
+import { useBookings } from '../../../hooks/useBookings';
+import { useAuthStore } from '../../../store/authStore';
 
-interface Order {
-  id: string;
-  customer: string;
-  service: string;
-  date: string;
-  amount: string;
-  status: 'Pending' | 'Completed' | 'Cancelled' | 'Assigned' | 'On The Way';
-}
-
-const recentOrders: Order[] = [
-  {
-    id: 'ORD-8942',
-    customer: 'Vijay Kumar',
-    service: 'AC Repair',
-    date: '2026-07-03',
-    amount: '₹1,299',
-    status: 'Pending',
-  },
-  {
-    id: 'ORD-8941',
-    customer: 'Ritu Sharma',
-    service: 'Deep Cleaning',
-    date: '2026-07-03',
-    amount: '₹2,499',
-    status: 'Assigned',
-  },
-  {
-    id: 'ORD-8940',
-    customer: 'Anil Gupta',
-    service: 'Electrical Repair',
-    date: '2026-07-03',
-    amount: '₹450',
-    status: 'Completed',
-  },
-  {
-    id: 'ORD-8939',
-    customer: 'Preeti Singh',
-    service: 'Beautician',
-    date: '2026-07-02',
-    amount: '₹1,800',
-    status: 'Completed',
-  },
-  {
-    id: 'ORD-8938',
-    customer: 'Rajesh Patel',
-    service: 'Plumbing',
-    date: '2026-07-02',
-    amount: '₹600',
-    status: 'Cancelled',
-  },
-];
-
-const getStatusStyles = (status: Order['status']) => {
-  switch (status) {
-    case 'Completed':
-      return { bgcolor: 'rgba(72, 187, 120, 0.1)', color: '#48BB78' };
-    case 'Pending':
-      return { bgcolor: 'rgba(237, 137, 54, 0.1)', color: '#ED8936' };
-    case 'Cancelled':
-      return { bgcolor: 'rgba(245, 101, 101, 0.1)', color: '#F56565' };
-    default:
-      return { bgcolor: 'rgba(49, 130, 206, 0.1)', color: '#3182CE' };
+const getStatusStyles = (status: string) => {
+  const normalized = status.toLowerCase();
+  if (normalized === 'completed') {
+    return { bgcolor: 'rgba(72, 187, 120, 0.1)', color: '#48BB78' };
   }
+  if (normalized === 'pending') {
+    return { bgcolor: 'rgba(237, 137, 54, 0.1)', color: '#ED8936' };
+  }
+  if (normalized === 'cancelled') {
+    return { bgcolor: 'rgba(245, 101, 101, 0.1)', color: '#F56565' };
+  }
+  return { bgcolor: 'rgba(49, 130, 206, 0.1)', color: '#3182CE' };
+};
+
+const formatStatus = (status: string) => {
+  if (!status) return 'Pending';
+  const s = status.toLowerCase();
+  if (s === 'pending') return 'Pending';
+  if (s === 'completed') return 'Completed';
+  if (s === 'cancelled') return 'Cancelled';
+  if (s === 'assigned') return 'Assigned';
+  if (s === 'confirmed') return 'Confirmed';
+  if (s === 'in_progress') return 'In Progress';
+  return status.charAt(0).toUpperCase() + status.slice(1);
 };
 
 export const LatestOrdersWidget: React.FC = () => {
+  const { data: bookings = [], isLoading } = useBookings();
+  const { user } = useAuthStore();
+
+  const userName = user?.name || user?.email || 'Customer';
+
+  // Sort and take top 5
+  const recentBookings = [...bookings]
+    .sort((a, b) => new Date(b.booking_date).getTime() - new Date(a.booking_date).getTime())
+    .slice(0, 5);
+
   return (
     <Card
       sx={{ border: '1px solid #E2E8F0', borderRadius: 3.5, boxShadow: 'none' }}
     >
       <CardContent sx={{ pb: '16px !important' }}>
-        <Typography
-          variant="h6"
-          sx={{ fontWeight: 700, mb: 2, fontFamily: '"Outfit", sans-serif' }}
-        >
-          Latest Bookings
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}
+          >
+            Latest Bookings
+          </Typography>
+          <Box
+            sx={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 0.5,
+              px: 1,
+              py: 0.2,
+              borderRadius: 1.5,
+              fontSize: '0.65rem',
+              fontWeight: 700,
+              bgcolor: 'rgba(72, 187, 120, 0.12)',
+              color: '#276749',
+              border: '1px solid rgba(72, 187, 120, 0.25)',
+            }}
+          >
+            <Box
+              sx={{
+                width: 6,
+                height: 6,
+                borderRadius: '50%',
+                bgcolor: '#48BB78',
+              }}
+            />
+            <span>Real API</span>
+          </Box>
+        </Box>
         <TableContainer
           component={Paper}
           sx={{ boxShadow: 'none', border: 'none' }}
@@ -107,38 +107,53 @@ export const LatestOrdersWidget: React.FC = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {recentOrders.map(order => {
-                const styles = getStatusStyles(order.status);
-                return (
-                  <TableRow
-                    key={order.id}
-                    hover
-                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                  >
-                    <TableCell sx={{ fontWeight: 600, py: 1.5 }}>
-                      {order.id}
-                    </TableCell>
-                    <TableCell sx={{ py: 1.5 }}>{order.customer}</TableCell>
-                    <TableCell sx={{ py: 1.5 }}>{order.service}</TableCell>
-                    <TableCell sx={{ py: 1.5 }}>{order.amount}</TableCell>
-                    <TableCell align="center" sx={{ py: 1.5 }}>
-                      <Box
-                        sx={{
-                          display: 'inline-block',
-                          px: 1.5,
-                          py: 0.5,
-                          borderRadius: 2,
-                          fontSize: '0.75rem',
-                          fontWeight: 700,
-                          ...styles,
-                        }}
-                      >
-                        {order.status}
-                      </Box>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
+                    Loading bookings...
+                  </TableCell>
+                </TableRow>
+              ) : recentBookings.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} align="center" sx={{ py: 3, color: 'text.secondary' }}>
+                    No bookings found.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                recentBookings.map(order => {
+                  const styles = getStatusStyles(order.status);
+                  const displayId = order.booking_reference || (order.id ? `ORD-${order.id.slice(0, 4).toUpperCase()}` : 'ORD-NEW');
+                  return (
+                    <TableRow
+                      key={order.id}
+                      hover
+                      sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                    >
+                      <TableCell sx={{ fontWeight: 600, py: 1.5 }}>
+                        {displayId}
+                      </TableCell>
+                      <TableCell sx={{ py: 1.5 }}>{order.customer_name || 'Customer'}</TableCell>
+                      <TableCell sx={{ py: 1.5 }}>{order.service_name}</TableCell>
+                      <TableCell sx={{ py: 1.5 }}>₹{order.total_price?.toLocaleString() || 0}</TableCell>
+                      <TableCell align="center" sx={{ py: 1.5 }}>
+                        <Box
+                          sx={{
+                            display: 'inline-block',
+                            px: 1.5,
+                            py: 0.5,
+                            borderRadius: 2,
+                            fontSize: '0.75rem',
+                            fontWeight: 700,
+                            ...styles,
+                          }}
+                        >
+                          {formatStatus(order.status)}
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
             </TableBody>
           </Table>
         </TableContainer>

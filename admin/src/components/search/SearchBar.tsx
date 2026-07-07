@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   TextField,
   InputAdornment,
@@ -15,6 +15,9 @@ import {
   SearchOff as NoSearchIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import { useBookings } from '../../hooks/useBookings';
+import { useUsers } from '../../hooks/useUsers';
+import { useTechnicians } from '../../hooks/useTechnicians';
 
 interface SearchResult {
   id: string;
@@ -31,93 +34,65 @@ interface SearchResult {
   route: string;
 }
 
-// Simulated dynamic indices for global search mapping
-const SEARCH_INDEX: SearchResult[] = [
-  {
-    id: '1',
-    category: 'Orders',
-    title: 'ORD-001 - Vikash Kumar',
-    subtitle: 'Scrap Order | Completed',
-    route: '/orders/ORD-001',
-  },
-  {
-    id: '2',
-    category: 'Orders',
-    title: 'ORD-002 - Amit Sharma',
-    subtitle: 'Maintenance Order | Pending',
-    route: '/orders/ORD-002',
-  },
-  {
-    id: '3',
-    category: 'Users',
-    title: 'Vikash Kumar',
-    subtitle: 'Customer | Active',
-    route: '/users',
-  },
-  {
-    id: '4',
-    category: 'Users',
-    title: 'Priya Singh',
-    subtitle: 'Customer | Active',
-    route: '/users',
-  },
-  {
-    id: '5',
-    category: 'Technicians',
-    title: 'Rajesh Patil',
-    subtitle: 'Technician | Available',
-    route: '/technicians',
-  },
-  {
-    id: '6',
-    category: 'Technicians',
-    title: 'Sunil Jadhav',
-    subtitle: 'Technician | Busy',
-    route: '/technicians',
-  },
-  {
-    id: '7',
-    category: 'Payments',
-    title: 'TXN-100293',
-    subtitle: '₹1,200 | COD | Successful',
-    route: '/payments',
-  },
-  {
-    id: '8',
-    category: 'Payments',
-    title: 'TXN-100294',
-    subtitle: '₹2,500 | Razorpay | Pending',
-    route: '/payments',
-  },
-  {
-    id: '9',
-    category: 'Services',
-    title: 'AC Repair & Cleaning',
-    subtitle: 'Maintenance',
-    route: '/services',
-  },
-  {
-    id: '10',
-    category: 'Categories',
-    title: 'Scrap Material Collection',
-    subtitle: 'Scrap Services',
-    route: '/categories',
-  },
-  {
-    id: '11',
-    category: 'Settings',
-    title: 'Razorpay Keys Configuration',
-    subtitle: 'Payment Keys',
-    route: '/settings',
-  },
-];
-
 export const SearchBar: React.FC = () => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+
+  // Real data sources
+  const { data: bookings = [] } = useBookings();
+  const { data: users = [] } = useUsers();
+  const { data: technicians = [] } = useTechnicians();
+
+  // Build live search index from real API data
+  const SEARCH_INDEX: SearchResult[] = useMemo(() => {
+    const index: SearchResult[] = [];
+
+    // Orders (bookings)
+    bookings.slice(0, 200).forEach(b => {
+      index.push({
+        id: `order-${b.id}`,
+        category: 'Orders',
+        title: `${b.id?.substring(0, 12).toUpperCase() ?? 'ORD'} — ${b.customer_name ?? 'Customer'}`,
+        subtitle: `${b.service_name ?? 'Service'} | ${b.status ?? 'Unknown'}`,
+        route: `/orders/${b.id}`,
+      });
+    });
+
+    // Users
+    users.slice(0, 100).forEach(u => {
+      index.push({
+        id: `user-${u.id}`,
+        category: 'Users',
+        title: u.name || 'User',
+        subtitle: `${u.phone ?? ''} | ${u.email ?? 'Customer'}`,
+        route: '/users',
+      });
+    });
+
+    // Technicians
+    technicians.slice(0, 50).forEach(t => {
+      index.push({
+        id: `tech-${t.name}`,
+        category: 'Technicians',
+        title: t.name,
+        subtitle: `${t.service} | ${t.isAvailable ? 'Available' : 'Busy'}`,
+        route: '/technicians',
+      });
+    });
+
+    // Static nav shortcuts (these are real module links, not fake data)
+    index.push(
+      { id: 'nav-payments', category: 'Payments', title: 'Payments Dashboard', subtitle: 'View transactions and refunds', route: '/payments' },
+      { id: 'nav-services', category: 'Services', title: 'Services Management', subtitle: 'Manage all services', route: '/services' },
+      { id: 'nav-categories', category: 'Categories', title: 'Categories Management', subtitle: 'Manage service categories', route: '/categories' },
+      { id: 'nav-settings', category: 'Settings', title: 'System Settings', subtitle: 'API keys, RBAC, configurations', route: '/settings' },
+    );
+
+    return index;
+  }, [bookings, users, technicians]);
 
   // Handle outside clicks to close search dropdown
   useEffect(() => {

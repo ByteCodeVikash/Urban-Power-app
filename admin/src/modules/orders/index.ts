@@ -17,6 +17,13 @@ export const OrdersModule: Module = {
       element: Orders,
       requiredPermission: 'orders.view',
     },
+    // New route: /orders/:bookingType/:bookingId (admin API pattern)
+    {
+      path: '/orders/:bookingType/:bookingId',
+      element: OrderDetails,
+      requiredPermission: 'orders.view',
+    },
+    // Legacy route kept for backward compatibility
     {
       path: '/orders/:id',
       element: OrderDetails,

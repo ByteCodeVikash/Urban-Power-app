@@ -15,6 +15,10 @@ interface StatCardProps {
     value: number | string;
     type: 'increase' | 'decrease';
   };
+  dataSource?: {
+    type: 'real' | 'mock';
+    label?: string;
+  };
 }
 
 export const StatCard: React.FC<StatCardProps> = ({
@@ -24,6 +28,7 @@ export const StatCard: React.FC<StatCardProps> = ({
   color,
   textColor = '#FFFFFF',
   change,
+  dataSource,
 }) => {
   return (
     <Card
@@ -100,6 +105,34 @@ export const StatCard: React.FC<StatCardProps> = ({
                 >
                   vs last month
                 </Typography>
+              </Box>
+            )}
+            {dataSource && (
+              <Box
+                sx={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 0.5,
+                  mt: change ? 1.0 : 2.0,
+                  px: 1.2,
+                  py: 0.3,
+                  borderRadius: 1.5,
+                  fontSize: '0.65rem',
+                  fontWeight: 700,
+                  bgcolor: dataSource.type === 'real' ? 'rgba(72, 187, 120, 0.12)' : 'rgba(237, 137, 54, 0.12)',
+                  color: dataSource.type === 'real' ? '#276749' : '#C05621',
+                  border: dataSource.type === 'real' ? '1px solid rgba(72, 187, 120, 0.25)' : '1px solid rgba(237, 137, 54, 0.25)',
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: '50%',
+                    bgcolor: dataSource.type === 'real' ? '#48BB78' : '#ED8936',
+                  }}
+                />
+                <span>{dataSource.label || (dataSource.type === 'real' ? 'Real API' : 'Pending API')}</span>
               </Box>
             )}
           </Box>

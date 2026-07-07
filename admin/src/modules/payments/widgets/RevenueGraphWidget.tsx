@@ -17,35 +17,77 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-
-const dataOptions: Record<string, { name: string; revenue: number }[]> = {
-  weekly: [
-    { name: 'Mon', revenue: 40000 },
-    { name: 'Tue', revenue: 30000 },
-    { name: 'Wed', revenue: 98000 },
-    { name: 'Thu', revenue: 39000 },
-    { name: 'Fri', revenue: 48000 },
-    { name: 'Sat', revenue: 110000 },
-    { name: 'Sun', revenue: 85000 },
-  ],
-  monthly: [
-    { name: 'Week 1', revenue: 240000 },
-    { name: 'Week 2', revenue: 280000 },
-    { name: 'Week 3', revenue: 320000 },
-    { name: 'Week 4', revenue: 480000 },
-  ],
-  yearly: [
-    { name: 'Q1', revenue: 1200000 },
-    { name: 'Q2', revenue: 1450000 },
-    { name: 'Q3', revenue: 1980000 },
-    { name: 'Q4', revenue: 2500000 },
-  ],
-};
+import { useBookings } from '../../../hooks/useBookings';
 
 export const RevenueGraphWidget: React.FC = () => {
   const [range, setRange] = useState('weekly');
+  const { data: bookings = [] } = useBookings();
 
-  const chartData = dataOptions[range] || dataOptions.weekly;
+  const paidBookings = bookings.filter(b => b.status === 'completed' || b.status === 'confirmed');
+
+  const getWeeklyData = (items: any[]) => {
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const counts = { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0, Sun: 0 } as Record<string, number>;
+    items.forEach(b => {
+      if (!b.booking_date) return;
+      const dayName = days[new Date(b.booking_date).getDay()];
+      if (counts[dayName] !== undefined) {
+        counts[dayName] += (b.total_price || 0);
+      }
+    });
+    return [
+      { name: 'Mon', revenue: counts.Mon },
+      { name: 'Tue', revenue: counts.Tue },
+      { name: 'Wed', revenue: counts.Wed },
+      { name: 'Thu', revenue: counts.Thu },
+      { name: 'Fri', revenue: counts.Fri },
+      { name: 'Sat', revenue: counts.Sat },
+      { name: 'Sun', revenue: counts.Sun },
+    ];
+  };
+
+  const getMonthlyData = (items: any[]) => {
+    const counts = { 'Week 1': 0, 'Week 2': 0, 'Week 3': 0, 'Week 4': 0 } as Record<string, number>;
+    items.forEach(b => {
+      if (!b.booking_date) return;
+      const day = new Date(b.booking_date).getDate();
+      if (day <= 7) counts['Week 1'] += (b.total_price || 0);
+      else if (day <= 14) counts['Week 2'] += (b.total_price || 0);
+      else if (day <= 21) counts['Week 3'] += (b.total_price || 0);
+      else counts['Week 4'] += (b.total_price || 0);
+    });
+    return [
+      { name: 'Week 1', revenue: counts['Week 1'] },
+      { name: 'Week 2', revenue: counts['Week 2'] },
+      { name: 'Week 3', revenue: counts['Week 3'] },
+      { name: 'Week 4', revenue: counts['Week 4'] },
+    ];
+  };
+
+  const getYearlyData = (items: any[]) => {
+    const counts = { Q1: 0, Q2: 0, Q3: 0, Q4: 0 } as Record<string, number>;
+    items.forEach(b => {
+      if (!b.booking_date) return;
+      const month = new Date(b.booking_date).getMonth();
+      if (month < 3) counts.Q1 += (b.total_price || 0);
+      else if (month < 6) counts.Q2 += (b.total_price || 0);
+      else if (month < 9) counts.Q3 += (b.total_price || 0);
+      else counts.Q4 += (b.total_price || 0);
+    });
+    return [
+      { name: 'Q1', revenue: counts.Q1 },
+      { name: 'Q2', revenue: counts.Q2 },
+      { name: 'Q3', revenue: counts.Q3 },
+      { name: 'Q4', revenue: counts.Q4 },
+    ];
+  };
+
+  const chartData =
+    range === 'weekly'
+      ? getWeeklyData(paidBookings)
+      : range === 'monthly'
+      ? getMonthlyData(paidBookings)
+      : getYearlyData(paidBookings);
 
   return (
     <Card
@@ -60,12 +102,39 @@ export const RevenueGraphWidget: React.FC = () => {
             mb: 2,
           }}
         >
-          <Typography
-            variant="h6"
-            sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}
-          >
-            Revenue Analysis
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}
+            >
+              Revenue Analysis
+            </Typography>
+            <Box
+              sx={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 0.5,
+                px: 1,
+                py: 0.2,
+                borderRadius: 1.5,
+                fontSize: '0.65rem',
+                fontWeight: 700,
+                bgcolor: 'rgba(72, 187, 120, 0.12)',
+                color: '#276749',
+                border: '1px solid rgba(72, 187, 120, 0.25)',
+              }}
+            >
+              <Box
+                sx={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: '50%',
+                  bgcolor: '#48BB78',
+                }}
+              />
+              <span>Real API</span>
+            </Box>
+          </Box>
           <FormControl size="small" sx={{ minWidth: 120 }}>
             <Select
               value={range}

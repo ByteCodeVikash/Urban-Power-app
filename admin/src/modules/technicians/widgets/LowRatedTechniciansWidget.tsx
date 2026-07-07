@@ -5,140 +5,64 @@ import {
   Typography,
   Box,
   Avatar,
-  Rating,
   Button,
+  Skeleton,
+  Alert,
 } from '@mui/material';
-import { Warning as WarningIcon } from '@mui/icons-material';
-
-interface LowRatedTech {
-  name: string;
-  rating: number;
-  completedJobs: number;
-  avatarLetter: string;
-  issue: string;
-}
-
-const lowRatedTechs: LowRatedTech[] = [
-  {
-    name: 'Rakesh Verma',
-    rating: 3.5,
-    completedJobs: 18,
-    avatarLetter: 'RV',
-    issue: 'Customer Complaints: Delay',
-  },
-  {
-    name: 'Sanjay Kumar',
-    rating: 3.8,
-    completedJobs: 24,
-    avatarLetter: 'SK',
-    issue: 'Poor behavior reported',
-  },
-];
+import { Warning as WarningIcon, HourglassEmpty as PendingIcon } from '@mui/icons-material';
 
 export const LowRatedTechniciansWidget: React.FC = () => {
+  // No backend ratings API exists yet.
+  // When GET /api/v1/technicians/performance (or similar) is available,
+  // fetch technician ratings and filter those below the threshold (e.g. < 4.0).
+  const isLoading = false;
+
   return (
-    <Card
-      sx={{ border: '1px solid #F56565', borderRadius: 3.5, boxShadow: 'none' }}
-    >
+    <Card sx={{ border: '1px solid #F56565', borderRadius: 3.5, boxShadow: 'none' }}>
       <CardContent sx={{ pb: '16px !important' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-          <WarningIcon sx={{ color: '#F56565' }} />
-          <Typography
-            variant="h6"
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <WarningIcon sx={{ color: '#F56565' }} />
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif', color: '#1A202C' }}
+            >
+              Low Rated Technicians
+            </Typography>
+          </Box>
+          <Box
             sx={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              px: 1,
+              py: 0.2,
+              borderRadius: 1.5,
+              fontSize: '0.65rem',
               fontWeight: 700,
-              fontFamily: '"Outfit", sans-serif',
-              color: '#1A202C',
+              bgcolor: 'rgba(237, 137, 54, 0.12)',
+              color: '#C05621',
+              border: '1px solid rgba(237, 137, 54, 0.25)',
             }}
           >
-            Low Rated Technicians
-          </Typography>
+            ○ Pending API
+          </Box>
         </Box>
-        {lowRatedTechs.length === 0 ? (
-          <Typography variant="body2" color="text.secondary">
-            No technicians under the rating threshold (4.0).
-          </Typography>
-        ) : (
+
+        {isLoading ? (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            {lowRatedTechs.map(tech => (
-              <Box
-                key={tech.name}
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  width: '100%',
-                }}
-              >
-                <Box
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 1.5,
-                    flexGrow: 1,
-                  }}
-                >
-                  <Avatar
-                    sx={{
-                      bgcolor: 'rgba(245, 101, 101, 0.1)',
-                      color: '#F56565',
-                      width: 36,
-                      height: 36,
-                      fontSize: '0.85rem',
-                      fontWeight: 700,
-                    }}
-                  >
-                    {tech.avatarLetter}
-                  </Avatar>
-                  <Box>
-                    <Typography
-                      variant="body2"
-                      sx={{ fontWeight: 600, color: '#2D3748' }}
-                    >
-                      {tech.name}
-                    </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Rating
-                        value={tech.rating}
-                        precision={0.1}
-                        readOnly
-                        size="small"
-                      />
-                      <Typography
-                        variant="caption"
-                        sx={{ fontWeight: 700, color: '#F56565' }}
-                      >
-                        {tech.rating}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Box>
-                <Box sx={{ textAlign: 'right' }}>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{ display: 'block', fontWeight: 500 }}
-                  >
-                    {tech.issue}
-                  </Typography>
-                  <Button
-                    variant="text"
-                    color="error"
-                    size="small"
-                    sx={{
-                      p: 0,
-                      minWidth: 0,
-                      fontSize: '0.75rem',
-                      fontWeight: 700,
-                      textTransform: 'none',
-                    }}
-                  >
-                    Take Action
-                  </Button>
-                </Box>
-              </Box>
+            {[1, 2].map(i => (
+              <Skeleton key={i} variant="rectangular" height={40} sx={{ borderRadius: 2 }} />
             ))}
           </Box>
+        ) : (
+          <Alert
+            severity="warning"
+            icon={<PendingIcon fontSize="small" />}
+            sx={{ borderRadius: 2, fontSize: '0.8rem' }}
+          >
+            Requires <code>GET /api/v1/technicians/performance</code> API.
+            No mock data is shown.
+          </Alert>
         )}
       </CardContent>
     </Card>

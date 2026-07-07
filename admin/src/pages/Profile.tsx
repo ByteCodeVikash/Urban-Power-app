@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as zod from 'zod';
@@ -15,6 +15,7 @@ import {
   Divider,
 } from '@mui/material';
 import { useAuthStore } from '../store/authStore';
+import { apiClient } from '../api/apiClient';
 
 // Form Schema
 const profileSchema = zod.object({
@@ -23,51 +24,94 @@ const profileSchema = zod.object({
     .string()
     .min(1, 'Email is required')
     .email('Invalid email address'),
-  phone: zod.string().min(10, 'Phone must be at least 10 digits'),
   newPassword: zod.string().optional().or(zod.literal('')),
 });
 
 type ProfileFormValues = zod.infer<typeof profileSchema>;
 
 export const Profile: React.FC = () => {
-  const { user, login, token } = useAuthStore();
+  const { user, login, token, refreshToken } = useAuthStore();
   const [successText, setSuccessText] = useState<string | null>(null);
+  const [errorText, setErrorText] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      name: user?.name || 'Super Admin',
-      email: user?.email || 'admin@urbanpower.com',
-      phone: '+91 98765 00000',
+      name: user?.name || '',
+      email: user?.email || '',
       newPassword: '',
     },
   });
 
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const response = await apiClient.get('/api/v1/users/me');
+        const profile = response.data;
+        reset({
+          name: profile.full_name || '',
+          email: profile.email || '',
+          newPassword: '',
+        });
+      } catch (err) {
+        console.error('Failed to load user profile from backend:', err);
+        if (user) {
+          reset({
+            name: user.name || '',
+            email: user.email || '',
+            newPassword: '',
+          });
+        }
+      }
+    };
+    loadProfile();
+  }, [reset, user]);
+
   const onSubmit = async (data: ProfileFormValues) => {
     setSuccessText(null);
+    setErrorText(null);
     try {
-      // Simulate API Save
-      await new Promise(resolve => setTimeout(resolve, 800));
+      if (!user?.id) {
+        throw new Error('User identifier not found in local store.');
+      }
+
+      // Persist changes to backend
+      const response = await apiClient.put(`/api/v1/users/${user.id}`, {
+        full_name: data.name,
+        email: data.email,
+      });
+
+      const updatedUser = response.data;
 
       // Update state in store
-      if (user && token) {
+      if (token && refreshToken) {
         login(
           {
             ...user,
-            name: data.name,
-            email: data.email,
+            name: updatedUser.full_name || data.name,
+            email: updatedUser.email || data.email,
+            role: updatedUser.role || user.role,
           },
           token,
+          refreshToken,
         );
       }
       setSuccessText('Profile details saved successfully.');
       setTimeout(() => setSuccessText(null), 3000);
-    } catch {
-      // Stub catch
+    } catch (err: any) {
+      console.error('Failed to update profile:', err);
+      let errorMsg = 'Failed to update profile details.';
+      if (err.response?.data?.detail) {
+        errorMsg = typeof err.response.data.detail === 'string'
+          ? err.response.data.detail
+          : JSON.stringify(err.response.data.detail);
+      }
+      setErrorText(errorMsg);
     }
   };
 
@@ -92,6 +136,12 @@ export const Profile: React.FC = () => {
       {successText && (
         <Alert severity="success" sx={{ mb: 3, borderRadius: 2 }}>
           {successText}
+        </Alert>
+      )}
+
+      {errorText && (
+        <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
+          {errorText}
         </Alert>
       )}
 
@@ -179,16 +229,6 @@ export const Profile: React.FC = () => {
                     <TextField
                       fullWidth
                       size="small"
-                      label="Contact Number"
-                      error={!!errors.phone}
-                      helperText={errors.phone?.message}
-                      {...register('phone')}
-                    />
-                  </Grid>
-                  <Grid size={12}>
-                    <TextField
-                      fullWidth
-                      size="small"
                       label="Email Address"
                       error={!!errors.email}
                       helperText={errors.email?.message}
@@ -213,13 +253,12 @@ export const Profile: React.FC = () => {
                   <Grid size={{ xs: 12, sm: 6 }}>
                     <TextField
                       fullWidth
+                      disabled
                       size="small"
                       type="password"
                       label="New Password"
-                      placeholder="Leave blank to keep current"
-                      error={!!errors.newPassword}
-                      helperText={errors.newPassword?.message}
-                      {...register('newPassword')}
+                      placeholder="Password updates disabled"
+                      helperText="Managed via Auth Provider / System Override"
                     />
                   </Grid>
                 </Grid>

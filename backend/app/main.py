@@ -40,7 +40,32 @@ async def lifespan(app: FastAPI):
 
     # Verify Database connectivity on startup
     verify_db_connection()
-    
+
+    # Ensure booking_status_history table exists (no migration needed)
+    from app.core.database import engine
+    from sqlalchemy import text
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS booking_status_history (
+                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                    booking_id VARCHAR(64) NOT NULL,
+                    booking_type VARCHAR(20) NOT NULL,
+                    status VARCHAR(50) NOT NULL,
+                    updated_by VARCHAR(64),
+                    updated_by_name VARCHAR(255),
+                    notes TEXT,
+                    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                )
+            """))
+            conn.execute(text(
+                "CREATE INDEX IF NOT EXISTS idx_bsh_booking_id ON booking_status_history (booking_id)"
+            ))
+            conn.commit()
+        logger.info("booking_status_history table verified/created.")
+    except Exception as e:
+        logger.warning(f"Could not auto-create booking_status_history table: {e}")
+
     # Seed default Scrap and Beautician data
     from app.core.database import SessionLocal
     from app.core.seeding import seed_scrap_data, seed_beautician_data, seed_maintenance_data

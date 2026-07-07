@@ -103,17 +103,32 @@ def create_payment_order(
         order_id = f"order_mock_{_uuid.uuid4().hex[:16]}"
 
     # 3. Persist pending Payment (store order_id in transaction_id temporarily)
-    payment = Payment(
-        booking_id=booking.id,
-        user_id=current_user.id,
-        payment_method="razorpay",
-        payment_status="pending",
-        amount=payload.amount,
-        transaction_id=order_id,   # re-used to store order_id until verification
+    # Check if a payment already exists for this booking (unique constraint on booking_id)
+    existing_payment: Optional[Payment] = (
+        db.query(Payment).filter(Payment.booking_id == booking.id).first()
     )
-    db.add(payment)
-    db.commit()
-    db.refresh(payment)
+    if existing_payment:
+        # If already completed, reject re-payment
+        if existing_payment.payment_status == "completed":
+            raise HTTPException(status_code=400, detail="Payment already completed for this booking")
+        # Reuse existing pending payment row but update order_id
+        existing_payment.transaction_id = order_id
+        existing_payment.amount = payload.amount
+        db.commit()
+        db.refresh(existing_payment)
+        payment = existing_payment
+    else:
+        payment = Payment(
+            booking_id=booking.id,
+            user_id=current_user.id,
+            payment_method="razorpay",
+            payment_status="pending",
+            amount=payload.amount,
+            transaction_id=order_id,   # re-used to store order_id until verification
+        )
+        db.add(payment)
+        db.commit()
+        db.refresh(payment)
 
     return PaymentCreateOrderResponse(
         order_id=order_id,

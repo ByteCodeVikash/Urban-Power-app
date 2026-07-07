@@ -8,6 +8,9 @@ from app.models.payment import Payment
 from app.models.address import Address
 from app.models.scrap import ScrapCategory, ScrapItem
 from app.models.maintenance import MaintenanceCategory, MaintenanceService
+from app.models.scrap_booking import ScrapBooking, ScrapBookingStatus
+from app.models.maintenance_booking import MaintenanceBooking, MaintenanceBookingStatus
+from app.models.booking_status_history import BookingStatusHistory
 
 __all__ = [
     "BaseModel",
@@ -23,5 +26,10 @@ __all__ = [
     "ScrapItem",
     "MaintenanceCategory",
     "MaintenanceService",
+    "ScrapBooking",
+    "ScrapBookingStatus",
+    "MaintenanceBooking",
+    "MaintenanceBookingStatus",
+    "BookingStatusHistory",
 ]
 

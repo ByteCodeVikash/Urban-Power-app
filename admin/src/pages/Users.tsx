@@ -1,597 +1,361 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
-  Grid,
-  TextField,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Button,
-  IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Avatar,
-  TableSortLabel,
-  TablePagination,
+  Box, Card, CardContent, Typography, Grid, TextField, Chip,
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+  Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions,
+  Avatar, TableSortLabel, TablePagination, Button, Skeleton, Alert,
+  FormControl, InputLabel, Select, MenuItem, Divider, Tooltip,
 } from '@mui/material';
 import {
-  Search as SearchIcon,
-  Visibility as ViewIcon,
-  Person as UserIcon,
-  Email as EmailIcon,
-  Phone as PhoneIcon,
-  History as HistoryIcon,
+  Search as SearchIcon, Visibility as ViewIcon,
+  Person as UserIcon, Email as EmailIcon, Phone as PhoneIcon,
+  History as HistoryIcon, TrendingUp as SpendIcon,
+  CalendarToday as JoinIcon, Refresh as RefreshIcon,
 } from '@mui/icons-material';
+import { useUsers, type UserProfile, type UserBooking } from '../hooks/useUsers';
 
-// Mock users database
-const mockUsers = [
-  {
-    id: 'U-001',
-    name: 'Vikash Kumar',
-    email: 'vikash.kumar@gmail.com',
-    phone: '+91 98765 43210',
-    joined: '2026-01-15',
-    bookingsCount: 8,
-    status: 'Active',
-    history: [
-      {
-        id: 'ORD-101',
-        date: '2026-07-03',
-        service: 'Electronic Scrap Pick-up',
-        amount: '₹1,200',
-        status: 'Completed',
-      },
-      {
-        id: 'ORD-085',
-        date: '2026-05-12',
-        service: 'AC Filter Replacement',
-        amount: '₹850',
-        status: 'Completed',
-      },
-      {
-        id: 'ORD-043',
-        date: '2026-03-20',
-        service: 'House Painting Survey',
-        amount: '₹0',
-        status: 'Completed',
-      },
-    ],
-  },
-  {
-    id: 'U-002',
-    name: 'Amit Sharma',
-    email: 'amit.sharma@yahoo.com',
-    phone: '+91 98765 12345',
-    joined: '2026-02-10',
-    bookingsCount: 4,
-    status: 'Active',
-    history: [
-      {
-        id: 'ORD-102',
-        date: '2026-07-03',
-        service: 'Air Conditioner Deep Cleaning',
-        amount: '₹2,500',
-        status: 'Pending',
-      },
-      {
-        id: 'ORD-076',
-        date: '2026-04-05',
-        service: 'Refrigerator Repair',
-        amount: '₹1,400',
-        status: 'Completed',
-      },
-    ],
-  },
-  {
-    id: 'U-003',
-    name: 'Priya Singh',
-    email: 'priya.singh@gmail.com',
-    phone: '+91 91234 56789',
-    joined: '2026-03-01',
-    bookingsCount: 12,
-    status: 'Active',
-    history: [
-      {
-        id: 'ORD-103',
-        date: '2026-07-03',
-        service: 'Bridal Make-up & Hair Package',
-        amount: '₹1,800',
-        status: 'Assigned',
-      },
-      {
-        id: 'ORD-092',
-        date: '2026-06-18',
-        service: 'Pedicure & Facial Salon Service',
-        amount: '₹1,500',
-        status: 'Completed',
-      },
-    ],
-  },
-  {
-    id: 'U-004',
-    name: 'Rohan Verma',
-    email: 'rohan.verma@outlook.com',
-    phone: '+91 99988 77766',
-    joined: '2026-04-20',
-    bookingsCount: 1,
-    status: 'Suspended',
-    history: [
-      {
-        id: 'ORD-104',
-        date: '2026-07-02',
-        service: 'Electronic Scrap Pick-up',
-        amount: '₹800',
-        status: 'Cancelled',
-      },
-    ],
-  },
-];
+const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
+  completed:   { bg: 'rgba(72,187,120,0.15)', color: '#276749' },
+  confirmed:   { bg: 'rgba(66,153,225,0.15)', color: '#2B6CB0' },
+  assigned:    { bg: 'rgba(66,153,225,0.12)', color: '#2C5282' },
+  in_progress: { bg: 'rgba(237,137,54,0.15)', color: '#C05621' },
+  pending:     { bg: 'rgba(250,208,44,0.2)',  color: '#B7791F' },
+  cancelled:   { bg: 'rgba(245,101,101,0.15)', color: '#9B2C2C' },
+};
+
+function StatusChip({ status }: { status: string }) {
+  const s = status?.toLowerCase() || '';
+  const style = STATUS_COLORS[s] || { bg: '#E2E8F0', color: '#4A5568' };
+  return (
+    <Box sx={{ display: 'inline-block', px: 1.5, py: 0.4, borderRadius: 2, fontSize: '0.72rem', fontWeight: 700, bgcolor: style.bg, color: style.color }}>
+      {status?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+    </Box>
+  );
+}
+
+function BookingHistoryTable({ bookings }: { bookings: UserBooking[] }) {
+  if (!bookings.length) {
+    return <Typography color="text.secondary" sx={{ py: 3, textAlign: 'center' }}>No bookings found for this user.</Typography>;
+  }
+  return (
+    <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #E2E8F0', borderRadius: 2 }}>
+      <Table size="small">
+        <TableHead sx={{ bgcolor: '#F8FAFC' }}>
+          <TableRow>
+            <TableCell sx={{ fontWeight: 700, fontSize: '0.75rem' }}>Reference</TableCell>
+            <TableCell sx={{ fontWeight: 700, fontSize: '0.75rem' }}>Date</TableCell>
+            <TableCell sx={{ fontWeight: 700, fontSize: '0.75rem' }}>Service</TableCell>
+            <TableCell sx={{ fontWeight: 700, fontSize: '0.75rem' }}>Amount</TableCell>
+            <TableCell sx={{ fontWeight: 700, fontSize: '0.75rem' }} align="center">Status</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {bookings.map(b => (
+            <TableRow key={b.id} hover>
+              <TableCell sx={{ fontWeight: 600, color: 'primary.main', fontSize: '0.78rem' }}>
+                {b.booking_reference || b.id.substring(0, 8)}
+              </TableCell>
+              <TableCell sx={{ fontSize: '0.78rem' }}>{b.booking_date?.split('T')[0] || '—'}</TableCell>
+              <TableCell sx={{ fontSize: '0.78rem' }}>{b.service_name}</TableCell>
+              <TableCell sx={{ fontSize: '0.78rem', fontWeight: 600 }}>
+                {b.total_price > 0 ? `₹${b.total_price.toLocaleString('en-IN')}` : '₹0'}
+              </TableCell>
+              <TableCell align="center"><StatusChip status={b.status} /></TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+}
+
+type SortKey = 'name' | 'joined' | 'bookingsCount' | 'totalSpend' | 'lastActivity';
 
 export const Users: React.FC = () => {
-  const [users] = useState(mockUsers);
+  const { data: users = [], isLoading, isError, refetch } = useUsers();
+
   const [search, setSearch] = useState('');
-  const [selectedUser, setSelectedUser] = useState<
-    (typeof mockUsers)[0] | null
-  >(null);
-  const [openDetailDialog, setOpenDetailDialog] = useState(false);
-
-  // Pagination states
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
+  const [openDialog, setOpenDialog] = useState(false);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [orderBy, setOrderBy] = useState<SortKey>('lastActivity');
+  const [order, setOrder] = useState<'asc' | 'desc'>('desc');
 
-  // Sorting states
-  const [orderBy, setOrderBy] = useState<
-    'id' | 'name' | 'email' | 'joined' | 'bookingsCount' | 'status'
-  >('name');
-  const [order, setOrder] = useState<'asc' | 'desc'>('asc');
-
-  // Filter users based on search string
-  const filteredUsers = users.filter(
-    u =>
-      u.name.toLowerCase().includes(search.toLowerCase()) ||
-      u.email.toLowerCase().includes(search.toLowerCase()) ||
-      u.phone.includes(search),
-  );
-
-  const handleRequestSort = (
-    property: 'id' | 'name' | 'email' | 'joined' | 'bookingsCount' | 'status',
-  ) => {
-    const isAsc = orderBy === property && order === 'asc';
-    setOrder(isAsc ? 'desc' : 'asc');
-    setOrderBy(property);
+  const handleSort = (col: SortKey) => {
+    setOrder(orderBy === col && order === 'asc' ? 'desc' : 'asc');
+    setOrderBy(col);
     setPage(0);
   };
 
-  const sortedUsers = [...filteredUsers].sort((a, b) => {
-    let aVal: any = a[orderBy];
-    let bVal: any = b[orderBy];
+  const filtered = useMemo(() => {
+    return users.filter(u => {
+      const q = search.toLowerCase();
+      const matchSearch = !q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q) || u.phone.includes(q) || u.id.includes(q);
+      const matchStatus = statusFilter === 'all' || (statusFilter === 'active' ? u.is_active : !u.is_active);
+      return matchSearch && matchStatus;
+    });
+  }, [users, search, statusFilter]);
 
-    if (orderBy === 'bookingsCount') {
-      aVal = Number(a.bookingsCount);
-      bVal = Number(b.bookingsCount);
-    } else {
-      aVal = String(aVal).toLowerCase();
-      bVal = String(bVal).toLowerCase();
-    }
+  const sorted = useMemo(() => {
+    return [...filtered].sort((a, b) => {
+      let av: any = a[orderBy], bv: any = b[orderBy];
+      if (typeof av === 'string') { av = av.toLowerCase(); bv = bv.toLowerCase(); }
+      if (av < bv) return order === 'asc' ? -1 : 1;
+      if (av > bv) return order === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [filtered, orderBy, order]);
 
-    if (aVal < bVal) {
-      return order === 'asc' ? -1 : 1;
-    }
-    if (aVal > bVal) {
-      return order === 'asc' ? 1 : -1;
-    }
-    return 0;
-  });
+  const paginated = sorted.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
-  const paginatedUsers = sortedUsers.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage,
+  const SortHeader = ({ col, label }: { col: SortKey; label: string }) => (
+    <TableSortLabel active={orderBy === col} direction={orderBy === col ? order : 'asc'} onClick={() => handleSort(col)}>
+      {label}
+    </TableSortLabel>
   );
-
-  const handleChangePage = (_event: unknown, newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const handleOpenDetails = (user: (typeof mockUsers)[0]) => {
-    setSelectedUser(user);
-    setOpenDetailDialog(true);
-  };
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <Box sx={{ mb: 4 }}>
-        <Typography
-          variant="h4"
-          sx={{
-            fontWeight: 800,
-            fontFamily: '"Outfit", sans-serif',
-            color: '#1A202C',
-          }}
-        >
-          Registered Customers
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Browse customer profile details, account active status, and individual
-          order booking histories.
-        </Typography>
+      {/* Page Header */}
+      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2 }}>
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: 800, fontFamily: '"Outfit", sans-serif', color: '#1A202C' }}>
+            Registered Customers
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            User profiles derived from booking data · {users.length} unique customers found
+          </Typography>
+        </Box>
+        <Tooltip title="Refresh user data">
+          <IconButton onClick={() => refetch()} sx={{ border: '1px solid #E2E8F0', borderRadius: 2 }}>
+            <RefreshIcon />
+          </IconButton>
+        </Tooltip>
       </Box>
 
-      {/* Search Filter Header */}
-      <Card sx={{ mb: 4 }}>
-        <CardContent sx={{ p: 2.5 }}>
-          <Grid container spacing={2}>
-            <Grid size={{ xs: 12, md: 6 }}>
+      {/* Summary Stats */}
+      {!isLoading && !isError && (
+        <Grid container spacing={2.5} sx={{ mb: 3 }}>
+          {[
+            { label: 'Total Customers', value: users.length, color: '#4299E1' },
+            { label: 'Active', value: users.filter(u => u.is_active).length, color: '#48BB78' },
+            { label: 'Total Bookings', value: users.reduce((s, u) => s + u.bookingsCount, 0), color: '#ED8936' },
+            { label: 'Revenue Generated', value: `₹${users.reduce((s, u) => s + u.totalSpend, 0).toLocaleString('en-IN')}`, color: '#9F7AEA' },
+          ].map(stat => (
+            <Grid size={{ xs: 6, md: 3 }} key={stat.label}>
+              <Card elevation={0} sx={{ border: '1px solid #E2E8F0', borderRadius: 3, p: 2 }}>
+                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                  {stat.label}
+                </Typography>
+                <Typography variant="h5" sx={{ fontWeight: 800, color: stat.color, mt: 0.5 }}>
+                  {stat.value}
+                </Typography>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      )}
+
+      {/* Filters */}
+      <Card elevation={0} sx={{ mb: 3, border: '1px solid #E2E8F0', borderRadius: 3 }}>
+        <CardContent sx={{ p: 2 }}>
+          <Grid container spacing={2} sx={{ alignItems: 'center' }}>
+            <Grid size={{ xs: 12, md: 7 }}>
               <TextField
-                fullWidth
-                size="small"
-                placeholder="Search customers by Name, Email, or Phone..."
+                fullWidth size="small"
+                placeholder="Search by name, phone, email or user ID…"
                 value={search}
-                onChange={e => {
-                  setSearch(e.target.value);
-                  setPage(0);
-                }}
-                slotProps={{
-                  input: {
-                    startAdornment: (
-                      <SearchIcon color="action" sx={{ mr: 1 }} />
-                    ),
-                  },
-                }}
+                onChange={e => { setSearch(e.target.value); setPage(0); }}
+                slotProps={{ input: { startAdornment: <SearchIcon color="action" sx={{ mr: 1 }} /> } }}
               />
+            </Grid>
+            <Grid size={{ xs: 12, md: 3 }}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Status</InputLabel>
+                <Select label="Status" value={statusFilter} onChange={e => { setStatusFilter(e.target.value as any); setPage(0); }}>
+                  <MenuItem value="all">All Statuses</MenuItem>
+                  <MenuItem value="active">Active</MenuItem>
+                  <MenuItem value="inactive">Inactive</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={{ xs: 12, md: 2 }}>
+              <Typography variant="caption" color="text.secondary">
+                {filtered.length} result{filtered.length !== 1 ? 's' : ''}
+              </Typography>
             </Grid>
           </Grid>
         </CardContent>
       </Card>
 
-      {/* Users List Data Grid */}
-      <TableContainer
-        component={Paper}
-        elevation={0}
-        sx={{ border: '1px solid #E2E8F0' }}
-      >
+      {/* Error State */}
+      {isError && (
+        <Alert severity="warning" sx={{ mb: 3 }}>
+          Could not load booking data. Ensure the backend API is reachable and you are authenticated.
+        </Alert>
+      )}
+
+      {/* User Table */}
+      <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #E2E8F0', borderRadius: 3 }}>
         <Table>
-          <TableHead>
+          <TableHead sx={{ bgcolor: '#F8FAFC' }}>
             <TableRow>
-              <TableCell>
-                <TableSortLabel
-                  active={orderBy === 'id'}
-                  direction={orderBy === 'id' ? order : 'asc'}
-                  onClick={() => handleRequestSort('id')}
-                >
-                  Customer ID
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>
-                <TableSortLabel
-                  active={orderBy === 'name'}
-                  direction={orderBy === 'name' ? order : 'asc'}
-                  onClick={() => handleRequestSort('name')}
-                >
-                  Name
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>
-                <TableSortLabel
-                  active={orderBy === 'email'}
-                  direction={orderBy === 'email' ? order : 'asc'}
-                  onClick={() => handleRequestSort('email')}
-                >
-                  Email
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>Phone Number</TableCell>
-              <TableCell>
-                <TableSortLabel
-                  active={orderBy === 'joined'}
-                  direction={orderBy === 'joined' ? order : 'asc'}
-                  onClick={() => handleRequestSort('joined')}
-                >
-                  Joined Date
-                </TableSortLabel>
-              </TableCell>
-              <TableCell align="center">
-                <TableSortLabel
-                  active={orderBy === 'bookingsCount'}
-                  direction={orderBy === 'bookingsCount' ? order : 'asc'}
-                  onClick={() => handleRequestSort('bookingsCount')}
-                >
-                  Total Bookings
-                </TableSortLabel>
-              </TableCell>
-              <TableCell align="center">
-                <TableSortLabel
-                  active={orderBy === 'status'}
-                  direction={orderBy === 'status' ? order : 'asc'}
-                  onClick={() => handleRequestSort('status')}
-                >
-                  Status
-                </TableSortLabel>
-              </TableCell>
-              <TableCell align="right">Actions</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Customer</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Contact</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}><SortHeader col="joined" label="First Booking" /></TableCell>
+              <TableCell sx={{ fontWeight: 700 }}><SortHeader col="lastActivity" label="Last Activity" /></TableCell>
+              <TableCell sx={{ fontWeight: 700 }} align="center"><SortHeader col="bookingsCount" label="Bookings" /></TableCell>
+              <TableCell sx={{ fontWeight: 700 }} align="right"><SortHeader col="totalSpend" label="Total Spend" /></TableCell>
+              <TableCell sx={{ fontWeight: 700 }} align="center">Status</TableCell>
+              <TableCell sx={{ fontWeight: 700 }} align="right">Details</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedUsers.map(user => (
-              <TableRow key={user.id} hover>
-                <TableCell sx={{ fontWeight: 600 }}>{user.id}</TableCell>
-                <TableCell>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                    <Avatar
-                      sx={{
-                        width: 32,
-                        height: 32,
-                        bgcolor: '#2D3748',
-                        fontSize: '0.85rem',
-                      }}
-                    >
-                      {user.name.charAt(0)}
-                    </Avatar>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      {user.name}
-                    </Typography>
-                  </Box>
-                </TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>{user.phone}</TableCell>
-                <TableCell>{user.joined}</TableCell>
-                <TableCell align="center">{user.bookingsCount}</TableCell>
-                <TableCell align="center">
-                  <Box
-                    sx={{
-                      display: 'inline-block',
-                      px: 1.5,
-                      py: 0.5,
-                      borderRadius: 2,
-                      fontSize: '0.75rem',
-                      fontWeight: 700,
-                      bgcolor:
-                        user.status === 'Active'
-                          ? 'rgba(72, 187, 120, 0.15)'
-                          : 'rgba(245, 101, 101, 0.15)',
-                      color: user.status === 'Active' ? '#276749' : '#9B2C2C',
-                    }}
-                  >
-                    {user.status}
-                  </Box>
-                </TableCell>
-                <TableCell align="right">
-                  <IconButton
-                    color="primary"
-                    size="small"
-                    onClick={() => handleOpenDetails(user)}
-                  >
-                    <ViewIcon fontSize="small" />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-            {paginatedUsers.length === 0 && (
+            {isLoading ? (
+              [1, 2, 3, 4, 5].map(i => (
+                <TableRow key={i}>
+                  {[1,2,3,4,5,6,7,8].map(j => (
+                    <TableCell key={j}><Skeleton variant="text" /></TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : paginated.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
-                  <Typography variant="body1" color="text.secondary">
-                    No customers found matching that query.
-                  </Typography>
+                <TableCell colSpan={8} align="center" sx={{ py: 6 }}>
+                  <UserIcon sx={{ fontSize: 48, color: '#CBD5E0', mb: 1 }} />
+                  <Typography color="text.secondary">No customers found matching your search.</Typography>
                 </TableCell>
               </TableRow>
+            ) : (
+              paginated.map(user => (
+                <TableRow key={user.id} hover>
+                  <TableCell>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                      <Avatar sx={{ width: 36, height: 36, bgcolor: '#2D3748', fontSize: '0.9rem', fontWeight: 700 }}>
+                        {user.name.charAt(0).toUpperCase()}
+                      </Avatar>
+                      <Box>
+                        <Typography variant="body2" sx={{ fontWeight: 700, lineHeight: 1.2 }}>{user.name}</Typography>
+                        <Typography variant="caption" color="text.secondary">{user.id.substring(0, 12)}…</Typography>
+                      </Box>
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2" sx={{ fontSize: '0.78rem' }}>{user.phone || '—'}</Typography>
+                    <Typography variant="caption" color="text.secondary">{user.email}</Typography>
+                  </TableCell>
+                  <TableCell sx={{ fontSize: '0.82rem' }}>{user.joined || '—'}</TableCell>
+                  <TableCell sx={{ fontSize: '0.82rem' }}>{user.lastActivity || '—'}</TableCell>
+                  <TableCell align="center">
+                    <Chip label={user.bookingsCount} size="small" sx={{ fontWeight: 700, bgcolor: 'rgba(66,153,225,0.12)', color: '#2B6CB0' }} />
+                  </TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 700, color: '#276749' }}>
+                    ₹{user.totalSpend.toLocaleString('en-IN')}
+                  </TableCell>
+                  <TableCell align="center">
+                    <StatusChip status={user.is_active ? 'Active' : 'Inactive'} />
+                  </TableCell>
+                  <TableCell align="right">
+                    <IconButton color="primary" size="small" onClick={() => { setSelectedUser(user); setOpenDialog(true); }}>
+                      <ViewIcon fontSize="small" />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))
             )}
           </TableBody>
         </Table>
         <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
+          rowsPerPageOptions={[5, 10, 25, 50]}
           component="div"
-          count={filteredUsers.length}
+          count={filtered.length}
           rowsPerPage={rowsPerPage}
           page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
+          onPageChange={(_, p) => setPage(p)}
+          onRowsPerPageChange={e => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }}
         />
       </TableContainer>
 
-      {/* User Details & Booking History Dialog */}
-      <Dialog
-        open={openDetailDialog}
-        onClose={() => setOpenDetailDialog(false)}
-        fullWidth
-        maxWidth="md"
-      >
-        <DialogTitle
-          sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}
-        >
-          Customer Dossier
+      {/* User Detail Dialog */}
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} fullWidth maxWidth="md" slotProps={{ paper: { sx: { borderRadius: 3 } } }}>
+        <DialogTitle sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif', borderBottom: '1px solid #E2E8F0' }}>
+          Customer Profile
         </DialogTitle>
-        <DialogContent dividers>
+        <DialogContent sx={{ pt: 3 }}>
           {selectedUser && (
             <Grid container spacing={3}>
-              {/* Profile card summary */}
+              {/* Profile Card */}
               <Grid size={{ xs: 12, md: 4 }}>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    textAlign: 'center',
-                    p: 1,
-                  }}
-                >
-                  <Avatar
-                    sx={{
-                      width: 80,
-                      height: 80,
-                      bgcolor: '#FAD02C',
-                      color: '#1A202C',
-                      fontSize: '2rem',
-                      mb: 2,
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    {selectedUser.name.charAt(0)}
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+                  <Avatar sx={{ width: 80, height: 80, bgcolor: '#FAD02C', color: '#1A202C', fontSize: '2rem', fontWeight: 800, mb: 2 }}>
+                    {selectedUser.name.charAt(0).toUpperCase()}
                   </Avatar>
-                  <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                    {selectedUser.name}
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    gutterBottom
-                  >
-                    Customer ID: {selectedUser.id}
-                  </Typography>
-                  <Box
-                    sx={{
-                      mt: 1,
-                      px: 2,
-                      py: 0.5,
-                      borderRadius: 2,
-                      bgcolor:
-                        selectedUser.status === 'Active'
-                          ? 'rgba(72, 187, 120, 0.15)'
-                          : 'rgba(245, 101, 101, 0.15)',
-                      color:
-                        selectedUser.status === 'Active'
-                          ? '#276749'
-                          : '#9B2C2C',
-                      fontSize: '0.75rem',
-                      fontWeight: 700,
-                    }}
-                  >
-                    {selectedUser.status}
-                  </Box>
+                  <Typography variant="h6" sx={{ fontWeight: 800 }}>{selectedUser.name}</Typography>
+                  <StatusChip status={selectedUser.is_active ? 'Active' : 'Inactive'} />
 
-                  <Box
-                    sx={{
-                      width: '100%',
-                      mt: 3,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 1.5,
-                      textAlign: 'left',
-                    }}
-                  >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <EmailIcon color="action" fontSize="small" />
-                      <Typography variant="body2">
-                        {selectedUser.email}
-                      </Typography>
-                    </Box>
+                  <Box sx={{ width: '100%', mt: 3, display: 'flex', flexDirection: 'column', gap: 1.5, textAlign: 'left' }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <PhoneIcon color="action" fontSize="small" />
-                      <Typography variant="body2">
-                        {selectedUser.phone}
-                      </Typography>
+                      <Typography variant="body2">{selectedUser.phone || 'Not available'}</Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <EmailIcon color="action" fontSize="small" />
+                      <Typography variant="body2" sx={{ wordBreak: 'break-all' }}>{selectedUser.email}</Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <JoinIcon color="action" fontSize="small" />
+                      <Typography variant="body2">First booking: {selectedUser.joined || '—'}</Typography>
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <UserIcon color="action" fontSize="small" />
-                      <Typography variant="body2">
-                        Joined: {selectedUser.joined}
+                      <Typography variant="body2" sx={{ wordBreak: 'break-all', fontSize: '0.72rem', color: 'text.secondary' }}>
+                        ID: {selectedUser.id}
                       </Typography>
                     </Box>
                   </Box>
+
+                  <Divider sx={{ width: '100%', my: 2 }} />
+
+                  {/* Quick stats */}
+                  {[
+                    { icon: <HistoryIcon fontSize="small" />, label: 'Total Bookings', value: selectedUser.bookingsCount },
+                    { icon: <SpendIcon fontSize="small" />, label: 'Total Spend', value: `₹${selectedUser.totalSpend.toLocaleString('en-IN')}` },
+                  ].map(stat => (
+                    <Box key={stat.label} sx={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: 'text.secondary' }}>
+                        {stat.icon}
+                        <Typography variant="caption">{stat.label}</Typography>
+                      </Box>
+                      <Typography variant="body2" sx={{ fontWeight: 700 }}>{stat.value}</Typography>
+                    </Box>
+                  ))}
                 </Box>
               </Grid>
 
-              {/* Booking history table */}
+              {/* Booking History */}
               <Grid size={{ xs: 12, md: 8 }}>
-                <Box
-                  sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}
-                >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                   <HistoryIcon color="action" />
-                  <Typography
-                    variant="h6"
-                    sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}
-                  >
+                  <Typography variant="h6" sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}>
                     Booking History
                   </Typography>
+                  <Chip label={selectedUser.bookings.length} size="small" sx={{ ml: 'auto', fontWeight: 700 }} />
                 </Box>
-                <TableContainer
-                  component={Paper}
-                  elevation={0}
-                  sx={{ border: '1px solid #E2E8F0' }}
-                >
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Order ID</TableCell>
-                        <TableCell>Date</TableCell>
-                        <TableCell>Service</TableCell>
-                        <TableCell>Amount</TableCell>
-                        <TableCell align="center">Status</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {selectedUser.history.map(hist => (
-                        <TableRow key={hist.id} hover>
-                          <TableCell sx={{ fontWeight: 600 }}>
-                            {hist.id}
-                          </TableCell>
-                          <TableCell>{hist.date}</TableCell>
-                          <TableCell>{hist.service}</TableCell>
-                          <TableCell>{hist.amount}</TableCell>
-                          <TableCell align="center">
-                            <Box
-                              sx={{
-                                display: 'inline-block',
-                                px: 1,
-                                py: 0.2,
-                                borderRadius: 1.5,
-                                fontSize: '0.7rem',
-                                fontWeight: 700,
-                                bgcolor:
-                                  hist.status === 'Completed'
-                                    ? 'rgba(72, 187, 120, 0.15)'
-                                    : hist.status === 'Pending'
-                                      ? 'rgba(250, 208, 44, 0.2)'
-                                      : hist.status === 'Assigned'
-                                        ? 'rgba(66, 153, 225, 0.15)'
-                                        : 'rgba(245, 101, 101, 0.15)',
-                                color:
-                                  hist.status === 'Completed'
-                                    ? '#276749'
-                                    : hist.status === 'Pending'
-                                      ? '#B7791F'
-                                      : hist.status === 'Assigned'
-                                        ? '#2B6CB0'
-                                        : '#9B2C2C',
-                              }}
-                            >
-                              {hist.status}
-                            </Box>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
+                <BookingHistoryTable bookings={selectedUser.bookings} />
               </Grid>
             </Grid>
           )}
         </DialogContent>
-        <DialogActions sx={{ p: 2.5 }}>
-          <Button
-            onClick={() => setOpenDetailDialog(false)}
-            color="secondary"
-            variant="contained"
-          >
-            Close Dossier
+        <DialogActions sx={{ p: 2.5, borderTop: '1px solid #E2E8F0' }}>
+          <Button onClick={() => setOpenDialog(false)} variant="contained" color="secondary">
+            Close
           </Button>
         </DialogActions>
       </Dialog>
     </Box>
   );
 };
+
 export default Users;

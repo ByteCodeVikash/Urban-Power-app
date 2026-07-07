@@ -13,70 +13,36 @@ import {
   TextField,
   Alert,
   Avatar,
+  CircularProgress,
+  Snackbar,
+  Divider,
+  IconButton,
 } from '@mui/material';
 import {
   CreditCard as RazorpayIcon,
   LocalAtm as CodIcon,
   KeyboardReturn as RefundIcon,
   AccountBalanceWallet as BalanceIcon,
+  Visibility as VisibilityIcon,
 } from '@mui/icons-material';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { DataTable, type ColumnConfig } from '../components/common/DataTable';
 import {
   FilterPanel,
   type FilterField,
 } from '../components/common/FilterPanel';
+import { usePayments, type PaymentTransaction } from '../hooks/usePayments';
+import { parseBookingNotes, buildBookingNotes } from '../hooks/useBookings';
+import { apiClient } from '../api/apiClient';
 
-// Initial Mock Transactions
-const initialTransactions = [
-  {
-    id: 'TXN-749102',
-    orderId: 'ORD-101',
-    customer: 'Vikash Kumar',
-    gateway: 'Razorpay',
-    amount: '₹1,200',
-    status: 'Settled',
-    date: '2026-07-03',
-  },
-  {
-    id: 'TXN-839210',
-    orderId: 'ORD-102',
-    customer: 'Amit Sharma',
-    gateway: 'Razorpay',
-    amount: '₹2,500',
-    status: 'Escrow',
-    date: '2026-07-03',
-  },
-  {
-    id: 'TXN-394019',
-    orderId: 'ORD-103',
-    customer: 'Priya Singh',
-    gateway: 'COD',
-    amount: '₹1,800',
-    status: 'Pending Cash',
-    date: '2026-07-03',
-  },
-  {
-    id: 'TXN-104928',
-    orderId: 'ORD-104',
-    customer: 'Rohan Verma',
-    gateway: 'Razorpay',
-    amount: '₹800',
-    status: 'Refunded',
-    date: '2026-07-02',
-  },
-  {
-    id: 'TXN-293810',
-    orderId: 'ORD-105',
-    customer: 'Sneha Gupta',
-    gateway: 'COD',
-    amount: '₹4,200',
-    status: 'Settled',
-    date: '2026-07-01',
-  },
-];
+const formatINR = (amount: number) => {
+  return `₹${new Intl.NumberFormat('en-IN').format(Math.round(amount))}`;
+};
 
 export const Payments: React.FC = () => {
-  const [txns, setTxns] = useState(initialTransactions);
+  const queryClient = useQueryClient();
+  const { transactions = [], summary, isLoading, isError } = usePayments();
+
   const [activeFilters, setActiveFilters] = useState<Record<string, any>>({
     search: '',
     gateway: '',
@@ -84,14 +50,22 @@ export const Payments: React.FC = () => {
   });
 
   const [openRefundDialog, setOpenRefundDialog] = useState(false);
-  const [selectedTxn, setSelectedTxn] = useState<
-    (typeof initialTransactions)[0] | null
-  >(null);
+  const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
+  const [selectedTxn, setSelectedTxn] = useState<PaymentTransaction | null>(null);
 
   // Refund Form Fields
   const [refundAmount, setRefundAmount] = useState('');
   const [refundReason, setRefundReason] = useState('');
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'error';
+  }>({ open: false, message: '', severity: 'success' });
+
+  const showSnackbar = (message: string, severity: 'success' | 'error') => {
+    setSnackbar({ open: true, message, severity });
+  };
 
   // Filter change handler
   const handleFilterChange = (filters: Record<string, any>) => {
@@ -99,12 +73,14 @@ export const Payments: React.FC = () => {
   };
 
   // Filter logic
-  const filteredTransactions = txns.filter(txn => {
+  const filteredTransactions = transactions.filter(txn => {
     const searchVal = activeFilters.search || '';
     const matchesSearch =
       txn.id.toLowerCase().includes(searchVal.toLowerCase()) ||
-      txn.orderId.toLowerCase().includes(searchVal.toLowerCase()) ||
-      txn.customer.toLowerCase().includes(searchVal.toLowerCase());
+      txn.bookingReference.toLowerCase().includes(searchVal.toLowerCase()) ||
+      txn.customerName.toLowerCase().includes(searchVal.toLowerCase()) ||
+      txn.customerPhone.toLowerCase().includes(searchVal.toLowerCase()) ||
+      txn.serviceName.toLowerCase().includes(searchVal.toLowerCase());
 
     const matchesGateway =
       !activeFilters.gateway || txn.gateway === activeFilters.gateway;
@@ -114,42 +90,103 @@ export const Payments: React.FC = () => {
     return matchesSearch && matchesGateway && matchesStatus;
   });
 
-  const handleOpenRefund = (txn: (typeof initialTransactions)[0]) => {
+  const handleOpenRefund = (txn: PaymentTransaction) => {
     setSelectedTxn(txn);
-    setRefundAmount(txn.amount.replace('₹', '').replace(',', ''));
+    setRefundAmount(String(txn.amount));
     setRefundReason('');
-    setSuccessMessage(null);
     setOpenRefundDialog(true);
   };
 
-  const handleExecuteRefund = () => {
-    if (selectedTxn) {
-      setTxns(
-        txns.map(t =>
-          t.id === selectedTxn.id ? { ...t, status: 'Refunded' } : t,
-        ),
+  const handleOpenDetails = (txn: PaymentTransaction) => {
+    setSelectedTxn(txn);
+    setOpenDetailsDialog(true);
+  };
+
+  // Refund mutation using existing update booking endpoint
+  const refundMutation = useMutation({
+    mutationFn: async ({
+      bookingId,
+      status,
+      notes,
+    }: {
+      bookingId: string;
+      status: string;
+      notes: string;
+    }) => {
+      const response = await apiClient.put(
+        `/api/v1/bookings/${bookingId}`,
+        { status, notes }
       );
-      setSuccessMessage(
-        `Refund of ₹${refundAmount} processed successfully for Transaction ${selectedTxn.id}.`,
-      );
-      setTimeout(() => {
-        setOpenRefundDialog(false);
-        setSuccessMessage(null);
-      }, 1500);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['payments-derived'] });
+      queryClient.invalidateQueries({ queryKey: ['bookings'] });
+      showSnackbar('Refund triggered and booking cancelled successfully.', 'success');
+      setOpenRefundDialog(false);
+    },
+    onError: (err: any) => {
+      const detail = err.response?.data?.detail || 'Failed to process refund.';
+      showSnackbar(detail, 'error');
     }
+  });
+
+  const handleExecuteRefund = () => {
+    if (!selectedTxn) return;
+    const parsed = parseBookingNotes(selectedTxn.notes);
+    const refundMarker = `Refunded: ₹${refundAmount} (Reason: ${refundReason || 'No reason specified'})`;
+    const updatedCustomNotes = parsed.customNotes
+      ? `${parsed.customNotes}, ${refundMarker}`
+      : refundMarker;
+
+    const newNotes = buildBookingNotes(
+      parsed.customerName,
+      parsed.phone,
+      parsed.technician,
+      updatedCustomNotes
+    );
+
+    refundMutation.mutate({
+      bookingId: selectedTxn.bookingId,
+      status: 'cancelled',
+      notes: newNotes,
+    });
   };
 
   // DataTable column configuration
-  const columns: ColumnConfig<(typeof initialTransactions)[0]>[] = [
-    { id: 'id', label: 'Transaction ID' },
-    { id: 'orderId', label: 'Order ID' },
+  const columns: ColumnConfig<PaymentTransaction>[] = [
     {
-      id: 'customer',
+      id: 'id',
+      label: 'Transaction ID',
+      render: row => (
+        <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600 }}>
+          {row.id}
+        </Typography>
+      ),
+    },
+    {
+      id: 'bookingReference',
+      label: 'Booking Ref',
+      render: row => (
+        <Typography variant="body2" sx={{ fontFamily: 'monospace', color: '#553C9A', fontWeight: 700 }}>
+          {row.bookingReference}
+        </Typography>
+      ),
+    },
+    {
+      id: 'customerName',
       label: 'Customer',
       render: row => (
-        <Typography variant="body2" sx={{ fontWeight: 600 }}>
-          {row.customer}
-        </Typography>
+        <Box>
+          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+            {row.customerName}
+          </Typography>
+          {row.customerPhone && (
+            <Typography variant="caption" color="text.secondary">
+              {row.customerPhone}
+            </Typography>
+          )}
+        </Box>
       ),
     },
     {
@@ -159,20 +196,22 @@ export const Payments: React.FC = () => {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           {row.gateway === 'Razorpay' ? (
             <RazorpayIcon fontSize="small" color="primary" />
-          ) : (
+          ) : row.gateway === 'COD' ? (
             <CodIcon fontSize="small" color="success" />
+          ) : (
+            <BalanceIcon fontSize="small" color="disabled" />
           )}
           <Typography variant="body2">{row.gateway}</Typography>
         </Box>
       ),
     },
-    { id: 'date', label: 'Date' },
+    { id: 'dateLabel', label: 'Date' },
     {
       id: 'amount',
       label: 'Paid Amount',
       render: row => (
         <Typography variant="body2" sx={{ fontWeight: 700 }}>
-          {row.amount}
+          {row.amountLabel}
         </Typography>
       ),
     },
@@ -216,8 +255,16 @@ export const Payments: React.FC = () => {
       label: 'Actions',
       align: 'right',
       render: row => (
-        <Box>
-          {row.gateway === 'Razorpay' && row.status !== 'Refunded' ? (
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+          <IconButton
+            size="small"
+            color="primary"
+            onClick={() => handleOpenDetails(row)}
+            title="View Details"
+          >
+            <VisibilityIcon fontSize="small" />
+          </IconButton>
+          {row.status !== 'Refunded' ? (
             <Button
               size="small"
               color="error"
@@ -225,11 +272,11 @@ export const Payments: React.FC = () => {
               startIcon={<RefundIcon />}
               onClick={() => handleOpenRefund(row)}
             >
-              Trigger Refund
+              Refund
             </Button>
           ) : (
             <Button size="small" variant="outlined" disabled>
-              No Action
+              Refunded
             </Button>
           )}
         </Box>
@@ -246,6 +293,7 @@ export const Payments: React.FC = () => {
       options: [
         { value: 'Razorpay', label: 'Razorpay' },
         { value: 'COD', label: 'Cash on Delivery (COD)' },
+        { value: 'Unknown', label: 'Unknown' },
       ],
     },
     {
@@ -260,6 +308,16 @@ export const Payments: React.FC = () => {
       ],
     },
   ];
+
+  if (isError) {
+    return (
+      <Box sx={{ flexGrow: 1, p: 3 }}>
+        <Alert severity="error">
+          Failed to fetch payment transactions. Please try again.
+        </Alert>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -301,7 +359,7 @@ export const Payments: React.FC = () => {
                     TOTAL REVENUE
                   </Typography>
                   <Typography variant="h5" sx={{ fontWeight: 800, mt: 0.5 }}>
-                    ₹4,82,900
+                    {isLoading ? <CircularProgress size={20} /> : formatINR(summary?.totalRevenue || 0)}
                   </Typography>
                 </Box>
                 <Avatar sx={{ bgcolor: '#2D3748', color: '#FFFFFF' }}>
@@ -330,7 +388,7 @@ export const Payments: React.FC = () => {
                     RAZORPAY GATEWAY
                   </Typography>
                   <Typography variant="h5" sx={{ fontWeight: 800, mt: 0.5 }}>
-                    ₹3,20,500
+                    {isLoading ? <CircularProgress size={20} /> : formatINR(summary?.razorpayTotal || 0)}
                   </Typography>
                 </Box>
                 <Avatar sx={{ bgcolor: '#4299E1', color: '#FFFFFF' }}>
@@ -359,7 +417,7 @@ export const Payments: React.FC = () => {
                     CASH ON DELIVERY (COD)
                   </Typography>
                   <Typography variant="h5" sx={{ fontWeight: 800, mt: 0.5 }}>
-                    ₹1,62,400
+                    {isLoading ? <CircularProgress size={20} /> : formatINR(summary?.codTotal || 0)}
                   </Typography>
                 </Box>
                 <Avatar sx={{ bgcolor: '#48BB78', color: '#FFFFFF' }}>
@@ -391,7 +449,7 @@ export const Payments: React.FC = () => {
                     variant="h5"
                     sx={{ fontWeight: 800, mt: 0.5, color: '#F56565' }}
                   >
-                    ₹800
+                    {isLoading ? <CircularProgress size={20} /> : formatINR(summary?.refundedTotal || 0)}
                   </Typography>
                 </Box>
                 <Avatar sx={{ bgcolor: '#F56565', color: '#FFFFFF' }}>
@@ -412,13 +470,14 @@ export const Payments: React.FC = () => {
         filename="transactions_ledger"
         columns={columns}
         data={filteredTransactions}
+        isLoading={isLoading}
         emptyMessage="No transaction logs match current filters."
       />
 
       {/* Process Refund Dialog */}
       <Dialog
         open={openRefundDialog}
-        onClose={() => setOpenRefundDialog(false)}
+        onClose={() => !refundMutation.isPending && setOpenRefundDialog(false)}
         fullWidth
         maxWidth="xs"
       >
@@ -428,62 +487,233 @@ export const Payments: React.FC = () => {
           Issue Gateway Refund
         </DialogTitle>
         <DialogContent>
-          {successMessage ? (
-            <Alert severity="success" sx={{ mt: 1.5, borderRadius: 2 }}>
-              {successMessage}
-            </Alert>
-          ) : (
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 2.5,
-                mt: 1.5,
-              }}
-            >
-              <Typography variant="body2" color="text.secondary">
-                You are issuing a refund for order{' '}
-                <strong>{selectedTxn?.orderId}</strong>. This transaction will
-                be credited back via Razorpay.
-              </Typography>
-              <TextField
-                fullWidth
-                size="small"
-                label="Refund Amount (₹)"
-                value={refundAmount}
-                onChange={e => setRefundAmount(e.target.value)}
-              />
-              <TextField
-                fullWidth
-                size="small"
-                multiline
-                rows={2}
-                label="Reason for Refund"
-                value={refundReason}
-                onChange={e => setRefundReason(e.target.value)}
-                placeholder="e.g. Service cancellation request by user"
-              />
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2.5,
+              mt: 1.5,
+            }}
+          >
+            <Typography variant="body2" color="text.secondary">
+              You are issuing a refund for order{' '}
+              <strong>{selectedTxn?.bookingReference}</strong>. This transaction will
+              be credited back via Razorpay/Gateway and the booking status will be set to cancelled.
+            </Typography>
+            <TextField
+              fullWidth
+              size="small"
+              label="Refund Amount (₹)"
+              value={refundAmount}
+              onChange={e => setRefundAmount(e.target.value)}
+              disabled={refundMutation.isPending}
+            />
+            <TextField
+              fullWidth
+              size="small"
+              multiline
+              rows={2}
+              label="Reason for Refund"
+              value={refundReason}
+              onChange={e => setRefundReason(e.target.value)}
+              placeholder="e.g. Service cancellation request by user"
+              disabled={refundMutation.isPending}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 2.5 }}>
+          <Button
+            onClick={() => setOpenRefundDialog(false)}
+            color="secondary"
+            disabled={refundMutation.isPending}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleExecuteRefund}
+            variant="contained"
+            color="error"
+            disabled={refundMutation.isPending}
+            startIcon={refundMutation.isPending ? <CircularProgress size={16} color="inherit" /> : null}
+          >
+            Execute Refund
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Details Dialog */}
+      <Dialog
+        open={openDetailsDialog}
+        onClose={() => setOpenDetailsDialog(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}>
+          Payment & Transaction Details
+        </DialogTitle>
+        <DialogContent dividers sx={{ pb: 3 }}>
+          {selectedTxn && (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+              <Grid container spacing={2.5}>
+                <Grid size={{ xs: 6 }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontWeight: 600 }}>
+                    Transaction ID
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 600, fontFamily: 'monospace', mt: 0.5 }}>
+                    {selectedTxn.id}
+                  </Typography>
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontWeight: 600 }}>
+                    Booking Reference
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 700, fontFamily: 'monospace', color: '#553C9A', mt: 0.5 }}>
+                    {selectedTxn.bookingReference}
+                  </Typography>
+                </Grid>
+
+                <Grid size={{ xs: 6 }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontWeight: 600 }}>
+                    Customer Name
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 600, mt: 0.5 }}>
+                    {selectedTxn.customerName}
+                  </Typography>
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontWeight: 600 }}>
+                    Customer Phone
+                  </Typography>
+                  <Typography variant="body2" sx={{ mt: 0.5 }}>
+                    {selectedTxn.customerPhone || '—'}
+                  </Typography>
+                </Grid>
+
+                <Grid size={{ xs: 6 }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontWeight: 600 }}>
+                    Service Booked
+                  </Typography>
+                  <Typography variant="body2" sx={{ mt: 0.5 }}>
+                    {selectedTxn.serviceName}
+                  </Typography>
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontWeight: 600 }}>
+                    Booking Date
+                  </Typography>
+                  <Typography variant="body2" sx={{ mt: 0.5 }}>
+                    {selectedTxn.dateLabel} {selectedTxn.timeslot ? `(${selectedTxn.timeslot})` : ''}
+                  </Typography>
+                </Grid>
+
+                <Grid size={{ xs: 6 }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontWeight: 600 }}>
+                    Amount Paid
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 700, color: 'text.primary', mt: 0.5 }}>
+                    {selectedTxn.amountLabel}
+                  </Typography>
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontWeight: 600 }}>
+                    Payment Gateway Mode
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 600, mt: 0.5 }}>
+                    {selectedTxn.gateway}
+                  </Typography>
+                </Grid>
+
+                <Grid size={{ xs: 6 }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontWeight: 600 }}>
+                    Settlement Status
+                  </Typography>
+                  <Box sx={{ mt: 0.5 }}>
+                    <Box
+                      sx={{
+                        display: 'inline-block',
+                        px: 1.5,
+                        py: 0.5,
+                        borderRadius: 2,
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        bgcolor:
+                          selectedTxn.status === 'Settled'
+                            ? 'rgba(72, 187, 120, 0.15)'
+                            : selectedTxn.status === 'Escrow'
+                              ? 'rgba(66, 153, 225, 0.15)'
+                              : selectedTxn.status === 'Refunded'
+                                ? 'rgba(245, 101, 101, 0.15)'
+                                : 'rgba(250, 208, 44, 0.2)',
+                        color:
+                          selectedTxn.status === 'Settled'
+                            ? '#276749'
+                            : selectedTxn.status === 'Escrow'
+                              ? '#2B6CB0'
+                              : selectedTxn.status === 'Refunded'
+                                ? '#9B2C2C'
+                                : '#B7791F',
+                      }}
+                    >
+                      {selectedTxn.status}
+                    </Box>
+                  </Box>
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontWeight: 600 }}>
+                    Raw Booking Status
+                  </Typography>
+                  <Typography variant="body2" sx={{ textTransform: 'capitalize', mt: 0.5 }}>
+                    {selectedTxn.bookingStatus}
+                  </Typography>
+                </Grid>
+              </Grid>
+
+              <Divider sx={{ my: 1 }} />
+
+              <Box>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontWeight: 600, mb: 1 }}>
+                  Booking Notes & Audit Trail
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    p: 1.5,
+                    bgcolor: '#F8FAFC',
+                    borderRadius: 2,
+                    border: '1px solid #E2E8F0',
+                    whiteSpace: 'pre-line',
+                    fontFamily: 'sans-serif',
+                    maxHeight: '150px',
+                    overflowY: 'auto'
+                  }}
+                >
+                  {selectedTxn.notes || 'No notes or audit trail on this booking.'}
+                </Typography>
+              </Box>
             </Box>
           )}
         </DialogContent>
-        {!successMessage && (
-          <DialogActions sx={{ p: 2.5 }}>
-            <Button
-              onClick={() => setOpenRefundDialog(false)}
-              color="secondary"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleExecuteRefund}
-              variant="contained"
-              color="error"
-            >
-              Execute Refund
-            </Button>
-          </DialogActions>
-        )}
+        <DialogActions sx={{ p: 2.5 }}>
+          <Button onClick={() => setOpenDetailsDialog(false)} color="primary" variant="contained">
+            Close Details
+          </Button>
+        </DialogActions>
       </Dialog>
+
+      {/* Snackbar feedback */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar(s => ({ ...s, open: false }))}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert
+          severity={snackbar.severity}
+          onClose={() => setSnackbar(s => ({ ...s, open: false }))}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

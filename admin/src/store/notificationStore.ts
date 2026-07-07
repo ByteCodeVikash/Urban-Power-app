@@ -18,15 +18,30 @@ export interface NotificationItem {
   meta?: Record<string, any>;
 }
 
+interface BookingStateSnapshot {
+  status: string;
+  notes: string | null;
+  total_price: number;
+  payment_method: string | null;
+  booking_reference: string;
+  customer_name: string;
+  service_name: string;
+  technician: string;
+}
+
 interface NotificationState {
   notifications: NotificationItem[];
   unreadCount: number;
+  bookingBaseline: Record<string, BookingStateSnapshot>;
+  latestToast: NotificationItem | null;
   addNotification: (
     notification: Omit<NotificationItem, 'id' | 'isRead' | 'timestamp'>,
   ) => void;
   markAsRead: (id: string) => void;
   markAllAsRead: () => void;
   clearAll: () => void;
+  setBookingBaseline: (baseline: Record<string, BookingStateSnapshot>) => void;
+  setLatestToast: (toast: NotificationItem | null) => void;
 }
 
 export const useNotificationStore = create<NotificationState>((set, get) => ({
@@ -54,6 +69,8 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
     },
   ],
   unreadCount: 2,
+  bookingBaseline: {},
+  latestToast: null,
 
   addNotification: item => {
     const newNotif: NotificationItem = {
@@ -67,6 +84,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
       return {
         notifications: newList,
         unreadCount: newList.filter(n => !n.isRead).length,
+        latestToast: newNotif,
       };
     });
   },
@@ -99,4 +117,13 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
       unreadCount: 0,
     });
   },
+
+  setBookingBaseline: baseline => {
+    set({ bookingBaseline: baseline });
+  },
+
+  setLatestToast: toast => {
+    set({ latestToast: toast });
+  },
 }));
+

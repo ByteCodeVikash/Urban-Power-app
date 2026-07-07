@@ -10,13 +10,17 @@ import {
   MenuItem,
   TextField,
   Paper,
+  Alert,
+  AlertTitle,
 } from '@mui/material';
-import { TrendingUp as TrendingIcon } from '@mui/icons-material';
+import { TrendingUp as TrendingIcon, Refresh as RefreshIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { ModuleRegistry } from '../modules/registry';
+import { useBookings } from '../hooks/useBookings';
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
+  const { isError, refetch } = useBookings();
   const [dateRange, setDateRange] = useState('7days');
   const [customStart, setCustomStart] = useState('');
   const [customEnd, setCustomEnd] = useState('');
@@ -50,6 +54,26 @@ export const Dashboard: React.FC = () => {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
+      {isError && (
+        <Alert
+          severity="error"
+          action={
+            <Button
+              color="inherit"
+              size="small"
+              startIcon={<RefreshIcon />}
+              onClick={() => refetch()}
+            >
+              Retry
+            </Button>
+          }
+          sx={{ mb: 4, borderRadius: 3 }}
+        >
+          <AlertTitle sx={{ fontWeight: 700 }}>Backend Connection Error</AlertTitle>
+          The dashboard is currently unable to connect to the backend services. Please ensure the backend server is running and try again.
+        </Alert>
+      )}
+
       {/* Welcome header & controls info */}
       <Box
         sx={{

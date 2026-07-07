@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Card,
@@ -27,94 +27,67 @@ import {
   People as RolesIcon,
   VpnKey as CredentialsIcon,
   Tune as ThresholdsIcon,
+  Restore as ResetIcon,
 } from '@mui/icons-material';
-
-// Initial Mock Roles & Permissions Matrix
-const initialPermissions = [
-  {
-    id: 'perm-1',
-    section: 'Orders & Bookings',
-    name: 'View Orders',
-    admin: true,
-    manager: true,
-    dispatcher: true,
-    viewer: true,
-  },
-  {
-    id: 'perm-2',
-    section: 'Orders & Bookings',
-    name: 'Update Order Status',
-    admin: true,
-    manager: true,
-    dispatcher: true,
-    viewer: false,
-  },
-  {
-    id: 'perm-3',
-    section: 'Orders & Bookings',
-    name: 'Assign Technician',
-    admin: true,
-    manager: true,
-    dispatcher: true,
-    viewer: false,
-  },
-  {
-    id: 'perm-4',
-    section: 'Technicians',
-    name: 'Manage Technicians CRUD',
-    admin: true,
-    manager: true,
-    dispatcher: false,
-    viewer: false,
-  },
-  {
-    id: 'perm-5',
-    section: 'Service Catalog',
-    name: 'Edit Pricing & Services',
-    admin: true,
-    manager: false,
-    dispatcher: false,
-    viewer: false,
-  },
-  {
-    id: 'perm-6',
-    section: 'Payments & Refunds',
-    name: 'Process Refunds',
-    admin: true,
-    manager: true,
-    dispatcher: false,
-    viewer: false,
-  },
-];
+import { useSettingsStore } from '../store/settingsStore';
 
 export const Settings: React.FC = () => {
+  const store = useSettingsStore();
+
   const [activeTab, setActiveTab] = useState(0);
-  const [permissions, setPermissions] = useState(initialPermissions);
   const [alertText, setAlertText] = useState<string | null>(null);
 
+  // Access Matrix State
+  const [permissions, setPermissions] = useState(store.permissions);
+
   // Business Rules State
-  const [minScrapPickupValue, setMinScrapPickupValue] = useState('500');
-  const [commissionRate, setCommissionRate] = useState('15');
-  const [payoutCutoffHours, setPayoutCutoffHours] = useState('24');
-  const [maxDispatchRadius, setMaxDispatchRadius] = useState('10');
+  const [minScrapPickupValue, setMinScrapPickupValue] = useState(store.minScrapPickupValue);
+  const [commissionRate, setCommissionRate] = useState(store.commissionRate);
+  const [payoutCutoffHours, setPayoutCutoffHours] = useState(store.payoutCutoffHours);
+  const [maxDispatchRadius, setMaxDispatchRadius] = useState(store.maxDispatchRadius);
 
   // API Credentials State
-  const [razorpayKeyId, setRazorpayKeyId] = useState('rzp_live_8Fh39v2Ksd8s2l');
-  const [razorpayKeySecret, setRazorpayKeySecret] = useState(
-    '••••••••••••••••••••••••••••••••',
-  );
-  const [twilioSid, setTwilioSid] = useState('AC894bfa28e83b4b893cf82de29a');
-  const [twilioToken, setTwilioToken] = useState(
-    '••••••••••••••••••••••••••••••••',
-  );
-  const [firebaseConfig, setFirebaseConfig] = useState(
-    '{\n  "apiKey": "AIzaSyAs-9f8h23n...",\n  "authDomain": "urban-power-prod.firebaseapp.com",\n  "projectId": "urban-power-prod"\n}',
-  );
+  const [razorpayKeyId, setRazorpayKeyId] = useState(store.razorpayKeyId);
+  const [razorpayKeySecret, setRazorpayKeySecret] = useState(store.razorpayKeySecret);
+  const [twilioSid, setTwilioSid] = useState(store.twilioSid);
+  const [twilioToken, setTwilioToken] = useState(store.twilioToken);
+  const [firebaseConfig, setFirebaseConfig] = useState(store.firebaseConfig);
 
   // Global System Controls State
-  const [mfaEnabled, setMfaEnabled] = useState(true);
-  const [emailAlerts, setEmailAlerts] = useState(true);
-  const [maintenanceMode, setMaintenanceMode] = useState(false);
+  const [mfaEnabled, setMfaEnabled] = useState(store.mfaEnabled);
+  const [emailAlerts, setEmailAlerts] = useState(store.emailAlerts);
+  const [maintenanceMode, setMaintenanceMode] = useState(store.maintenanceMode);
+
+  // Sync state if store updates externally or is reset
+  useEffect(() => {
+    setPermissions(store.permissions);
+    setMinScrapPickupValue(store.minScrapPickupValue);
+    setCommissionRate(store.commissionRate);
+    setPayoutCutoffHours(store.payoutCutoffHours);
+    setMaxDispatchRadius(store.maxDispatchRadius);
+    setRazorpayKeyId(store.razorpayKeyId);
+    setRazorpayKeySecret(store.razorpayKeySecret);
+    setTwilioSid(store.twilioSid);
+    setTwilioToken(store.twilioToken);
+    setFirebaseConfig(store.firebaseConfig);
+    setMfaEnabled(store.mfaEnabled);
+    setEmailAlerts(store.emailAlerts);
+    setMaintenanceMode(store.maintenanceMode);
+  }, [
+    store.permissions,
+    store.minScrapPickupValue,
+    store.commissionRate,
+    store.payoutCutoffHours,
+    store.maxDispatchRadius,
+    store.razorpayKeyId,
+    store.razorpayKeySecret,
+    store.twilioSid,
+    store.twilioToken,
+    store.firebaseConfig,
+    store.mfaEnabled,
+    store.emailAlerts,
+    store.maintenanceMode,
+  ]);
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
@@ -124,35 +97,86 @@ export const Settings: React.FC = () => {
     permId: string,
     role: 'admin' | 'manager' | 'dispatcher' | 'viewer',
   ) => {
-    setPermissions(
-      permissions.map(p => (p.id === permId ? { ...p, [role]: !p[role] } : p)),
+    setPermissions(prev =>
+      prev.map(p => (p.id === permId ? { ...p, [role]: !p[role] } : p)),
     );
   };
 
   const handleSaveConfigs = (sectionName: string) => {
+    if (sectionName === 'Access Roles Matrix') {
+      store.setPermissions(permissions);
+    } else if (sectionName === 'Business Rules') {
+      store.updateBusinessRules({
+        minScrapPickupValue,
+        commissionRate,
+        payoutCutoffHours,
+        maxDispatchRadius,
+      });
+    } else if (sectionName === 'API Gateways') {
+      store.updateApiCredentials({
+        razorpayKeyId,
+        razorpayKeySecret,
+        twilioSid,
+        twilioToken,
+        firebaseConfig,
+      });
+    } else if (sectionName === 'System Flags') {
+      store.updateSystemControls({
+        mfaEnabled,
+        emailAlerts,
+        maintenanceMode,
+      });
+    }
+
     setAlertText(
       `${sectionName} configurations updated and synchronized successfully.`,
     );
     setTimeout(() => setAlertText(null), 2500);
   };
 
+  const handleResetToDefault = () => {
+    store.resetToDefault();
+    setAlertText('All settings reset to system defaults successfully.');
+    setTimeout(() => setAlertText(null), 2500);
+  };
+
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <Box sx={{ mb: 4 }}>
-        <Typography
-          variant="h4"
-          sx={{
-            fontWeight: 800,
-            fontFamily: '"Outfit", sans-serif',
-            color: '#1A202C',
-          }}
+      <Box
+        sx={{
+          mb: 4,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 2,
+        }}
+      >
+        <Box>
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 800,
+              fontFamily: '"Outfit", sans-serif',
+              color: '#1A202C',
+            }}
+          >
+            System Settings & Controls
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Configure security roles, business parameters, third-party API
+            gateways, and main operational flags.
+          </Typography>
+        </Box>
+        <Button
+          variant="outlined"
+          color="warning"
+          startIcon={<ResetIcon />}
+          onClick={handleResetToDefault}
+          sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 600 }}
         >
-          System Settings & Controls
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Configure security roles, business parameters, third-party API
-          gateways, and main operational flags.
-        </Typography>
+          Reset to Defaults
+        </Button>
       </Box>
 
       {alertText && (
