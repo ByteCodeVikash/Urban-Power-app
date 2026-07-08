@@ -9,13 +9,14 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ChevronLeft, Plus, Minus, ChevronRight } from 'lucide-react-native';
+import { ChevronLeft } from 'lucide-react-native';
 import { Typography } from '../../components/Typography';
 import { NetworkImage } from '../../components/NetworkImage';
 import { Colors, Spacing, BorderRadius, Shadows } from '../../constants/Theme';
 import { useScrapCategories } from '../../hooks/useKabadi';
 import { useScrapSelectionStore } from '../../store/useScrapSelectionStore';
 import { RootStackParamList } from '../../navigation/Types';
+import { ScrapQuantitySelector } from '../../components/ScrapQuantitySelector';
 
 type ScrapItemListRouteProp = RouteProp<RootStackParamList, 'ScrapItemList'>;
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -31,7 +32,6 @@ export default function ScrapItemListScreen() {
   const selectedItems = useScrapSelectionStore(state => state.selectedItems);
   const addItem = useScrapSelectionStore(state => state.addItem);
   const updateQuantity = useScrapSelectionStore(state => state.updateQuantity);
-  const removeItem = useScrapSelectionStore(state => state.removeItem);
   const totalWeight = useScrapSelectionStore(state => state.totalWeight)();
   const totalEstimatedPrice = useScrapSelectionStore(
     state => state.totalEstimatedPrice,
@@ -58,6 +58,14 @@ export default function ScrapItemListScreen() {
 
   const handleDecrement = (itemId: string) => {
     updateQuantity(itemId, -1);
+  };
+
+  const handleQuantityChange = (item: any, newQty: number) => {
+    const currentQty = getItemQuantity(item.id);
+    const delta = newQty - currentQty;
+    if (delta !== 0) {
+      updateQuantity(item.id, delta);
+    }
   };
 
   if (isLoading) {
@@ -200,27 +208,13 @@ export default function ScrapItemListScreen() {
                         </Typography>
                       </Pressable>
                     ) : (
-                      <View style={styles.quantitySelector}>
-                        <Pressable
-                          style={styles.qtyBtn}
-                          onPress={() => handleDecrement(item.id)}
-                        >
-                          <Minus color={Colors.light.primary} size={16} />
-                        </Pressable>
-                        <Typography
-                          variant="body2"
-                          weight="700"
-                          style={styles.qtyText}
-                        >
-                          {qty} kg
-                        </Typography>
-                        <Pressable
-                          style={styles.qtyBtn}
-                          onPress={() => handleIncrement(item)}
-                        >
-                          <Plus color={Colors.light.primary} size={16} />
-                        </Pressable>
-                      </View>
+                      <ScrapQuantitySelector
+                        quantity={qty}
+                        onIncrement={() => handleIncrement(item)}
+                        onDecrement={() => handleDecrement(item.id)}
+                        onChange={newQty => handleQuantityChange(item, newQty)}
+                        size="sm"
+                      />
                     )}
                   </View>
                 </Pressable>
@@ -240,15 +234,29 @@ export default function ScrapItemListScreen() {
               Est. Value: ₹{totalEstimatedPrice}
             </Typography>
           </View>
-          <Pressable style={styles.clearBtn} onPress={clearSelection}>
-            <Typography
-              variant="body2"
-              color={Colors.light.primary}
-              weight="700"
+          <View style={styles.footerActions}>
+            <Pressable style={styles.clearBtn} onPress={clearSelection}>
+              <Typography
+                variant="body2"
+                color={Colors.light.white}
+                weight="700"
+              >
+                Clear
+              </Typography>
+            </Pressable>
+            <Pressable
+              style={styles.continueBtn}
+              onPress={() => navigation.navigate('KabadiForm')}
             >
-              Clear
-            </Typography>
-          </Pressable>
+              <Typography
+                variant="body2"
+                color={Colors.light.primary}
+                weight="700"
+              >
+                Continue
+              </Typography>
+            </Pressable>
+          </View>
         </View>
       )}
     </SafeAreaView>
@@ -383,10 +391,21 @@ const styles = StyleSheet.create({
   footerInfo: {
     flexDirection: 'column',
   },
+  footerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
   clearBtn: {
-    backgroundColor: Colors.light.white,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.xs,
-    borderRadius: 8,
+    paddingVertical: Spacing.sm,
+    borderRadius: 10,
+  },
+  continueBtn: {
+    backgroundColor: Colors.light.white,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.sm,
+    borderRadius: 10,
   },
 });

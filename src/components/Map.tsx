@@ -25,7 +25,7 @@ export interface MapProps extends Omit<
   showCenterPin?: boolean;
 }
 
-export const Map = React.forwardRef<MapView, MapProps>(
+export const Map = React.forwardRef<any, MapProps>(
   (
     {
       region,
@@ -40,15 +40,35 @@ export const Map = React.forwardRef<MapView, MapProps>(
     },
     ref,
   ) => {
-    // Safe cross-platform fallback for Web compatibility
-    if (Platform.OS === 'web') {
+    const mapRef = React.useRef<any>(null);
+    const key = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY || '';
+    const useMock = Platform.OS === 'web' || !key;
+
+    React.useImperativeHandle(ref, () => ({
+      animateToRegion: (r: Region, duration?: number) => {
+        if (!useMock && mapRef.current) {
+          mapRef.current.animateToRegion(r, duration);
+        } else {
+          console.log('Mock animateToRegion:', r);
+        }
+      },
+      fitToCoordinates: (coordinates: { latitude: number; longitude: number }[], options: any) => {
+        if (!useMock && mapRef.current) {
+          mapRef.current.fitToCoordinates(coordinates, options);
+        } else {
+          console.log('Mock fitToCoordinates');
+        }
+      },
+    }));
+
+    if (useMock) {
       const displayRegion = region || initialRegion;
       return (
         <View style={[styles.webContainer, containerStyle]}>
           <View style={styles.webMapMock}>
             <MapPin size={40} color={Colors.light.primary} />
             <Typography variant="body1" weight="700" style={styles.webText}>
-              Map View (Web Mock)
+              Map View (Simulation Mode)
             </Typography>
             <Typography
               variant="body2"
@@ -64,7 +84,9 @@ export const Map = React.forwardRef<MapView, MapProps>(
               align="center"
               style={{ marginTop: 8 }}
             >
-              Full Map integration is active and optimized for mobile devices.
+              {Platform.OS === 'web'
+                ? 'Interactive maps are optimized for mobile platforms.'
+                : 'Google Maps API key not configured. Using interactive fallback.'}
             </Typography>
           </View>
         </View>
@@ -74,7 +96,7 @@ export const Map = React.forwardRef<MapView, MapProps>(
     return (
       <View style={[styles.container, containerStyle]}>
         <MapView
-          ref={ref}
+          ref={mapRef}
           region={region}
           initialRegion={initialRegion}
           style={[styles.map, style]}

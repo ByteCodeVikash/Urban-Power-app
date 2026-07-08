@@ -13,7 +13,10 @@ import {
   Alert,
   AlertTitle,
 } from '@mui/material';
-import { TrendingUp as TrendingIcon, Refresh as RefreshIcon } from '@mui/icons-material';
+import {
+  TrendingUp as TrendingIcon,
+  Refresh as RefreshIcon,
+} from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { ModuleRegistry } from '../modules/registry';
 import { useAdminOrderStats } from '../hooks/useAdminOrders';
@@ -28,7 +31,7 @@ export const Dashboard: React.FC = () => {
   const { checkPermission } = useHasPermission();
 
   const allWidgets = ModuleRegistry.getDashboardWidgets();
-  
+
   // Filter widgets by resolved permission
   const permittedWidgets = allWidgets.filter(w => {
     return !w.requiredPermission || checkPermission(w.requiredPermission);
@@ -76,8 +79,11 @@ export const Dashboard: React.FC = () => {
           }
           sx={{ mb: 4, borderRadius: 3 }}
         >
-          <AlertTitle sx={{ fontWeight: 700 }}>Backend Connection Error</AlertTitle>
-          The dashboard is currently unable to connect to the backend services. Please ensure the backend server is running and try again.
+          <AlertTitle sx={{ fontWeight: 700 }}>
+            Backend Connection Error
+          </AlertTitle>
+          The dashboard is currently unable to connect to the backend services.
+          Please ensure the backend server is running and try again.
         </Alert>
       )}
 

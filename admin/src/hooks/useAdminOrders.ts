@@ -73,7 +73,11 @@ export const useAdminOrderStatusUpdate = () => {
       // Invalidate all admin order queries to reflect the change
       queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
       queryClient.invalidateQueries({
-        queryKey: ['admin-order-detail', variables.bookingType, variables.bookingId],
+        queryKey: [
+          'admin-order-detail',
+          variables.bookingType,
+          variables.bookingId,
+        ],
       });
       queryClient.invalidateQueries({ queryKey: ['admin-order-stats'] });
       queryClient.invalidateQueries({ queryKey: ['admin-technicians-list'] });

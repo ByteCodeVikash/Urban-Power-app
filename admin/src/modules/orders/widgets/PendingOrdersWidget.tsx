@@ -6,7 +6,9 @@ import { useAdminOrderStats } from '../../../hooks/useAdminOrders';
 export const PendingOrdersWidget: React.FC = () => {
   const { data: stats, isLoading } = useAdminOrderStats();
 
-  const displayValue = isLoading ? '...' : (stats?.pending_all ?? 0).toLocaleString();
+  const displayValue = isLoading
+    ? '...'
+    : (stats?.pending_all ?? 0).toLocaleString();
 
   return (
     <StatCard

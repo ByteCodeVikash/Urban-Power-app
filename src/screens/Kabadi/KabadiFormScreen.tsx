@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -6,10 +6,6 @@ import {
   SafeAreaView,
   Pressable,
   TextInput,
-  Modal,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import {
@@ -33,6 +29,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { api } from '../../services/api';
 
 import { useKabadiStore } from '../../store/useKabadiStore';
+import { useScrapSelectionStore } from '../../store/useScrapSelectionStore';
 
 export default function KabadiFormScreen() {
   const navigation = useNavigation<any>();
@@ -45,6 +42,13 @@ export default function KabadiFormScreen() {
     s => s.id === categoryId,
   );
 
+  const selectedItems = useScrapSelectionStore(state => state.selectedItems);
+  const totalWeight = useScrapSelectionStore(state => state.totalWeight)();
+  const totalEstimatedPrice = useScrapSelectionStore(
+    state => state.totalEstimatedPrice,
+  )();
+  const clearSelection = useScrapSelectionStore(state => state.clearSelection);
+
   const { data: addresses } = useAddresses();
   const { user } = useAuthStore();
   const schedulePickup = useKabadiStore(state => state.schedulePickup);
@@ -52,9 +56,22 @@ export default function KabadiFormScreen() {
   const [selectedDate, setSelectedDate] = useState(0);
   const [selectedSlot, setSelectedSlot] = useState('Morning (9-12)');
   const [instructions, setInstructions] = useState('');
-  const [name, setName] = useState(user?.name || '');
-  const [phone, setPhone] = useState(user?.phone || '');
-  const [weight, setWeight] = useState('');
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState(() => {
+    const rawPhone = user?.phone || '';
+    const cleaned = rawPhone.replace(/[^0-9]/g, '');
+    return cleaned.slice(-10);
+  });
+  const [weight, setWeight] = useState(() => {
+    return selectedItems.length > 0 ? String(totalWeight) : '';
+  });
+  const [payoutMethod, setPayoutMethod] = useState<'Cash' | 'UPI'>('Cash');
+
+  useEffect(() => {
+    if (selectedItems.length > 0) {
+      setWeight(String(totalWeight));
+    }
+  }, [selectedItems, totalWeight]);
 
   // Image Upload states
   const [imageUri, setImageUri] = useState<string | null>(null);
@@ -173,40 +190,18 @@ export default function KabadiFormScreen() {
     setUploadError(null);
   };
 
-  // Pickup Address state
-  const defaultAddress = addresses?.[0]?.details || 'Add address in profile';
-  const defaultLabel = addresses?.[0]?.type || 'Home';
-  const [pickupAddress, setPickupAddress] = useState(defaultAddress);
-  const [addressLabel, setAddressLabel] = useState<string>(defaultLabel);
-
-  // Address‑edit modal state
-  const [addressModalVisible, setAddressModalVisible] = useState(false);
-  const [draftHouse, setDraftHouse] = useState('');
-  const [draftArea, setDraftArea] = useState('');
-  const [draftCity, setDraftCity] = useState('');
-  const [draftLandmark, setDraftLandmark] = useState('');
-
-  const openAddressModal = () => {
-    // Pre-fill draft fields from current address
-    setDraftHouse('');
-    setDraftArea('');
-    setDraftCity('');
-    setDraftLandmark('');
-    setAddressModalVisible(true);
-  };
-
-  const saveAddress = () => {
-    const parts = [draftHouse, draftArea, draftCity, draftLandmark].filter(
-      Boolean,
-    );
-    if (parts.length === 0) {
-      setAddressModalVisible(false);
-      return;
-    }
-    setPickupAddress(parts.join(', '));
-    setAddressLabel('Custom');
-    setAddressModalVisible(false);
-  };
+  // Pickup Address fields — inline manual form
+  const [addrHouseNo, setAddrHouseNo] = useState('');
+  const [addrBuilding, setAddrBuilding] = useState('');
+  const [addrStreet, setAddrStreet] = useState('');
+  const [addrArea, setAddrArea] = useState('');
+  const [addrLandmark, setAddrLandmark] = useState('');
+  const [addrCity, setAddrCity] = useState('');
+  const [addrState, setAddrState] = useState('');
+  const [addrPin, setAddrPin] = useState('');
+  // Computed pickup address string for submission
+  const pickupAddress = [addrHouseNo, addrBuilding, addrStreet, addrArea, addrLandmark, addrCity, addrState, addrPin]
+    .filter(Boolean).join(', ');
 
   // Generate next 7 days
   const dates = Array.from({ length: 7 }, (_, i) => {
@@ -223,8 +218,13 @@ export default function KabadiFormScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSchedule = async () => {
-    if (!name || !phone || !weight) {
+    const activeWeight = selectedItems.length > 0 ? String(totalWeight) : weight;
+    if (!name || !phone || !activeWeight) {
       alert('Please enter your name, phone and estimated weight.');
+      return;
+    }
+    if (phone.length !== 10) {
+      alert('Please enter a valid 10-digit phone number');
       return;
     }
     if (isUploading) {
@@ -240,47 +240,81 @@ export default function KabadiFormScreen() {
       selectedDateObj.setDate(selectedDateObj.getDate() + selectedDate + 1);
       const bookingDateISO = selectedDateObj.toISOString();
 
-      const estimatedVal =
-        (subcategory?.price || 0) * (parseFloat(weight) || 0);
+      let finalCategoryName = categoryName || 'Mixed Scrap';
+      let finalItemName = subcategoryName || 'General Scrap';
+      let finalPricePerKg = subcategory?.price || 0;
+      let finalEstimatedValue = (subcategory?.price || 0) * (parseFloat(activeWeight) || 0);
+
+      if (selectedItems.length > 0) {
+        const uniqueCategoryIds = Array.from(new Set(selectedItems.map(i => i.category_id)));
+        const catNames = uniqueCategoryIds.map(cid => {
+          const cat = KABADI_ITEMS.find(k => k.id === cid);
+          return cat ? cat.title : 'Scrap';
+        });
+        finalCategoryName = catNames.join(', ');
+        finalItemName = selectedItems.map(i => `${i.name} (${i.quantity} kg)`).join(', ');
+        finalEstimatedValue = totalEstimatedPrice;
+        finalPricePerKg = totalWeight > 0 ? (totalEstimatedPrice / totalWeight) : 0;
+      }
 
       // Persist to PostgreSQL via backend API
-      await api.kabadi.createBooking({
+      const response = await api.kabadi.createBooking({
         address_text: pickupAddress,
         booking_date: bookingDateISO,
         time_slot: selectedSlot,
-        category_name: categoryName,
-        item_name: subcategoryName || 'General Scrap',
-        estimated_weight_kg: parseFloat(weight) || 0,
-        estimated_value: estimatedVal,
-        price_per_kg: subcategory?.price || 0,
-        notes: instructions || undefined,
+        category_name: finalCategoryName,
+        item_name: finalItemName,
+        estimated_weight_kg: parseFloat(activeWeight) || 0,
+        estimated_value: finalEstimatedValue,
+        price_per_kg: finalPricePerKg,
+        notes: instructions ? `${instructions} | Payout: ${payoutMethod}` : `Payout: ${payoutMethod}`,
         photos: uploadedUrl ? [uploadedUrl] : [],
       });
 
+      const successTitle = selectedItems.length > 0 
+        ? `${selectedItems.length} Scrap Items`
+        : `${categoryName} - ${subcategoryName}`;
+
+      const scheduleCategories = selectedItems.length > 0
+        ? selectedItems.map(i => `${i.name} (${i.quantity} kg)`)
+        : [`${categoryName} - ${subcategoryName}`];
+
       // Also update local Zustand store for UI state (secondary mirror)
       schedulePickup({
-        categories: [`${categoryName} - ${subcategoryName}`],
+        categories: scheduleCategories,
         address: pickupAddress,
         date: dates[selectedDate].full,
         timeSlot: selectedSlot,
-        estimatedValue: estimatedVal.toString(),
+        estimatedValue: finalEstimatedValue.toString(),
         image: uploadedUrl || undefined,
       });
 
-      alert('Pickup scheduled successfully!');
-      navigation.navigate('KabadiBooking' as any);
+      if (selectedItems.length > 0) {
+        clearSelection();
+      }
+
+      navigation.navigate('GeneralBookingSuccess', {
+        bookingId: response?.booking_reference || 'UP-SUCCESS',
+        title: successTitle,
+        date: dates[selectedDate].full,
+        timeslot: selectedSlot,
+        address: pickupAddress,
+        paymentMethod: 'COD',
+      });
     } catch (err: any) {
       console.error('Scrap booking API error:', err);
-      const errMsg =
-        err?.response?.data?.detail ||
-        err?.message ||
-        'Failed to schedule pickup. Please try again.';
-      alert(errMsg);
+      // Skip alert for auth errors — interceptor already called logout()
+      // which causes AppNavigator to redirect to LoginScreen.
+      if (!err?.isAuthError) {
+        const errMsg =
+          err?.message ||
+          'Failed to schedule pickup. Please try again.';
+        alert(errMsg);
+      }
     } finally {
       setIsSubmitting(false);
     }
   };
-
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -298,43 +332,100 @@ export default function KabadiFormScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.content}
       >
-        <View style={styles.selectedBox}>
-          <View style={styles.categoryIcon}>
-            <NetworkImage
-              source={{ uri: parentCategory?.icon || '' }}
-              style={styles.icon}
-              resizeMode="cover"
-            />
-          </View>
-          <View style={{ marginLeft: Spacing.md, flex: 1 }}>
+        {selectedItems.length > 0 ? (
+          <View style={styles.selectedItemsSection}>
             <Typography
-              variant="caption"
-              color={Colors.light.textSecondary}
-              weight="700"
+              variant="body1"
+              weight="800"
+              style={{ marginBottom: Spacing.sm }}
             >
-              {categoryName?.toUpperCase()}
+              Selected Items ({selectedItems.length})
             </Typography>
-            <Typography variant="body1" weight="800">
-              {subcategoryName || 'General Scrap'}
-            </Typography>
-            <Typography
-              variant="body2"
-              color={Colors.light.success}
-              weight="700"
-            >
-              ₹{subcategory?.price || 'Market Rate'}/kg
-            </Typography>
+            {selectedItems.map((item) => (
+              <View key={item.id} style={styles.selectedItemRow}>
+                <View style={{ flex: 1 }}>
+                  <Typography variant="body2" weight="700">
+                    {item.name}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    color={Colors.light.textSecondary}
+                  >
+                    ₹{item.price_per_kg}/kg
+                  </Typography>
+                </View>
+                <Typography
+                  variant="body2"
+                  weight="700"
+                  style={{ marginRight: Spacing.md }}
+                >
+                  {item.quantity} kg
+                </Typography>
+                <Typography
+                  variant="body2"
+                  weight="800"
+                  color={Colors.light.primary}
+                >
+                  ₹{item.price_per_kg * item.quantity}
+                </Typography>
+              </View>
+            ))}
+            <View style={styles.selectedItemsTotalRow}>
+              <Typography
+                variant="body2"
+                weight="700"
+                color={Colors.light.textSecondary}
+              >
+                Total Weight: {totalWeight} kg
+              </Typography>
+              <Typography
+                variant="body2"
+                weight="800"
+                color={Colors.light.primary}
+              >
+                Total Est. Value: ₹{totalEstimatedPrice}
+              </Typography>
+            </View>
           </View>
-          <View style={styles.verifiedBadge}>
-            <Typography
-              variant="tiny"
-              color={Colors.light.success}
-              weight="700"
-            >
-              Rate Verified
-            </Typography>
+        ) : (
+          <View style={styles.selectedBox}>
+            <View style={styles.categoryIcon}>
+              <NetworkImage
+                source={{ uri: parentCategory?.icon || '' }}
+                style={styles.icon}
+                resizeMode="cover"
+              />
+            </View>
+            <View style={{ marginLeft: Spacing.md, flex: 1 }}>
+              <Typography
+                variant="caption"
+                color={Colors.light.textSecondary}
+                weight="700"
+              >
+                {categoryName?.toUpperCase()}
+              </Typography>
+              <Typography variant="body1" weight="800">
+                {subcategoryName || 'General Scrap'}
+              </Typography>
+              <Typography
+                variant="body2"
+                color={Colors.light.success}
+                weight="700"
+              >
+                ₹{subcategory?.price || 'Market Rate'}/kg
+              </Typography>
+            </View>
+            <View style={styles.verifiedBadge}>
+              <Typography
+                variant="tiny"
+                color={Colors.light.success}
+                weight="700"
+              >
+                Rate Verified
+              </Typography>
+            </View>
           </View>
-        </View>
+        )}
 
         <View style={styles.section}>
           <Typography variant="h3" weight="700" style={styles.sectionTitle}>
@@ -365,11 +456,15 @@ export default function KabadiFormScreen() {
                 ESTIMATED WEIGHT (KG)
               </Typography>
               <TextInput
-                style={styles.singleLineInput}
+                style={[
+                  styles.singleLineInput,
+                  selectedItems.length > 0 && { backgroundColor: '#F1F5F9', color: Colors.light.textMuted }
+                ]}
                 placeholder="e.g. 10"
                 value={weight}
                 onChangeText={setWeight}
                 keyboardType="numeric"
+                editable={selectedItems.length === 0}
               />
             </View>
           </View>
@@ -383,14 +478,21 @@ export default function KabadiFormScreen() {
               >
                 PHONE NUMBER
               </Typography>
-              <TextInput
-                style={styles.singleLineInput}
-                placeholder="Enter 10-digit number"
-                value={phone}
-                onChangeText={setPhone}
-                keyboardType="phone-pad"
-                maxLength={10}
-              />
+              <View style={styles.phoneInputContainer}>
+                <View style={styles.phoneCountryCode}>
+                  <Typography variant="body2" weight="700" color={Colors.light.primary}>
+                    +91
+                  </Typography>
+                </View>
+                <TextInput
+                  style={styles.phoneInput}
+                  placeholder="Enter 10-digit number"
+                  value={phone}
+                  onChangeText={(text) => setPhone(text.replace(/[^0-9]/g, ''))}
+                  keyboardType="phone-pad"
+                  maxLength={10}
+                />
+              </View>
             </View>
           </View>
         </View>
@@ -486,147 +588,85 @@ export default function KabadiFormScreen() {
           <Typography variant="h3" weight="700" style={styles.sectionTitle}>
             Pickup Address
           </Typography>
-          <View style={styles.addressCard}>
-            <MapPin color={Colors.light.primary} size={24} />
-            <View style={{ marginLeft: Spacing.md, flex: 1 }}>
-              <Typography variant="body1" weight="800">
-                {addressLabel}
-              </Typography>
-              <Typography
-                variant="body2"
-                color={Colors.light.textSecondary}
-                numberOfLines={2}
-              >
-                {pickupAddress}
-              </Typography>
+          <View style={styles.addressGrid}>
+            <View style={styles.addressHalf}>
+              <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>HOUSE / FLAT NO.</Typography>
+              <TextInput style={styles.singleLineInput} placeholder="e.g. A-12" value={addrHouseNo} onChangeText={setAddrHouseNo} />
             </View>
-            <TouchableOpacity
-              style={styles.changeBtn}
-              onPress={openAddressModal}
-              activeOpacity={0.7}
-            >
-              <Typography
-                variant="tiny"
-                color={Colors.light.primary}
-                weight="700"
-              >
-                CHANGE
-              </Typography>
-            </TouchableOpacity>
+            <View style={styles.addressHalf}>
+              <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>BUILDING / SOCIETY</Typography>
+              <TextInput style={styles.singleLineInput} placeholder="e.g. Green Park Apts" value={addrBuilding} onChangeText={setAddrBuilding} />
+            </View>
           </View>
+          <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>STREET *</Typography>
+          <TextInput style={[styles.singleLineInput, { marginBottom: Spacing.sm }]} placeholder="e.g. MG Road" value={addrStreet} onChangeText={setAddrStreet} />
+          <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>AREA / LOCALITY</Typography>
+          <TextInput style={[styles.singleLineInput, { marginBottom: Spacing.sm }]} placeholder="e.g. Sector 45" value={addrArea} onChangeText={setAddrArea} />
+          <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>LANDMARK (OPTIONAL)</Typography>
+          <TextInput style={[styles.singleLineInput, { marginBottom: Spacing.sm }]} placeholder="e.g. Near Metro Station" value={addrLandmark} onChangeText={setAddrLandmark} />
+          <View style={styles.addressGrid}>
+            <View style={styles.addressHalf}>
+              <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>CITY *</Typography>
+              <TextInput style={styles.singleLineInput} placeholder="e.g. Delhi" value={addrCity} onChangeText={setAddrCity} />
+            </View>
+            <View style={styles.addressHalf}>
+              <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>STATE *</Typography>
+              <TextInput style={styles.singleLineInput} placeholder="e.g. Delhi" value={addrState} onChangeText={setAddrState} />
+            </View>
+          </View>
+          <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>PIN CODE *</Typography>
+          <TextInput style={styles.singleLineInput} placeholder="e.g. 110001" value={addrPin} onChangeText={(t) => setAddrPin(t.replace(/[^0-9]/g, ''))} keyboardType="number-pad" maxLength={6} />
         </View>
 
-        {/* ──── Address Edit Modal ──── */}
-        <Modal
-          visible={addressModalVisible}
-          transparent
-          animationType="slide"
-          onRequestClose={() => setAddressModalVisible(false)}
-        >
-          <KeyboardAvoidingView
-            style={styles.modalOverlay}
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        {/* Preferred Payout Method Section */}
+        <View style={styles.section}>
+          <Typography variant="h3" weight="700" style={styles.sectionTitle}>
+            Preferred Payout Method
+          </Typography>
+          <Typography variant="caption" color={Colors.light.textSecondary} style={{ marginBottom: Spacing.md }}>
+            Select how you would like to receive the payment for your scrap.
+          </Typography>
+
+          <Pressable
+            style={[
+              styles.paymentOption,
+              payoutMethod === 'Cash' && styles.paymentOptionSelected,
+            ]}
+            onPress={() => setPayoutMethod('Cash')}
           >
-            <View style={styles.modalSheet}>
-              {/* Modal Header */}
-              <View style={styles.modalHeader}>
-                <Typography variant="h3" weight="800">
-                  Change Pickup Address
-                </Typography>
-                <TouchableOpacity
-                  onPress={() => setAddressModalVisible(false)}
-                  activeOpacity={0.7}
-                >
-                  <Typography
-                    variant="body1"
-                    color={Colors.light.textSecondary}
-                  >
-                    ✕
-                  </Typography>
-                </TouchableOpacity>
-              </View>
-
-              {/* House / Flat */}
-              <Typography
-                variant="caption"
-                color={Colors.light.textSecondary}
-                style={styles.modalLabel}
-              >
-                HOUSE / FLAT NO.
-              </Typography>
-              <TextInput
-                style={styles.modalInput}
-                placeholder="e.g. A-421, Shunya Apartments"
-                placeholderTextColor={Colors.light.textMuted}
-                value={draftHouse}
-                onChangeText={setDraftHouse}
-              />
-
-              {/* Area / Street */}
-              <Typography
-                variant="caption"
-                color={Colors.light.textSecondary}
-                style={styles.modalLabel}
-              >
-                AREA / STREET
-              </Typography>
-              <TextInput
-                style={styles.modalInput}
-                placeholder="e.g. Sector 45, Gurugram"
-                placeholderTextColor={Colors.light.textMuted}
-                value={draftArea}
-                onChangeText={setDraftArea}
-              />
-
-              {/* City */}
-              <Typography
-                variant="caption"
-                color={Colors.light.textSecondary}
-                style={styles.modalLabel}
-              >
-                CITY
-              </Typography>
-              <TextInput
-                style={styles.modalInput}
-                placeholder="e.g. Delhi"
-                placeholderTextColor={Colors.light.textMuted}
-                value={draftCity}
-                onChangeText={setDraftCity}
-              />
-
-              {/* Landmark */}
-              <Typography
-                variant="caption"
-                color={Colors.light.textSecondary}
-                style={styles.modalLabel}
-              >
-                LANDMARK (OPTIONAL)
-              </Typography>
-              <TextInput
-                style={styles.modalInput}
-                placeholder="e.g. Near Metro Station"
-                placeholderTextColor={Colors.light.textMuted}
-                value={draftLandmark}
-                onChangeText={setDraftLandmark}
-              />
-
-              {/* Save Button */}
-              <TouchableOpacity
-                style={styles.saveBtn}
-                onPress={saveAddress}
-                activeOpacity={0.85}
-              >
-                <Typography
-                  variant="body1"
-                  weight="800"
-                  color={Colors.light.white}
-                >
-                  SAVE ADDRESS
-                </Typography>
-              </TouchableOpacity>
+            <View style={styles.radioOutline}>
+              {payoutMethod === 'Cash' && <View style={styles.radioDot} />}
             </View>
-          </KeyboardAvoidingView>
-        </Modal>
+            <View style={{ marginLeft: Spacing.md, flex: 1 }}>
+              <Typography variant="body1" weight="700">
+                Cash Payout
+              </Typography>
+              <Typography variant="caption" color={Colors.light.textSecondary}>
+                Receive instant cash in hand at the time of pickup
+              </Typography>
+            </View>
+          </Pressable>
+
+          <Pressable
+            style={[
+              styles.paymentOption,
+              payoutMethod === 'UPI' && styles.paymentOptionSelected,
+            ]}
+            onPress={() => setPayoutMethod('UPI')}
+          >
+            <View style={styles.radioOutline}>
+              {payoutMethod === 'UPI' && <View style={styles.radioDot} />}
+            </View>
+            <View style={{ marginLeft: Spacing.md, flex: 1 }}>
+              <Typography variant="body1" weight="700">
+                UPI Payout
+              </Typography>
+              <Typography variant="caption" color={Colors.light.textSecondary}>
+                Receive instant transfer to your UPI ID / Phone number
+              </Typography>
+            </View>
+          </Pressable>
+        </View>
 
         {/* Photo Upload Section */}
         <View style={styles.section}>
@@ -733,6 +773,30 @@ export default function KabadiFormScreen() {
 }
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: Colors.light.white },
+  phoneInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.light.surface,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    borderColor: Colors.light.borderLight,
+    height: 56,
+  },
+  phoneCountryCode: {
+    paddingHorizontal: Spacing.md,
+    borderRightWidth: 1,
+    borderRightColor: Colors.light.borderLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '60%',
+  },
+  phoneInput: {
+    flex: 1,
+    paddingHorizontal: Spacing.md,
+    fontSize: 15,
+    color: Colors.light.text,
+    height: '100%',
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -821,21 +885,16 @@ const styles = StyleSheet.create({
     borderColor: Colors.light.borderLight,
   },
   addressSection: { marginBottom: Spacing.xl },
-  addressCard: {
+  addressGrid: {
     flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.light.white,
-    padding: Spacing.lg,
-    borderRadius: BorderRadius.xl,
-    borderWidth: 1,
-    borderColor: Colors.light.borderLight,
-    ...Shadows.light.sm,
+    gap: Spacing.sm,
+    marginBottom: Spacing.sm,
   },
-  changeBtn: {
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    backgroundColor: Colors.light.surface,
-    borderRadius: BorderRadius.md,
+  addressHalf: { flex: 1 },
+  fieldLabel: {
+    marginBottom: 4,
+    marginTop: 2,
+    textTransform: 'uppercase',
   },
   input: {
     backgroundColor: Colors.light.surface,
@@ -865,49 +924,6 @@ const styles = StyleSheet.create({
     ...Shadows.light.lg,
   },
 
-  // ── Address Modal Styles ──
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.45)',
-    justifyContent: 'flex-end',
-  },
-  modalSheet: {
-    backgroundColor: Colors.light.white,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    padding: Spacing.xl,
-    paddingBottom: 40,
-    ...Shadows.light.lg,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: Spacing.xl,
-  },
-  modalLabel: {
-    marginBottom: 4,
-    marginTop: Spacing.md,
-  },
-  modalInput: {
-    backgroundColor: Colors.light.surface,
-    borderRadius: BorderRadius.lg,
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.md,
-    fontSize: 14,
-    color: Colors.light.text,
-    borderWidth: 1,
-    borderColor: Colors.light.borderLight,
-    marginBottom: Spacing.sm,
-  },
-  saveBtn: {
-    marginTop: Spacing.xl,
-    backgroundColor: Colors.light.primary,
-    borderRadius: BorderRadius.xl,
-    paddingVertical: Spacing.lg,
-    alignItems: 'center',
-    ...Shadows.light.sm,
-  },
   errorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -966,5 +982,57 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.6)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  paymentOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.light.surface,
+    padding: Spacing.lg,
+    borderRadius: BorderRadius.xl,
+    borderWidth: 1,
+    borderColor: Colors.light.borderLight,
+    marginBottom: Spacing.md,
+  },
+  paymentOptionSelected: {
+    borderColor: Colors.light.primary,
+    backgroundColor: Colors.light.primaryLight,
+  },
+  radioOutline: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
+    borderColor: Colors.light.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  radioDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: Colors.light.primary,
+  },
+  selectedItemsSection: {
+    backgroundColor: Colors.light.surface,
+    padding: Spacing.lg,
+    borderRadius: BorderRadius.xl,
+    marginBottom: Spacing.xl,
+    borderWidth: 1,
+    borderColor: Colors.light.borderLight,
+  },
+  selectedItemRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: Spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.light.borderLight,
+  },
+  selectedItemsTotalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: Spacing.md,
+    paddingTop: Spacing.sm,
   },
 });

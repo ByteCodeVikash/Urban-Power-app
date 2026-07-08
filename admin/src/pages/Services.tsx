@@ -40,7 +40,11 @@ import {
   Timer as TimerIcon,
   CurrencyRupee as RupeeIcon,
 } from '@mui/icons-material';
-import { useServices, type ServiceItem, type ServiceDomain } from '../hooks/useServices';
+import {
+  useServices,
+  type ServiceItem,
+  type ServiceDomain,
+} from '../hooks/useServices';
 import { useQueryClient } from '@tanstack/react-query';
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
@@ -92,13 +96,19 @@ export const Services: React.FC = () => {
 
   const liveItems: ServiceItem[] = useMemo(() => {
     if (!data) return [];
-    const domainKey = activeDomain.toLowerCase() as 'scrap' | 'beautician' | 'maintenance';
+    const domainKey = activeDomain.toLowerCase() as
+      | 'scrap'
+      | 'beautician'
+      | 'maintenance';
     return data[domainKey].flatMap(cat => cat.services);
   }, [data, activeDomain]);
 
   const categories = useMemo(() => {
     if (!data) return [];
-    const domainKey = activeDomain.toLowerCase() as 'scrap' | 'beautician' | 'maintenance';
+    const domainKey = activeDomain.toLowerCase() as
+      | 'scrap'
+      | 'beautician'
+      | 'maintenance';
     return data[domainKey];
   }, [data, activeDomain]);
 
@@ -166,22 +176,23 @@ export const Services: React.FC = () => {
             Service Catalog
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            View and manage services from Scrap, Beautician & Maintenance domains.
+            View and manage services from Scrap, Beautician & Maintenance
+            domains.
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
           <Tooltip title="Refresh live data">
-            <IconButton onClick={handleRefresh} size="small" disabled={isLoading}>
+            <IconButton
+              onClick={handleRefresh}
+              size="small"
+              disabled={isLoading}
+            >
               <RefreshIcon fontSize="small" />
             </IconButton>
           </Tooltip>
           <Tooltip title="Create Service API is not implemented in the backend (Pending Backend API)">
             <span>
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                disabled
-              >
+              <Button variant="contained" startIcon={<AddIcon />} disabled>
                 Add Service
               </Button>
             </span>
@@ -191,7 +202,10 @@ export const Services: React.FC = () => {
 
       {/* Pending Backend API Alert */}
       <Alert severity="info" sx={{ mb: 3 }}>
-        <strong>Note:</strong> Service creation, editing, and deletion are currently <strong>Pending Backend API</strong> integration and are disabled in the UI. Live services can still be viewed, searched, and filtered.
+        <strong>Note:</strong> Service creation, editing, and deletion are
+        currently <strong>Pending Backend API</strong> integration and are
+        disabled in the UI. Live services can still be viewed, searched, and
+        filtered.
       </Alert>
 
       {/* Error Banner */}
@@ -206,13 +220,15 @@ export const Services: React.FC = () => {
             </Button>
           }
         >
-          Could not reach backend:{' '}
-          {(error as any)?.message ?? 'Network error'}.
+          Could not reach backend: {(error as any)?.message ?? 'Network error'}.
         </Alert>
       )}
 
       {/* Tabs */}
-      <Paper elevation={0} sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+      <Paper
+        elevation={0}
+        sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}
+      >
         <Tabs
           value={activeTab}
           onChange={(_e, v) => {
@@ -241,7 +257,15 @@ export const Services: React.FC = () => {
       </Paper>
 
       {/* Search + summary bar */}
-      <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          gap: 2,
+          mb: 2,
+          alignItems: 'center',
+          flexWrap: 'wrap',
+        }}
+      >
         <TextField
           size="small"
           placeholder="Search services…"
@@ -263,7 +287,8 @@ export const Services: React.FC = () => {
             'Loading…'
           ) : (
             <>
-              {displayedItems.length} service{displayedItems.length !== 1 ? 's' : ''}
+              {displayedItems.length} service
+              {displayedItems.length !== 1 ? 's' : ''}
             </>
           )}
         </Typography>
@@ -278,19 +303,29 @@ export const Services: React.FC = () => {
         <Table>
           <TableHead>
             <TableRow sx={{ bgcolor: '#F7FAFC' }}>
-              <TableCell sx={{ fontWeight: 700, fontSize: '0.8rem', color: '#4A5568' }}>
+              <TableCell
+                sx={{ fontWeight: 700, fontSize: '0.8rem', color: '#4A5568' }}
+              >
                 Category
               </TableCell>
-              <TableCell sx={{ fontWeight: 700, fontSize: '0.8rem', color: '#4A5568' }}>
+              <TableCell
+                sx={{ fontWeight: 700, fontSize: '0.8rem', color: '#4A5568' }}
+              >
                 Service Name
               </TableCell>
-              <TableCell sx={{ fontWeight: 700, fontSize: '0.8rem', color: '#4A5568' }}>
+              <TableCell
+                sx={{ fontWeight: 700, fontSize: '0.8rem', color: '#4A5568' }}
+              >
                 Price
               </TableCell>
-              <TableCell sx={{ fontWeight: 700, fontSize: '0.8rem', color: '#4A5568' }}>
+              <TableCell
+                sx={{ fontWeight: 700, fontSize: '0.8rem', color: '#4A5568' }}
+              >
                 Duration
               </TableCell>
-              <TableCell sx={{ fontWeight: 700, fontSize: '0.8rem', color: '#4A5568' }}>
+              <TableCell
+                sx={{ fontWeight: 700, fontSize: '0.8rem', color: '#4A5568' }}
+              >
                 Description
               </TableCell>
               <TableCell
@@ -299,7 +334,10 @@ export const Services: React.FC = () => {
               >
                 Status
               </TableCell>
-              <TableCell align="right" sx={{ fontWeight: 700, fontSize: '0.8rem', color: '#4A5568' }}>
+              <TableCell
+                align="right"
+                sx={{ fontWeight: 700, fontSize: '0.8rem', color: '#4A5568' }}
+              >
                 Actions
               </TableCell>
             </TableRow>
@@ -309,7 +347,11 @@ export const Services: React.FC = () => {
               <TableRow>
                 <TableCell colSpan={7} align="center" sx={{ py: 6 }}>
                   <CircularProgress size={28} />
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mt: 1 }}
+                  >
                     Loading live service data…
                   </Typography>
                 </TableCell>
@@ -343,7 +385,9 @@ export const Services: React.FC = () => {
                     </Box>
                   </TableCell>
                   <TableCell>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <Box
+                      sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
+                    >
                       <RupeeIcon sx={{ fontSize: 14, color: '#C29D0A' }} />
                       <Typography
                         variant="body2"
@@ -355,7 +399,9 @@ export const Services: React.FC = () => {
                   </TableCell>
                   <TableCell>
                     {item.duration ? (
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <Box
+                        sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
+                      >
                         <TimerIcon sx={{ fontSize: 14, color: '#718096' }} />
                         <Typography variant="body2" color="text.secondary">
                           {item.duration} min
@@ -387,25 +433,23 @@ export const Services: React.FC = () => {
                     />
                   </TableCell>
                   <TableCell align="right">
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                        gap: 0.5,
+                      }}
+                    >
                       <Tooltip title="Edit service (Pending Backend API)">
                         <span>
-                          <IconButton
-                            color="secondary"
-                            size="small"
-                            disabled
-                          >
+                          <IconButton color="secondary" size="small" disabled>
                             <EditIcon fontSize="small" />
                           </IconButton>
                         </span>
                       </Tooltip>
                       <Tooltip title="Delete service (Pending Backend API)">
                         <span>
-                          <IconButton
-                            color="error"
-                            size="small"
-                            disabled
-                          >
+                          <IconButton color="error" size="small" disabled>
                             <DeleteIcon fontSize="small" />
                           </IconButton>
                         </span>
@@ -426,11 +470,15 @@ export const Services: React.FC = () => {
         fullWidth
         maxWidth="sm"
       >
-        <DialogTitle sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}>
+        <DialogTitle
+          sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}
+        >
           {editingItem ? 'Edit Service' : `Add Service — ${activeDomain}`}
         </DialogTitle>
         <DialogContent>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mt: 1.5 }}>
+          <Box
+            sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mt: 1.5 }}
+          >
             <TextField
               fullWidth
               size="small"
@@ -466,9 +514,7 @@ export const Services: React.FC = () => {
               fullWidth
               size="small"
               label={
-                activeDomain === 'Scrap'
-                  ? 'Price per kg (₹/kg)'
-                  : 'Price (₹)'
+                activeDomain === 'Scrap' ? 'Price per kg (₹/kg)' : 'Price (₹)'
               }
               value={formPrice}
               onChange={e => setFormPrice(e.target.value)}
@@ -554,13 +600,15 @@ export const Services: React.FC = () => {
         open={openDeleteDialog}
         onClose={() => setOpenDeleteDialog(false)}
       >
-        <DialogTitle sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}>
+        <DialogTitle
+          sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}
+        >
           Remove Service
         </DialogTitle>
         <DialogContent>
           <Typography variant="body2">
-            Are you sure you want to remove{' '}
-            <strong>{editingItem?.name}</strong> from the catalog?
+            Are you sure you want to remove <strong>{editingItem?.name}</strong>{' '}
+            from the catalog?
           </Typography>
           {editingItem?.fromApi && (
             <Alert severity="warning" sx={{ mt: 2, fontSize: '0.78rem' }}>

@@ -27,7 +27,12 @@ export const BookingsGraphWidget: React.FC = () => {
     if (!stats || !stats.graphs) {
       return [];
     }
-    const graphKey = range === 'weekly' ? 'weekly' : range === 'monthly' ? 'monthly' : 'yearly';
+    const graphKey =
+      range === 'weekly'
+        ? 'weekly'
+        : range === 'monthly'
+          ? 'monthly'
+          : 'yearly';
     return stats.graphs[graphKey] || [];
   }, [stats, range]);
 

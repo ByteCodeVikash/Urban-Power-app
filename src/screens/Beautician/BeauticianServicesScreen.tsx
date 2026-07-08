@@ -87,7 +87,7 @@ export default function BeauticianServicesScreen() {
           <ChevronLeft color={Colors.light.text} size={24} />
         </Pressable>
         <Typography variant="h3" weight="700">
-          Beautician Services
+          Beauty Services
         </Typography>
         <View style={{ width: 44 }} />
       </View>
@@ -275,15 +275,29 @@ export default function BeauticianServicesScreen() {
               Total Price: ₹{getTotalPrice}
             </Typography>
           </View>
-          <Pressable style={styles.clearBtn} onPress={clearSelection}>
-            <Typography
-              variant="body2"
-              color={Colors.light.primary}
-              weight="700"
+          <View style={styles.footerActions}>
+            <Pressable style={styles.clearBtn} onPress={clearSelection}>
+              <Typography
+                variant="body2"
+                color={Colors.light.primary}
+                weight="700"
+              >
+                Clear
+              </Typography>
+            </Pressable>
+            <Pressable
+              style={styles.bookBtn}
+              onPress={() => navigation.navigate('BeauticianBooking' as any)}
             >
-              Clear
-            </Typography>
-          </Pressable>
+              <Typography
+                variant="body2"
+                color={Colors.light.white}
+                weight="700"
+              >
+                Book Now
+              </Typography>
+            </Pressable>
+          </View>
         </View>
       )}
     </SafeAreaView>
@@ -426,5 +440,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.xs,
     borderRadius: 8,
+  },
+  footerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  bookBtn: {
+    backgroundColor: Colors.light.primaryDark || '#5925CC',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.light.white,
   },
 });

@@ -54,7 +54,8 @@ export const useNotificationPolling = (intervalMs = 15000) => {
             notes: booking.notes || null,
             total_price: Number(booking.total_price) || 0,
             payment_method: booking.payment_method || null,
-            booking_reference: booking.booking_reference || bookingId.slice(0, 8).toUpperCase(),
+            booking_reference:
+              booking.booking_reference || bookingId.slice(0, 8).toUpperCase(),
             customer_name: parsed.customerName || 'Customer',
             service_name: serviceName,
             technician: parsed.technician || 'None',

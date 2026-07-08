@@ -105,8 +105,12 @@ export const MainLayout: React.FC = () => {
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [menuItems, setMenuItems] = useState<(SidebarMenuItem | MenuItemConfig)[]>([]);
-  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
+  const [menuItems, setMenuItems] = useState<
+    (SidebarMenuItem | MenuItemConfig)[]
+  >([]);
+  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
+    {},
+  );
 
   useEffect(() => {
     const staticItems = menuConfig;
@@ -127,7 +131,9 @@ export const MainLayout: React.FC = () => {
     }));
   };
 
-  const filterMenuItems = (items: (SidebarMenuItem | MenuItemConfig)[]): (SidebarMenuItem | MenuItemConfig)[] => {
+  const filterMenuItems = (
+    items: (SidebarMenuItem | MenuItemConfig)[],
+  ): (SidebarMenuItem | MenuItemConfig)[] => {
     return items
       .map(item => {
         if (item.children && item.children.length > 0) {
@@ -140,7 +146,10 @@ export const MainLayout: React.FC = () => {
         return item;
       })
       .filter(item => {
-        if (item.permission && !checkPermission(item.permission as Permission)) {
+        if (
+          item.permission &&
+          !checkPermission(item.permission as Permission)
+        ) {
           return false;
         }
         if (item.children && item.children.length === 0) {
@@ -263,7 +272,10 @@ export const MainLayout: React.FC = () => {
     navigate('/profile');
   };
 
-  const renderMenuItem = (item: SidebarMenuItem | MenuItemConfig, depth = 0) => {
+  const renderMenuItem = (
+    item: SidebarMenuItem | MenuItemConfig,
+    depth = 0,
+  ) => {
     const hasChildren = item.children && item.children.length > 0;
     const isExpanded = !!expandedItems[item.title];
     const isActive =
@@ -295,7 +307,10 @@ export const MainLayout: React.FC = () => {
             fontWeight: isActive && !hasChildren ? 600 : 500,
             transition: 'all 0.2s ease-in-out',
             '&:hover': {
-              bgcolor: isActive && !hasChildren ? '#E5BD1B' : 'rgba(255, 255, 255, 0.04)',
+              bgcolor:
+                isActive && !hasChildren
+                  ? '#E5BD1B'
+                  : 'rgba(255, 255, 255, 0.04)',
               color: isActive && !hasChildren ? '#1A202C' : '#FFFFFF',
               '& .MuiListItemIcon-root': {
                 color: isActive && !hasChildren ? '#1A202C' : '#FFFFFF',
@@ -320,13 +335,12 @@ export const MainLayout: React.FC = () => {
               </Typography>
             }
           />
-          {hasChildren && (
-            isExpanded ? (
+          {hasChildren &&
+            (isExpanded ? (
               <ExpandLess sx={{ color: '#A0AEC0', fontSize: '1.2rem' }} />
             ) : (
               <ExpandMore sx={{ color: '#A0AEC0', fontSize: '1.2rem' }} />
-            )
-          )}
+            ))}
         </ListItemButton>
         {hasChildren && (
           <Collapse in={isExpanded} timeout="auto" unmountOnExit>
@@ -430,8 +444,10 @@ export const MainLayout: React.FC = () => {
 
   const getPageTitle = () => {
     if (location.pathname === '/') return 'Dashboard';
-    
-    const findTitle = (items: (SidebarMenuItem | MenuItemConfig)[]): string | null => {
+
+    const findTitle = (
+      items: (SidebarMenuItem | MenuItemConfig)[],
+    ): string | null => {
       for (const item of items) {
         if (item.route !== '/' && location.pathname.startsWith(item.route)) {
           return item.title;
@@ -481,7 +497,11 @@ export const MainLayout: React.FC = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             {/* Notification Bell */}
             <Tooltip title="Notifications">
-              <IconButton onClick={handleNotifOpen} color="inherit" sx={{ mr: 1 }}>
+              <IconButton
+                onClick={handleNotifOpen}
+                color="inherit"
+                sx={{ mr: 1 }}
+              >
                 <Badge badgeContent={unreadCount} color="error" max={99}>
                   <BellIcon />
                 </Badge>
@@ -511,15 +531,42 @@ export const MainLayout: React.FC = () => {
                     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
                     mt: 1.5,
                     border: '1px solid #E2E8F0',
-                  }
-                }
+                  },
+                },
               }}
             >
-              <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #F0F4F8' }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 800, fontFamily: '"Outfit", sans-serif', display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Box
+                sx={{
+                  p: 2,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  borderBottom: '1px solid #F0F4F8',
+                }}
+              >
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    fontWeight: 800,
+                    fontFamily: '"Outfit", sans-serif',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                  }}
+                >
                   Notifications
                   {unreadCount > 0 && (
-                    <Box sx={{ px: 1, py: 0.2, bgcolor: '#FEE2E2', color: '#EF4444', borderRadius: 1.5, fontSize: '0.75rem', fontWeight: 700 }}>
+                    <Box
+                      sx={{
+                        px: 1,
+                        py: 0.2,
+                        bgcolor: '#FEE2E2',
+                        color: '#EF4444',
+                        borderRadius: 1.5,
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                      }}
+                    >
                       {unreadCount} new
                     </Box>
                   )}
@@ -536,16 +583,27 @@ export const MainLayout: React.FC = () => {
                 )}
               </Box>
 
-              <List sx={{ p: 0, overflowY: 'auto', flexGrow: 1, maxHeight: 340 }}>
+              <List
+                sx={{ p: 0, overflowY: 'auto', flexGrow: 1, maxHeight: 340 }}
+              >
                 {notifications.length === 0 ? (
-                  <Box sx={{ py: 6, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+                  <Box
+                    sx={{
+                      py: 6,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 1,
+                    }}
+                  >
                     <BellIcon sx={{ fontSize: 40, color: '#A0AEC0' }} />
                     <Typography variant="body2" color="text.secondary">
                       No notifications yet
                     </Typography>
                   </Box>
                 ) : (
-                  notifications.map((notif) => (
+                  notifications.map(notif => (
                     <ListItem
                       key={notif.id}
                       onClick={() => {
@@ -560,7 +618,9 @@ export const MainLayout: React.FC = () => {
                         px: 2,
                         borderBottom: '1px solid #F0F4F8',
                         cursor: 'pointer',
-                        bgcolor: notif.isRead ? 'transparent' : 'rgba(240, 244, 255, 0.6)',
+                        bgcolor: notif.isRead
+                          ? 'transparent'
+                          : 'rgba(240, 244, 255, 0.6)',
                         transition: 'all 0.2s',
                         '&:hover': {
                           bgcolor: 'rgba(0, 0, 0, 0.02)',
@@ -568,23 +628,54 @@ export const MainLayout: React.FC = () => {
                       }}
                     >
                       <ListItemAvatar sx={{ minWidth: 48 }}>
-                        <Avatar sx={{ bgcolor: getNotifColor(notif.type), width: 36, height: 36 }}>
+                        <Avatar
+                          sx={{
+                            bgcolor: getNotifColor(notif.type),
+                            width: 36,
+                            height: 36,
+                          }}
+                        >
                           {getNotifIcon(notif.type)}
                         </Avatar>
                       </ListItemAvatar>
                       <ListItemText
                         primary={
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1 }}>
-                            <Typography variant="subtitle2" sx={{ fontWeight: notif.isRead ? 600 : 700, fontSize: '0.85rem' }}>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'flex-start',
+                              gap: 1,
+                            }}
+                          >
+                            <Typography
+                              variant="subtitle2"
+                              sx={{
+                                fontWeight: notif.isRead ? 600 : 700,
+                                fontSize: '0.85rem',
+                              }}
+                            >
                               {notif.type}
                             </Typography>
-                            <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap' }}>
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                              sx={{ whiteSpace: 'nowrap' }}
+                            >
                               {formatTimeAgo(notif.timestamp)}
                             </Typography>
                           </Box>
                         }
                         secondary={
-                          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, fontSize: '0.8rem', lineHeight: 1.3 }}>
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{
+                              mt: 0.5,
+                              fontSize: '0.8rem',
+                              lineHeight: 1.3,
+                            }}
+                          >
                             {notif.message}
                           </Typography>
                         }
@@ -595,7 +686,15 @@ export const MainLayout: React.FC = () => {
               </List>
 
               {notifications.length > 0 && (
-                <Box sx={{ p: 1.5, display: 'flex', justifyContent: 'center', borderTop: '1px solid #F0F4F8', bgcolor: '#F8FAFC' }}>
+                <Box
+                  sx={{
+                    p: 1.5,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    borderTop: '1px solid #F0F4F8',
+                    bgcolor: '#F8FAFC',
+                  }}
+                >
                   <Button
                     size="small"
                     color="error"
@@ -754,13 +853,16 @@ export const MainLayout: React.FC = () => {
           <Alert
             onClose={() => setToastOpen(false)}
             severity={
-              activeToast.type === 'Payment Failed' || activeToast.type === 'Refund Requested'
+              activeToast.type === 'Payment Failed' ||
+              activeToast.type === 'Refund Requested'
                 ? 'error'
-                : activeToast.type === 'Payment Success' || activeToast.type === 'Refund Approved'
-                ? 'success'
-                : activeToast.type === 'New Order' || activeToast.type === 'Order Assigned'
-                ? 'info'
-                : 'warning'
+                : activeToast.type === 'Payment Success' ||
+                    activeToast.type === 'Refund Approved'
+                  ? 'success'
+                  : activeToast.type === 'New Order' ||
+                      activeToast.type === 'Order Assigned'
+                    ? 'info'
+                    : 'warning'
             }
             sx={{
               width: '100%',

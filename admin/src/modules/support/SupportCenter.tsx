@@ -47,7 +47,12 @@ export const SupportCenter: React.FC = () => {
     }
   };
 
-  const tabLabels = ['All Tickets', 'Complaints', 'Customer Feedback', 'Escalations'];
+  const tabLabels = [
+    'All Tickets',
+    'Complaints',
+    'Customer Feedback',
+    'Escalations',
+  ];
 
   return (
     <Box>
@@ -67,20 +72,30 @@ export const SupportCenter: React.FC = () => {
         icon={<PendingIcon />}
         sx={{ mb: 3, borderRadius: 2, fontWeight: 600 }}
       >
-        <strong>Pending Backend API</strong> — No support ticket endpoint exists in the backend.
-        A dedicated <code>GET /api/v1/support/tickets</code> API is required to populate this
-        module. Once available, integrate it here to list, filter, assign, and resolve tickets.
+        <strong>Pending Backend API</strong> — No support ticket endpoint exists
+        in the backend. A dedicated <code>GET /api/v1/support/tickets</code> API
+        is required to populate this module. Once available, integrate it here
+        to list, filter, assign, and resolve tickets.
       </Alert>
 
-      <Card sx={{ border: '1px solid #E2E8F0', borderRadius: 3, boxShadow: 'none' }}>
+      <Card
+        sx={{ border: '1px solid #E2E8F0', borderRadius: 3, boxShadow: 'none' }}
+      >
         <CardContent sx={{ textAlign: 'center', py: 8 }}>
           <PendingIcon sx={{ fontSize: 56, color: '#CBD5E0', mb: 2 }} />
-          <Typography variant="h6" sx={{ fontWeight: 700, color: '#4A5568', mb: 1 }}>
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 700, color: '#4A5568', mb: 1 }}
+          >
             {tabLabels[getActiveTab()]} — Awaiting Backend Integration
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 480, mx: 'auto' }}>
-            This section will display real support tickets once the backend provides
-            a support ticket management API. No mock data is shown.
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ maxWidth: 480, mx: 'auto' }}
+          >
+            This section will display real support tickets once the backend
+            provides a support ticket management API. No mock data is shown.
           </Typography>
         </CardContent>
       </Card>

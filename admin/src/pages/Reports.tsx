@@ -55,13 +55,20 @@ import { useUsers, type UserProfile } from '../hooks/useUsers';
 import { useTechnicians, type Technician } from '../hooks/useTechnicians';
 import { useServices } from '../hooks/useServices';
 
-
 // Components
 import StatCard from '../components/common/StatCard';
 import ExportButton from '../components/common/ExportButton';
 
 // Styling / Colors
-const COLORS = ['#212529', '#FAD02C', '#3182CE', '#ED64A6', '#48BB78', '#9B2C2C', '#805AD5'];
+const COLORS = [
+  '#212529',
+  '#FAD02C',
+  '#3182CE',
+  '#ED64A6',
+  '#48BB78',
+  '#9B2C2C',
+  '#805AD5',
+];
 
 interface ChartDataPoint {
   name: string;
@@ -71,17 +78,52 @@ interface ChartDataPoint {
 }
 
 // ─── Timeframe Helpers ────────────────────────────────────────────────────────
-const filterBookingsByTimeframe = (bookings: Booking[], timeframe: string): Booking[] => {
+const filterBookingsByTimeframe = (
+  bookings: Booking[],
+  timeframe: string,
+): Booking[] => {
   const now = new Date();
-  const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+  const todayEnd = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+    23,
+    59,
+    59,
+    999,
+  );
   let startDate: Date;
 
   if (timeframe === '7_days') {
-    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7, 0, 0, 0, 0);
+    startDate = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() - 7,
+      0,
+      0,
+      0,
+      0,
+    );
   } else if (timeframe === '30_days') {
-    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30, 0, 0, 0, 0);
+    startDate = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() - 30,
+      0,
+      0,
+      0,
+      0,
+    );
   } else if (timeframe === '6_months') {
-    startDate = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate(), 0, 0, 0, 0);
+    startDate = new Date(
+      now.getFullYear(),
+      now.getMonth() - 6,
+      now.getDate(),
+      0,
+      0,
+      0,
+      0,
+    );
   } else if (timeframe === 'year') {
     startDate = new Date(now.getFullYear(), 0, 1, 0, 0, 0, 0);
   } else {
@@ -95,7 +137,10 @@ const filterBookingsByTimeframe = (bookings: Booking[], timeframe: string): Book
   });
 };
 
-const getChartDataForTimeframe = (bookings: Booking[], timeframe: string): ChartDataPoint[] => {
+const getChartDataForTimeframe = (
+  bookings: Booking[],
+  timeframe: string,
+): ChartDataPoint[] => {
   const now = new Date();
   const dataPoints: ChartDataPoint[] = [];
 
@@ -103,21 +148,31 @@ const getChartDataForTimeframe = (bookings: Booking[], timeframe: string): Chart
     // Generate last 7 days
     for (let i = 6; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
-      const label = d.toLocaleDateString('en-IN', { weekday: 'short', month: 'numeric', day: 'numeric' });
+      const label = d.toLocaleDateString('en-IN', {
+        weekday: 'short',
+        month: 'numeric',
+        day: 'numeric',
+      });
       dataPoints.push({ name: label, revenue: 0, orders: 0, dateObj: d });
     }
   } else if (timeframe === '30_days') {
     // Generate last 30 days
     for (let i = 29; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
-      const label = d.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+      const label = d.toLocaleDateString('en-IN', {
+        month: 'short',
+        day: 'numeric',
+      });
       dataPoints.push({ name: label, revenue: 0, orders: 0, dateObj: d });
     }
   } else if (timeframe === '6_months') {
     // Generate last 6 months
     for (let i = 5; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const label = d.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' });
+      const label = d.toLocaleDateString('en-IN', {
+        month: 'short',
+        year: '2-digit',
+      });
       dataPoints.push({ name: label, revenue: 0, orders: 0, dateObj: d });
     }
   } else {
@@ -170,15 +225,29 @@ export const Reports: React.FC = () => {
   const [activeTab, setActiveTab] = useState(0);
 
   // Load Real Roster Data
-  const { data: bookings = [], isLoading: bookingsLoading, isError: bookingsError } = useBookings();
-  const { summary: paymentsSummary, isLoading: paymentsLoading } = usePayments();
+  const {
+    data: bookings = [],
+    isLoading: bookingsLoading,
+    isError: bookingsError,
+  } = useBookings();
+  const { summary: paymentsSummary, isLoading: paymentsLoading } =
+    usePayments();
   const { data: users = [], isLoading: usersLoading } = useUsers();
-  const { data: technicians = [], isLoading: techniciansLoading } = useTechnicians();
+  const { data: technicians = [], isLoading: techniciansLoading } =
+    useTechnicians();
   const { data: servicesData, isLoading: servicesLoading } = useServices();
 
-  const allServices = useMemo(() => servicesData?.allServices ?? [], [servicesData]);
+  const allServices = useMemo(
+    () => servicesData?.allServices ?? [],
+    [servicesData],
+  );
 
-  const isLoading = bookingsLoading || paymentsLoading || usersLoading || techniciansLoading || servicesLoading;
+  const isLoading =
+    bookingsLoading ||
+    paymentsLoading ||
+    usersLoading ||
+    techniciansLoading ||
+    servicesLoading;
 
   // Build service domain mapping dictionary
   const serviceDomainMap = useMemo(() => {
@@ -194,11 +263,11 @@ export const Reports: React.FC = () => {
     return (booking: Booking): string => {
       let d = serviceDomainMap.get(booking.service_id);
       if (d) return d;
-      
+
       if (booking.service_name) {
         d = serviceDomainMap.get(booking.service_name.toLowerCase());
         if (d) return d;
-        
+
         // Intelligent fallback parser
         const nameLower = booking.service_name.toLowerCase();
         if (
@@ -264,8 +333,13 @@ export const Reports: React.FC = () => {
   // 1. REVENUE REPORT METRICS
   // =========================================================================
   const revenueMetrics = useMemo(() => {
-    const paid = filteredBookings.filter(b => b.status === 'completed' || b.status === 'confirmed');
-    const total = paid.reduce((sum, b) => sum + (Number(b.total_price) || 0), 0);
+    const paid = filteredBookings.filter(
+      b => b.status === 'completed' || b.status === 'confirmed',
+    );
+    const total = paid.reduce(
+      (sum, b) => sum + (Number(b.total_price) || 0),
+      0,
+    );
     const aov = paid.length > 0 ? total / paid.length : 0;
 
     let razorpay = 0;
@@ -311,9 +385,15 @@ export const Reports: React.FC = () => {
   // =========================================================================
   const ordersMetrics = useMemo(() => {
     const total = filteredBookings.length;
-    const completed = filteredBookings.filter(b => b.status === 'completed').length;
-    const pending = filteredBookings.filter(b => b.status === 'pending' || b.status === 'scheduled').length;
-    const cancelled = filteredBookings.filter(b => b.status === 'cancelled').length;
+    const completed = filteredBookings.filter(
+      b => b.status === 'completed',
+    ).length;
+    const pending = filteredBookings.filter(
+      b => b.status === 'pending' || b.status === 'scheduled',
+    ).length;
+    const cancelled = filteredBookings.filter(
+      b => b.status === 'cancelled',
+    ).length;
 
     // Status breakdown data
     const statusCounts: Record<string, number> = {};
@@ -321,7 +401,9 @@ export const Reports: React.FC = () => {
       const label = b.status.charAt(0).toUpperCase() + b.status.slice(1);
       statusCounts[label] = (statusCounts[label] || 0) + 1;
     });
-    const statusSplitData = Object.entries(statusCounts).map(([name, value]) => ({ name, value }));
+    const statusSplitData = Object.entries(statusCounts).map(
+      ([name, value]) => ({ name, value }),
+    );
 
     // Domain breakdown data
     let scrap = 0;
@@ -339,21 +421,30 @@ export const Reports: React.FC = () => {
       { name: 'Maintenance', value: maintenance },
     ].filter(d => d.value > 0);
 
-    return { total, completed, pending, cancelled, statusSplitData, domainSplitData };
+    return {
+      total,
+      completed,
+      pending,
+      cancelled,
+      statusSplitData,
+      domainSplitData,
+    };
   }, [filteredBookings, getBookingDomain]);
 
   // =========================================================================
   // 3. USERS REPORT METRICS
   // =========================================================================
   const usersMetrics = useMemo(() => {
-    const customerIdsSet = new Set(filteredBookings.map(b => b.user_id).filter(Boolean));
+    const customerIdsSet = new Set(
+      filteredBookings.map(b => b.user_id).filter(Boolean),
+    );
     const totalUsers = customerIdsSet.size;
 
     const activeCustomersSet = new Set(
       filteredBookings
         .filter(b => b.status === 'completed' || b.status === 'confirmed')
         .map(b => b.user_id)
-        .filter(Boolean)
+        .filter(Boolean),
     );
     const activeUsers = activeCustomersSet.size;
     const averageSpend = totalUsers > 0 ? revenueMetrics.total / totalUsers : 0;
@@ -361,9 +452,20 @@ export const Reports: React.FC = () => {
     // New registrations count based on timeframe
     const now = new Date();
     let startDate: Date;
-    if (timeframe === '7_days') startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
-    else if (timeframe === '30_days') startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30);
-    else if (timeframe === '6_months') startDate = new Date(now.getFullYear(), now.getMonth() - 6);
+    if (timeframe === '7_days')
+      startDate = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() - 7,
+      );
+    else if (timeframe === '30_days')
+      startDate = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() - 30,
+      );
+    else if (timeframe === '6_months')
+      startDate = new Date(now.getFullYear(), now.getMonth() - 6);
     else startDate = new Date(now.getFullYear(), 0, 1);
 
     const newUsers = users.filter(u => {
@@ -385,9 +487,15 @@ export const Reports: React.FC = () => {
         let key = '';
 
         if (timeframe === '7_days' || timeframe === '30_days') {
-          key = uDate.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+          key = uDate.toLocaleDateString('en-IN', {
+            month: 'short',
+            day: 'numeric',
+          });
         } else if (timeframe === '6_months') {
-          key = uDate.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' });
+          key = uDate.toLocaleDateString('en-IN', {
+            month: 'short',
+            year: '2-digit',
+          });
         } else {
           key = uDate.toLocaleDateString('en-IN', { month: 'short' });
         }
@@ -397,15 +505,27 @@ export const Reports: React.FC = () => {
         }
       });
 
-      return Object.entries(dataPointsMap).map(([name, count]) => ({ name, count }));
+      return Object.entries(dataPointsMap).map(([name, count]) => ({
+        name,
+        count,
+      }));
     })();
 
     // Top Customers table data
-    const spendMap = new Map<string, { name: string; phone: string; bookings: number; spend: number; lastDate: string }>();
+    const spendMap = new Map<
+      string,
+      {
+        name: string;
+        phone: string;
+        bookings: number;
+        spend: number;
+        lastDate: string;
+      }
+    >();
     filteredBookings.forEach(b => {
       const uid = b.user_id;
       if (!uid) return;
-      
+
       const price = Number(b.total_price) || 0;
       const isRevenue = b.status === 'completed' || b.status === 'confirmed';
 
@@ -429,7 +549,14 @@ export const Reports: React.FC = () => {
       .sort((a, b) => b.spend - a.spend)
       .slice(0, 10);
 
-    return { totalUsers, activeUsers, newUsers, averageSpend, userSignupTrend, topCustomers };
+    return {
+      totalUsers,
+      activeUsers,
+      newUsers,
+      averageSpend,
+      userSignupTrend,
+      topCustomers,
+    };
   }, [filteredBookings, users, timeframe, chartData, revenueMetrics.total]);
 
   // =========================================================================
@@ -439,8 +566,18 @@ export const Reports: React.FC = () => {
     const totalServices = allServices.length;
 
     // Service performance stats mapping
-    const serviceMap = new Map<string, { name: string; category: string; domain: string; price: number; orders: number; revenue: number }>();
-    
+    const serviceMap = new Map<
+      string,
+      {
+        name: string;
+        category: string;
+        domain: string;
+        price: number;
+        orders: number;
+        revenue: number;
+      }
+    >();
+
     // Initialize catalog
     allServices.forEach(s => {
       serviceMap.set(s.name.toLowerCase(), {
@@ -477,7 +614,9 @@ export const Reports: React.FC = () => {
       if (isRevenue) svc.revenue += price;
     });
 
-    const servicesList = Array.from(serviceMap.values()).sort((a, b) => b.orders - a.orders);
+    const servicesList = Array.from(serviceMap.values()).sort(
+      (a, b) => b.orders - a.orders,
+    );
 
     let topSvcName = '—';
     let topSvcCount = 0;
@@ -496,9 +635,17 @@ export const Reports: React.FC = () => {
     });
 
     // Top 5 Performing Services data for chart
-    const topServicesData = servicesList.slice(0, 5).map(s => ({ name: s.name, orders: s.orders }));
+    const topServicesData = servicesList
+      .slice(0, 5)
+      .map(s => ({ name: s.name, orders: s.orders }));
 
-    return { totalServices, topSvcName, topGrossingName, servicesList, topServicesData };
+    return {
+      totalServices,
+      topSvcName,
+      topGrossingName,
+      servicesList,
+      topServicesData,
+    };
   }, [allServices, filteredBookings, getBookingDomain]);
 
   // =========================================================================
@@ -509,7 +656,17 @@ export const Reports: React.FC = () => {
     const available = technicians.filter(t => t.isAvailable).length;
 
     // Technician Performance mapping
-    const techPerformanceMap = new Map<string, { name: string; phone: string; domain: string; completed: number; status: string; revenue: number }>();
+    const techPerformanceMap = new Map<
+      string,
+      {
+        name: string;
+        phone: string;
+        domain: string;
+        completed: number;
+        status: string;
+        revenue: number;
+      }
+    >();
 
     // Initialize with live technicians
     technicians.forEach(t => {
@@ -550,21 +707,42 @@ export const Reports: React.FC = () => {
       }
     });
 
-    const techniciansList = Array.from(techPerformanceMap.values()).sort((a, b) => b.completed - a.completed);
+    const techniciansList = Array.from(techPerformanceMap.values()).sort(
+      (a, b) => b.completed - a.completed,
+    );
 
     const activeTechs = techniciansList.filter(t => t.completed > 0).length;
-    const totalJobs = filteredBookings.filter(b => b.status === 'completed').length;
+    const totalJobs = filteredBookings.filter(
+      b => b.status === 'completed',
+    ).length;
     const avgJobs = rosterSize > 0 ? totalJobs / rosterSize : 0;
 
-    const techJobsChartData = techniciansList.map(t => ({ name: t.name, jobs: t.completed }));
+    const techJobsChartData = techniciansList.map(t => ({
+      name: t.name,
+      jobs: t.completed,
+    }));
 
-    return { rosterSize, activeTechs, available, avgJobs, techniciansList, techJobsChartData };
+    return {
+      rosterSize,
+      activeTechs,
+      available,
+      avgJobs,
+      techniciansList,
+      techJobsChartData,
+    };
   }, [technicians, filteredBookings, getBookingDomain]);
 
   // ── Rendering Loading / Error ───────────────────────────────────────────
   if (isLoading && bookings.length === 0) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '80vh',
+        }}
+      >
         <CircularProgress size={45} sx={{ color: '#FAD02C' }} />
       </Box>
     );
@@ -573,7 +751,14 @@ export const Reports: React.FC = () => {
   if (bookingsError) {
     return (
       <Box sx={{ p: 3 }}>
-        <Alert severity="error" action={<IconButton onClick={handleRefresh}><RefreshIcon /></IconButton>}>
+        <Alert
+          severity="error"
+          action={
+            <IconButton onClick={handleRefresh}>
+              <RefreshIcon />
+            </IconButton>
+          }
+        >
           Failed to fetch reports data. Please ensure the backend is running.
         </Alert>
       </Box>
@@ -605,7 +790,8 @@ export const Reports: React.FC = () => {
             Analytics & Performance Reports
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Visual statistics, dynamic timeframe filtering, and core performance audits.
+            Visual statistics, dynamic timeframe filtering, and core performance
+            audits.
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
@@ -631,7 +817,10 @@ export const Reports: React.FC = () => {
       </Box>
 
       {/* Tabs Menu Panel */}
-      <Paper elevation={0} sx={{ borderBottom: 1, borderColor: 'divider', mb: 4 }}>
+      <Paper
+        elevation={0}
+        sx={{ borderBottom: 1, borderColor: 'divider', mb: 4 }}
+      >
         <Tabs
           value={activeTab}
           onChange={(_e, v) => setActiveTab(v)}
@@ -649,7 +838,11 @@ export const Reports: React.FC = () => {
           <Tab icon={<OrdersIcon />} iconPosition="start" label="Orders" />
           <Tab icon={<UsersIcon />} iconPosition="start" label="Users" />
           <Tab icon={<ServicesIcon />} iconPosition="start" label="Services" />
-          <Tab icon={<TechniciansIcon />} iconPosition="start" label="Technicians" />
+          <Tab
+            icon={<TechniciansIcon />}
+            iconPosition="start"
+            label="Technicians"
+          />
         </Tabs>
       </Paper>
 
@@ -701,23 +894,63 @@ export const Reports: React.FC = () => {
             <Grid size={{ xs: 12, lg: 8 }}>
               <Card>
                 <CardContent sx={{ p: 3 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 3, fontFamily: '"Outfit", sans-serif' }}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: 700,
+                      mb: 3,
+                      fontFamily: '"Outfit", sans-serif',
+                    }}
+                  >
                     Revenue Growth Trend (₹)
                   </Typography>
                   <Box sx={{ width: '100%', height: 350 }}>
                     <ResponsiveContainer>
                       <AreaChart data={chartData}>
                         <defs>
-                          <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#48BB78" stopOpacity={0.4} />
-                            <stop offset="95%" stopColor="#48BB78" stopOpacity={0} />
+                          <linearGradient
+                            id="revGrad"
+                            x1="0"
+                            y1="0"
+                            x2="0"
+                            y2="1"
+                          >
+                            <stop
+                              offset="5%"
+                              stopColor="#48BB78"
+                              stopOpacity={0.4}
+                            />
+                            <stop
+                              offset="95%"
+                              stopColor="#48BB78"
+                              stopOpacity={0}
+                            />
                           </linearGradient>
                         </defs>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                        <CartesianGrid
+                          strokeDasharray="3 3"
+                          vertical={false}
+                          stroke="#E2E8F0"
+                        />
                         <XAxis dataKey="name" stroke="#718096" fontSize={11} />
-                        <YAxis stroke="#718096" fontSize={11} tickFormatter={(val) => `₹${val}`} />
-                        <ChartTooltip formatter={(value) => [formatCurrency(Number(value)), 'Revenue']} />
-                        <Area type="monotone" dataKey="revenue" stroke="#48BB78" strokeWidth={2} fill="url(#revGrad)" />
+                        <YAxis
+                          stroke="#718096"
+                          fontSize={11}
+                          tickFormatter={val => `₹${val}`}
+                        />
+                        <ChartTooltip
+                          formatter={value => [
+                            formatCurrency(Number(value)),
+                            'Revenue',
+                          ]}
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="revenue"
+                          stroke="#48BB78"
+                          strokeWidth={2}
+                          fill="url(#revGrad)"
+                        />
                       </AreaChart>
                     </ResponsiveContainer>
                   </Box>
@@ -729,12 +962,28 @@ export const Reports: React.FC = () => {
             <Grid size={{ xs: 12, lg: 4 }}>
               <Card sx={{ height: '100%' }}>
                 <CardContent sx={{ p: 3 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 3, fontFamily: '"Outfit", sans-serif' }}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: 700,
+                      mb: 3,
+                      fontFamily: '"Outfit", sans-serif',
+                    }}
+                  >
                     Payment Gateways
                   </Typography>
                   {revenueMetrics.paymentModeData.length === 0 ? (
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 260 }}>
-                      <Typography color="text.secondary">No transactional data</Typography>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        height: 260,
+                      }}
+                    >
+                      <Typography color="text.secondary">
+                        No transactional data
+                      </Typography>
                     </Box>
                   ) : (
                     <Box sx={{ width: '100%', height: 260 }}>
@@ -749,11 +998,18 @@ export const Reports: React.FC = () => {
                             paddingAngle={5}
                             dataKey="value"
                           >
-                            {revenueMetrics.paymentModeData.map((_entry, idx) => (
-                              <Cell key={`cell-${idx}`} fill={COLORS[idx % COLORS.length]} />
-                            ))}
+                            {revenueMetrics.paymentModeData.map(
+                              (_entry, idx) => (
+                                <Cell
+                                  key={`cell-${idx}`}
+                                  fill={COLORS[idx % COLORS.length]}
+                                />
+                              ),
+                            )}
                           </Pie>
-                          <ChartTooltip formatter={(value) => formatCurrency(Number(value))} />
+                          <ChartTooltip
+                            formatter={value => formatCurrency(Number(value))}
+                          />
                           <Legend />
                         </PieChart>
                       </ResponsiveContainer>
@@ -767,17 +1023,42 @@ export const Reports: React.FC = () => {
             <Grid size={12}>
               <Card>
                 <CardContent sx={{ p: 3 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 3, fontFamily: '"Outfit", sans-serif' }}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: 700,
+                      mb: 3,
+                      fontFamily: '"Outfit", sans-serif',
+                    }}
+                  >
                     Revenue Streams by Domain
                   </Typography>
                   <Box sx={{ width: '100%', height: 300 }}>
                     <ResponsiveContainer>
                       <BarChart data={revenueMetrics.categoryRevenueData}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                        <CartesianGrid
+                          strokeDasharray="3 3"
+                          vertical={false}
+                          stroke="#E2E8F0"
+                        />
                         <XAxis dataKey="name" stroke="#718096" fontSize={12} />
-                        <YAxis stroke="#718096" fontSize={12} tickFormatter={(val) => `₹${val}`} />
-                        <ChartTooltip formatter={(value) => [formatCurrency(Number(value)), 'Revenue']} />
-                        <Bar dataKey="revenue" fill="#3182CE" radius={[5, 5, 0, 0]} maxBarSize={60} />
+                        <YAxis
+                          stroke="#718096"
+                          fontSize={12}
+                          tickFormatter={val => `₹${val}`}
+                        />
+                        <ChartTooltip
+                          formatter={value => [
+                            formatCurrency(Number(value)),
+                            'Revenue',
+                          ]}
+                        />
+                        <Bar
+                          dataKey="revenue"
+                          fill="#3182CE"
+                          radius={[5, 5, 0, 0]}
+                          maxBarSize={60}
+                        />
                       </BarChart>
                     </ResponsiveContainer>
                   </Box>
@@ -835,17 +1116,33 @@ export const Reports: React.FC = () => {
             <Grid size={{ xs: 12, lg: 8 }}>
               <Card>
                 <CardContent sx={{ p: 3 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 3, fontFamily: '"Outfit", sans-serif' }}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: 700,
+                      mb: 3,
+                      fontFamily: '"Outfit", sans-serif',
+                    }}
+                  >
                     Order Volume over Time
                   </Typography>
                   <Box sx={{ width: '100%', height: 350 }}>
                     <ResponsiveContainer>
                       <BarChart data={chartData}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                        <CartesianGrid
+                          strokeDasharray="3 3"
+                          vertical={false}
+                          stroke="#E2E8F0"
+                        />
                         <XAxis dataKey="name" stroke="#718096" fontSize={11} />
                         <YAxis stroke="#718096" fontSize={11} />
                         <ChartTooltip />
-                        <Bar dataKey="orders" fill="#212529" radius={[3, 3, 0, 0]} name="Orders" />
+                        <Bar
+                          dataKey="orders"
+                          fill="#212529"
+                          radius={[3, 3, 0, 0]}
+                          name="Orders"
+                        />
                       </BarChart>
                     </ResponsiveContainer>
                   </Box>
@@ -857,12 +1154,28 @@ export const Reports: React.FC = () => {
             <Grid size={{ xs: 12, lg: 4 }}>
               <Card sx={{ height: '100%' }}>
                 <CardContent sx={{ p: 3 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 3, fontFamily: '"Outfit", sans-serif' }}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: 700,
+                      mb: 3,
+                      fontFamily: '"Outfit", sans-serif',
+                    }}
+                  >
                     Status Breakdown
                   </Typography>
                   {ordersMetrics.statusSplitData.length === 0 ? (
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 260 }}>
-                      <Typography color="text.secondary">No bookings found</Typography>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        height: 260,
+                      }}
+                    >
+                      <Typography color="text.secondary">
+                        No bookings found
+                      </Typography>
                     </Box>
                   ) : (
                     <Box sx={{ width: '100%', height: 260 }}>
@@ -877,9 +1190,14 @@ export const Reports: React.FC = () => {
                             paddingAngle={5}
                             dataKey="value"
                           >
-                            {ordersMetrics.statusSplitData.map((_entry, idx) => (
-                              <Cell key={`cell-${idx}`} fill={COLORS[idx % COLORS.length]} />
-                            ))}
+                            {ordersMetrics.statusSplitData.map(
+                              (_entry, idx) => (
+                                <Cell
+                                  key={`cell-${idx}`}
+                                  fill={COLORS[idx % COLORS.length]}
+                                />
+                              ),
+                            )}
                           </Pie>
                           <ChartTooltip />
                           <Legend />
@@ -895,12 +1213,28 @@ export const Reports: React.FC = () => {
             <Grid size={12}>
               <Card sx={{ height: '100%' }}>
                 <CardContent sx={{ p: 3 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 3, fontFamily: '"Outfit", sans-serif' }}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: 700,
+                      mb: 3,
+                      fontFamily: '"Outfit", sans-serif',
+                    }}
+                  >
                     Order Share per Domain
                   </Typography>
                   {ordersMetrics.domainSplitData.length === 0 ? (
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 200 }}>
-                      <Typography color="text.secondary">No data available</Typography>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        height: 200,
+                      }}
+                    >
+                      <Typography color="text.secondary">
+                        No data available
+                      </Typography>
                     </Box>
                   ) : (
                     <Box sx={{ width: '100%', height: 260 }}>
@@ -914,11 +1248,18 @@ export const Reports: React.FC = () => {
                             outerRadius={95}
                             paddingAngle={2}
                             dataKey="value"
-                            label={({ name, percent }) => `${name} ${percent !== undefined ? (percent * 100).toFixed(0) : 0}%`}
+                            label={({ name, percent }) =>
+                              `${name} ${percent !== undefined ? (percent * 100).toFixed(0) : 0}%`
+                            }
                           >
-                            {ordersMetrics.domainSplitData.map((_entry, idx) => (
-                              <Cell key={`cell-${idx}`} fill={COLORS[idx % COLORS.length]} />
-                            ))}
+                            {ordersMetrics.domainSplitData.map(
+                              (_entry, idx) => (
+                                <Cell
+                                  key={`cell-${idx}`}
+                                  fill={COLORS[idx % COLORS.length]}
+                                />
+                              ),
+                            )}
                           </Pie>
                           <ChartTooltip />
                         </PieChart>
@@ -979,17 +1320,34 @@ export const Reports: React.FC = () => {
             <Grid size={12}>
               <Card>
                 <CardContent sx={{ p: 3 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 3, fontFamily: '"Outfit", sans-serif' }}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: 700,
+                      mb: 3,
+                      fontFamily: '"Outfit", sans-serif',
+                    }}
+                  >
                     User Growth/Signups
                   </Typography>
                   <Box sx={{ width: '100%', height: 300 }}>
                     <ResponsiveContainer>
                       <BarChart data={usersMetrics.userSignupTrend}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                        <CartesianGrid
+                          strokeDasharray="3 3"
+                          vertical={false}
+                          stroke="#E2E8F0"
+                        />
                         <XAxis dataKey="name" stroke="#718096" fontSize={11} />
                         <YAxis stroke="#718096" fontSize={11} />
                         <ChartTooltip />
-                        <Bar dataKey="count" fill="#ED64A6" radius={[4, 4, 0, 0]} name="New Users" maxBarSize={50} />
+                        <Bar
+                          dataKey="count"
+                          fill="#ED64A6"
+                          radius={[4, 4, 0, 0]}
+                          name="New Users"
+                          maxBarSize={50}
+                        />
                       </BarChart>
                     </ResponsiveContainer>
                   </Box>
@@ -1001,28 +1359,73 @@ export const Reports: React.FC = () => {
             <Grid size={12}>
               <Card>
                 <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Typography variant="h6" sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      mb: 2,
+                    }}
+                  >
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontWeight: 700,
+                        fontFamily: '"Outfit", sans-serif',
+                      }}
+                    >
                       Top Performing Customers
                     </Typography>
                     <ExportButton
                       data={usersMetrics.topCustomers}
-                      headers={['name', 'phone', 'bookings', 'spend', 'lastDate']}
-                      pdfHeaders={['Customer Name', 'Phone', 'Bookings Count', 'Total Spend (₹)', 'Last Activity']}
-                      pdfRows={usersMetrics.topCustomers.map(c => [c.name, c.phone, c.bookings, formatCurrency(c.spend), c.lastDate])}
+                      headers={[
+                        'name',
+                        'phone',
+                        'bookings',
+                        'spend',
+                        'lastDate',
+                      ]}
+                      pdfHeaders={[
+                        'Customer Name',
+                        'Phone',
+                        'Bookings Count',
+                        'Total Spend (₹)',
+                        'Last Activity',
+                      ]}
+                      pdfRows={usersMetrics.topCustomers.map(c => [
+                        c.name,
+                        c.phone,
+                        c.bookings,
+                        formatCurrency(c.spend),
+                        c.lastDate,
+                      ])}
                       title="Top Performing Customers Report"
                       filename={`top_customers_${timeframe}`}
                     />
                   </Box>
-                  <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #E2E8F0' }}>
+                  <TableContainer
+                    component={Paper}
+                    elevation={0}
+                    sx={{ border: '1px solid #E2E8F0' }}
+                  >
                     <Table>
                       <TableHead sx={{ bgcolor: '#F7FAFC' }}>
                         <TableRow>
-                          <TableCell sx={{ fontWeight: 750 }}>Customer Name</TableCell>
-                          <TableCell sx={{ fontWeight: 750 }}>Phone Number</TableCell>
-                          <TableCell sx={{ fontWeight: 750 }} align="center">Bookings</TableCell>
-                          <TableCell sx={{ fontWeight: 750 }} align="right">Total Revenue Served</TableCell>
-                          <TableCell sx={{ fontWeight: 750 }} align="right">Last Booking</TableCell>
+                          <TableCell sx={{ fontWeight: 750 }}>
+                            Customer Name
+                          </TableCell>
+                          <TableCell sx={{ fontWeight: 750 }}>
+                            Phone Number
+                          </TableCell>
+                          <TableCell sx={{ fontWeight: 750 }} align="center">
+                            Bookings
+                          </TableCell>
+                          <TableCell sx={{ fontWeight: 750 }} align="right">
+                            Total Revenue Served
+                          </TableCell>
+                          <TableCell sx={{ fontWeight: 750 }} align="right">
+                            Last Booking
+                          </TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
@@ -1035,13 +1438,20 @@ export const Reports: React.FC = () => {
                         ) : (
                           usersMetrics.topCustomers.map((c, i) => (
                             <TableRow key={i} hover>
-                              <TableCell sx={{ fontWeight: 600 }}>{c.name}</TableCell>
+                              <TableCell sx={{ fontWeight: 600 }}>
+                                {c.name}
+                              </TableCell>
                               <TableCell>{c.phone}</TableCell>
                               <TableCell align="center">{c.bookings}</TableCell>
-                              <TableCell align="right" sx={{ color: '#48BB78', fontWeight: 700 }}>
+                              <TableCell
+                                align="right"
+                                sx={{ color: '#48BB78', fontWeight: 700 }}
+                              >
                                 {formatCurrency(c.spend)}
                               </TableCell>
-                              <TableCell align="right">{c.lastDate.split('T')[0]}</TableCell>
+                              <TableCell align="right">
+                                {c.lastDate.split('T')[0]}
+                              </TableCell>
                             </TableRow>
                           ))
                         )}
@@ -1093,22 +1503,56 @@ export const Reports: React.FC = () => {
             <Grid size={12}>
               <Card>
                 <CardContent sx={{ p: 3 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 3, fontFamily: '"Outfit", sans-serif' }}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: 700,
+                      mb: 3,
+                      fontFamily: '"Outfit", sans-serif',
+                    }}
+                  >
                     Top 5 Services by Order Volume
                   </Typography>
                   {servicesMetrics.topServicesData.length === 0 ? (
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 260 }}>
-                      <Typography color="text.secondary">No bookings in timeframe</Typography>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        height: 260,
+                      }}
+                    >
+                      <Typography color="text.secondary">
+                        No bookings in timeframe
+                      </Typography>
                     </Box>
                   ) : (
                     <Box sx={{ width: '100%', height: 300 }}>
                       <ResponsiveContainer>
-                        <BarChart data={servicesMetrics.topServicesData} layout="vertical">
-                          <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#E2E8F0" />
+                        <BarChart
+                          data={servicesMetrics.topServicesData}
+                          layout="vertical"
+                        >
+                          <CartesianGrid
+                            strokeDasharray="3 3"
+                            horizontal={false}
+                            stroke="#E2E8F0"
+                          />
                           <XAxis type="number" stroke="#718096" fontSize={11} />
-                          <YAxis dataKey="name" type="category" stroke="#718096" fontSize={11} width={130} />
+                          <YAxis
+                            dataKey="name"
+                            type="category"
+                            stroke="#718096"
+                            fontSize={11}
+                            width={130}
+                          />
                           <ChartTooltip />
-                          <Bar dataKey="orders" fill="#FAD02C" radius={[0, 4, 4, 0]} name="Orders Count" />
+                          <Bar
+                            dataKey="orders"
+                            fill="#FAD02C"
+                            radius={[0, 4, 4, 0]}
+                            name="Orders Count"
+                          />
                         </BarChart>
                       </ResponsiveContainer>
                     </Box>
@@ -1121,29 +1565,77 @@ export const Reports: React.FC = () => {
             <Grid size={12}>
               <Card>
                 <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Typography variant="h6" sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      mb: 2,
+                    }}
+                  >
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontWeight: 700,
+                        fontFamily: '"Outfit", sans-serif',
+                      }}
+                    >
                       Complete Service Performance
                     </Typography>
                     <ExportButton
                       data={servicesMetrics.servicesList}
-                      headers={['name', 'category', 'domain', 'price', 'orders', 'revenue']}
-                      pdfHeaders={['Service Name', 'Category', 'Domain', 'Base Price (₹)', 'Orders Count', 'Total Revenue (₹)']}
-                      pdfRows={servicesMetrics.servicesList.map(s => [s.name, s.category, s.domain, formatCurrency(s.price), s.orders, formatCurrency(s.revenue)])}
+                      headers={[
+                        'name',
+                        'category',
+                        'domain',
+                        'price',
+                        'orders',
+                        'revenue',
+                      ]}
+                      pdfHeaders={[
+                        'Service Name',
+                        'Category',
+                        'Domain',
+                        'Base Price (₹)',
+                        'Orders Count',
+                        'Total Revenue (₹)',
+                      ]}
+                      pdfRows={servicesMetrics.servicesList.map(s => [
+                        s.name,
+                        s.category,
+                        s.domain,
+                        formatCurrency(s.price),
+                        s.orders,
+                        formatCurrency(s.revenue),
+                      ])}
                       title="Service Catalog Performance Report"
                       filename={`service_performance_${timeframe}`}
                     />
                   </Box>
-                  <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #E2E8F0' }}>
+                  <TableContainer
+                    component={Paper}
+                    elevation={0}
+                    sx={{ border: '1px solid #E2E8F0' }}
+                  >
                     <Table>
                       <TableHead sx={{ bgcolor: '#F7FAFC' }}>
                         <TableRow>
-                          <TableCell sx={{ fontWeight: 750 }}>Service Name</TableCell>
-                          <TableCell sx={{ fontWeight: 750 }}>Category</TableCell>
+                          <TableCell sx={{ fontWeight: 750 }}>
+                            Service Name
+                          </TableCell>
+                          <TableCell sx={{ fontWeight: 750 }}>
+                            Category
+                          </TableCell>
                           <TableCell sx={{ fontWeight: 750 }}>Domain</TableCell>
-                          <TableCell sx={{ fontWeight: 750 }} align="right">Base Price</TableCell>
-                          <TableCell sx={{ fontWeight: 750 }} align="center">Orders Executed</TableCell>
-                          <TableCell sx={{ fontWeight: 750 }} align="right">Revenue Generated</TableCell>
+                          <TableCell sx={{ fontWeight: 750 }} align="right">
+                            Base Price
+                          </TableCell>
+                          <TableCell sx={{ fontWeight: 750 }} align="center">
+                            Orders Executed
+                          </TableCell>
+                          <TableCell sx={{ fontWeight: 750 }} align="right">
+                            Revenue Generated
+                          </TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
@@ -1156,14 +1648,26 @@ export const Reports: React.FC = () => {
                         ) : (
                           servicesMetrics.servicesList.map((s, idx) => (
                             <TableRow key={idx} hover>
-                              <TableCell sx={{ fontWeight: 600 }}>{s.name}</TableCell>
+                              <TableCell sx={{ fontWeight: 600 }}>
+                                {s.name}
+                              </TableCell>
                               <TableCell>
-                                <Chip label={s.category} size="small" variant="outlined" sx={{ fontSize: '0.72rem' }} />
+                                <Chip
+                                  label={s.category}
+                                  size="small"
+                                  variant="outlined"
+                                  sx={{ fontSize: '0.72rem' }}
+                                />
                               </TableCell>
                               <TableCell>{s.domain}</TableCell>
-                              <TableCell align="right">{formatCurrency(s.price)}</TableCell>
+                              <TableCell align="right">
+                                {formatCurrency(s.price)}
+                              </TableCell>
                               <TableCell align="center">{s.orders}</TableCell>
-                              <TableCell align="right" sx={{ color: '#48BB78', fontWeight: 700 }}>
+                              <TableCell
+                                align="right"
+                                sx={{ color: '#48BB78', fontWeight: 700 }}
+                              >
                                 {formatCurrency(s.revenue)}
                               </TableCell>
                             </TableRow>
@@ -1226,22 +1730,52 @@ export const Reports: React.FC = () => {
             <Grid size={12}>
               <Card>
                 <CardContent sx={{ p: 3 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 3, fontFamily: '"Outfit", sans-serif' }}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: 700,
+                      mb: 3,
+                      fontFamily: '"Outfit", sans-serif',
+                    }}
+                  >
                     Completed Jobs per Technician
                   </Typography>
                   {techniciansMetrics.techJobsChartData.length === 0 ? (
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 260 }}>
-                      <Typography color="text.secondary">No technician jobs completed</Typography>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        height: 260,
+                      }}
+                    >
+                      <Typography color="text.secondary">
+                        No technician jobs completed
+                      </Typography>
                     </Box>
                   ) : (
                     <Box sx={{ width: '100%', height: 300 }}>
                       <ResponsiveContainer>
                         <BarChart data={techniciansMetrics.techJobsChartData}>
-                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                          <XAxis dataKey="name" stroke="#718096" fontSize={11} />
+                          <CartesianGrid
+                            strokeDasharray="3 3"
+                            vertical={false}
+                            stroke="#E2E8F0"
+                          />
+                          <XAxis
+                            dataKey="name"
+                            stroke="#718096"
+                            fontSize={11}
+                          />
                           <YAxis stroke="#718096" fontSize={11} />
                           <ChartTooltip />
-                          <Bar dataKey="jobs" fill="#3182CE" radius={[4, 4, 0, 0]} name="Jobs Completed" maxBarSize={60} />
+                          <Bar
+                            dataKey="jobs"
+                            fill="#3182CE"
+                            radius={[4, 4, 0, 0]}
+                            name="Jobs Completed"
+                            maxBarSize={60}
+                          />
                         </BarChart>
                       </ResponsiveContainer>
                     </Box>
@@ -1254,29 +1788,77 @@ export const Reports: React.FC = () => {
             <Grid size={12}>
               <Card>
                 <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Typography variant="h6" sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      mb: 2,
+                    }}
+                  >
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontWeight: 700,
+                        fontFamily: '"Outfit", sans-serif',
+                      }}
+                    >
                       Technician Roster & Audits
                     </Typography>
                     <ExportButton
                       data={techniciansMetrics.techniciansList}
-                      headers={['name', 'phone', 'domain', 'completed', 'status', 'revenue']}
-                      pdfHeaders={['Technician Name', 'Phone', 'Domain', 'Completed Jobs', 'Current Status', 'Revenue Served (₹)']}
-                      pdfRows={techniciansMetrics.techniciansList.map(t => [t.name, t.phone, t.domain, t.completed, t.status, formatCurrency(t.revenue)])}
+                      headers={[
+                        'name',
+                        'phone',
+                        'domain',
+                        'completed',
+                        'status',
+                        'revenue',
+                      ]}
+                      pdfHeaders={[
+                        'Technician Name',
+                        'Phone',
+                        'Domain',
+                        'Completed Jobs',
+                        'Current Status',
+                        'Revenue Served (₹)',
+                      ]}
+                      pdfRows={techniciansMetrics.techniciansList.map(t => [
+                        t.name,
+                        t.phone,
+                        t.domain,
+                        t.completed,
+                        t.status,
+                        formatCurrency(t.revenue),
+                      ])}
                       title="Technician Performance Report"
                       filename={`technician_performance_${timeframe}`}
                     />
                   </Box>
-                  <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #E2E8F0' }}>
+                  <TableContainer
+                    component={Paper}
+                    elevation={0}
+                    sx={{ border: '1px solid #E2E8F0' }}
+                  >
                     <Table>
                       <TableHead sx={{ bgcolor: '#F7FAFC' }}>
                         <TableRow>
-                          <TableCell sx={{ fontWeight: 750 }}>Technician Name</TableCell>
-                          <TableCell sx={{ fontWeight: 750 }}>Phone Number</TableCell>
+                          <TableCell sx={{ fontWeight: 750 }}>
+                            Technician Name
+                          </TableCell>
+                          <TableCell sx={{ fontWeight: 750 }}>
+                            Phone Number
+                          </TableCell>
                           <TableCell sx={{ fontWeight: 750 }}>Domain</TableCell>
-                          <TableCell sx={{ fontWeight: 750 }} align="center">Completed Jobs</TableCell>
-                          <TableCell sx={{ fontWeight: 750 }} align="center">Current Status</TableCell>
-                          <TableCell sx={{ fontWeight: 750 }} align="right">Revenue Served</TableCell>
+                          <TableCell sx={{ fontWeight: 750 }} align="center">
+                            Completed Jobs
+                          </TableCell>
+                          <TableCell sx={{ fontWeight: 750 }} align="center">
+                            Current Status
+                          </TableCell>
+                          <TableCell sx={{ fontWeight: 750 }} align="right">
+                            Revenue Served
+                          </TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
@@ -1289,10 +1871,14 @@ export const Reports: React.FC = () => {
                         ) : (
                           techniciansMetrics.techniciansList.map((t, idx) => (
                             <TableRow key={idx} hover>
-                              <TableCell sx={{ fontWeight: 600 }}>{t.name}</TableCell>
+                              <TableCell sx={{ fontWeight: 600 }}>
+                                {t.name}
+                              </TableCell>
                               <TableCell>{t.phone}</TableCell>
                               <TableCell>{t.domain}</TableCell>
-                              <TableCell align="center">{t.completed}</TableCell>
+                              <TableCell align="center">
+                                {t.completed}
+                              </TableCell>
                               <TableCell align="center">
                                 <Chip
                                   label={t.status}
@@ -1300,12 +1886,21 @@ export const Reports: React.FC = () => {
                                   sx={{
                                     fontSize: '0.72rem',
                                     fontWeight: 700,
-                                    bgcolor: t.status === 'Available' ? 'rgba(72,187,120,0.15)' : 'rgba(237,137,54,0.15)',
-                                    color: t.status === 'Available' ? '#276749' : '#C05621',
+                                    bgcolor:
+                                      t.status === 'Available'
+                                        ? 'rgba(72,187,120,0.15)'
+                                        : 'rgba(237,137,54,0.15)',
+                                    color:
+                                      t.status === 'Available'
+                                        ? '#276749'
+                                        : '#C05621',
                                   }}
                                 />
                               </TableCell>
-                              <TableCell align="right" sx={{ color: '#48BB78', fontWeight: 700 }}>
+                              <TableCell
+                                align="right"
+                                sx={{ color: '#48BB78', fontWeight: 700 }}
+                              >
                                 {formatCurrency(t.revenue)}
                               </TableCell>
                             </TableRow>

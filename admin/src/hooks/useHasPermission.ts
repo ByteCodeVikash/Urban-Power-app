@@ -7,13 +7,13 @@ export const useHasPermission = () => {
   const checkPermission = (permission?: string): boolean => {
     if (!permission) return true; // if no permission required, allow
     if (!role) return false;
-    
+
     // Super Admin gets all permissions automatically
     const normalizedRole = role.toLowerCase().replace(/_/g, ' ').trim();
     if (normalizedRole === 'super admin') {
       return true;
     }
-    
+
     return permissions.includes(permission);
   };
 
@@ -23,4 +23,3 @@ export const useHasPermission = () => {
     hasRole: (checkRole: string) => role === checkRole,
   };
 };
-

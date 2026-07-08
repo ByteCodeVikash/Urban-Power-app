@@ -21,9 +21,18 @@ export const TopTechniciansWidget: React.FC = () => {
     .slice(0, 5);
 
   return (
-    <Card sx={{ border: '1px solid #E2E8F0', borderRadius: 3.5, boxShadow: 'none' }}>
+    <Card
+      sx={{ border: '1px solid #E2E8F0', borderRadius: 3.5, boxShadow: 'none' }}
+    >
       <CardContent sx={{ pb: '16px !important' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mb: 2,
+          }}
+        >
           <Typography
             variant="h6"
             sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}
@@ -51,7 +60,12 @@ export const TopTechniciansWidget: React.FC = () => {
         {isLoading ? (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             {[1, 2, 3, 4, 5].map(i => (
-              <Skeleton key={i} variant="rectangular" height={40} sx={{ borderRadius: 2 }} />
+              <Skeleton
+                key={i}
+                variant="rectangular"
+                height={40}
+                sx={{ borderRadius: 2 }}
+              />
             ))}
           </Box>
         ) : top5.length === 0 ? (
@@ -70,7 +84,14 @@ export const TopTechniciansWidget: React.FC = () => {
                   width: '100%',
                 }}
               >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexGrow: 1 }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1.5,
+                    flexGrow: 1,
+                  }}
+                >
                   <Avatar
                     sx={{
                       bgcolor: '#EDF2F7',
@@ -89,7 +110,10 @@ export const TopTechniciansWidget: React.FC = () => {
                       .toUpperCase()}
                   </Avatar>
                   <Box>
-                    <Typography variant="body2" sx={{ fontWeight: 600, color: '#2D3748' }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ fontWeight: 600, color: '#2D3748' }}
+                    >
                       {tech.name}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
@@ -98,7 +122,10 @@ export const TopTechniciansWidget: React.FC = () => {
                   </Box>
                 </Box>
                 <Box sx={{ textAlign: 'right' }}>
-                  <Typography variant="body2" sx={{ fontWeight: 700, color: '#2D3748' }}>
+                  <Typography
+                    variant="body2"
+                    sx={{ fontWeight: 700, color: '#2D3748' }}
+                  >
                     {tech.jobsCompleted ?? 0} jobs
                   </Typography>
                   <Typography

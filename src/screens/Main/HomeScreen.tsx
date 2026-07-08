@@ -7,12 +7,19 @@ import {
   Dimensions,
   FlatList,
   Pressable,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Truck, ShoppingBag, ShoppingCart } from 'lucide-react-native';
 import { RootStackParamList } from '../../navigation/Types';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from 'react-native-reanimated';
+
 import {
   useTrendingServices,
   useMostBooked,
@@ -31,6 +38,8 @@ import { ReferAndGetFreeServicesBanner } from '../../components/home/ReferAndGet
 import { Colors, Spacing, Shadows, BorderRadius } from '../../constants/Theme';
 import { BANNERS } from '../../constants/MockData';
 
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
 // ─── Service module grid (centralized config) ───────────────────────────────
 const MAIN_VERTICALS = [
   // ── Core Services (keep) ──
@@ -40,8 +49,7 @@ const MAIN_VERTICALS = [
   // ── Modules ──
   { id: 'shop', name: 'Shopping', icon: 'shop', isModule: true },
   { id: 'grocery', name: 'Grocery', icon: 'apple', isModule: true },
-  { id: 'kabadi', name: 'Kabadi', icon: 'kabadi', isModule: true },
-  { id: 'beautician', name: 'Beautician', icon: 'scissors', isModule: true },
+  { id: 'kabadi', name: 'Scrap Pickup', icon: 'kabadi', isModule: true },
   // ── Replaced categories ──
   { id: 'c3', name: 'Maintenance', icon: 'maintenance' }, // was: AC Repair
   { id: 'c5', name: 'Auto Service', icon: 'autoservice' }, // was: Plumber
@@ -64,6 +72,17 @@ export default function HomeScreen() {
   console.log('[OTP Login Flow] Home screen render');
   const navigation = useNavigation<NavigationProp>();
   const [refreshing, setRefreshing] = useState(false);
+
+  const shopScale = useSharedValue(1);
+  const scrapScale = useSharedValue(1);
+
+  const shopAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: shopScale.value }],
+  }));
+
+  const scrapAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scrapScale.value }],
+  }));
 
   // Cart count for header badge
   const cartCount = useCartStore(s =>
@@ -194,56 +213,76 @@ export default function HomeScreen() {
             What are you looking for?
           </Typography>
           <View style={styles.moduleGrid}>
-            {MAIN_VERTICALS.map(item => (
-              <CategoryCard
-                key={item.id}
-                category={item as any}
-                style={styles.moduleItem}
-                hideText={false}
-                onPress={() => {
-                  // ── Module routes — SAME as top taskbar ──
-                  if (item.id === 'shop') {
-                    navigation.navigate('ShopCategory');
-                  } else if (item.id === 'grocery') {
-                    navigation.navigate('GroceryCategory');
-                  } else if (item.id === 'kabadi') {
-                    navigation.navigate('ScrapCategories');
-                  } else if (item.id === 'beautician') {
-                    navigation.navigate('BeauticianCategories');
+            {MAIN_VERTICALS.map(item => {
+              const isActive = ['kabadi', 'c2', 'c3'].includes(item.id);
+              return (
+                <CategoryCard
+                  key={item.id}
+                  category={item as any}
+                  style={styles.moduleItem}
+                  hideText={false}
+                  isActive={isActive}
+                  onPress={() => {
+                    if (!isActive) {
+                      Alert.alert(
+                        'Coming Soon',
+                        `${item.name} service is coming to your area soon!`,
+                        [{ text: 'OK' }],
+                      );
+                      return;
+                    }
+                    // ── Module routes — SAME as top taskbar ──
+                    if (item.id === 'shop') {
+                      navigation.navigate('ShopCategory');
+                    } else if (item.id === 'grocery') {
+                      navigation.navigate('GroceryCategory');
+                    } else if (item.id === 'kabadi') {
+                      navigation.navigate('ScrapCategories');
 
-                    // ── Gender-based categories ──
-                  } else if (item.id === 'c2') {
-                    // Beauty → gender picker
-                    navigation.navigate('GenderPicker', {
-                      categoryId: 'c2',
-                      categoryName: 'Beauty',
-                    });
-                  } else if (item.id === 'c10') {
-                    // Massage → gender picker
-                    navigation.navigate('GenderPicker', {
-                      categoryId: 'c10',
-                      categoryName: 'Massage',
-                    });
-                  } else if (item.id === 'c3') {
-                    navigation.navigate('MaintenanceCategories');
-                    // ── All other service categories → SubcategoryScreen ──
-                  } else if (item.id) {
-                    navigation.navigate('Subcategory', {
-                      categoryId: item.id,
-                      categoryName: item.name,
-                    });
-                  }
-                }}
-              />
-            ))}
+                      // ── Gender-based categories ──
+                    } else if (item.id === 'c2') {
+                      // Beauty → gender picker
+                      navigation.navigate('GenderPicker', {
+                        categoryId: 'c2',
+                        categoryName: 'Beauty',
+                      });
+                    } else if (item.id === 'c10') {
+                      // Massage → gender picker
+                      navigation.navigate('GenderPicker', {
+                        categoryId: 'c10',
+                        categoryName: 'Massage',
+                      });
+                    } else if (item.id === 'c3') {
+                      navigation.navigate('MaintenanceCategories');
+                      // ── All other service categories → SubcategoryScreen ──
+                    } else if (item.id) {
+                      navigation.navigate('Subcategory', {
+                        categoryId: item.id,
+                        categoryName: item.name,
+                      });
+                    }
+                  }}
+                />
+              );
+            })}
           </View>
         </View>
 
         {/* ── Spotlight cards ── */}
         <View style={styles.spotlightRow}>
-          <Pressable
-            style={[styles.spotlightCard, { backgroundColor: '#1E1B4B' }]}
+          <AnimatedPressable
+            style={[
+              styles.spotlightCard,
+              { backgroundColor: '#1E1B4B' },
+              shopAnimatedStyle,
+            ]}
             onPress={() => navigation.navigate('ShopCategory')}
+            onPressIn={() => {
+              shopScale.value = withTiming(0.96, { duration: 100 });
+            }}
+            onPressOut={() => {
+              shopScale.value = withTiming(1, { duration: 100 });
+            }}
           >
             <ShoppingBag color={Colors.light.white} size={24} />
             <Typography
@@ -257,10 +296,20 @@ export default function HomeScreen() {
             <Typography variant="tiny" color="#A5B4FC" weight="700">
               PREMIUM PRODUCTS
             </Typography>
-          </Pressable>
-          <Pressable
-            style={[styles.spotlightCard, { backgroundColor: '#064E3B' }]}
+          </AnimatedPressable>
+          <AnimatedPressable
+            style={[
+              styles.spotlightCard,
+              { backgroundColor: '#064E3B' },
+              scrapAnimatedStyle,
+            ]}
             onPress={() => navigation.navigate('ScrapCategories')}
+            onPressIn={() => {
+              scrapScale.value = withTiming(0.96, { duration: 100 });
+            }}
+            onPressOut={() => {
+              scrapScale.value = withTiming(1, { duration: 100 });
+            }}
           >
             <Truck color={Colors.light.white} size={24} />
             <Typography
@@ -274,7 +323,7 @@ export default function HomeScreen() {
             <Typography variant="tiny" color="#A7F3D0" weight="700">
               CASH ON PICKUP
             </Typography>
-          </Pressable>
+          </AnimatedPressable>
         </View>
 
         {/* ── For You ── */}

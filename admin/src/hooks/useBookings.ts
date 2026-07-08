@@ -43,9 +43,16 @@ export interface ParsedBookingNotes {
   customNotes: string;
 }
 
-export function parseBookingNotes(notes: string | null | undefined): ParsedBookingNotes {
+export function parseBookingNotes(
+  notes: string | null | undefined,
+): ParsedBookingNotes {
   if (!notes) {
-    return { customerName: 'Client', phone: '', technician: 'None', customNotes: '' };
+    return {
+      customerName: 'Client',
+      phone: '',
+      technician: 'None',
+      customNotes: '',
+    };
   }
   const nameMatch = notes.match(/Customer Name:\s*([^,\n]+)/i);
   const phoneMatch = notes.match(/Phone:\s*([^,\n]+)/i);
@@ -76,7 +83,8 @@ export function buildBookingNotes(
   const parts: string[] = [];
   if (customerName) parts.push(`Customer Name: ${customerName}`);
   if (phone) parts.push(`Phone: ${phone}`);
-  if (technician && technician !== 'None') parts.push(`Technician: ${technician}`);
+  if (technician && technician !== 'None')
+    parts.push(`Technician: ${technician}`);
   if (customNotes) parts.push(customNotes);
   return parts.join(', ');
 }
@@ -84,11 +92,12 @@ export function buildBookingNotes(
 // ─── Map AdminOrderItem → Booking (legacy shape) ──────────────────────────────
 
 function toBooking(item: AdminOrderItem): Booking {
-  const serviceTypeMap: Record<string, 'Scrap' | 'Beautician' | 'Maintenance'> = {
-    scrap: 'Scrap',
-    beautician: 'Beautician',
-    maintenance: 'Maintenance',
-  };
+  const serviceTypeMap: Record<string, 'Scrap' | 'Beautician' | 'Maintenance'> =
+    {
+      scrap: 'Scrap',
+      beautician: 'Beautician',
+      maintenance: 'Maintenance',
+    };
   return {
     ...item,
     // Legacy aliases

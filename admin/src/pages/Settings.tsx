@@ -41,14 +41,22 @@ export const Settings: React.FC = () => {
   const [permissions, setPermissions] = useState(store.permissions);
 
   // Business Rules State
-  const [minScrapPickupValue, setMinScrapPickupValue] = useState(store.minScrapPickupValue);
+  const [minScrapPickupValue, setMinScrapPickupValue] = useState(
+    store.minScrapPickupValue,
+  );
   const [commissionRate, setCommissionRate] = useState(store.commissionRate);
-  const [payoutCutoffHours, setPayoutCutoffHours] = useState(store.payoutCutoffHours);
-  const [maxDispatchRadius, setMaxDispatchRadius] = useState(store.maxDispatchRadius);
+  const [payoutCutoffHours, setPayoutCutoffHours] = useState(
+    store.payoutCutoffHours,
+  );
+  const [maxDispatchRadius, setMaxDispatchRadius] = useState(
+    store.maxDispatchRadius,
+  );
 
   // API Credentials State
   const [razorpayKeyId, setRazorpayKeyId] = useState(store.razorpayKeyId);
-  const [razorpayKeySecret, setRazorpayKeySecret] = useState(store.razorpayKeySecret);
+  const [razorpayKeySecret, setRazorpayKeySecret] = useState(
+    store.razorpayKeySecret,
+  );
   const [twilioSid, setTwilioSid] = useState(store.twilioSid);
   const [twilioToken, setTwilioToken] = useState(store.twilioToken);
   const [firebaseConfig, setFirebaseConfig] = useState(store.firebaseConfig);

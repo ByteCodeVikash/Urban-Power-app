@@ -85,10 +85,34 @@ export const SearchBar: React.FC = () => {
 
     // Static nav shortcuts (these are real module links, not fake data)
     index.push(
-      { id: 'nav-payments', category: 'Payments', title: 'Payments Dashboard', subtitle: 'View transactions and refunds', route: '/payments' },
-      { id: 'nav-services', category: 'Services', title: 'Services Management', subtitle: 'Manage all services', route: '/services' },
-      { id: 'nav-categories', category: 'Categories', title: 'Categories Management', subtitle: 'Manage service categories', route: '/categories' },
-      { id: 'nav-settings', category: 'Settings', title: 'System Settings', subtitle: 'API keys, RBAC, configurations', route: '/settings' },
+      {
+        id: 'nav-payments',
+        category: 'Payments',
+        title: 'Payments Dashboard',
+        subtitle: 'View transactions and refunds',
+        route: '/payments',
+      },
+      {
+        id: 'nav-services',
+        category: 'Services',
+        title: 'Services Management',
+        subtitle: 'Manage all services',
+        route: '/services',
+      },
+      {
+        id: 'nav-categories',
+        category: 'Categories',
+        title: 'Categories Management',
+        subtitle: 'Manage service categories',
+        route: '/categories',
+      },
+      {
+        id: 'nav-settings',
+        category: 'Settings',
+        title: 'System Settings',
+        subtitle: 'API keys, RBAC, configurations',
+        route: '/settings',
+      },
     );
 
     return index;

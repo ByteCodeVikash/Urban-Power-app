@@ -6,7 +6,9 @@ import { useAdminOrderStats } from '../../../hooks/useAdminOrders';
 export const AverageOrderValueWidget: React.FC = () => {
   const { data: stats, isLoading } = useAdminOrderStats();
 
-  const displayValue = isLoading ? '...' : `₹${(stats?.aov_all ?? 0).toLocaleString()}`;
+  const displayValue = isLoading
+    ? '...'
+    : `₹${(stats?.aov_all ?? 0).toLocaleString()}`;
 
   return (
     <StatCard

@@ -11,7 +11,8 @@ export const MonthlyGrowthWidget: React.FC = () => {
   let changeType: 'increase' | 'decrease' = 'increase';
 
   if (!isLoading && stats?.monthly_growth) {
-    const { percentage, this_month_count, last_month_count } = stats.monthly_growth;
+    const { percentage, this_month_count, last_month_count } =
+      stats.monthly_growth;
     if (last_month_count === 0) {
       growthDisplay = this_month_count > 0 ? '+100%' : '0%';
       changeVal = undefined;

@@ -24,7 +24,11 @@ import { adminOrderService } from '../api/adminOrderService';
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type PaymentGateway = 'Razorpay' | 'COD' | 'Unknown';
-export type SettlementStatus = 'Settled' | 'Escrow' | 'Pending Cash' | 'Refunded';
+export type SettlementStatus =
+  | 'Settled'
+  | 'Escrow'
+  | 'Pending Cash'
+  | 'Refunded';
 
 export interface PaymentTransaction {
   /** Formatted display ID, e.g. "TXN-A1B2C3D4" */
@@ -78,7 +82,8 @@ function formatINR(amount: number): string {
 function deriveGateway(raw: string | null | undefined): PaymentGateway {
   if (!raw) return 'Unknown';
   const lower = raw.toLowerCase();
-  if (lower === 'razorpay' || lower === 'card' || lower === 'upi') return 'Razorpay';
+  if (lower === 'razorpay' || lower === 'card' || lower === 'upi')
+    return 'Razorpay';
   if (lower === 'cod' || lower === 'cash') return 'COD';
   return 'Unknown';
 }
@@ -126,7 +131,8 @@ export const usePayments = (): UsePaymentsResult => {
       });
 
       const transactions: PaymentTransaction[] = result.items.map(item => {
-        const ref = item.booking_reference || item.booking_id.slice(0, 8).toUpperCase();
+        const ref =
+          item.booking_reference || item.booking_id.slice(0, 8).toUpperCase();
         const gateway = deriveGateway(item.payment_method);
         const status = deriveStatus(item.status, gateway);
         const amount = item.price || 0;

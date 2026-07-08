@@ -107,6 +107,7 @@ export default function LoginScreen() {
   const stepRef = useRef(step);
   const loadingRef = useRef(loading);
   const isBackendVerifying = useRef(false);
+  const isVerificationInProgress = useRef(false);
 
   useEffect(() => {
     stepRef.current = step;
@@ -137,8 +138,11 @@ export default function LoginScreen() {
 
     const firebaseAuth = require('@react-native-firebase/auth').default;
     const unsubscribe = firebaseAuth().onAuthStateChanged(async (user: any) => {
-      // If user is logged in to Firebase and we are currently in OTP verification stage
-      if (user && stepRef.current === 'OTP') {
+      // If user is logged in to Firebase and we have verification in progress
+      if (
+        user &&
+        (stepRef.current === 'OTP' || isVerificationInProgress.current)
+      ) {
         if (isBackendVerifying.current) return;
 
         console.log(
@@ -190,6 +194,7 @@ export default function LoginScreen() {
             '[OTP Login Flow] Navigation to Dashboard. Target role:',
             role,
           );
+          isVerificationInProgress.current = false;
           login(verifiedPhone, role, name, id, response.access_token);
         } catch (err: any) {
           console.error(
@@ -203,6 +208,7 @@ export default function LoginScreen() {
             err?.stack,
           );
           setError(err?.message || 'Verification failed. Please try again.');
+          isVerificationInProgress.current = false;
           isBackendVerifying.current = false;
           loadingRef.current = false;
           setLoading(false);
@@ -296,6 +302,7 @@ export default function LoginScreen() {
     setLoading(true);
     setError(null);
     setPhoneError(null);
+    isVerificationInProgress.current = true;
     try {
       console.log('[OTP Login Flow] Firebase sendOtp() start');
       const confirmResult = await firebaseAuthService.sendOtp(phoneNumber);
@@ -305,6 +312,7 @@ export default function LoginScreen() {
       setResendTimer(30); // 30-second resend limit
       setOtp(''); // clear previous OTP
     } catch (err: any) {
+      isVerificationInProgress.current = false;
       console.error('[LoginScreen] Send OTP error:', err);
       console.error(
         '[OTP Login Flow] Firebase sendOtp() failed. Error:',
@@ -334,6 +342,7 @@ export default function LoginScreen() {
     loadingRef.current = true;
     setLoading(true);
     setError(null);
+    isVerificationInProgress.current = true;
     try {
       if (!confirmation) {
         throw new Error(
@@ -346,6 +355,7 @@ export default function LoginScreen() {
       console.log('[OTP Login Flow] confirm.confirm() end');
       // The onAuthStateChanged listener handles backend validation and Zustand state updates.
     } catch (err: any) {
+      isVerificationInProgress.current = false;
       console.error('[LoginScreen] Verify OTP error:', err);
       console.error(
         '[OTP Login Flow] confirm.confirm() failed. Error:',
@@ -367,6 +377,7 @@ export default function LoginScreen() {
     setStep('PHONE');
     setError(null);
     setOtp('');
+    isVerificationInProgress.current = false;
     if (firebaseAuthService.isNative) {
       const firebaseAuth = require('@react-native-firebase/auth').default;
       firebaseAuth()

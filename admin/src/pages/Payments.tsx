@@ -51,7 +51,9 @@ export const Payments: React.FC = () => {
 
   const [openRefundDialog, setOpenRefundDialog] = useState(false);
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
-  const [selectedTxn, setSelectedTxn] = useState<PaymentTransaction | null>(null);
+  const [selectedTxn, setSelectedTxn] = useState<PaymentTransaction | null>(
+    null,
+  );
 
   // Refund Form Fields
   const [refundAmount, setRefundAmount] = useState('');
@@ -113,22 +115,25 @@ export const Payments: React.FC = () => {
       status: string;
       notes: string;
     }) => {
-      const response = await apiClient.put(
-        `/api/v1/bookings/${bookingId}`,
-        { status, notes }
-      );
+      const response = await apiClient.put(`/api/v1/bookings/${bookingId}`, {
+        status,
+        notes,
+      });
       return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['payments-derived'] });
       queryClient.invalidateQueries({ queryKey: ['bookings'] });
-      showSnackbar('Refund triggered and booking cancelled successfully.', 'success');
+      showSnackbar(
+        'Refund triggered and booking cancelled successfully.',
+        'success',
+      );
       setOpenRefundDialog(false);
     },
     onError: (err: any) => {
       const detail = err.response?.data?.detail || 'Failed to process refund.';
       showSnackbar(detail, 'error');
-    }
+    },
   });
 
   const handleExecuteRefund = () => {
@@ -143,7 +148,7 @@ export const Payments: React.FC = () => {
       parsed.customerName,
       parsed.phone,
       parsed.technician,
-      updatedCustomNotes
+      updatedCustomNotes,
     );
 
     refundMutation.mutate({
@@ -159,7 +164,10 @@ export const Payments: React.FC = () => {
       id: 'id',
       label: 'Transaction ID',
       render: row => (
-        <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600 }}>
+        <Typography
+          variant="body2"
+          sx={{ fontFamily: 'monospace', fontWeight: 600 }}
+        >
           {row.id}
         </Typography>
       ),
@@ -168,7 +176,10 @@ export const Payments: React.FC = () => {
       id: 'bookingReference',
       label: 'Booking Ref',
       render: row => (
-        <Typography variant="body2" sx={{ fontFamily: 'monospace', color: '#553C9A', fontWeight: 700 }}>
+        <Typography
+          variant="body2"
+          sx={{ fontFamily: 'monospace', color: '#553C9A', fontWeight: 700 }}
+        >
           {row.bookingReference}
         </Typography>
       ),
@@ -359,7 +370,11 @@ export const Payments: React.FC = () => {
                     TOTAL REVENUE
                   </Typography>
                   <Typography variant="h5" sx={{ fontWeight: 800, mt: 0.5 }}>
-                    {isLoading ? <CircularProgress size={20} /> : formatINR(summary?.totalRevenue || 0)}
+                    {isLoading ? (
+                      <CircularProgress size={20} />
+                    ) : (
+                      formatINR(summary?.totalRevenue || 0)
+                    )}
                   </Typography>
                 </Box>
                 <Avatar sx={{ bgcolor: '#2D3748', color: '#FFFFFF' }}>
@@ -388,7 +403,11 @@ export const Payments: React.FC = () => {
                     RAZORPAY GATEWAY
                   </Typography>
                   <Typography variant="h5" sx={{ fontWeight: 800, mt: 0.5 }}>
-                    {isLoading ? <CircularProgress size={20} /> : formatINR(summary?.razorpayTotal || 0)}
+                    {isLoading ? (
+                      <CircularProgress size={20} />
+                    ) : (
+                      formatINR(summary?.razorpayTotal || 0)
+                    )}
                   </Typography>
                 </Box>
                 <Avatar sx={{ bgcolor: '#4299E1', color: '#FFFFFF' }}>
@@ -417,7 +436,11 @@ export const Payments: React.FC = () => {
                     CASH ON DELIVERY (COD)
                   </Typography>
                   <Typography variant="h5" sx={{ fontWeight: 800, mt: 0.5 }}>
-                    {isLoading ? <CircularProgress size={20} /> : formatINR(summary?.codTotal || 0)}
+                    {isLoading ? (
+                      <CircularProgress size={20} />
+                    ) : (
+                      formatINR(summary?.codTotal || 0)
+                    )}
                   </Typography>
                 </Box>
                 <Avatar sx={{ bgcolor: '#48BB78', color: '#FFFFFF' }}>
@@ -449,7 +472,11 @@ export const Payments: React.FC = () => {
                     variant="h5"
                     sx={{ fontWeight: 800, mt: 0.5, color: '#F56565' }}
                   >
-                    {isLoading ? <CircularProgress size={20} /> : formatINR(summary?.refundedTotal || 0)}
+                    {isLoading ? (
+                      <CircularProgress size={20} />
+                    ) : (
+                      formatINR(summary?.refundedTotal || 0)
+                    )}
                   </Typography>
                 </Box>
                 <Avatar sx={{ bgcolor: '#F56565', color: '#FFFFFF' }}>
@@ -497,8 +524,9 @@ export const Payments: React.FC = () => {
           >
             <Typography variant="body2" color="text.secondary">
               You are issuing a refund for order{' '}
-              <strong>{selectedTxn?.bookingReference}</strong>. This transaction will
-              be credited back via Razorpay/Gateway and the booking status will be set to cancelled.
+              <strong>{selectedTxn?.bookingReference}</strong>. This transaction
+              will be credited back via Razorpay/Gateway and the booking status
+              will be set to cancelled.
             </Typography>
             <TextField
               fullWidth
@@ -534,7 +562,11 @@ export const Payments: React.FC = () => {
             variant="contained"
             color="error"
             disabled={refundMutation.isPending}
-            startIcon={refundMutation.isPending ? <CircularProgress size={16} color="inherit" /> : null}
+            startIcon={
+              refundMutation.isPending ? (
+                <CircularProgress size={16} color="inherit" />
+              ) : null
+            }
           >
             Execute Refund
           </Button>
@@ -548,7 +580,9 @@ export const Payments: React.FC = () => {
         fullWidth
         maxWidth="sm"
       >
-        <DialogTitle sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}>
+        <DialogTitle
+          sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}
+        >
           Payment & Transaction Details
         </DialogTitle>
         <DialogContent dividers sx={{ pb: 3 }}>
@@ -556,24 +590,47 @@ export const Payments: React.FC = () => {
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
               <Grid container spacing={2.5}>
                 <Grid size={{ xs: 6 }}>
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontWeight: 600 }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ display: 'block', fontWeight: 600 }}
+                  >
                     Transaction ID
                   </Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 600, fontFamily: 'monospace', mt: 0.5 }}>
+                  <Typography
+                    variant="body2"
+                    sx={{ fontWeight: 600, fontFamily: 'monospace', mt: 0.5 }}
+                  >
                     {selectedTxn.id}
                   </Typography>
                 </Grid>
                 <Grid size={{ xs: 6 }}>
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontWeight: 600 }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ display: 'block', fontWeight: 600 }}
+                  >
                     Booking Reference
                   </Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 700, fontFamily: 'monospace', color: '#553C9A', mt: 0.5 }}>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: 700,
+                      fontFamily: 'monospace',
+                      color: '#553C9A',
+                      mt: 0.5,
+                    }}
+                  >
                     {selectedTxn.bookingReference}
                   </Typography>
                 </Grid>
 
                 <Grid size={{ xs: 6 }}>
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontWeight: 600 }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ display: 'block', fontWeight: 600 }}
+                  >
                     Customer Name
                   </Typography>
                   <Typography variant="body2" sx={{ fontWeight: 600, mt: 0.5 }}>
@@ -581,7 +638,11 @@ export const Payments: React.FC = () => {
                   </Typography>
                 </Grid>
                 <Grid size={{ xs: 6 }}>
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontWeight: 600 }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ display: 'block', fontWeight: 600 }}
+                  >
                     Customer Phone
                   </Typography>
                   <Typography variant="body2" sx={{ mt: 0.5 }}>
@@ -590,7 +651,11 @@ export const Payments: React.FC = () => {
                 </Grid>
 
                 <Grid size={{ xs: 6 }}>
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontWeight: 600 }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ display: 'block', fontWeight: 600 }}
+                  >
                     Service Booked
                   </Typography>
                   <Typography variant="body2" sx={{ mt: 0.5 }}>
@@ -598,24 +663,40 @@ export const Payments: React.FC = () => {
                   </Typography>
                 </Grid>
                 <Grid size={{ xs: 6 }}>
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontWeight: 600 }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ display: 'block', fontWeight: 600 }}
+                  >
                     Booking Date
                   </Typography>
                   <Typography variant="body2" sx={{ mt: 0.5 }}>
-                    {selectedTxn.dateLabel} {selectedTxn.timeslot ? `(${selectedTxn.timeslot})` : ''}
+                    {selectedTxn.dateLabel}{' '}
+                    {selectedTxn.timeslot ? `(${selectedTxn.timeslot})` : ''}
                   </Typography>
                 </Grid>
 
                 <Grid size={{ xs: 6 }}>
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontWeight: 600 }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ display: 'block', fontWeight: 600 }}
+                  >
                     Amount Paid
                   </Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 700, color: 'text.primary', mt: 0.5 }}>
+                  <Typography
+                    variant="body2"
+                    sx={{ fontWeight: 700, color: 'text.primary', mt: 0.5 }}
+                  >
                     {selectedTxn.amountLabel}
                   </Typography>
                 </Grid>
                 <Grid size={{ xs: 6 }}>
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontWeight: 600 }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ display: 'block', fontWeight: 600 }}
+                  >
                     Payment Gateway Mode
                   </Typography>
                   <Typography variant="body2" sx={{ fontWeight: 600, mt: 0.5 }}>
@@ -624,7 +705,11 @@ export const Payments: React.FC = () => {
                 </Grid>
 
                 <Grid size={{ xs: 6 }}>
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontWeight: 600 }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ display: 'block', fontWeight: 600 }}
+                  >
                     Settlement Status
                   </Typography>
                   <Box sx={{ mt: 0.5 }}>
@@ -659,10 +744,17 @@ export const Payments: React.FC = () => {
                   </Box>
                 </Grid>
                 <Grid size={{ xs: 6 }}>
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontWeight: 600 }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ display: 'block', fontWeight: 600 }}
+                  >
                     Raw Booking Status
                   </Typography>
-                  <Typography variant="body2" sx={{ textTransform: 'capitalize', mt: 0.5 }}>
+                  <Typography
+                    variant="body2"
+                    sx={{ textTransform: 'capitalize', mt: 0.5 }}
+                  >
                     {selectedTxn.bookingStatus}
                   </Typography>
                 </Grid>
@@ -671,7 +763,11 @@ export const Payments: React.FC = () => {
               <Divider sx={{ my: 1 }} />
 
               <Box>
-                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontWeight: 600, mb: 1 }}>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ display: 'block', fontWeight: 600, mb: 1 }}
+                >
                   Booking Notes & Audit Trail
                 </Typography>
                 <Typography
@@ -684,17 +780,22 @@ export const Payments: React.FC = () => {
                     whiteSpace: 'pre-line',
                     fontFamily: 'sans-serif',
                     maxHeight: '150px',
-                    overflowY: 'auto'
+                    overflowY: 'auto',
                   }}
                 >
-                  {selectedTxn.notes || 'No notes or audit trail on this booking.'}
+                  {selectedTxn.notes ||
+                    'No notes or audit trail on this booking.'}
                 </Typography>
               </Box>
             </Box>
           )}
         </DialogContent>
         <DialogActions sx={{ p: 2.5 }}>
-          <Button onClick={() => setOpenDetailsDialog(false)} color="primary" variant="contained">
+          <Button
+            onClick={() => setOpenDetailsDialog(false)}
+            color="primary"
+            variant="contained"
+          >
             Close Details
           </Button>
         </DialogActions>

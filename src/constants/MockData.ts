@@ -15,9 +15,7 @@ export interface MinimalService {
 export interface BeautyCategory {
   name: string;
   subcategories: (string | { name: string; price: number })[];
-}
-
-export const beautyCategories: BeautyCategory[] = [
+}export const beautyCategories: BeautyCategory[] = [
   {
     name: 'Facial & Skincare',
     subcategories: [
@@ -258,7 +256,6 @@ export const CATEGORIES: Category[] = [
       },
     ],
   },
-
   // ── Beauty (gender-based) ─────────────────────────────────────────────────
   {
     id: 'c2',
@@ -396,10 +393,9 @@ export const CATEGORIES: Category[] = [
         gender: 'female',
         subcategories: beautySubcategoriesByName['Premium Categories'],
       },
-
       // Male
       {
-        id: 's2m',
+        id: 's2n',
         title: 'Home Salon Service',
         image:
           'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?q=80&w=600&auto=format&fit=crop',
@@ -411,7 +407,6 @@ export const CATEGORIES: Category[] = [
       },
     ],
   },
-
   // ── Maintenance (c3) ──────────────────────────────────────────────────────
   {
     id: 'c3',
@@ -616,7 +611,7 @@ export const CATEGORIES: Category[] = [
       },
       {
         id: 'c6s5',
-        title: 'Beautician Learning',
+        title: 'Beauty Learning',
         image:
           'https://orane.com/wp-content/uploads/2024/07/basic-beauty-2048x2048.jpg',
         rating: 4.8,

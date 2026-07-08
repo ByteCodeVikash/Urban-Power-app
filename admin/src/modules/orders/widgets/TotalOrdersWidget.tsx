@@ -6,7 +6,9 @@ import { useAdminOrderStats } from '../../../hooks/useAdminOrders';
 export const TotalOrdersWidget: React.FC = () => {
   const { data: stats, isLoading } = useAdminOrderStats();
 
-  const displayValue = isLoading ? '...' : (stats?.total_all ?? 0).toLocaleString();
+  const displayValue = isLoading
+    ? '...'
+    : (stats?.total_all ?? 0).toLocaleString();
 
   return (
     <StatCard

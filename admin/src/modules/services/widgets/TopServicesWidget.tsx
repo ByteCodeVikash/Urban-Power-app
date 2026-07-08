@@ -34,9 +34,18 @@ export const TopServicesWidget: React.FC = () => {
   }, [stats]);
 
   return (
-    <Card sx={{ border: '1px solid #E2E8F0', borderRadius: 3.5, boxShadow: 'none' }}>
+    <Card
+      sx={{ border: '1px solid #E2E8F0', borderRadius: 3.5, boxShadow: 'none' }}
+    >
       <CardContent sx={{ pb: '16px !important' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mb: 2,
+          }}
+        >
           <Typography
             variant="h6"
             sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}
@@ -64,7 +73,12 @@ export const TopServicesWidget: React.FC = () => {
         {isLoading ? (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.2 }}>
             {[1, 2, 3, 4].map(i => (
-              <Skeleton key={i} variant="rectangular" height={36} sx={{ borderRadius: 2 }} />
+              <Skeleton
+                key={i}
+                variant="rectangular"
+                height={36}
+                sx={{ borderRadius: 2 }}
+              />
             ))}
           </Box>
         ) : serviceStats.length === 0 ? (
@@ -83,10 +97,16 @@ export const TopServicesWidget: React.FC = () => {
                     mb: 0.5,
                   }}
                 >
-                  <Typography variant="body2" sx={{ fontWeight: 600, color: '#2D3748' }}>
+                  <Typography
+                    variant="body2"
+                    sx={{ fontWeight: 600, color: '#2D3748' }}
+                  >
                     {service.name}
                   </Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 700, color: '#4A5568' }}>
+                  <Typography
+                    variant="body2"
+                    sx={{ fontWeight: 700, color: '#4A5568' }}
+                  >
                     ₹{service.revenue.toLocaleString('en-IN')}{' '}
                     <Typography
                       component="span"

@@ -33,7 +33,10 @@ export default function GeneralBookingSuccessScreen() {
   const displayDate = date || 'Scheduled';
   const displayTimeslot = timeslot || '';
   const displayStatus = status || 'Pending';
-  const displayPaymentMethod = paymentMethod || 'COD';
+  const displayPaymentMethod =
+    paymentMethod === 'COD' || !paymentMethod
+      ? 'Cash on Service'
+      : paymentMethod;
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -48,9 +51,9 @@ export default function GeneralBookingSuccessScreen() {
           <Typography
             variant="h1"
             weight="900"
-            style={{ marginTop: Spacing.xl }}
+            style={{ marginTop: Spacing.xl, textAlign: 'center' }}
           >
-            Booking Confirmed!
+            Booking Submitted Successfully
           </Typography>
           <Typography
             variant="body1"
@@ -58,8 +61,9 @@ export default function GeneralBookingSuccessScreen() {
             align="center"
             style={styles.subtitle}
           >
-            Your professional is on the way to provide the best service
-            experience.
+            Our team has received your request. If your booking requires a
+            technician, our team will contact you within a few hours. You can
+            track booking status inside My Bookings.
           </Typography>
         </View>
 
@@ -154,7 +158,7 @@ export default function GeneralBookingSuccessScreen() {
             </View>
             <View style={{ flex: 1, marginLeft: Spacing.md }}>
               <Typography variant="tiny" color={Colors.light.textMuted}>
-                PAYMENT METHOD
+                PAYMENT MODE
               </Typography>
               <Typography variant="body2" weight="700">
                 {displayPaymentMethod}
@@ -199,7 +203,7 @@ export default function GeneralBookingSuccessScreen() {
               variant="body2"
               style={{ marginLeft: Spacing.md, flex: 1 }}
             >
-              Partner assignment within 15 minutes
+              Our team will review your booking details
             </Typography>
           </View>
           <View style={styles.stepItem}>
@@ -214,7 +218,7 @@ export default function GeneralBookingSuccessScreen() {
               variant="body2"
               style={{ marginLeft: Spacing.md, flex: 1 }}
             >
-              Partner calls to confirm the location
+              A technician/partner will be assigned to your service
             </Typography>
           </View>
           <View style={styles.stepItem}>
@@ -229,7 +233,7 @@ export default function GeneralBookingSuccessScreen() {
               variant="body2"
               style={{ marginLeft: Spacing.md, flex: 1 }}
             >
-              Service delivery & digital payment
+              Pay via Cash on Service after execution
             </Typography>
           </View>
         </View>

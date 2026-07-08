@@ -95,7 +95,7 @@ export const Login: React.FC = () => {
         },
         access_token,
         refresh_token,
-        permissions || []
+        permissions || [],
       );
 
       navigate('/');
@@ -138,11 +138,20 @@ export const Login: React.FC = () => {
         variant="h5"
         align="center"
         gutterBottom
-        sx={{ fontWeight: 800, fontFamily: '"Outfit", sans-serif', color: '#1A202C' }}
+        sx={{
+          fontWeight: 800,
+          fontFamily: '"Outfit", sans-serif',
+          color: '#1A202C',
+        }}
       >
         Urban Power Admin
       </Typography>
-      <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 0.5 }}>
+      <Typography
+        variant="body2"
+        color="text.secondary"
+        align="center"
+        sx={{ mb: 0.5 }}
+      >
         Secure administrator console authentication
       </Typography>
 
@@ -166,7 +175,11 @@ export const Login: React.FC = () => {
 
       {/* Global Alerts */}
       {errorMessage && (
-        <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }} onClose={() => setErrorMessage(null)}>
+        <Alert
+          severity="error"
+          sx={{ mb: 2, borderRadius: 2 }}
+          onClose={() => setErrorMessage(null)}
+        >
           {errorMessage}
         </Alert>
       )}
@@ -249,7 +262,10 @@ export const Login: React.FC = () => {
               />
             }
             label={
-              <Typography variant="body2" sx={{ color: '#4A5568', userSelect: 'none' }}>
+              <Typography
+                variant="body2"
+                sx={{ color: '#4A5568', userSelect: 'none' }}
+              >
                 Remember Me
               </Typography>
             }
@@ -264,7 +280,9 @@ export const Login: React.FC = () => {
               fontSize: '0.8rem',
             }}
             onClick={() =>
-              setErrorMessage('Please contact your System Administrator to recover password.')
+              setErrorMessage(
+                'Please contact your System Administrator to recover password.',
+              )
             }
           >
             Forgot Password?

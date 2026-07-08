@@ -20,14 +20,27 @@ export const LowRatedTechniciansWidget: React.FC = () => {
     .sort((a, b) => (a.rating ?? 0) - (b.rating ?? 0));
 
   return (
-    <Card sx={{ border: '1px solid #F56565', borderRadius: 3.5, boxShadow: 'none' }}>
+    <Card
+      sx={{ border: '1px solid #F56565', borderRadius: 3.5, boxShadow: 'none' }}
+    >
       <CardContent sx={{ pb: '16px !important' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mb: 2,
+          }}
+        >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <WarningIcon sx={{ color: '#F56565' }} />
             <Typography
               variant="h6"
-              sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif', color: '#1A202C' }}
+              sx={{
+                fontWeight: 700,
+                fontFamily: '"Outfit", sans-serif',
+                color: '#1A202C',
+              }}
             >
               Low Rated Technicians
             </Typography>
@@ -53,11 +66,20 @@ export const LowRatedTechniciansWidget: React.FC = () => {
         {isLoading ? (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             {[1, 2].map(i => (
-              <Skeleton key={i} variant="rectangular" height={40} sx={{ borderRadius: 2 }} />
+              <Skeleton
+                key={i}
+                variant="rectangular"
+                height={40}
+                sx={{ borderRadius: 2 }}
+              />
             ))}
           </Box>
         ) : lowRatedTechs.length === 0 ? (
-          <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic', py: 2 }}>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ fontStyle: 'italic', py: 2 }}
+          >
             No technicians are currently rated below 4.0.
           </Typography>
         ) : (
@@ -72,7 +94,14 @@ export const LowRatedTechniciansWidget: React.FC = () => {
                   width: '100%',
                 }}
               >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexGrow: 1 }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1.5,
+                    flexGrow: 1,
+                  }}
+                >
                   <Avatar
                     sx={{
                       bgcolor: '#FFF5F5',
@@ -91,7 +120,10 @@ export const LowRatedTechniciansWidget: React.FC = () => {
                       .toUpperCase()}
                   </Avatar>
                   <Box>
-                    <Typography variant="body2" sx={{ fontWeight: 600, color: '#2D3748' }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ fontWeight: 600, color: '#2D3748' }}
+                    >
                       {tech.name}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
@@ -99,9 +131,20 @@ export const LowRatedTechniciansWidget: React.FC = () => {
                     </Typography>
                   </Box>
                 </Box>
-                <Box sx={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box
+                  sx={{
+                    textAlign: 'right',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                  }}
+                >
                   <Chip
-                    icon={<StarIcon sx={{ '&&': { color: '#FFF' }, fontSize: '0.9rem' }} />}
+                    icon={
+                      <StarIcon
+                        sx={{ '&&': { color: '#FFF' }, fontSize: '0.9rem' }}
+                      />
+                    }
                     label={tech.rating?.toFixed(1) || '—'}
                     size="small"
                     sx={{
@@ -109,7 +152,7 @@ export const LowRatedTechniciansWidget: React.FC = () => {
                       color: '#FFF',
                       fontWeight: 700,
                       height: 24,
-                      '& .MuiChip-label': { px: 1 }
+                      '& .MuiChip-label': { px: 1 },
                     }}
                   />
                 </Box>

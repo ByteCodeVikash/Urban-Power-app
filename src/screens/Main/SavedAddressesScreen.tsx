@@ -176,8 +176,10 @@ export default function SavedAddressesScreen() {
           onPress: async () => {
             try {
               await deleteAddress(id);
-            } catch (err) {
-              Alert.alert('Error', 'Failed to delete address.');
+            } catch (err: any) {
+              if (!err?.isAuthError) {
+                Alert.alert('Error', 'Failed to delete address.');
+              }
             }
           },
         },
@@ -188,8 +190,10 @@ export default function SavedAddressesScreen() {
   const handleSetDefault = async (id: string) => {
     try {
       await setDefaultAddress(id);
-    } catch (err) {
-      Alert.alert('Error', 'Failed to update default address.');
+    } catch (err: any) {
+      if (!err?.isAuthError) {
+        Alert.alert('Error', 'Failed to update default address.');
+      }
     }
   };
 
@@ -233,8 +237,10 @@ export default function SavedAddressesScreen() {
       }
       setModalVisible(false);
       setEditingAddress(null);
-    } catch (err) {
-      Alert.alert('Error', 'Failed to save address. Please try again.');
+    } catch (err: any) {
+      if (!err?.isAuthError) {
+        Alert.alert('Error', 'Failed to save address. Please try again.');
+      }
     } finally {
       setIsSaving(false);
     }

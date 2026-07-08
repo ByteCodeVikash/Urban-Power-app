@@ -30,8 +30,14 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { DataTable, type ColumnConfig } from '../components/common/DataTable';
-import { useAdminOrders, useAdminOrderStatusUpdate } from '../hooks/useAdminOrders';
-import type { AdminOrderItem, AdminOrderFilters } from '../api/adminOrderService';
+import {
+  useAdminOrders,
+  useAdminOrderStatusUpdate,
+} from '../hooks/useAdminOrders';
+import type {
+  AdminOrderItem,
+  AdminOrderFilters,
+} from '../api/adminOrderService';
 
 // ─── Status constants ─────────────────────────────────────────────────────────
 
@@ -150,7 +156,8 @@ export const Orders: React.FC = () => {
     ...(filterDateTo && { date_to: filterDateTo }),
   };
 
-  const { data, isLoading, isError, refetch, isFetching } = useAdminOrders(filters);
+  const { data, isLoading, isError, refetch, isFetching } =
+    useAdminOrders(filters);
   const updateStatusMutation = useAdminOrderStatusUpdate();
 
   const orders = data?.items || [];
@@ -158,7 +165,9 @@ export const Orders: React.FC = () => {
   const total = data?.total || 0;
 
   // ── Status update dialog ─────────────────────────────────────────────────
-  const [selectedOrder, setSelectedOrder] = useState<AdminOrderItem | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<AdminOrderItem | null>(
+    null,
+  );
   const [openStatusDialog, setOpenStatusDialog] = useState(false);
   const [orderStatus, setOrderStatus] = useState('');
 
@@ -220,7 +229,12 @@ export const Orders: React.FC = () => {
       render: row => (
         <Typography
           variant="body2"
-          sx={{ fontWeight: 700, fontFamily: 'monospace', color: '#553C9A', fontSize: '0.8rem' }}
+          sx={{
+            fontWeight: 700,
+            fontFamily: 'monospace',
+            color: '#553C9A',
+            fontSize: '0.8rem',
+          }}
         >
           {row.booking_reference}
         </Typography>
@@ -244,12 +258,22 @@ export const Orders: React.FC = () => {
       id: 'booking_type',
       label: 'Type',
       render: row => {
-        const colors = BOOKING_TYPE_COLORS[row.booking_type] || BOOKING_TYPE_COLORS.beautician;
+        const colors =
+          BOOKING_TYPE_COLORS[row.booking_type] ||
+          BOOKING_TYPE_COLORS.beautician;
         return (
           <Chip
-            label={row.booking_type.charAt(0).toUpperCase() + row.booking_type.slice(1)}
+            label={
+              row.booking_type.charAt(0).toUpperCase() +
+              row.booking_type.slice(1)
+            }
             size="small"
-            sx={{ fontWeight: 700, bgcolor: colors.bg, color: colors.color, fontSize: '0.72rem' }}
+            sx={{
+              fontWeight: 700,
+              bgcolor: colors.bg,
+              color: colors.color,
+              fontSize: '0.72rem',
+            }}
           />
         );
       },
@@ -275,7 +299,12 @@ export const Orders: React.FC = () => {
         <Typography
           variant="body2"
           color="text.secondary"
-          sx={{ maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+          sx={{
+            maxWidth: 160,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
         >
           {row.address || 'No address'}
         </Typography>
@@ -294,7 +323,11 @@ export const Orders: React.FC = () => {
       id: 'booking_date',
       label: 'Booking Date',
       render: row => (
-        <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ fontSize: '0.8rem' }}
+        >
           {row.booking_date ? formatDate(row.booking_date) : '—'}
         </Typography>
       ),
@@ -303,7 +336,11 @@ export const Orders: React.FC = () => {
       id: 'preferred_time',
       label: 'Preferred Time',
       render: row => (
-        <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ fontSize: '0.8rem' }}
+        >
           {row.preferred_time || '—'}
         </Typography>
       ),
@@ -312,7 +349,11 @@ export const Orders: React.FC = () => {
       id: 'created_at',
       label: 'Created Time',
       render: row => (
-        <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ fontSize: '0.8rem' }}
+        >
           {formatDate(row.created_at)}
         </Typography>
       ),
@@ -321,7 +362,10 @@ export const Orders: React.FC = () => {
       id: 'assigned_technician',
       label: 'Technician',
       render: row => (
-        <Typography variant="body2" sx={{ color: row.assigned_technician ? '#2D3748' : '#A0AEC0' }}>
+        <Typography
+          variant="body2"
+          sx={{ color: row.assigned_technician ? '#2D3748' : '#A0AEC0' }}
+        >
           {row.assigned_technician || 'Unassigned'}
         </Typography>
       ),
@@ -331,11 +375,12 @@ export const Orders: React.FC = () => {
       label: 'Payment Status',
       render: row => {
         const payStatus = row.payment_status?.toLowerCase() || 'pending';
-        const colors = payStatus === 'completed' || payStatus === 'settled'
-          ? { bg: 'rgba(72, 187, 120, 0.15)', color: '#276749' }
-          : payStatus === 'refunded'
-          ? { bg: 'rgba(160, 174, 192, 0.15)', color: '#4A5568' }
-          : { bg: 'rgba(250, 208, 44, 0.2)', color: '#B7791F' };
+        const colors =
+          payStatus === 'completed' || payStatus === 'settled'
+            ? { bg: 'rgba(72, 187, 120, 0.15)', color: '#276749' }
+            : payStatus === 'refunded'
+              ? { bg: 'rgba(160, 174, 192, 0.15)', color: '#4A5568' }
+              : { bg: 'rgba(250, 208, 44, 0.2)', color: '#B7791F' };
         return (
           <Box
             sx={{
@@ -403,7 +448,8 @@ export const Orders: React.FC = () => {
             </Button>
           }
         >
-          Failed to load bookings from server. Please check backend connectivity and try again.
+          Failed to load bookings from server. Please check backend connectivity
+          and try again.
         </Alert>
       </Box>
     );
@@ -424,7 +470,8 @@ export const Orders: React.FC = () => {
           Manage Bookings & Orders
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Track and manage all customer bookings — Beautician, Scrap, Maintenance.
+          Track and manage all customer bookings — Beautician, Scrap,
+          Maintenance.
           {!isLoading && !isFetching && (
             <strong style={{ color: '#553C9A', marginLeft: 8 }}>
               {total} total booking{total !== 1 ? 's' : ''}
@@ -463,24 +510,36 @@ export const Orders: React.FC = () => {
               ),
               endAdornment: searchInput && (
                 <InputAdornment position="end">
-                  <Button size="small" onClick={handleSearch} sx={{ minWidth: 'unset', px: 1 }}>
+                  <Button
+                    size="small"
+                    onClick={handleSearch}
+                    sx={{ minWidth: 'unset', px: 1 }}
+                  >
                     Go
                   </Button>
                 </InputAdornment>
               ),
-            }
+            },
           }}
         />
 
         {/* Booking Type */}
-        <FormControl size="small" sx={{ minWidth: 150, bgcolor: 'white', borderRadius: 2 }}>
+        <FormControl
+          size="small"
+          sx={{ minWidth: 150, bgcolor: 'white', borderRadius: 2 }}
+        >
           <InputLabel>Booking Type</InputLabel>
           <Select
             value={filterType}
             label="Booking Type"
-            onChange={e => { setFilterType(e.target.value); handleFilterChange(); }}
+            onChange={e => {
+              setFilterType(e.target.value);
+              handleFilterChange();
+            }}
           >
-            <MenuItem value=""><em>All Types</em></MenuItem>
+            <MenuItem value="">
+              <em>All Types</em>
+            </MenuItem>
             <MenuItem value="beautician">Beautician</MenuItem>
             <MenuItem value="scrap">Scrap</MenuItem>
             <MenuItem value="maintenance">Maintenance</MenuItem>
@@ -488,16 +547,26 @@ export const Orders: React.FC = () => {
         </FormControl>
 
         {/* Status */}
-        <FormControl size="small" sx={{ minWidth: 160, bgcolor: 'white', borderRadius: 2 }}>
+        <FormControl
+          size="small"
+          sx={{ minWidth: 160, bgcolor: 'white', borderRadius: 2 }}
+        >
           <InputLabel>Status</InputLabel>
           <Select
             value={filterStatus}
             label="Status"
-            onChange={e => { setFilterStatus(e.target.value); handleFilterChange(); }}
+            onChange={e => {
+              setFilterStatus(e.target.value);
+              handleFilterChange();
+            }}
           >
-            <MenuItem value=""><em>All Statuses</em></MenuItem>
+            <MenuItem value="">
+              <em>All Statuses</em>
+            </MenuItem>
             {ADMIN_STATUS_OPTIONS.map(opt => (
-              <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+              <MenuItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </MenuItem>
             ))}
           </Select>
         </FormControl>
@@ -508,7 +577,10 @@ export const Orders: React.FC = () => {
           type="date"
           size="small"
           value={filterDateFrom}
-          onChange={e => { setFilterDateFrom(e.target.value); handleFilterChange(); }}
+          onChange={e => {
+            setFilterDateFrom(e.target.value);
+            handleFilterChange();
+          }}
           slotProps={{ inputLabel: { shrink: true } }}
           sx={{ minWidth: 150, bgcolor: 'white', borderRadius: 2 }}
         />
@@ -519,7 +591,10 @@ export const Orders: React.FC = () => {
           type="date"
           size="small"
           value={filterDateTo}
-          onChange={e => { setFilterDateTo(e.target.value); handleFilterChange(); }}
+          onChange={e => {
+            setFilterDateTo(e.target.value);
+            handleFilterChange();
+          }}
           slotProps={{ inputLabel: { shrink: true } }}
           sx={{ minWidth: 150, bgcolor: 'white', borderRadius: 2 }}
         />
@@ -561,7 +636,14 @@ export const Orders: React.FC = () => {
 
       {/* Pagination */}
       {!isLoading && total > PAGE_SIZE && (
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 3 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            mt: 3,
+          }}
+        >
           <Pagination
             count={totalPages}
             page={page}
@@ -584,14 +666,16 @@ export const Orders: React.FC = () => {
         fullWidth
         maxWidth="xs"
       >
-        <DialogTitle sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}>
+        <DialogTitle
+          sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}
+        >
           Change Order Status
         </DialogTitle>
         <DialogContent>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
             Update status for order{' '}
-            <strong>{selectedOrder?.booking_reference}</strong>
-            {' '}({selectedOrder?.booking_type}).
+            <strong>{selectedOrder?.booking_reference}</strong> (
+            {selectedOrder?.booking_type}).
           </Typography>
           <FormControl fullWidth size="small" sx={{ mt: 1 }}>
             <InputLabel id="status-label">Select Status</InputLabel>

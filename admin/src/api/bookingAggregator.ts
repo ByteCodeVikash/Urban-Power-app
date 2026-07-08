@@ -30,7 +30,8 @@ export const userIdToPhoneMap = new Map<string, string>();
 
 const API_BASE_URL =
   typeof window !== 'undefined' &&
-  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  (window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1')
     ? 'http://localhost:8000'
     : 'https://api.urbanpowers.com';
 
@@ -140,29 +141,41 @@ interface UserBookingData {
 async function fetchUserBookings(token: string): Promise<UserBookingData> {
   const headers = { Authorization: `Bearer ${token}` };
 
-  const [bookingsResult, historyResult, scrapResult, maintenanceResult] = await Promise.allSettled([
-    axios.get<RawBookingResponse[]>(`${API_BASE_URL}/api/v1/bookings/me`, {
-      headers,
-      timeout: 10000,
-    }),
-    axios.get<RawHistoryItem[]>(`${API_BASE_URL}/api/v1/bookings/history`, {
-      headers,
-      timeout: 10000,
-    }),
-    axios.get<RawBookingResponse[]>(`${API_BASE_URL}/api/v1/scrap-bookings/me`, {
-      headers,
-      timeout: 10000,
-    }),
-    axios.get<RawBookingResponse[]>(`${API_BASE_URL}/api/v1/maintenance-bookings/me`, {
-      headers,
-      timeout: 10000,
-    }),
-  ]);
+  const [bookingsResult, historyResult, scrapResult, maintenanceResult] =
+    await Promise.allSettled([
+      axios.get<RawBookingResponse[]>(`${API_BASE_URL}/api/v1/bookings/me`, {
+        headers,
+        timeout: 10000,
+      }),
+      axios.get<RawHistoryItem[]>(`${API_BASE_URL}/api/v1/bookings/history`, {
+        headers,
+        timeout: 10000,
+      }),
+      axios.get<RawBookingResponse[]>(
+        `${API_BASE_URL}/api/v1/scrap-bookings/me`,
+        {
+          headers,
+          timeout: 10000,
+        },
+      ),
+      axios.get<RawBookingResponse[]>(
+        `${API_BASE_URL}/api/v1/maintenance-bookings/me`,
+        {
+          headers,
+          timeout: 10000,
+        },
+      ),
+    ]);
 
   if (bookingsResult.status === 'rejected') {
     const error = bookingsResult.reason;
     const status = error.response?.status;
-    if (!status || status >= 500 || error.code === 'ECONNABORTED' || error.code === 'ERR_NETWORK') {
+    if (
+      !status ||
+      status >= 500 ||
+      error.code === 'ECONNABORTED' ||
+      error.code === 'ERR_NETWORK'
+    ) {
       throw error;
     }
   }
@@ -170,37 +183,51 @@ async function fetchUserBookings(token: string): Promise<UserBookingData> {
   if (historyResult.status === 'rejected') {
     const error = historyResult.reason;
     const status = error.response?.status;
-    if (!status || status >= 500 || error.code === 'ECONNABORTED' || error.code === 'ERR_NETWORK') {
+    if (
+      !status ||
+      status >= 500 ||
+      error.code === 'ECONNABORTED' ||
+      error.code === 'ERR_NETWORK'
+    ) {
       throw error;
     }
   }
 
   // Normalize scrap bookings into unified shape
-  const scrapBookings: RawBookingResponse[] = scrapResult.status === 'fulfilled'
-    ? (scrapResult.value.data ?? []).map((sb: any) => ({
-        ...sb,
-        booking_type: 'scrap' as const,
-        total_price: sb.estimated_value ?? 0,
-        service_id: undefined,
-      }))
-    : [];
+  const scrapBookings: RawBookingResponse[] =
+    scrapResult.status === 'fulfilled'
+      ? (scrapResult.value.data ?? []).map((sb: any) => ({
+          ...sb,
+          booking_type: 'scrap' as const,
+          total_price: sb.estimated_value ?? 0,
+          service_id: undefined,
+        }))
+      : [];
 
   // Normalize maintenance bookings into unified shape
-  const maintenanceBookings: RawBookingResponse[] = maintenanceResult.status === 'fulfilled'
-    ? (maintenanceResult.value.data ?? []).map((mb: any) => ({
-        ...mb,
-        booking_type: 'maintenance' as const,
-        service_id: undefined,
-      }))
-    : [];
+  const maintenanceBookings: RawBookingResponse[] =
+    maintenanceResult.status === 'fulfilled'
+      ? (maintenanceResult.value.data ?? []).map((mb: any) => ({
+          ...mb,
+          booking_type: 'maintenance' as const,
+          service_id: undefined,
+        }))
+      : [];
 
-  const beauticianBookings = bookingsResult.status === 'fulfilled'
-    ? (bookingsResult.value.data ?? []).map((b: any) => ({ ...b, booking_type: 'beautician' as const }))
-    : [];
+  const beauticianBookings =
+    bookingsResult.status === 'fulfilled'
+      ? (bookingsResult.value.data ?? []).map((b: any) => ({
+          ...b,
+          booking_type: 'beautician' as const,
+        }))
+      : [];
 
   return {
     bookings: [...beauticianBookings, ...scrapBookings, ...maintenanceBookings],
-    history: historyResult.status === 'fulfilled' ? historyResult.value.data ?? [] : [],
+    history:
+      historyResult.status === 'fulfilled'
+        ? (historyResult.value.data ?? [])
+        : [],
   };
 }
 
@@ -248,7 +275,7 @@ export async function aggregateAllBookings(
   mergeUserData(adminData);
 
   // 2. All known client phones — authenticate via mock-OTP, fetch bookings
-  const clientFetches = KNOWN_CLIENT_PHONES.map(async (phone) => {
+  const clientFetches = KNOWN_CLIENT_PHONES.map(async phone => {
     const token = await getTokenForPhone(phone);
     if (!token) return;
     const data = await fetchUserBookings(token);
@@ -266,7 +293,8 @@ export async function aggregateAllBookings(
 
   // 3. Sort all bookings newest-first
   allBookings.sort(
-    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    (a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
   );
 
   return { bookings: allBookings, historyMap };
@@ -281,7 +309,7 @@ export async function updateBookingAsOwner(
   bookingId: string,
   userId: string,
   bookingNotes: string | null | undefined,
-  payload: { status?: string; notes?: string }
+  payload: { status?: string; notes?: string },
 ): Promise<any> {
   let phone = userIdToPhoneMap.get(String(userId));
 
@@ -304,7 +332,9 @@ export async function updateBookingAsOwner(
             timeout: 5000,
           });
           const bookings = resp.data || [];
-          const hasBooking = bookings.some((b: any) => String(b.id || b.booking_id) === String(bookingId));
+          const hasBooking = bookings.some(
+            (b: any) => String(b.id || b.booking_id) === String(bookingId),
+          );
           if (hasBooking) {
             phone = knownPhone;
             userIdToPhoneMap.set(String(userId), phone);
@@ -328,7 +358,7 @@ export async function updateBookingAsOwner(
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
-        }
+        },
       );
       return res.data;
     }

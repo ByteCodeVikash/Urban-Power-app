@@ -39,7 +39,9 @@ export interface Module {
   dashboardWidgets?: DashboardWidgetConfig[];
 }
 
-export const findPermissionForRoute = (routePath: string): Permission | undefined => {
+export const findPermissionForRoute = (
+  routePath: string,
+): Permission | undefined => {
   let bestMatch: any = undefined;
 
   const search = (items: MenuItem[]) => {
@@ -115,10 +117,12 @@ class Registry {
    */
   public getMenuItems(): MenuItemConfig[] {
     const menuItems: MenuItemConfig[] = [];
-    
+
     const resolveItemPermission = (item: MenuItemConfig): MenuItemConfig => {
       const resolvedPermission = findPermissionForRoute(item.route);
-      const children = item.children ? item.children.map(resolveItemPermission) : undefined;
+      const children = item.children
+        ? item.children.map(resolveItemPermission)
+        : undefined;
       return {
         ...item,
         permission: resolvedPermission,
@@ -142,7 +146,9 @@ class Registry {
     this.getModules().forEach(mod => {
       if (mod.dashboardWidgets) {
         const firstRoute = mod.menuItems[0]?.route;
-        const resolvedPermission = firstRoute ? findPermissionForRoute(firstRoute) : undefined;
+        const resolvedPermission = firstRoute
+          ? findPermissionForRoute(firstRoute)
+          : undefined;
 
         mod.dashboardWidgets.forEach(widget => {
           widgets.push({

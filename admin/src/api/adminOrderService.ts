@@ -201,7 +201,9 @@ export const adminOrderService = {
    * GET /api/v1/admin/orders
    * Paginated, filtered, sorted list of ALL bookings.
    */
-  async getOrders(filters: AdminOrderFilters = {}): Promise<AdminOrderListResponse> {
+  async getOrders(
+    filters: AdminOrderFilters = {},
+  ): Promise<AdminOrderListResponse> {
     const params: Record<string, any> = {};
     if (filters.page) params.page = filters.page;
     if (filters.page_size) params.page_size = filters.page_size;
@@ -215,7 +217,10 @@ export const adminOrderService = {
     if (filters.category) params.category = filters.category;
     if (filters.service_name) params.service_name = filters.service_name;
 
-    const res = await apiClient.get<AdminOrderListResponse>('/api/v1/admin/orders/', { params });
+    const res = await apiClient.get<AdminOrderListResponse>(
+      '/api/v1/admin/orders/',
+      { params },
+    );
     return res.data;
   },
 
@@ -224,7 +229,9 @@ export const adminOrderService = {
    * Summary counts by booking type and status.
    */
   async getStatistics(): Promise<AdminOrderStatistics> {
-    const res = await apiClient.get<AdminOrderStatistics>('/api/v1/admin/orders/statistics');
+    const res = await apiClient.get<AdminOrderStatistics>(
+      '/api/v1/admin/orders/statistics',
+    );
     return res.data;
   },
 
@@ -233,7 +240,9 @@ export const adminOrderService = {
    * Real database-backed count of registered users.
    */
   async getUsersCount(): Promise<number> {
-    const res = await apiClient.get<{ count: number }>('/api/v1/admin/orders/users/count');
+    const res = await apiClient.get<{ count: number }>(
+      '/api/v1/admin/orders/users/count',
+    );
     return res.data.count;
   },
 
@@ -242,7 +251,9 @@ export const adminOrderService = {
    * Compiles the list of technicians and their performance metrics.
    */
   async getTechnicians(): Promise<AdminTechnicianResponse[]> {
-    const res = await apiClient.get<AdminTechnicianResponse[]>('/api/v1/admin/orders/technicians');
+    const res = await apiClient.get<AdminTechnicianResponse[]>(
+      '/api/v1/admin/orders/technicians',
+    );
     return res.data;
   },
 

@@ -99,7 +99,7 @@ export const Profile: React.FC = () => {
           },
           token,
           refreshToken,
-          permissions || []
+          permissions || [],
         );
       }
       setSuccessText('Profile details saved successfully.');
@@ -108,9 +108,10 @@ export const Profile: React.FC = () => {
       console.error('Failed to update profile:', err);
       let errorMsg = 'Failed to update profile details.';
       if (err.response?.data?.detail) {
-        errorMsg = typeof err.response.data.detail === 'string'
-          ? err.response.data.detail
-          : JSON.stringify(err.response.data.detail);
+        errorMsg =
+          typeof err.response.data.detail === 'string'
+            ? err.response.data.detail
+            : JSON.stringify(err.response.data.detail);
       }
       setErrorText(errorMsg);
     }

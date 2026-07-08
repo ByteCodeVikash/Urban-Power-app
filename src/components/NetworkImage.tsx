@@ -31,17 +31,34 @@ export const NetworkImage: React.FC<NetworkImageProps> = ({
   ...props
 }) => {
   const builtInFallbackSource: ImageProps['source'] = useMemo(
-    () => ({
-      uri: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=600&auto=format&fit=crop',
-    }),
+    () => require('../../assets/app_logo.jpeg'),
     [],
   );
 
   const initialEffectiveSource = useMemo(() => {
+    if (!source) {
+      return (fallbackSource ?? builtInFallbackSource) as any;
+    }
+    
+    // If it's a local asset (number)
+    if (typeof source === 'number') {
+      return source;
+    }
+    
+    // If it's an object/array containing a uri
     const anySource: any = source as any;
-    const uri: string | undefined = anySource?.uri;
-    if (!uri) return (fallbackSource ?? builtInFallbackSource) as any;
-    return source;
+    if (Array.isArray(anySource)) {
+      if (anySource.length > 0 && anySource[0]?.uri) {
+        return source;
+      }
+      return (fallbackSource ?? builtInFallbackSource) as any;
+    }
+    
+    if (anySource && typeof anySource === 'object' && anySource.uri) {
+      return source;
+    }
+    
+    return (fallbackSource ?? builtInFallbackSource) as any;
   }, [source, fallbackSource, builtInFallbackSource]);
 
   const [effectiveSource, setEffectiveSource] = useState<ImageProps['source']>(
@@ -81,8 +98,63 @@ export const NetworkImage: React.FC<NetworkImageProps> = ({
     setError(true);
   };
 
+  // Safe container style extraction to prevent collapsing containers
+  const containerStyleFromStyle = useMemo(() => {
+    if (!style) return {};
+    const flattened = StyleSheet.flatten(style);
+    const {
+      width,
+      height,
+      borderRadius,
+      borderTopLeftRadius,
+      borderTopRightRadius,
+      borderBottomLeftRadius,
+      borderBottomRightRadius,
+      margin,
+      marginTop,
+      marginBottom,
+      marginLeft,
+      marginRight,
+      marginHorizontal,
+      marginVertical,
+      position,
+      top,
+      bottom,
+      left,
+      right,
+      flex,
+      opacity,
+      backgroundColor,
+    } = flattened as any;
+    
+    return {
+      width,
+      height,
+      borderRadius,
+      borderTopLeftRadius,
+      borderTopRightRadius,
+      borderBottomLeftRadius,
+      borderBottomRightRadius,
+      margin,
+      marginTop,
+      marginBottom,
+      marginLeft,
+      marginRight,
+      marginHorizontal,
+      marginVertical,
+      position,
+      top,
+      bottom,
+      left,
+      right,
+      flex,
+      opacity,
+      backgroundColor,
+    };
+  }, [style]);
+
   return (
-    <View style={[styles.container, containerStyle]}>
+    <View style={[styles.container, containerStyleFromStyle, containerStyle]}>
       {/* Placeholder / Loading State */}
       {(error || (loading && showLoader)) && (
         <View
@@ -140,3 +212,4 @@ const styles = StyleSheet.create({
     borderColor: Colors.light.textMuted,
   },
 });
+

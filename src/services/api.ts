@@ -16,6 +16,7 @@ import {
   DetailedService,
   REVIEWS,
   FAQS,
+  KABADI_ITEMS,
 } from '../constants/MockData';
 
 // Simulated Network delay helper
@@ -204,22 +205,43 @@ export const api = {
       }
     },
     getCategories: async () => {
-      try {
-        const response = await API.get('/api/v1/scrap/categories');
-        return response.data;
-      } catch (error) {
-        console.error('Scrap Categories API Error:', error);
-        return [];
-      }
+      await delay(300);
+      const mapped = KABADI_ITEMS.map(category => ({
+        id: category.id,
+        name: category.title,
+        icon: 'file-text',
+        image: category.icon,
+        description: `${category.title} waste products and materials`,
+        active: true,
+        items: category.subcategories.map(sub => ({
+          id: sub.id,
+          category_id: category.id,
+          name: sub.title,
+          price_per_kg: sub.price,
+          description: `Recycle your ${sub.title} at local market price.`,
+          image: category.icon,
+          active: true,
+        })),
+      }));
+      return mapped;
     },
     getItemDetails: async (itemId: string) => {
-      try {
-        const response = await API.get(`/api/v1/scrap/items/${itemId}`);
-        return response.data;
-      } catch (error) {
-        console.error('Scrap Item Details API Error:', error);
-        throw error;
+      await delay(200);
+      for (const category of KABADI_ITEMS) {
+        const sub = category.subcategories.find(s => s.id === itemId);
+        if (sub) {
+          return {
+            id: sub.id,
+            category_id: category.id,
+            name: sub.title,
+            price_per_kg: sub.price,
+            description: `Recycle your ${sub.title} at local market price.`,
+            image: category.icon,
+            active: true,
+          };
+        }
       }
+      throw new Error('Scrap item not found');
     },
     createBooking: async (data: {
       address_text?: string;
@@ -567,8 +589,17 @@ export const api = {
   // =========================
   admin: {
     getDashboard: async () => {
-      const response = await API.get('/api/admin/dashboard');
-
+      const response = await API.get('/api/v1/admin/orders/statistics');
+      return response.data;
+    },
+    getOrders: async (params?: {
+      page?: number;
+      page_size?: number;
+      booking_type?: string;
+      status?: string;
+      search?: string;
+    }) => {
+      const response = await API.get('/api/v1/admin/orders', { params });
       return response.data;
     },
   },

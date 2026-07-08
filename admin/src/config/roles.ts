@@ -25,5 +25,3 @@ export type Permission =
   | 'support.manage'
   | 'technicians.view'
   | 'technicians.manage';
-
-

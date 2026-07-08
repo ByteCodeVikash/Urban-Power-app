@@ -40,7 +40,11 @@ import {
   Category as CategoryIcon,
   ViewList as ViewListIcon,
 } from '@mui/icons-material';
-import { useServices, type ServiceCategory, type ServiceDomain } from '../hooks/useServices';
+import {
+  useServices,
+  type ServiceCategory,
+  type ServiceDomain,
+} from '../hooks/useServices';
 import { useQueryClient } from '@tanstack/react-query';
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
@@ -61,10 +65,21 @@ const DOMAIN_LABEL: Record<ServiceDomain, string> = {
   Maintenance: 'Maintenance & Repairs',
 };
 
-const DOMAIN_COLORS: Record<ServiceDomain, { bg: string; text: string; avatar: string }> = {
+const DOMAIN_COLORS: Record<
+  ServiceDomain,
+  { bg: string; text: string; avatar: string }
+> = {
   Scrap: { bg: 'rgba(72,187,120,0.12)', text: '#276749', avatar: '#276749' },
-  Beautician: { bg: 'rgba(213,63,140,0.12)', text: '#97266D', avatar: '#97266D' },
-  Maintenance: { bg: 'rgba(49,130,206,0.12)', text: '#2B6CB0', avatar: '#2B6CB0' },
+  Beautician: {
+    bg: 'rgba(213,63,140,0.12)',
+    text: '#97266D',
+    avatar: '#97266D',
+  },
+  Maintenance: {
+    bg: 'rgba(49,130,206,0.12)',
+    text: '#2B6CB0',
+    avatar: '#2B6CB0',
+  },
 };
 
 // ─── Component ─────────────────────────────────────────────────────────────────
@@ -84,7 +99,8 @@ export const Categories: React.FC = () => {
   const [openFormDialog, setOpenFormDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openDetailDialog, setOpenDetailDialog] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<ServiceCategory | null>(null);
+  const [editingCategory, setEditingCategory] =
+    useState<ServiceCategory | null>(null);
 
   // Form fields
   const [formName, setFormName] = useState('');
@@ -96,7 +112,10 @@ export const Categories: React.FC = () => {
 
   const liveCategories: ServiceCategory[] = useMemo(() => {
     if (!data) return [];
-    const domainKey = activeDomain.toLowerCase() as 'scrap' | 'beautician' | 'maintenance';
+    const domainKey = activeDomain.toLowerCase() as
+      | 'scrap'
+      | 'beautician'
+      | 'maintenance';
     return data[domainKey];
   }, [data, activeDomain]);
 
@@ -170,22 +189,23 @@ export const Categories: React.FC = () => {
             Service Categories
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Manage and organise categories for Scrap, Beautician &amp; Maintenance domains.
+            Manage and organise categories for Scrap, Beautician &amp;
+            Maintenance domains.
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
           <Tooltip title="Refresh live data">
-            <IconButton onClick={handleRefresh} size="small" disabled={isLoading}>
+            <IconButton
+              onClick={handleRefresh}
+              size="small"
+              disabled={isLoading}
+            >
               <RefreshIcon fontSize="small" />
             </IconButton>
           </Tooltip>
           <Tooltip title="Create Category API is not implemented in the backend (Pending Backend API)">
             <span>
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                disabled
-              >
+              <Button variant="contained" startIcon={<AddIcon />} disabled>
                 Add Category
               </Button>
             </span>
@@ -195,7 +215,10 @@ export const Categories: React.FC = () => {
 
       {/* Pending Backend API Alert */}
       <Alert severity="info" sx={{ mb: 3 }}>
-        <strong>Note:</strong> Category creation, editing, and deletion are currently <strong>Pending Backend API</strong> integration and are disabled in the UI. Live categories can still be viewed, searched, and filtered.
+        <strong>Note:</strong> Category creation, editing, and deletion are
+        currently <strong>Pending Backend API</strong> integration and are
+        disabled in the UI. Live categories can still be viewed, searched, and
+        filtered.
       </Alert>
 
       {/* Error Banner */}
@@ -210,13 +233,15 @@ export const Categories: React.FC = () => {
             </Button>
           }
         >
-          Could not reach backend:{' '}
-          {(error as any)?.message ?? 'Network error'}.
+          Could not reach backend: {(error as any)?.message ?? 'Network error'}.
         </Alert>
       )}
 
       {/* Domain Tabs */}
-      <Paper elevation={0} sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+      <Paper
+        elevation={0}
+        sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}
+      >
         <Tabs
           value={activeTab}
           onChange={(_e, v) => {
@@ -245,7 +270,15 @@ export const Categories: React.FC = () => {
       </Paper>
 
       {/* Search + summary bar */}
-      <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          gap: 2,
+          mb: 2,
+          alignItems: 'center',
+          flexWrap: 'wrap',
+        }}
+      >
         <TextField
           size="small"
           placeholder="Search categories…"
@@ -267,7 +300,8 @@ export const Categories: React.FC = () => {
             'Loading…'
           ) : (
             <>
-              {displayedCategories.length} categor{displayedCategories.length !== 1 ? 'ies' : 'y'}
+              {displayedCategories.length} categor
+              {displayedCategories.length !== 1 ? 'ies' : 'y'}
             </>
           )}
         </Typography>
@@ -282,10 +316,14 @@ export const Categories: React.FC = () => {
         <Table>
           <TableHead>
             <TableRow sx={{ bgcolor: '#F7FAFC' }}>
-              <TableCell sx={{ fontWeight: 700, fontSize: '0.8rem', color: '#4A5568' }}>
+              <TableCell
+                sx={{ fontWeight: 700, fontSize: '0.8rem', color: '#4A5568' }}
+              >
                 Category
               </TableCell>
-              <TableCell sx={{ fontWeight: 700, fontSize: '0.8rem', color: '#4A5568' }}>
+              <TableCell
+                sx={{ fontWeight: 700, fontSize: '0.8rem', color: '#4A5568' }}
+              >
                 Description
               </TableCell>
               <TableCell
@@ -313,7 +351,11 @@ export const Categories: React.FC = () => {
               <TableRow>
                 <TableCell colSpan={5} align="center" sx={{ py: 6 }}>
                   <CircularProgress size={28} />
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mt: 1 }}
+                  >
                     Loading live category data…
                   </Typography>
                 </TableCell>
@@ -333,7 +375,9 @@ export const Categories: React.FC = () => {
                 <TableRow key={cat.id} hover>
                   {/* Category Name + Icon */}
                   <TableCell>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                    <Box
+                      sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}
+                    >
                       <Avatar
                         sx={{
                           width: 34,
@@ -353,8 +397,17 @@ export const Categories: React.FC = () => {
                         )}
                       </Avatar>
                       <Box>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                          <Typography variant="body2" sx={{ fontWeight: 700, color: '#1A202C' }}>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 0.75,
+                          }}
+                        >
+                          <Typography
+                            variant="body2"
+                            sx={{ fontWeight: 700, color: '#1A202C' }}
+                          >
                             {cat.name}
                           </Typography>
                         </Box>
@@ -375,7 +428,9 @@ export const Categories: React.FC = () => {
                   {/* Service Count */}
                   <TableCell align="center">
                     <Chip
-                      icon={<ViewListIcon sx={{ fontSize: '14px !important' }} />}
+                      icon={
+                        <ViewListIcon sx={{ fontSize: '14px !important' }} />
+                      }
                       label={cat.services.length}
                       size="small"
                       variant="outlined"
@@ -387,7 +442,11 @@ export const Categories: React.FC = () => {
                         bgcolor: colors.bg,
                         cursor: cat.services.length > 0 ? 'pointer' : 'default',
                       }}
-                      onClick={cat.services.length > 0 ? () => openDetail(cat) : undefined}
+                      onClick={
+                        cat.services.length > 0
+                          ? () => openDetail(cat)
+                          : undefined
+                      }
                     />
                   </TableCell>
 
@@ -409,7 +468,13 @@ export const Categories: React.FC = () => {
 
                   {/* Actions */}
                   <TableCell align="right">
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                        gap: 0.5,
+                      }}
+                    >
                       <Tooltip title="View services">
                         <span>
                           <IconButton
@@ -424,22 +489,14 @@ export const Categories: React.FC = () => {
                       </Tooltip>
                       <Tooltip title="Edit category (Pending Backend API)">
                         <span>
-                          <IconButton
-                            color="secondary"
-                            size="small"
-                            disabled
-                          >
+                          <IconButton color="secondary" size="small" disabled>
                             <EditIcon fontSize="small" />
                           </IconButton>
                         </span>
                       </Tooltip>
                       <Tooltip title="Delete category (Pending Backend API)">
                         <span>
-                          <IconButton
-                            color="error"
-                            size="small"
-                            disabled
-                          >
+                          <IconButton color="error" size="small" disabled>
                             <DeleteIcon fontSize="small" />
                           </IconButton>
                         </span>
@@ -460,13 +517,17 @@ export const Categories: React.FC = () => {
         fullWidth
         maxWidth="sm"
       >
-        <DialogTitle sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}>
+        <DialogTitle
+          sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}
+        >
           {editingCategory
             ? `Edit Category — ${editingCategory.name}`
             : `Add Category — ${DOMAIN_LABEL[activeDomain]}`}
         </DialogTitle>
         <DialogContent>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mt: 1.5 }}>
+          <Box
+            sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mt: 1.5 }}
+          >
             <TextField
               fullWidth
               size="small"
@@ -544,7 +605,9 @@ export const Categories: React.FC = () => {
         open={openDeleteDialog}
         onClose={() => setOpenDeleteDialog(false)}
       >
-        <DialogTitle sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}>
+        <DialogTitle
+          sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}
+        >
           Remove Category
         </DialogTitle>
         <DialogContent>
@@ -552,7 +615,12 @@ export const Categories: React.FC = () => {
             Are you sure you want to remove{' '}
             <strong>{editingCategory?.name}</strong>?
             {(editingCategory?.services?.length ?? 0) > 0 && (
-              <> This category has <strong>{editingCategory?.services.length}</strong> service(s) linked to it.</>
+              <>
+                {' '}
+                This category has{' '}
+                <strong>{editingCategory?.services.length}</strong> service(s)
+                linked to it.
+              </>
             )}
           </Typography>
           {editingCategory?.fromApi && (
@@ -583,7 +651,9 @@ export const Categories: React.FC = () => {
         fullWidth
         maxWidth="md"
       >
-        <DialogTitle sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}>
+        <DialogTitle
+          sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}
+        >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <Avatar
               sx={{
@@ -596,11 +666,15 @@ export const Categories: React.FC = () => {
               <CategoryIcon sx={{ fontSize: 18 }} />
             </Avatar>
             <Box>
-              <Typography variant="h6" sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}
+              >
                 {editingCategory?.name}
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                {editingCategory?.services.length ?? 0} service(s) in this category
+                {editingCategory?.services.length ?? 0} service(s) in this
+                category
               </Typography>
             </Box>
           </Box>
@@ -610,21 +684,49 @@ export const Categories: React.FC = () => {
             <Table size="small">
               <TableHead>
                 <TableRow sx={{ bgcolor: '#F7FAFC' }}>
-                  <TableCell sx={{ fontWeight: 700, fontSize: '0.78rem', color: '#4A5568' }}>
+                  <TableCell
+                    sx={{
+                      fontWeight: 700,
+                      fontSize: '0.78rem',
+                      color: '#4A5568',
+                    }}
+                  >
                     Service Name
                   </TableCell>
-                  <TableCell sx={{ fontWeight: 700, fontSize: '0.78rem', color: '#4A5568' }}>
+                  <TableCell
+                    sx={{
+                      fontWeight: 700,
+                      fontSize: '0.78rem',
+                      color: '#4A5568',
+                    }}
+                  >
                     Price
                   </TableCell>
-                  <TableCell sx={{ fontWeight: 700, fontSize: '0.78rem', color: '#4A5568' }}>
+                  <TableCell
+                    sx={{
+                      fontWeight: 700,
+                      fontSize: '0.78rem',
+                      color: '#4A5568',
+                    }}
+                  >
                     Duration
                   </TableCell>
-                  <TableCell sx={{ fontWeight: 700, fontSize: '0.78rem', color: '#4A5568' }}>
+                  <TableCell
+                    sx={{
+                      fontWeight: 700,
+                      fontSize: '0.78rem',
+                      color: '#4A5568',
+                    }}
+                  >
                     Description
                   </TableCell>
                   <TableCell
                     align="center"
-                    sx={{ fontWeight: 700, fontSize: '0.78rem', color: '#4A5568' }}
+                    sx={{
+                      fontWeight: 700,
+                      fontSize: '0.78rem',
+                      color: '#4A5568',
+                    }}
                   >
                     Status
                   </TableCell>
@@ -648,7 +750,10 @@ export const Categories: React.FC = () => {
                         </Typography>
                       </TableCell>
                       <TableCell>
-                        <Typography variant="body2" sx={{ color: '#C29D0A', fontWeight: 700 }}>
+                        <Typography
+                          variant="body2"
+                          sx={{ color: '#C29D0A', fontWeight: 700 }}
+                        >
                           {svc.priceLabel}
                         </Typography>
                       </TableCell>
@@ -658,7 +763,11 @@ export const Categories: React.FC = () => {
                         </Typography>
                       </TableCell>
                       <TableCell sx={{ maxWidth: 240 }}>
-                        <Typography variant="body2" color="text.secondary" noWrap>
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          noWrap
+                        >
                           {svc.description ?? '—'}
                         </Typography>
                       </TableCell>

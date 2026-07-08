@@ -104,6 +104,8 @@ export const OtpInput: React.FC<OtpInputProps> = ({
         returnKeyType="done"
         textContentType="oneTimeCode" // iOS Autofill
         autoComplete={Platform.OS === 'android' ? 'sms-otp' : 'one-time-code'} // Android Autofill
+        importantForAutofill="yes"
+        autoFocus={true}
         style={styles.hiddenTextInput}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}

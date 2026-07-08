@@ -10,13 +10,14 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ChevronLeft, Plus, Minus, Info } from 'lucide-react-native';
+import { ChevronLeft, Info } from 'lucide-react-native';
 import { Typography } from '../../components/Typography';
 import { NetworkImage } from '../../components/NetworkImage';
-import { Colors, Spacing, BorderRadius, Shadows } from '../../constants/Theme';
+import { Colors, Spacing, Shadows } from '../../constants/Theme';
 import { useScrapItemDetails } from '../../hooks/useKabadi';
 import { useScrapSelectionStore } from '../../store/useScrapSelectionStore';
 import { RootStackParamList } from '../../navigation/Types';
+import { ScrapQuantitySelector } from '../../components/ScrapQuantitySelector';
 
 type ScrapItemDetailsRouteProp = RouteProp<
   RootStackParamList,
@@ -53,6 +54,15 @@ export default function ScrapItemDetailsScreen() {
   const handleDecrement = () => {
     if (item && qty > 0) {
       updateQuantity(item.id, -1);
+    }
+  };
+
+  const handleQuantityChange = (newQty: number) => {
+    if (item) {
+      const delta = newQty - qty;
+      if (delta !== 0) {
+        updateQuantity(item.id, delta);
+      }
     }
   };
 
@@ -189,17 +199,13 @@ export default function ScrapItemDetailsScreen() {
             </Typography>
           </Pressable>
         ) : (
-          <View style={styles.footerQtySelector}>
-            <Pressable style={styles.footerQtyBtn} onPress={handleDecrement}>
-              <Minus color={Colors.light.primary} size={20} />
-            </Pressable>
-            <Typography variant="h3" weight="700" style={styles.footerQtyText}>
-              {qty} kg
-            </Typography>
-            <Pressable style={styles.footerQtyBtn} onPress={handleIncrement}>
-              <Plus color={Colors.light.primary} size={20} />
-            </Pressable>
-          </View>
+          <ScrapQuantitySelector
+            quantity={qty}
+            onIncrement={handleIncrement}
+            onDecrement={handleDecrement}
+            onChange={handleQuantityChange}
+            size="lg"
+          />
         )}
       </View>
     </SafeAreaView>

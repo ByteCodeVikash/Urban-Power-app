@@ -50,11 +50,14 @@ export interface Technician {
 // Replace or expand with real technician records from the backend if a
 // dedicated /technicians API is added in the future.
 
-export const SEED_TECHNICIANS: Omit<Technician, 'isAvailable' | 'jobsCompleted' | 'assignedOrders' | 'source' | 'rating'>[] = [
-  { name: 'Ramesh Kumar',  service: 'Scrap',        phone: '+91 98765 00001' },
-  { name: 'Suman Lata',    service: 'Beautician',   phone: '+91 98765 00002' },
-  { name: 'Vikram Singh',  service: 'Maintenance',  phone: '+91 98765 00003' },
-  { name: 'Anil Mehta',    service: 'Maintenance',  phone: '+91 98765 00004' },
+export const SEED_TECHNICIANS: Omit<
+  Technician,
+  'isAvailable' | 'jobsCompleted' | 'assignedOrders' | 'source' | 'rating'
+>[] = [
+  { name: 'Ramesh Kumar', service: 'Scrap', phone: '+91 98765 00001' },
+  { name: 'Suman Lata', service: 'Beautician', phone: '+91 98765 00002' },
+  { name: 'Vikram Singh', service: 'Maintenance', phone: '+91 98765 00003' },
+  { name: 'Anil Mehta', service: 'Maintenance', phone: '+91 98765 00004' },
 ];
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────

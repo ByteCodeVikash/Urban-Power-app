@@ -45,9 +45,24 @@ export default function ServiceBookingFlowScreen() {
   const { addresses, fetchAddresses, addAddress } = useAddressStore();
 
   // Form State
-  const [name, setName] = useState(user?.name || '');
-  const [phone, setPhone] = useState(user?.phone || '');
-  const [address, setAddress] = useState('');
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState(() => {
+    const rawPhone = user?.phone || '';
+    const cleaned = rawPhone.replace(/[^0-9]/g, '');
+    return cleaned.slice(-10);
+  });
+  // Manual address fields
+  const [addrHouseNo, setAddrHouseNo] = useState('');
+  const [addrBuilding, setAddrBuilding] = useState('');
+  const [addrStreet, setAddrStreet] = useState('');
+  const [addrArea, setAddrArea] = useState('');
+  const [addrLandmark, setAddrLandmark] = useState('');
+  const [addrCity, setAddrCity] = useState('');
+  const [addrState, setAddrState] = useState('');
+  const [addrPin, setAddrPin] = useState('');
+  // Computed address string for submission
+  const address = [addrHouseNo, addrBuilding, addrStreet, addrArea, addrLandmark, addrCity, addrState, addrPin]
+    .filter(Boolean).join(', ');
 
   // Zustand Store Date & Timeslot
   const date = useBookingStore(state => state.selectedDate);
@@ -71,23 +86,7 @@ export default function ServiceBookingFlowScreen() {
     fetchAddresses();
   }, []);
 
-  // Autofill address when addresses are loaded
-  useEffect(() => {
-    if (addresses && addresses.length > 0 && !address) {
-      const defaultAddr = addresses.find(a => a.is_default) || addresses[0];
-      const formatted = [
-        defaultAddr.house_number,
-        defaultAddr.street,
-        defaultAddr.landmark,
-        defaultAddr.city,
-        defaultAddr.state,
-        defaultAddr.pincode,
-      ]
-        .filter(Boolean)
-        .join(', ');
-      setAddress(formatted);
-    }
-  }, [addresses]);
+  // Address is intentionally left empty; user must type it manually.
 
   useEffect(() => {
     if (route.params?.selectedDate) {
@@ -243,8 +242,12 @@ export default function ServiceBookingFlowScreen() {
   };
 
   const handleProceedToSummary = () => {
-    if (!name || !phone || !address || !date || !selectedTimeslot) {
-      alert('Please fill all details, including date and timeslot');
+    if (!name || !phone || !addrCity || !addrStreet || !date || !selectedTimeslot) {
+      alert('Please fill all details, including street, city, date and timeslot');
+      return;
+    }
+    if (phone.length !== 10) {
+      alert('Please enter a valid 10-digit phone number');
       return;
     }
     if (isUploading) {
@@ -276,6 +279,7 @@ export default function ServiceBookingFlowScreen() {
       }
 
       const bookingDateTime = `${date}T${selectedTimeslot!.start_time}Z`;
+      const formattedPhone = `+91${phone}`;
 
       // 1. Create booking in the backend
       const bookingResponse = await api.bookings.createBooking({
@@ -283,7 +287,7 @@ export default function ServiceBookingFlowScreen() {
         address_id: addressId,
         booking_date: bookingDateTime,
         timeslot_id: selectedTimeslot!.id,
-        notes: `Customer Name: ${name}, Phone: ${phone}`,
+        notes: `Customer Name: ${name}, Phone: ${formattedPhone}`,
         photos: uploadedUrl ? [uploadedUrl] : [],
         payment_method: selectedPaymentMethod,
       });
@@ -308,7 +312,7 @@ export default function ServiceBookingFlowScreen() {
             prefill: {
               name: name,
               email: user?.email || 'customer@urbanpower.com',
-              contact: phone,
+              contact: formattedPhone,
             },
             theme: { color: '#7C3AED' },
           });
@@ -320,11 +324,13 @@ export default function ServiceBookingFlowScreen() {
           });
         } catch (paymentErr: any) {
           console.error('Payment flow failed:', paymentErr);
-          alert(
-            paymentErr.description ||
-              paymentErr.message ||
-              'Payment failed or cancelled.',
-          );
+          if (!paymentErr?.isAuthError) {
+            alert(
+              paymentErr.description ||
+                paymentErr.message ||
+                'Payment failed or cancelled.',
+            );
+          }
           setIsProcessingPayment(false);
           return;
         }
@@ -336,7 +342,7 @@ export default function ServiceBookingFlowScreen() {
         title: selectedService.title,
         subtitle: categoryName,
         customerName: name,
-        phone: phone,
+        phone: formattedPhone,
         address: address,
         date: bookingDateStr,
         price: selectedService.price,
@@ -361,11 +367,13 @@ export default function ServiceBookingFlowScreen() {
       });
     } catch (error: any) {
       console.error('Failed to save booking:', error);
-      alert(
-        error.response?.data?.detail ||
-          error.message ||
-          'An error occurred while confirming booking.',
-      );
+      if (!error?.isAuthError) {
+        alert(
+          error.response?.data?.detail ||
+            error.message ||
+            'An error occurred while confirming booking.',
+        );
+      }
     } finally {
       setIsProcessingPayment(false);
     }
@@ -463,14 +471,21 @@ export default function ServiceBookingFlowScreen() {
             Phone Number
           </Typography>
         </View>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter 10-digit phone number"
-          value={phone}
-          onChangeText={setPhone}
-          keyboardType="phone-pad"
-          maxLength={10}
-        />
+        <View style={styles.phoneInputContainer}>
+          <View style={styles.phoneCountryCode}>
+            <Typography variant="body2" weight="700" color={Colors.light.primary}>
+              +91
+            </Typography>
+          </View>
+          <TextInput
+            style={styles.phoneInput}
+            placeholder="Enter 10-digit phone number"
+            value={phone}
+            onChangeText={(text) => setPhone(text.replace(/[^0-9]/g, ''))}
+            keyboardType="phone-pad"
+            maxLength={10}
+          />
+        </View>
       </View>
 
       <View style={styles.inputGroup}>
@@ -544,14 +559,34 @@ export default function ServiceBookingFlowScreen() {
             Service Address
           </Typography>
         </View>
-        <TextInput
-          style={[styles.input, styles.textArea]}
-          placeholder="Enter complete address for service"
-          multiline
-          numberOfLines={3}
-          value={address}
-          onChangeText={setAddress}
-        />
+        <View style={styles.addressGrid}>
+          <View style={styles.addressHalf}>
+            <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>HOUSE / FLAT NO.</Typography>
+            <TextInput style={styles.input} placeholder="e.g. A-12" value={addrHouseNo} onChangeText={setAddrHouseNo} />
+          </View>
+          <View style={styles.addressHalf}>
+            <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>BUILDING / SOCIETY</Typography>
+            <TextInput style={styles.input} placeholder="e.g. Green Park Apts" value={addrBuilding} onChangeText={setAddrBuilding} />
+          </View>
+        </View>
+        <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>STREET *</Typography>
+        <TextInput style={styles.input} placeholder="e.g. MG Road" value={addrStreet} onChangeText={setAddrStreet} />
+        <Typography variant="caption" color={Colors.light.textSecondary} style={[styles.fieldLabel, { marginTop: Spacing.sm }]}>AREA / LOCALITY</Typography>
+        <TextInput style={styles.input} placeholder="e.g. Sector 45" value={addrArea} onChangeText={setAddrArea} />
+        <Typography variant="caption" color={Colors.light.textSecondary} style={[styles.fieldLabel, { marginTop: Spacing.sm }]}>LANDMARK (OPTIONAL)</Typography>
+        <TextInput style={styles.input} placeholder="e.g. Near Metro Station" value={addrLandmark} onChangeText={setAddrLandmark} />
+        <View style={styles.addressGrid}>
+          <View style={styles.addressHalf}>
+            <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>CITY *</Typography>
+            <TextInput style={styles.input} placeholder="e.g. Delhi" value={addrCity} onChangeText={setAddrCity} />
+          </View>
+          <View style={styles.addressHalf}>
+            <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>STATE *</Typography>
+            <TextInput style={styles.input} placeholder="e.g. Delhi" value={addrState} onChangeText={setAddrState} />
+          </View>
+        </View>
+        <Typography variant="caption" color={Colors.light.textSecondary} style={[styles.fieldLabel, { marginTop: Spacing.sm }]}>PIN CODE *</Typography>
+        <TextInput style={styles.input} placeholder="e.g. 110001" value={addrPin} onChangeText={(t) => setAddrPin(t.replace(/[^0-9]/g, ''))} keyboardType="number-pad" maxLength={6} />
       </View>
 
       {/* Reference Photos Section */}
@@ -748,7 +783,7 @@ export default function ServiceBookingFlowScreen() {
             Phone:
           </Typography>
           <Typography variant="body2" weight="600">
-            {phone}
+            +91 {phone}
           </Typography>
         </View>
         <View style={styles.summaryRowItem}>
@@ -900,6 +935,30 @@ export default function ServiceBookingFlowScreen() {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: Colors.light.white },
+  phoneInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.light.surface,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    borderColor: Colors.light.borderLight,
+    height: 56,
+  },
+  phoneCountryCode: {
+    paddingHorizontal: Spacing.md,
+    borderRightWidth: 1,
+    borderRightColor: Colors.light.borderLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '60%',
+  },
+  phoneInput: {
+    flex: 1,
+    paddingHorizontal: Spacing.md,
+    fontSize: 15,
+    color: Colors.light.text,
+    height: '100%',
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -995,6 +1054,17 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   textArea: { height: 100, textAlignVertical: 'top' },
+  addressGrid: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    marginBottom: Spacing.sm,
+  },
+  addressHalf: { flex: 1 },
+  fieldLabel: {
+    marginBottom: 4,
+    marginTop: 2,
+    textTransform: 'uppercase',
+  },
   priceSummary: {
     flexDirection: 'row',
     justifyContent: 'space-between',

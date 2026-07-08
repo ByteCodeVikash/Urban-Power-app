@@ -1,5 +1,10 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native';
+import { StyleSheet, Pressable, View, ViewStyle } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from 'react-native-reanimated';
 import {
   Sparkles,
   Scissors,
@@ -27,7 +32,9 @@ import {
 } from 'lucide-react-native';
 import { NetworkImage } from './NetworkImage';
 import { Typography } from './Typography';
-import { Colors, BorderRadius, Shadows, Spacing } from '../constants/Theme';
+import { Colors, BorderRadius, Spacing } from '../constants/Theme';
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 // ── Icon map: icon key → Lucide component ─────────────────────────────────
 const ICON_MAP: Record<string, LucideIcon> = {
@@ -70,6 +77,7 @@ interface CategoryCardProps {
   style?: ViewStyle;
   hideText?: boolean;
   imageHeight?: number;
+  isActive?: boolean;
 }
 
 export const CategoryCard: React.FC<CategoryCardProps> = ({
@@ -79,10 +87,28 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
   style,
   hideText = false,
   imageHeight,
+  isActive = true,
 }) => {
+  const scale = useSharedValue(1);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scale.value }],
+    };
+  });
+
+  const handlePressIn = () => {
+    if (loading || !isActive) return;
+    scale.value = withTiming(0.95, { duration: 100 });
+  };
+
+  const handlePressOut = () => {
+    scale.value = withTiming(1, { duration: 100 });
+  };
+
   if (loading || !category) {
     return (
-      <View style={[styles.container, style]}>
+      <View style={[styles.container, styles.containerInactive, style]}>
         <View
           style={[
             styles.skeletonImage,
@@ -100,11 +126,34 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
   const IconComponent = ICON_MAP[category.icon] ?? Sparkles;
 
   return (
-    <TouchableOpacity
-      activeOpacity={0.8}
-      style={[styles.container, style]}
+    <AnimatedPressable
       onPress={onPress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      disabled={loading}
+      style={[
+        styles.container,
+        isActive ? styles.containerActive : styles.containerInactive,
+        style,
+        animatedStyle,
+      ]}
     >
+      {/* Visual Status Badge */}
+      <View
+        style={[
+          styles.badge,
+          isActive ? styles.badgeActive : styles.badgeInactive,
+        ]}
+      >
+        <Typography
+          variant="tiny"
+          style={isActive ? styles.badgeTextActive : styles.badgeTextInactive}
+          numberOfLines={1}
+        >
+          {isActive ? 'Available' : 'Soon'}
+        </Typography>
+      </View>
+
       <View
         style={[
           styles.imageContainer,
@@ -114,11 +163,21 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
         {imageUrl ? (
           <NetworkImage
             source={{ uri: imageUrl }}
-            style={styles.image}
+            style={[styles.image, !isActive && styles.imageMuted]}
             resizeMode="cover"
           />
         ) : (
-          <IconComponent color={Colors.light.primary} size={32} />
+          <View
+            style={[
+              styles.iconWrapper,
+              isActive ? styles.iconWrapperActive : styles.iconWrapperInactive,
+            ]}
+          >
+            <IconComponent
+              color={isActive ? Colors.light.primary : Colors.light.textMuted}
+              size={28}
+            />
+          </View>
         )}
       </View>
       {!hideText && (
@@ -127,7 +186,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
             variant="tiny"
             weight="700"
             align="center"
-            color={Colors.light.text}
+            color={isActive ? Colors.light.text : Colors.light.textSecondary}
             style={styles.text}
             numberOfLines={2}
           >
@@ -135,7 +194,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
           </Typography>
         </View>
       )}
-    </TouchableOpacity>
+    </AnimatedPressable>
   );
 };
 
@@ -144,10 +203,24 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: Colors.light.white,
     borderRadius: BorderRadius.xl,
-    ...Shadows.light.sm,
     borderWidth: 1,
-    borderColor: Colors.light.borderLight,
     overflow: 'hidden',
+    position: 'relative',
+  },
+  containerActive: {
+    borderColor: Colors.light.borderLight,
+    shadowColor: Colors.light.primary,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
+    opacity: 1,
+  },
+  containerInactive: {
+    borderColor: '#E2E8F0',
+    opacity: 0.6,
+    elevation: 0,
+    shadowOpacity: 0,
   },
   skeletonImage: {
     width: '100%',
@@ -174,6 +247,22 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
+  imageMuted: {
+    opacity: 0.5,
+  },
+  iconWrapper: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconWrapperActive: {
+    backgroundColor: Colors.light.primaryLight,
+  },
+  iconWrapperInactive: {
+    backgroundColor: '#E2E8F0',
+  },
   textContainer: {
     paddingVertical: Spacing.sm,
     paddingHorizontal: Spacing.xs,
@@ -182,5 +271,40 @@ const styles = StyleSheet.create({
   },
   text: {
     lineHeight: 14,
+  },
+  badge: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    paddingHorizontal: 5,
+    paddingVertical: 1.5,
+    borderRadius: BorderRadius.xs - 2,
+    zIndex: 10,
+  },
+  badgeActive: {
+    backgroundColor: '#D1FAE5',
+    borderWidth: 0.5,
+    borderColor: '#34D399',
+  },
+  badgeInactive: {
+    backgroundColor: '#F1F5F9',
+    borderWidth: 0.5,
+    borderColor: '#94A3B8',
+  },
+  badgeTextActive: {
+    fontSize: 7.5,
+    fontWeight: '800',
+    color: '#065F46',
+    textTransform: 'uppercase',
+    letterSpacing: 0.2,
+    lineHeight: 10,
+  },
+  badgeTextInactive: {
+    fontSize: 7.5,
+    fontWeight: '800',
+    color: '#475569',
+    textTransform: 'uppercase',
+    letterSpacing: 0.2,
+    lineHeight: 10,
   },
 });

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   StyleSheet,
@@ -11,7 +11,6 @@ import {
 import {
   useNavigation,
   useFocusEffect,
-  useRoute,
 } from '@react-navigation/native';
 import {
   ChevronLeft,
@@ -38,7 +37,6 @@ import { NetworkImage } from '../../components/NetworkImage';
 
 export default function MaintenanceBookingScreen() {
   const navigation = useNavigation<any>();
-  const route = useRoute<any>();
   const { user } = useAuthStore();
   const { data: addresses } = useAddresses();
 
@@ -52,19 +50,40 @@ export default function MaintenanceBookingScreen() {
   const addBooking = useBookingStore(state => state.addBooking);
 
   // Form State
-  const [name, setName] = useState(user?.name || '');
-  const [phone, setPhone] = useState(user?.phone || '');
-  const [address, setAddress] = useState(addresses?.[0]?.details || '');
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState(() => {
+    const rawPhone = user?.phone || '';
+    const cleaned = rawPhone.replace(/[^0-9]/g, '');
+    return cleaned.slice(-10);
+  });
+  // Manual address fields
+  const [addrHouseNo, setAddrHouseNo] = useState('');
+  const [addrBuilding, setAddrBuilding] = useState('');
+  const [addrStreet, setAddrStreet] = useState('');
+  const [addrArea, setAddrArea] = useState('');
+  const [addrLandmark, setAddrLandmark] = useState('');
+  const [addrCity, setAddrCity] = useState('');
+  const [addrState, setAddrState] = useState('');
+  const [addrPin, setAddrPin] = useState('');
+  // Computed address string for submission
+  const address = [addrHouseNo, addrBuilding, addrStreet, addrArea, addrLandmark, addrCity, addrState, addrPin]
+    .filter(Boolean).join(', ');
   const [date, setDate] = useState('');
 
-  // Handle route params returned from DateSelectionScreen
-  useEffect(() => {
-    if (route.params?.selectedDate) {
-      setDate(route.params.selectedDate);
-      // Clear navigation params so they don't trigger again
-      navigation.setParams({ selectedDate: undefined });
-    }
-  }, [route.params?.selectedDate]);
+  // Read selectedDate from Zustand store (set by DateSelectionScreen before goBack())
+  const storeSelectedDate = useBookingStore(state => state.selectedDate);
+
+  // Sync local date state from store whenever this screen comes into focus
+  // (i.e., after returning from DateSelectionScreen via goBack())
+  useFocusEffect(
+    useCallback(() => {
+      if (storeSelectedDate) {
+        setDate(storeSelectedDate);
+      }
+    }, [storeSelectedDate]),
+  );
+
+  // Address is intentionally left empty; user must type it manually.
 
   const formatDateDisplay = (dateStr: string) => {
     if (!dateStr) return '';
@@ -214,8 +233,12 @@ export default function MaintenanceBookingScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
-    if (!name || !phone || !address || !date) {
-      alert('Please fill all details');
+    if (!name || !phone || !addrCity || !addrStreet || !date) {
+      alert('Please fill all details including street and city');
+      return;
+    }
+    if (phone.length !== 10) {
+      alert('Please enter a valid 10-digit phone number');
       return;
     }
     if (isUploading) {
@@ -232,7 +255,11 @@ export default function MaintenanceBookingScreen() {
           : selectedServices[0]?.name || 'Maintenance Service';
 
       // Build ISO booking date from selected date string (YYYY-MM-DD)
-      const bookingDateISO = date ? `${date}T09:00:00.000Z` : new Date().toISOString();
+      const bookingDateISO = date
+        ? `${date}T09:00:00.000Z`
+        : new Date().toISOString();
+
+      const formattedPhone = `+91${phone}`;
 
       // Persist to PostgreSQL via backend API
       await api.maintenance.createBooking({
@@ -242,7 +269,7 @@ export default function MaintenanceBookingScreen() {
         service_names: selectedServices.map(s => s.name),
         total_price: getTotalPrice,
         customer_name: name,
-        customer_phone: phone,
+        customer_phone: formattedPhone,
         photos: uploadedUrl ? [uploadedUrl] : [],
       });
 
@@ -252,7 +279,7 @@ export default function MaintenanceBookingScreen() {
         title: title,
         subtitle: 'Maintenance Booking',
         customerName: name,
-        phone: phone,
+        phone: formattedPhone,
         address: address,
         date: date,
         price: getTotalPrice,
@@ -270,16 +297,18 @@ export default function MaintenanceBookingScreen() {
       });
     } catch (err: any) {
       console.error('Maintenance booking API error:', err);
-      const errMsg =
-        err?.response?.data?.detail ||
-        err?.message ||
-        'Failed to book maintenance service. Please try again.';
-      alert(errMsg);
+      // Skip alert for auth errors — interceptor already called logout()
+      // which causes AppNavigator to redirect to LoginScreen.
+      if (!err?.isAuthError) {
+        const errMsg =
+          err?.message ||
+          'Failed to book maintenance service. Please try again.';
+        alert(errMsg);
+      }
     } finally {
       setIsSubmitting(false);
     }
   };
-
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -364,14 +393,21 @@ export default function MaintenanceBookingScreen() {
                 Phone Number
               </Typography>
             </View>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter 10-digit phone number"
-              value={phone}
-              onChangeText={setPhone}
-              keyboardType="phone-pad"
-              maxLength={10}
-            />
+            <View style={styles.phoneInputContainer}>
+              <View style={styles.phoneCountryCode}>
+                <Typography variant="body2" weight="700" color={Colors.light.primary}>
+                  +91
+                </Typography>
+              </View>
+              <TextInput
+                style={styles.phoneInput}
+                placeholder="Enter 10-digit phone number"
+                value={phone}
+                onChangeText={(text) => setPhone(text.replace(/[^0-9]/g, ''))}
+                keyboardType="phone-pad"
+                maxLength={10}
+              />
+            </View>
           </View>
 
           <View style={styles.inputGroup}>
@@ -406,38 +442,44 @@ export default function MaintenanceBookingScreen() {
           </View>
 
           <View style={styles.inputGroup}>
-            <View style={styles.inputLabelRow}>
-              <View style={[styles.inputLabel, { marginBottom: 0 }]}>
-                <MapPin size={18} color={Colors.light.primary} />
-                <Typography
-                  variant="body2"
-                  weight="700"
-                  style={{ marginLeft: 8 }}
-                >
-                  Service Address
-                </Typography>
-              </View>
-              <Pressable
-                onPress={() => navigation.navigate('SavedAddresses')}
-                style={{ paddingVertical: 2 }}
+            <View style={styles.inputLabel}>
+              <MapPin size={18} color={Colors.light.primary} />
+              <Typography
+                variant="body2"
+                weight="700"
+                style={{ marginLeft: 8 }}
               >
-                <Typography
-                  variant="caption"
-                  weight="700"
-                  color={Colors.light.primary}
-                >
-                  Saved Addresses
-                </Typography>
-              </Pressable>
+                Service Address
+              </Typography>
             </View>
-            <TextInput
-              style={[styles.input, styles.textArea]}
-              placeholder="Enter complete address for service"
-              multiline
-              numberOfLines={3}
-              value={address}
-              onChangeText={setAddress}
-            />
+            <View style={styles.addressGrid}>
+              <View style={styles.addressHalf}>
+                <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>HOUSE / FLAT NO.</Typography>
+                <TextInput style={styles.input} placeholder="e.g. A-12" value={addrHouseNo} onChangeText={setAddrHouseNo} />
+              </View>
+              <View style={styles.addressHalf}>
+                <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>BUILDING / SOCIETY</Typography>
+                <TextInput style={styles.input} placeholder="e.g. Green Park Apts" value={addrBuilding} onChangeText={setAddrBuilding} />
+              </View>
+            </View>
+            <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>STREET *</Typography>
+            <TextInput style={styles.input} placeholder="e.g. MG Road" value={addrStreet} onChangeText={setAddrStreet} />
+            <Typography variant="caption" color={Colors.light.textSecondary} style={[styles.fieldLabel, { marginTop: Spacing.sm }]}>AREA / LOCALITY</Typography>
+            <TextInput style={styles.input} placeholder="e.g. Sector 45" value={addrArea} onChangeText={setAddrArea} />
+            <Typography variant="caption" color={Colors.light.textSecondary} style={[styles.fieldLabel, { marginTop: Spacing.sm }]}>LANDMARK (OPTIONAL)</Typography>
+            <TextInput style={styles.input} placeholder="e.g. Near Metro Station" value={addrLandmark} onChangeText={setAddrLandmark} />
+            <View style={styles.addressGrid}>
+              <View style={styles.addressHalf}>
+                <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>CITY *</Typography>
+                <TextInput style={styles.input} placeholder="e.g. Delhi" value={addrCity} onChangeText={setAddrCity} />
+              </View>
+              <View style={styles.addressHalf}>
+                <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>STATE *</Typography>
+                <TextInput style={styles.input} placeholder="e.g. Delhi" value={addrState} onChangeText={setAddrState} />
+              </View>
+            </View>
+            <Typography variant="caption" color={Colors.light.textSecondary} style={[styles.fieldLabel, { marginTop: Spacing.sm }]}>PIN CODE *</Typography>
+            <TextInput style={styles.input} placeholder="e.g. 110001" value={addrPin} onChangeText={(t) => setAddrPin(t.replace(/[^0-9]/g, ''))} keyboardType="number-pad" maxLength={6} />
           </View>
         </View>
 
@@ -553,6 +595,30 @@ export default function MaintenanceBookingScreen() {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: Colors.light.white },
+  phoneInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.light.surface,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    borderColor: Colors.light.borderLight,
+    height: 56,
+  },
+  phoneCountryCode: {
+    paddingHorizontal: Spacing.md,
+    borderRightWidth: 1,
+    borderRightColor: Colors.light.borderLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '60%',
+  },
+  phoneInput: {
+    flex: 1,
+    paddingHorizontal: Spacing.md,
+    fontSize: 15,
+    color: Colors.light.text,
+    height: '100%',
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -623,6 +689,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   textArea: { height: 100, textAlignVertical: 'top' },
+  addressGrid: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    marginBottom: Spacing.sm,
+  },
+  addressHalf: { flex: 1 },
+  fieldLabel: {
+    marginBottom: 4,
+    marginTop: 2,
+    textTransform: 'uppercase',
+  },
   errorContainer: {
     flexDirection: 'row',
     alignItems: 'center',

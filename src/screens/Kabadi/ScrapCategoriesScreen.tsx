@@ -123,15 +123,29 @@ export default function ScrapCategoriesScreen() {
               Est. Value: ₹{totalEstimatedPrice}
             </Typography>
           </View>
-          <Pressable style={styles.clearBtn} onPress={clearSelection}>
-            <Typography
-              variant="body2"
-              color={Colors.light.primary}
-              weight="700"
+          <View style={styles.footerActions}>
+            <Pressable style={styles.clearBtn} onPress={clearSelection}>
+              <Typography
+                variant="body2"
+                color={Colors.light.white}
+                weight="700"
+              >
+                Clear
+              </Typography>
+            </Pressable>
+            <Pressable
+              style={styles.continueBtn}
+              onPress={() => navigation.navigate('KabadiForm')}
             >
-              Clear
-            </Typography>
-          </Pressable>
+              <Typography
+                variant="body2"
+                color={Colors.light.primary}
+                weight="700"
+              >
+                Continue
+              </Typography>
+            </Pressable>
+          </View>
         </View>
       )}
     </SafeAreaView>
@@ -202,10 +216,21 @@ const styles = StyleSheet.create({
   footerInfo: {
     flexDirection: 'column',
   },
+  footerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
   clearBtn: {
-    backgroundColor: Colors.light.white,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.xs,
-    borderRadius: 8,
+    paddingVertical: Spacing.sm,
+    borderRadius: 10,
+  },
+  continueBtn: {
+    backgroundColor: Colors.light.white,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.sm,
+    borderRadius: 10,
   },
 });

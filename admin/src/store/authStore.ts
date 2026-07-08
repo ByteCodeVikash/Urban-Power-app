@@ -19,7 +19,12 @@ interface AuthState {
   permissions: string[] | null;
   isAuthenticated: boolean;
   isInitializing: boolean;
-  login: (user: User, token: string, refreshToken: string, permissions: string[]) => void;
+  login: (
+    user: User,
+    token: string,
+    refreshToken: string,
+    permissions: string[],
+  ) => void;
   logout: () => void;
   setToken: (token: string | null) => void;
   setAccessToken: (accessToken: string | null) => void;
@@ -68,8 +73,10 @@ export const useAuthStore = create<AuthState>()(
       setToken: token => set({ token, accessToken: token }),
       setAccessToken: accessToken => set({ token: accessToken, accessToken }),
       setRefreshToken: refreshToken => set({ refreshToken }),
-      setUser: user => set({ user, admin: user, role: user ? user.role : null }),
-      setAdmin: admin => set({ user: admin, admin, role: admin ? admin.role : null }),
+      setUser: user =>
+        set({ user, admin: user, role: user ? user.role : null }),
+      setAdmin: admin =>
+        set({ user: admin, admin, role: admin ? admin.role : null }),
       setRole: role => set({ role }),
       setPermissions: permissions => set({ permissions }),
       setInitializing: isInitializing => set({ isInitializing }),
@@ -90,5 +97,3 @@ export const useAuthStore = create<AuthState>()(
     },
   ),
 );
-
-

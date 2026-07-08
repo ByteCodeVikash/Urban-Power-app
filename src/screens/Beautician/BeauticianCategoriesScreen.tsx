@@ -33,7 +33,7 @@ export default function BeauticianCategoriesScreen() {
   if (isLoading) {
     return (
       <SafeAreaView style={styles.safeArea}>
-        <Header title="Beautician Services" />
+        <Header title="Beauty Services" />
         <View style={styles.centered}>
           <ActivityIndicator size="large" color={Colors.light.primary} />
         </View>
@@ -44,10 +44,10 @@ export default function BeauticianCategoriesScreen() {
   if (error || !categories) {
     return (
       <SafeAreaView style={styles.safeArea}>
-        <Header title="Beautician Services" />
+        <Header title="Beauty Services" />
         <View style={styles.centered}>
           <Typography variant="body1" color={Colors.light.textSecondary}>
-            Failed to load beautician categories.
+            Failed to load beauty categories.
           </Typography>
         </View>
       </SafeAreaView>
@@ -56,7 +56,7 @@ export default function BeauticianCategoriesScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <Header title="Beautician Services" />
+      <Header title="Beauty Services" />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -98,7 +98,7 @@ export default function BeauticianCategoriesScreen() {
             color={Colors.light.textSecondary}
             style={{ textAlign: 'center' }}
           >
-            Explore professional beautician services at home. Select services,
+            Explore professional beauty services at home. Select services,
             custom-configure your package, and request booking at your
             convenience.
           </Typography>

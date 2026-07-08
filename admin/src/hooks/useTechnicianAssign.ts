@@ -24,7 +24,13 @@ export const useTechnicianAssign = () => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation<AssignResult, Error, AssignPayload>({
-    mutationFn: async ({ bookingId, bookingType, technicianName, newStatus, currentStatus }) => {
+    mutationFn: async ({
+      bookingId,
+      bookingType,
+      technicianName,
+      newStatus,
+      currentStatus,
+    }) => {
       const statusToUse = newStatus || currentStatus;
 
       await adminOrderService.updateOrder(bookingType, bookingId, {
@@ -42,7 +48,11 @@ export const useTechnicianAssign = () => {
       // Invalidate all admin order queries to reflect the change
       queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
       queryClient.invalidateQueries({
-        queryKey: ['admin-order-detail', variables.bookingType, variables.bookingId],
+        queryKey: [
+          'admin-order-detail',
+          variables.bookingType,
+          variables.bookingId,
+        ],
       });
       queryClient.invalidateQueries({ queryKey: ['admin-order-stats'] });
       queryClient.invalidateQueries({ queryKey: ['admin-technicians-list'] });
@@ -61,7 +71,9 @@ export const useTechnicianAssign = () => {
     currentStatus: string,
   ) => {
     const shouldUpdateStatus =
-      currentStatus === 'pending' || currentStatus === 'confirmed' || currentStatus === 'requested';
+      currentStatus === 'pending' ||
+      currentStatus === 'confirmed' ||
+      currentStatus === 'requested';
     return mutation.mutateAsync({
       bookingId,
       bookingType,

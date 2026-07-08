@@ -49,7 +49,14 @@ export const LatestOrdersWidget: React.FC = () => {
       sx={{ border: '1px solid #E2E8F0', borderRadius: 3.5, boxShadow: 'none' }}
     >
       <CardContent sx={{ pb: '16px !important' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mb: 2,
+          }}
+        >
           <Typography
             variant="h6"
             sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}
@@ -107,14 +114,22 @@ export const LatestOrdersWidget: React.FC = () => {
                 </TableRow>
               ) : recentBookings.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} align="center" sx={{ py: 3, color: 'text.secondary' }}>
+                  <TableCell
+                    colSpan={5}
+                    align="center"
+                    sx={{ py: 3, color: 'text.secondary' }}
+                  >
                     No bookings found.
                   </TableCell>
                 </TableRow>
               ) : (
                 recentBookings.map(order => {
                   const styles = getStatusStyles(order.status);
-                  const displayId = order.booking_reference || (order.booking_id ? `ORD-${order.booking_id.slice(0, 4).toUpperCase()}` : 'ORD-NEW');
+                  const displayId =
+                    order.booking_reference ||
+                    (order.booking_id
+                      ? `ORD-${order.booking_id.slice(0, 4).toUpperCase()}`
+                      : 'ORD-NEW');
                   return (
                     <TableRow
                       key={order.booking_id}
@@ -124,9 +139,15 @@ export const LatestOrdersWidget: React.FC = () => {
                       <TableCell sx={{ fontWeight: 600, py: 1.5 }}>
                         {displayId}
                       </TableCell>
-                      <TableCell sx={{ py: 1.5 }}>{order.customer_name || 'Customer'}</TableCell>
-                      <TableCell sx={{ py: 1.5 }}>{order.service_name}</TableCell>
-                      <TableCell sx={{ py: 1.5 }}>₹{order.price?.toLocaleString() || 0}</TableCell>
+                      <TableCell sx={{ py: 1.5 }}>
+                        {order.customer_name || 'Customer'}
+                      </TableCell>
+                      <TableCell sx={{ py: 1.5 }}>
+                        {order.service_name}
+                      </TableCell>
+                      <TableCell sx={{ py: 1.5 }}>
+                        ₹{order.price?.toLocaleString() || 0}
+                      </TableCell>
                       <TableCell align="center" sx={{ py: 1.5 }}>
                         <Box
                           sx={{

@@ -2,17 +2,17 @@ import { useQuery } from '@tanstack/react-query';
 import { adminOrderService } from '../api/adminOrderService';
 
 export interface UserProfile {
-  id: string;            // user_id UUID from bookings
-  name: string;          // extracted from booking notes
-  phone: string;         // extracted from booking notes
-  email: string;         // derived: user_{id_prefix}@urbanpower.com
-  role: string;          // always 'client' for app users
+  id: string; // user_id UUID from bookings
+  name: string; // extracted from booking notes
+  phone: string; // extracted from booking notes
+  email: string; // derived: user_{id_prefix}@urbanpower.com
+  role: string; // always 'client' for app users
   is_active: boolean;
   is_verified: boolean;
-  joined: string;        // earliest booking date = approximate join date
+  joined: string; // earliest booking date = approximate join date
   bookingsCount: number;
-  lastActivity: string;  // most recent booking date
-  totalSpend: number;    // sum of total_price across all bookings
+  lastActivity: string; // most recent booking date
+  totalSpend: number; // sum of total_price across all bookings
   bookings: UserBooking[];
 }
 
@@ -38,18 +38,21 @@ export const useUsers = () => {
       });
 
       // Group bookings by user_id
-      const userMap = new Map<string, {
-        user_id: string;
-        names: string[];
-        phones: string[];
-        dates: string[];
-        totalSpend: number;
-        bookings: UserBooking[];
-        is_active: boolean;
-        is_verified: boolean;
-      }>();
+      const userMap = new Map<
+        string,
+        {
+          user_id: string;
+          names: string[];
+          phones: string[];
+          dates: string[];
+          totalSpend: number;
+          bookings: UserBooking[];
+          is_active: boolean;
+          is_verified: boolean;
+        }
+      >();
 
-      result.items.forEach((item) => {
+      result.items.forEach(item => {
         const uid = item.user_id;
         if (!uid) return;
 
@@ -104,7 +107,10 @@ export const useUsers = () => {
         let name = 'Customer';
         let maxFreq = 0;
         nameFreq.forEach((freq, n) => {
-          if (freq > maxFreq) { maxFreq = freq; name = n; }
+          if (freq > maxFreq) {
+            maxFreq = freq;
+            name = n;
+          }
         });
 
         // Pick last known phone
@@ -113,11 +119,12 @@ export const useUsers = () => {
         // Sort dates
         const sortedDates = [...entry.dates].sort();
         const joinedDate = sortedDates[0]?.split('T')[0] || '';
-        const lastActivity = sortedDates[sortedDates.length - 1]?.split('T')[0] || '';
+        const lastActivity =
+          sortedDates[sortedDates.length - 1]?.split('T')[0] || '';
 
         // Sort bookings newest-first
         const sortedBookings = [...entry.bookings].sort((a, b) =>
-          b.booking_date.localeCompare(a.booking_date)
+          b.booking_date.localeCompare(a.booking_date),
         );
 
         const idPrefix = uid.replace(/-/g, '').substring(0, 8);

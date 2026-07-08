@@ -170,11 +170,12 @@ export const useServices = () => {
   return useQuery<AllServicesData>({
     queryKey: ['services-all'],
     queryFn: async () => {
-      const [scrapRes, beauticianRes, maintenanceRes] = await Promise.allSettled([
-        apiClient.get<RawScrapCategory[]>('/api/v1/scrap/categories'),
-        apiClient.get<RawCategory[]>('/api/v1/beautician/categories'),
-        apiClient.get<RawCategory[]>('/api/v1/maintenance/categories'),
-      ]);
+      const [scrapRes, beauticianRes, maintenanceRes] =
+        await Promise.allSettled([
+          apiClient.get<RawScrapCategory[]>('/api/v1/scrap/categories'),
+          apiClient.get<RawCategory[]>('/api/v1/beautician/categories'),
+          apiClient.get<RawCategory[]>('/api/v1/maintenance/categories'),
+        ]);
 
       const scrap =
         scrapRes.status === 'fulfilled'
@@ -183,12 +184,18 @@ export const useServices = () => {
 
       const beautician =
         beauticianRes.status === 'fulfilled'
-          ? normaliseDomainCategories(beauticianRes.value.data ?? [], 'Beautician')
+          ? normaliseDomainCategories(
+              beauticianRes.value.data ?? [],
+              'Beautician',
+            )
           : [];
 
       const maintenance =
         maintenanceRes.status === 'fulfilled'
-          ? normaliseDomainCategories(maintenanceRes.value.data ?? [], 'Maintenance')
+          ? normaliseDomainCategories(
+              maintenanceRes.value.data ?? [],
+              'Maintenance',
+            )
           : [];
 
       const allCategories = [...scrap, ...beautician, ...maintenance];

@@ -5,7 +5,9 @@ import { useTechnicians } from '../../../hooks/useTechnicians';
 
 export const ActiveTechniciansWidget: React.FC = () => {
   const { data: techData = [], isLoading } = useTechnicians();
-  const activeCount = isLoading ? '…' : techData.filter(t => t.isAvailable).length;
+  const activeCount = isLoading
+    ? '…'
+    : techData.filter(t => t.isAvailable).length;
 
   return (
     <StatCard

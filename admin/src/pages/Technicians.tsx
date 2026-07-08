@@ -85,7 +85,6 @@ const SERVICE_AREAS = [
   'Koramangala',
 ];
 
-
 // Types for local state
 interface LocalTech {
   id: string;
@@ -106,11 +105,17 @@ export const Technicians: React.FC = () => {
   // Real technician roster from API
   const { data: techData = [], isLoading: techLoading } = useTechnicians();
 
-  const { data: adminOrdersData, isLoading: bookingsLoading } = useAdminOrders({ page_size: 1000 });
+  const { data: adminOrdersData, isLoading: bookingsLoading } = useAdminOrders({
+    page_size: 1000,
+  });
   const allBookings = adminOrdersData?.items || [];
 
   // Technician assignment mutation
-  const { assignTechnician, reassignTechnician, isPending: assignPending } = useTechnicianAssign();
+  const {
+    assignTechnician,
+    reassignTechnician,
+    isPending: assignPending,
+  } = useTechnicianAssign();
 
   // Local mirror for Directory tab (allows add/edit/delete in UI with persistence)
   const [techs, setTechs] = useState<LocalTech[]>(() => {
@@ -122,7 +127,9 @@ export const Technicians: React.FC = () => {
     if (techLoading) return;
 
     setTechs(prevTechs => {
-      const existingMap = new Map(prevTechs.map(t => [t.name.toLowerCase(), t]));
+      const existingMap = new Map(
+        prevTechs.map(t => [t.name.toLowerCase(), t]),
+      );
       const newTechs = [...prevTechs];
 
       techData.forEach((t, idx) => {
@@ -130,13 +137,18 @@ export const Technicians: React.FC = () => {
         const existing = existingMap.get(key);
 
         if (existing) {
-          const updatedIndex = newTechs.findIndex(nt => nt.name.toLowerCase() === key);
+          const updatedIndex = newTechs.findIndex(
+            nt => nt.name.toLowerCase() === key,
+          );
           if (updatedIndex !== -1) {
             newTechs[updatedIndex] = {
               ...newTechs[updatedIndex],
               jobsCompleted: t.jobsCompleted,
               assignedOrders: t.assignedOrders || [],
-              available: newTechs[updatedIndex].available !== undefined ? newTechs[updatedIndex].available : t.isAvailable,
+              available:
+                newTechs[updatedIndex].available !== undefined
+                  ? newTechs[updatedIndex].available
+                  : t.isAvailable,
             };
           }
         } else {
@@ -156,7 +168,10 @@ export const Technicians: React.FC = () => {
 
       // If local storage is empty, initialize it
       if (newTechs.length > 0) {
-        localStorage.setItem('urban_power_technicians_directory', JSON.stringify(newTechs));
+        localStorage.setItem(
+          'urban_power_technicians_directory',
+          JSON.stringify(newTechs),
+        );
       }
       return newTechs;
     });
@@ -164,17 +179,26 @@ export const Technicians: React.FC = () => {
 
   // Assignments tab state
   const [assignFilterTech, setAssignFilterTech] = useState('');
-  const [assignStatusFilter, setAssignStatusFilter] = useState<'all' | 'assigned' | 'unassigned'>('all');
+  const [assignStatusFilter, setAssignStatusFilter] = useState<
+    'all' | 'assigned' | 'unassigned'
+  >('all');
   const [openReassignDialog, setOpenReassignDialog] = useState(false);
   const [reassignBooking, setReassignBooking] = useState<any>(null);
   const [reassignTechName, setReassignTechName] = useState('');
-  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({
-    open: false, message: '', severity: 'success',
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'error';
+  }>({
+    open: false,
+    message: '',
+    severity: 'success',
   });
 
   // Details dialog state
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
-  const [selectedTechForDetails, setSelectedTechForDetails] = useState<LocalTech | null>(null);
+  const [selectedTechForDetails, setSelectedTechForDetails] =
+    useState<LocalTech | null>(null);
 
   const [verifyQueue] = useState<any[]>([]); // Pending Backend API: no verification queue endpoint
 
@@ -266,7 +290,10 @@ export const Technicians: React.FC = () => {
       updatedTechs = [...techs, newTech];
     }
     setTechs(updatedTechs);
-    localStorage.setItem('urban_power_technicians_directory', JSON.stringify(updatedTechs));
+    localStorage.setItem(
+      'urban_power_technicians_directory',
+      JSON.stringify(updatedTechs),
+    );
     setOpenFormDialog(false);
   };
 
@@ -275,19 +302,24 @@ export const Technicians: React.FC = () => {
     if (editingTech) {
       const updatedTechs = techs.filter(t => t.id !== editingTech.id);
       setTechs(updatedTechs);
-      localStorage.setItem('urban_power_technicians_directory', JSON.stringify(updatedTechs));
+      localStorage.setItem(
+        'urban_power_technicians_directory',
+        JSON.stringify(updatedTechs),
+      );
       setOpenDeleteDialog(false);
     }
   };
 
   const handleToggleAvailability = (techId: string) => {
-    const updatedTechs = techs.map(t => (t.id === techId ? { ...t, available: !t.available } : t));
+    const updatedTechs = techs.map(t =>
+      t.id === techId ? { ...t, available: !t.available } : t,
+    );
     setTechs(updatedTechs);
-    localStorage.setItem('urban_power_technicians_directory', JSON.stringify(updatedTechs));
+    localStorage.setItem(
+      'urban_power_technicians_directory',
+      JSON.stringify(updatedTechs),
+    );
   };
-
-
-
 
   // Tab 0 Filter logic
   const handleFilterChange = (filters: Record<string, any>) => {
@@ -307,11 +339,18 @@ export const Technicians: React.FC = () => {
 
   // Assignments tab data: bookings that have a technician assigned
   const assignedBookings = allBookings.filter(b => {
-    return b.assigned_technician && b.assigned_technician !== 'None' && b.assigned_technician !== '';
+    return (
+      b.assigned_technician &&
+      b.assigned_technician !== 'None' &&
+      b.assigned_technician !== ''
+    );
   });
 
   const filteredAssignedBookings = allBookings.filter(b => {
-    const hasTech = b.assigned_technician && b.assigned_technician !== 'None' && b.assigned_technician !== '';
+    const hasTech =
+      b.assigned_technician &&
+      b.assigned_technician !== 'None' &&
+      b.assigned_technician !== '';
 
     // 1. Status Filter
     if (assignStatusFilter === 'assigned' && !hasTech) return false;
@@ -319,7 +358,11 @@ export const Technicians: React.FC = () => {
 
     // 2. Technician Name filter
     if (assignFilterTech) {
-      return b.assigned_technician ? b.assigned_technician.toLowerCase().includes(assignFilterTech.toLowerCase()) : false;
+      return b.assigned_technician
+        ? b.assigned_technician
+            .toLowerCase()
+            .includes(assignFilterTech.toLowerCase())
+        : false;
     }
 
     return true;
@@ -327,7 +370,11 @@ export const Technicians: React.FC = () => {
 
   const handleOpenReassign = (booking: any) => {
     setReassignBooking(booking);
-    setReassignTechName(booking.assigned_technician && booking.assigned_technician !== 'None' ? booking.assigned_technician : '');
+    setReassignTechName(
+      booking.assigned_technician && booking.assigned_technician !== 'None'
+        ? booking.assigned_technician
+        : '',
+    );
     setOpenReassignDialog(true);
   };
 
@@ -340,9 +387,17 @@ export const Technicians: React.FC = () => {
         reassignTechName,
         reassignBooking.status,
       );
-      setSnackbar({ open: true, message: 'Technician assignment updated successfully.', severity: 'success' });
+      setSnackbar({
+        open: true,
+        message: 'Technician assignment updated successfully.',
+        severity: 'success',
+      });
     } catch {
-      setSnackbar({ open: true, message: 'Failed to assign technician.', severity: 'error' });
+      setSnackbar({
+        open: true,
+        message: 'Failed to assign technician.',
+        severity: 'error',
+      });
     }
     setOpenReassignDialog(false);
   };
@@ -360,7 +415,7 @@ export const Technicians: React.FC = () => {
             fontWeight: 600,
             color: 'primary.main',
             cursor: 'pointer',
-            '&:hover': { textDecoration: 'underline' }
+            '&:hover': { textDecoration: 'underline' },
           }}
           onClick={() => handleOpenDetails(row)}
         >
@@ -515,10 +570,7 @@ export const Technicians: React.FC = () => {
         scrollButtons="auto"
       >
         <Tab label="Directory" sx={{ fontWeight: 600 }} />
-        <Tab
-          label="Verification Queue"
-          sx={{ fontWeight: 600 }}
-        />
+        <Tab label="Verification Queue" sx={{ fontWeight: 600 }} />
         <Tab label="Live Map Tracker" sx={{ fontWeight: 600 }} />
         <Tab label="Performance & Ratings" sx={{ fontWeight: 600 }} />
         <Tab
@@ -533,7 +585,12 @@ export const Technicians: React.FC = () => {
           {techLoading ? (
             <Box>
               {[1, 2, 3, 4].map(i => (
-                <Skeleton key={i} variant="rectangular" height={56} sx={{ borderRadius: 2, mb: 1.5 }} />
+                <Skeleton
+                  key={i}
+                  variant="rectangular"
+                  height={56}
+                  sx={{ borderRadius: 2, mb: 1.5 }}
+                />
               ))}
             </Box>
           ) : (
@@ -564,13 +621,26 @@ export const Technicians: React.FC = () => {
             <code>GET /api/v1/technicians/verification-queue</code> API is
             required to populate this module.
           </Alert>
-          <Card sx={{ border: '1px solid #E2E8F0', borderRadius: 3, boxShadow: 'none' }}>
+          <Card
+            sx={{
+              border: '1px solid #E2E8F0',
+              borderRadius: 3,
+              boxShadow: 'none',
+            }}
+          >
             <CardContent sx={{ textAlign: 'center', py: 8 }}>
               <DocIcon sx={{ fontSize: 56, color: '#CBD5E0', mb: 2 }} />
-              <Typography variant="h6" sx={{ fontWeight: 700, color: '#4A5568', mb: 1 }}>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 700, color: '#4A5568', mb: 1 }}
+              >
                 Verification Queue — Awaiting Backend Integration
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 480, mx: 'auto' }}>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ maxWidth: 480, mx: 'auto' }}
+              >
                 This section will show real document verification requests once
                 the backend provides a verification queue API. No mock data is
                 shown.
@@ -591,13 +661,26 @@ export const Technicians: React.FC = () => {
             <code>GET /api/v1/technicians/locations</code>). No simulated
             coordinates are shown.
           </Alert>
-          <Card sx={{ border: '1px solid #E2E8F0', borderRadius: 3, boxShadow: 'none' }}>
+          <Card
+            sx={{
+              border: '1px solid #E2E8F0',
+              borderRadius: 3,
+              boxShadow: 'none',
+            }}
+          >
             <CardContent sx={{ textAlign: 'center', py: 8 }}>
               <MapIcon sx={{ fontSize: 56, color: '#CBD5E0', mb: 2 }} />
-              <Typography variant="h6" sx={{ fontWeight: 700, color: '#4A5568', mb: 1 }}>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 700, color: '#4A5568', mb: 1 }}
+              >
                 Live Map Tracker — Awaiting Backend Integration
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 480, mx: 'auto' }}>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ maxWidth: 480, mx: 'auto' }}
+              >
                 Once a real-time location broadcast API is available, this panel
                 will display live technician positions, battery status, and
                 current task details. No mock location data is shown.
@@ -613,25 +696,38 @@ export const Technicians: React.FC = () => {
             severity="warning"
             sx={{ mb: 3, borderRadius: 2, fontWeight: 600 }}
           >
-            <strong>Pending Backend API</strong> — Technician ratings, completion
-            rates, and customer feedback require a dedicated reviews / analytics
-            API (e.g. <code>GET /api/v1/technicians/performance</code>).
+            <strong>Pending Backend API</strong> — Technician ratings,
+            completion rates, and customer feedback require a dedicated reviews
+            / analytics API (e.g.{' '}
+            <code>GET /api/v1/technicians/performance</code>).
           </Alert>
 
           {/* Real derived stats from booking data */}
           <Grid container spacing={3}>
             <Grid size={{ xs: 12, md: 4 }}>
-              <Card sx={{ border: '1px solid #E2E8F0', borderRadius: 3.5, boxShadow: 'none' }}>
+              <Card
+                sx={{
+                  border: '1px solid #E2E8F0',
+                  borderRadius: 3.5,
+                  boxShadow: 'none',
+                }}
+              >
                 <CardContent>
-                  <Typography variant="caption" color="text.secondary"
-                    sx={{ fontWeight: 700, textTransform: 'uppercase' }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ fontWeight: 700, textTransform: 'uppercase' }}
+                  >
                     Total Jobs Assigned
                   </Typography>
                   <Typography variant="h3" sx={{ fontWeight: 800, mt: 1 }}>
                     {techs.reduce((sum, t) => sum + (t.jobsCompleted ?? 0), 0)}
                   </Typography>
-                  <Typography variant="caption" color="text.secondary"
-                    sx={{ display: 'block', mt: 1 }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ display: 'block', mt: 1 }}
+                  >
                     Derived from real booking assignments.
                   </Typography>
                 </CardContent>
@@ -639,17 +735,29 @@ export const Technicians: React.FC = () => {
             </Grid>
 
             <Grid size={{ xs: 12, md: 4 }}>
-              <Card sx={{ border: '1px solid #E2E8F0', borderRadius: 3.5, boxShadow: 'none' }}>
+              <Card
+                sx={{
+                  border: '1px solid #E2E8F0',
+                  borderRadius: 3.5,
+                  boxShadow: 'none',
+                }}
+              >
                 <CardContent>
-                  <Typography variant="caption" color="text.secondary"
-                    sx={{ fontWeight: 700, textTransform: 'uppercase' }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ fontWeight: 700, textTransform: 'uppercase' }}
+                  >
                     Active Technicians
                   </Typography>
                   <Typography variant="h3" sx={{ fontWeight: 800, mt: 1 }}>
                     {techs.filter(t => t.available).length}
                   </Typography>
-                  <Typography variant="caption" color="text.secondary"
-                    sx={{ display: 'block', mt: 1 }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ display: 'block', mt: 1 }}
+                  >
                     Currently available / online.
                   </Typography>
                 </CardContent>
@@ -657,18 +765,39 @@ export const Technicians: React.FC = () => {
             </Grid>
 
             <Grid size={{ xs: 12, md: 4 }}>
-              <Card sx={{ border: '1px solid #E2E8F0', borderRadius: 3.5, boxShadow: 'none' }}>
+              <Card
+                sx={{
+                  border: '1px solid #E2E8F0',
+                  borderRadius: 3.5,
+                  boxShadow: 'none',
+                }}
+              >
                 <CardContent>
-                  <Typography variant="caption" color="text.secondary"
-                    sx={{ fontWeight: 700, textTransform: 'uppercase' }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ fontWeight: 700, textTransform: 'uppercase' }}
+                  >
                     Average Rating
                   </Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
-                    <Typography variant="h3" sx={{ fontWeight: 800 }}>N/A</Typography>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1,
+                      mt: 1,
+                    }}
+                  >
+                    <Typography variant="h3" sx={{ fontWeight: 800 }}>
+                      N/A
+                    </Typography>
                     <StarIcon sx={{ fontSize: 28, color: '#CBD5E0' }} />
                   </Box>
-                  <Typography variant="caption" color="text.secondary"
-                    sx={{ display: 'block', mt: 1 }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ display: 'block', mt: 1 }}
+                  >
                     Pending Backend API: no reviews endpoint.
                   </Typography>
                 </CardContent>
@@ -676,13 +805,26 @@ export const Technicians: React.FC = () => {
             </Grid>
 
             <Grid size={12}>
-              <Card sx={{ border: '1px solid #E2E8F0', borderRadius: 3.5, boxShadow: 'none' }}>
+              <Card
+                sx={{
+                  border: '1px solid #E2E8F0',
+                  borderRadius: 3.5,
+                  boxShadow: 'none',
+                }}
+              >
                 <CardContent sx={{ textAlign: 'center', py: 6 }}>
                   <ThumbsIcon sx={{ fontSize: 48, color: '#CBD5E0', mb: 2 }} />
-                  <Typography variant="h6" sx={{ fontWeight: 700, color: '#4A5568', mb: 1 }}>
+                  <Typography
+                    variant="h6"
+                    sx={{ fontWeight: 700, color: '#4A5568', mb: 1 }}
+                  >
                     Recent Reviews — Awaiting Backend Integration
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 480, mx: 'auto' }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ maxWidth: 480, mx: 'auto' }}
+                  >
                     Customer reviews and ratings will appear here once a{' '}
                     <code>GET /api/v1/reviews</code> API is available. No mock
                     review data is shown.
@@ -695,12 +837,29 @@ export const Technicians: React.FC = () => {
       )}
       {tabIndex === 4 && (
         <Box>
-          <Box sx={{ mb: 2, display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
-            <Typography variant="h6" sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif', flexGrow: 1 }}>
+          <Box
+            sx={{
+              mb: 2,
+              display: 'flex',
+              gap: 2,
+              alignItems: 'center',
+              flexWrap: 'wrap',
+            }}
+          >
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 700,
+                fontFamily: '"Outfit", sans-serif',
+                flexGrow: 1,
+              }}
+            >
               Technician Assignments
             </Typography>
             <FormControl size="small" sx={{ minWidth: 180 }}>
-              <InputLabel id="assign-status-filter-label">Assignment Status</InputLabel>
+              <InputLabel id="assign-status-filter-label">
+                Assignment Status
+              </InputLabel>
               <Select
                 labelId="assign-status-filter-label"
                 value={assignStatusFilter}
@@ -722,42 +881,95 @@ export const Technicians: React.FC = () => {
           </Box>
 
           {bookingsLoading ? (
-            <Box>{[1, 2, 3].map(i => <Skeleton key={i} variant="rectangular" height={56} sx={{ borderRadius: 2, mb: 1.5 }} />)}</Box>
+            <Box>
+              {[1, 2, 3].map(i => (
+                <Skeleton
+                  key={i}
+                  variant="rectangular"
+                  height={56}
+                  sx={{ borderRadius: 2, mb: 1.5 }}
+                />
+              ))}
+            </Box>
           ) : filteredAssignedBookings.length === 0 ? (
-            <Card sx={{ border: '1px solid #E2E8F0', borderRadius: 3, boxShadow: 'none' }}>
+            <Card
+              sx={{
+                border: '1px solid #E2E8F0',
+                borderRadius: 3,
+                boxShadow: 'none',
+              }}
+            >
               <CardContent sx={{ textAlign: 'center', py: 5 }}>
                 <Typography color="text.secondary">
-                  {assignFilterTech ? 'No assignments match that filter.' : 'No bookings found.'}
+                  {assignFilterTech
+                    ? 'No assignments match that filter.'
+                    : 'No bookings found.'}
                 </Typography>
               </CardContent>
             </Card>
           ) : (
-            <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #E2E8F0', borderRadius: 3 }}>
+            <TableContainer
+              component={Paper}
+              elevation={0}
+              sx={{ border: '1px solid #E2E8F0', borderRadius: 3 }}
+            >
               <Table size="small">
                 <TableHead>
                   <TableRow sx={{ bgcolor: '#F8FAFC' }}>
                     <TableCell sx={{ fontWeight: 700 }}>Booking Ref</TableCell>
                     <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
                     <TableCell sx={{ fontWeight: 700 }}>Date</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Assigned Technician</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>
+                      Assigned Technician
+                    </TableCell>
                     <TableCell sx={{ fontWeight: 700 }}>Availability</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>Action</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                      Action
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {filteredAssignedBookings.map(b => {
-                    const hasTech = b.assigned_technician && b.assigned_technician !== 'None' && b.assigned_technician !== '';
-                    const tech = hasTech ? techData.find(t => t.name.toLowerCase() === b.assigned_technician!.toLowerCase()) : null;
+                    const hasTech =
+                      b.assigned_technician &&
+                      b.assigned_technician !== 'None' &&
+                      b.assigned_technician !== '';
+                    const tech = hasTech
+                      ? techData.find(
+                          t =>
+                            t.name.toLowerCase() ===
+                            b.assigned_technician!.toLowerCase(),
+                        )
+                      : null;
                     const normalStatus = (b.status || '').toLowerCase();
-                    const statusColors: Record<string, { bg: string; color: string }> = {
-                      completed: { bg: 'rgba(72,187,120,0.15)', color: '#276749' },
+                    const statusColors: Record<
+                      string,
+                      { bg: string; color: string }
+                    > = {
+                      completed: {
+                        bg: 'rgba(72,187,120,0.15)',
+                        color: '#276749',
+                      },
                       pending: { bg: 'rgba(250,208,44,0.2)', color: '#B7791F' },
-                      confirmed: { bg: 'rgba(66,153,225,0.15)', color: '#2B6CB0' },
-                      assigned: { bg: 'rgba(66,153,225,0.15)', color: '#2B6CB0' },
-                      in_progress: { bg: 'rgba(237,137,54,0.15)', color: '#DD6B20' },
-                      cancelled: { bg: 'rgba(245,101,101,0.15)', color: '#9B2C2C' },
+                      confirmed: {
+                        bg: 'rgba(66,153,225,0.15)',
+                        color: '#2B6CB0',
+                      },
+                      assigned: {
+                        bg: 'rgba(66,153,225,0.15)',
+                        color: '#2B6CB0',
+                      },
+                      in_progress: {
+                        bg: 'rgba(237,137,54,0.15)',
+                        color: '#DD6B20',
+                      },
+                      cancelled: {
+                        bg: 'rgba(245,101,101,0.15)',
+                        color: '#9B2C2C',
+                      },
                     };
-                    const sc = statusColors[normalStatus] || statusColors.pending;
+                    const sc =
+                      statusColors[normalStatus] || statusColors.pending;
                     return (
                       <TableRow key={b.booking_id} hover>
                         <TableCell sx={{ fontWeight: 600 }}>
@@ -767,56 +979,145 @@ export const Technicians: React.FC = () => {
                               fontWeight: 600,
                               color: 'primary.main',
                               cursor: 'pointer',
-                              '&:hover': { textDecoration: 'underline' }
+                              '&:hover': { textDecoration: 'underline' },
                             }}
                             onClick={() => navigate(`/orders/${b.booking_id}`)}
                           >
-                            {b.booking_reference || String(b.booking_id).slice(0, 8).toUpperCase()}
+                            {b.booking_reference ||
+                              String(b.booking_id).slice(0, 8).toUpperCase()}
                           </Typography>
                         </TableCell>
                         <TableCell>
-                          <Box sx={{ display: 'inline-block', px: 1.5, py: 0.4, borderRadius: 2, fontSize: '0.72rem', fontWeight: 700, bgcolor: sc.bg, color: sc.color }}>
+                          <Box
+                            sx={{
+                              display: 'inline-block',
+                              px: 1.5,
+                              py: 0.4,
+                              borderRadius: 2,
+                              fontSize: '0.72rem',
+                              fontWeight: 700,
+                              bgcolor: sc.bg,
+                              color: sc.color,
+                            }}
+                          >
                             {normalStatus.replace('_', ' ')}
                           </Box>
                         </TableCell>
                         <TableCell>
-                          {b.created_at ? new Date(b.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
+                          {b.created_at
+                            ? new Date(b.created_at).toLocaleDateString(
+                                'en-IN',
+                                {
+                                  day: '2-digit',
+                                  month: 'short',
+                                  year: 'numeric',
+                                },
+                              )
+                            : '—'}
                         </TableCell>
                         <TableCell>
                           {hasTech && b.assigned_technician ? (
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <Avatar sx={{ width: 28, height: 28, bgcolor: '#2D3748', fontSize: '0.75rem' }}>
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1,
+                              }}
+                            >
+                              <Avatar
+                                sx={{
+                                  width: 28,
+                                  height: 28,
+                                  bgcolor: '#2D3748',
+                                  fontSize: '0.75rem',
+                                }}
+                              >
                                 {b.assigned_technician.charAt(0)}
                               </Avatar>
-                              <Typography variant="body2" sx={{ fontWeight: 600 }}>{b.assigned_technician}</Typography>
+                              <Typography
+                                variant="body2"
+                                sx={{ fontWeight: 600 }}
+                              >
+                                {b.assigned_technician}
+                              </Typography>
                             </Box>
                           ) : (
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <Avatar sx={{ width: 28, height: 28, bgcolor: '#E2E8F0', color: '#718096', fontSize: '0.75rem' }}>
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1,
+                              }}
+                            >
+                              <Avatar
+                                sx={{
+                                  width: 28,
+                                  height: 28,
+                                  bgcolor: '#E2E8F0',
+                                  color: '#718096',
+                                  fontSize: '0.75rem',
+                                }}
+                              >
                                 ?
                               </Avatar>
-                              <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>Unassigned</Typography>
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                sx={{ fontStyle: 'italic' }}
+                              >
+                                Unassigned
+                              </Typography>
                             </Box>
                           )}
                         </TableCell>
                         <TableCell>
                           {hasTech && tech ? (
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                              <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: tech.isAvailable ? '#48BB78' : '#E53E3E' }} />
-                              <Typography variant="caption" sx={{ fontWeight: 600, color: tech.isAvailable ? '#276749' : '#9B2C2C' }}>
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 0.5,
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  width: 8,
+                                  height: 8,
+                                  borderRadius: '50%',
+                                  bgcolor: tech.isAvailable
+                                    ? '#48BB78'
+                                    : '#E53E3E',
+                                }}
+                              />
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  fontWeight: 600,
+                                  color: tech.isAvailable
+                                    ? '#276749'
+                                    : '#9B2C2C',
+                                }}
+                              >
                                 {tech.isAvailable ? 'Available' : 'Busy'}
                               </Typography>
                             </Box>
-                          ) : <Typography variant="caption" color="text.secondary">—</Typography>}
+                          ) : (
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
+                              —
+                            </Typography>
+                          )}
                         </TableCell>
                         <TableCell align="right">
                           <Button
                             size="small"
-                            variant={hasTech ? "outlined" : "contained"}
-                            color={hasTech ? "warning" : "primary"}
+                            variant={hasTech ? 'outlined' : 'contained'}
+                            color={hasTech ? 'warning' : 'primary'}
                             onClick={() => handleOpenReassign(b)}
                           >
-                            {hasTech ? "Reassign" : "Assign"}
+                            {hasTech ? 'Reassign' : 'Assign'}
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -830,13 +1131,25 @@ export const Technicians: React.FC = () => {
       )}
 
       {/* Reassign Dialog */}
-      <Dialog open={openReassignDialog} onClose={() => setOpenReassignDialog(false)} fullWidth maxWidth="xs">
-        <DialogTitle sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}>
-          {reassignBooking && reassignBooking.assigned_technician && reassignBooking.assigned_technician !== 'None' ? 'Reassign Technician' : 'Assign Technician'}
+      <Dialog
+        open={openReassignDialog}
+        onClose={() => setOpenReassignDialog(false)}
+        fullWidth
+        maxWidth="xs"
+      >
+        <DialogTitle
+          sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}
+        >
+          {reassignBooking &&
+          reassignBooking.assigned_technician &&
+          reassignBooking.assigned_technician !== 'None'
+            ? 'Reassign Technician'
+            : 'Assign Technician'}
         </DialogTitle>
         <DialogContent>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Booking: <strong>{reassignBooking?.booking_reference || '—'}</strong>
+            Booking:{' '}
+            <strong>{reassignBooking?.booking_reference || '—'}</strong>
           </Typography>
           <FormControl fullWidth size="small" sx={{ mt: 1 }}>
             <InputLabel id="reassign-tech-label">Select Technician</InputLabel>
@@ -846,13 +1159,35 @@ export const Technicians: React.FC = () => {
               label="Select Technician"
               onChange={e => setReassignTechName(e.target.value)}
             >
-              <MenuItem value=""><em>Unassign / None</em></MenuItem>
+              <MenuItem value="">
+                <em>Unassign / None</em>
+              </MenuItem>
               {techs.map(t => (
                 <MenuItem key={t.name} value={t.name}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
-                    <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: t.available ? '#48BB78' : '#E53E3E' }} />
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1,
+                      width: '100%',
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        bgcolor: t.available ? '#48BB78' : '#E53E3E',
+                      }}
+                    />
                     <Box sx={{ flexGrow: 1 }}>{t.name}</Box>
-                    <Box component="span" sx={{ fontSize: '0.7rem', color: t.available ? '#276749' : '#9B2C2C' }}>
+                    <Box
+                      component="span"
+                      sx={{
+                        fontSize: '0.7rem',
+                        color: t.available ? '#276749' : '#9B2C2C',
+                      }}
+                    >
                       {t.available ? 'Available' : 'Busy'}
                     </Box>
                   </Box>
@@ -862,13 +1197,22 @@ export const Technicians: React.FC = () => {
           </FormControl>
         </DialogContent>
         <DialogActions sx={{ p: 2.5 }}>
-          <Button onClick={() => setOpenReassignDialog(false)} color="secondary">Cancel</Button>
+          <Button
+            onClick={() => setOpenReassignDialog(false)}
+            color="secondary"
+          >
+            Cancel
+          </Button>
           <Button
             onClick={handleConfirmReassign}
             variant="contained"
             color="primary"
             disabled={assignPending}
-            startIcon={assignPending ? <CircularProgress size={16} color="inherit" /> : undefined}
+            startIcon={
+              assignPending ? (
+                <CircularProgress size={16} color="inherit" />
+              ) : undefined
+            }
           >
             Confirm
           </Button>
@@ -882,15 +1226,35 @@ export const Technicians: React.FC = () => {
         fullWidth
         maxWidth="sm"
       >
-        <DialogTitle sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif', pb: 1 }}>
+        <DialogTitle
+          sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif', pb: 1 }}
+        >
           Technician Profile & Assigned Orders
         </DialogTitle>
         <DialogContent>
           {selectedTechForDetails && (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mt: 1 }}>
+            <Box
+              sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mt: 1 }}
+            >
               {/* Profile Card */}
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, p: 2, bgcolor: '#F8FAFC', borderRadius: 3 }}>
-                <Avatar sx={{ width: 56, height: 56, bgcolor: 'primary.main', fontSize: '1.25rem' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 2,
+                  p: 2,
+                  bgcolor: '#F8FAFC',
+                  borderRadius: 3,
+                }}
+              >
+                <Avatar
+                  sx={{
+                    width: 56,
+                    height: 56,
+                    bgcolor: 'primary.main',
+                    fontSize: '1.25rem',
+                  }}
+                >
                   {selectedTechForDetails.name.charAt(0)}
                 </Avatar>
                 <Box sx={{ flexGrow: 1 }}>
@@ -898,20 +1262,40 @@ export const Technicians: React.FC = () => {
                     {selectedTechForDetails.name}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {selectedTechForDetails.phone} · {selectedTechForDetails.service} Specialization
+                    {selectedTechForDetails.phone} ·{' '}
+                    {selectedTechForDetails.service} Specialization
                   </Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mt: 0.5 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1.5,
+                      mt: 0.5,
+                    }}
+                  >
+                    <Box
+                      sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
+                    >
                       <StarIcon sx={{ fontSize: 16, color: '#FAD02C' }} />
-                      <Typography variant="caption" sx={{ fontWeight: 600 }}>{selectedTechForDetails.rating}</Typography>
+                      <Typography variant="caption" sx={{ fontWeight: 600 }}>
+                        {selectedTechForDetails.rating}
+                      </Typography>
                     </Box>
-                    <Typography variant="caption" color="text.secondary">|</Typography>
-                    <Typography variant="caption" sx={{ fontWeight: 600 }}>{selectedTechForDetails.jobsCompleted} Jobs Completed</Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      |
+                    </Typography>
+                    <Typography variant="caption" sx={{ fontWeight: 600 }}>
+                      {selectedTechForDetails.jobsCompleted} Jobs Completed
+                    </Typography>
                   </Box>
                 </Box>
                 <Chip
-                  label={selectedTechForDetails.available ? 'Online' : 'Offline'}
-                  color={selectedTechForDetails.available ? 'success' : 'default'}
+                  label={
+                    selectedTechForDetails.available ? 'Online' : 'Offline'
+                  }
+                  color={
+                    selectedTechForDetails.available ? 'success' : 'default'
+                  }
                   size="small"
                   sx={{ fontWeight: 600 }}
                 />
@@ -919,7 +1303,11 @@ export const Technicians: React.FC = () => {
 
               {/* Service Areas */}
               <Box>
-                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700, textTransform: 'uppercase' }}>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ fontWeight: 700, textTransform: 'uppercase' }}
+                >
                   Service Areas
                 </Typography>
                 <Typography variant="body2" sx={{ mt: 0.5, fontWeight: 500 }}>
@@ -929,47 +1317,108 @@ export const Technicians: React.FC = () => {
 
               {/* Assigned Orders Section */}
               <Box>
-                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700, textTransform: 'uppercase', display: 'block', mb: 1 }}>
-                  Active Assigned Orders ({selectedTechForDetails.assignedOrders?.length || 0})
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    display: 'block',
+                    mb: 1,
+                  }}
+                >
+                  Active Assigned Orders (
+                  {selectedTechForDetails.assignedOrders?.length || 0})
                 </Typography>
 
-                {!selectedTechForDetails.assignedOrders || selectedTechForDetails.assignedOrders.length === 0 ? (
-                  <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+                {!selectedTechForDetails.assignedOrders ||
+                selectedTechForDetails.assignedOrders.length === 0 ? (
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ fontStyle: 'italic' }}
+                  >
                     No active bookings assigned to this technician.
                   </Typography>
                 ) : (
-                  <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #E2E8F0', borderRadius: 2 }}>
+                  <TableContainer
+                    component={Paper}
+                    elevation={0}
+                    sx={{ border: '1px solid #E2E8F0', borderRadius: 2 }}
+                  >
                     <Table size="small">
                       <TableHead sx={{ bgcolor: '#F8FAFC' }}>
                         <TableRow>
-                          <TableCell sx={{ fontWeight: 700, fontSize: '0.75rem' }}>Booking Ref</TableCell>
-                          <TableCell sx={{ fontWeight: 700, fontSize: '0.75rem' }}>Service</TableCell>
-                          <TableCell sx={{ fontWeight: 700, fontSize: '0.75rem' }}>Date</TableCell>
-                          <TableCell sx={{ fontWeight: 700, fontSize: '0.75rem' }}>Status</TableCell>
+                          <TableCell
+                            sx={{ fontWeight: 700, fontSize: '0.75rem' }}
+                          >
+                            Booking Ref
+                          </TableCell>
+                          <TableCell
+                            sx={{ fontWeight: 700, fontSize: '0.75rem' }}
+                          >
+                            Service
+                          </TableCell>
+                          <TableCell
+                            sx={{ fontWeight: 700, fontSize: '0.75rem' }}
+                          >
+                            Date
+                          </TableCell>
+                          <TableCell
+                            sx={{ fontWeight: 700, fontSize: '0.75rem' }}
+                          >
+                            Status
+                          </TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
                         {selectedTechForDetails.assignedOrders.map(order => {
-                          const normalStatus = (order.status || '').toLowerCase();
-                          const statusColors: Record<string, { bg: string; color: string }> = {
-                            completed: { bg: 'rgba(72,187,120,0.15)', color: '#276749' },
-                            pending: { bg: 'rgba(250,208,44,0.2)', color: '#B7791F' },
-                            confirmed: { bg: 'rgba(66,153,225,0.15)', color: '#2B6CB0' },
-                            assigned: { bg: 'rgba(66,153,225,0.15)', color: '#2B6CB0' },
-                            in_progress: { bg: 'rgba(237,137,54,0.15)', color: '#DD6B20' },
-                            cancelled: { bg: 'rgba(245,101,101,0.15)', color: '#9B2C2C' },
+                          const normalStatus = (
+                            order.status || ''
+                          ).toLowerCase();
+                          const statusColors: Record<
+                            string,
+                            { bg: string; color: string }
+                          > = {
+                            completed: {
+                              bg: 'rgba(72,187,120,0.15)',
+                              color: '#276749',
+                            },
+                            pending: {
+                              bg: 'rgba(250,208,44,0.2)',
+                              color: '#B7791F',
+                            },
+                            confirmed: {
+                              bg: 'rgba(66,153,225,0.15)',
+                              color: '#2B6CB0',
+                            },
+                            assigned: {
+                              bg: 'rgba(66,153,225,0.15)',
+                              color: '#2B6CB0',
+                            },
+                            in_progress: {
+                              bg: 'rgba(237,137,54,0.15)',
+                              color: '#DD6B20',
+                            },
+                            cancelled: {
+                              bg: 'rgba(245,101,101,0.15)',
+                              color: '#9B2C2C',
+                            },
                           };
-                          const sc = statusColors[normalStatus] || statusColors.pending;
+                          const sc =
+                            statusColors[normalStatus] || statusColors.pending;
                           return (
                             <TableRow key={order.bookingId} hover>
-                              <TableCell sx={{ fontSize: '0.75rem', fontWeight: 600 }}>
+                              <TableCell
+                                sx={{ fontSize: '0.75rem', fontWeight: 600 }}
+                              >
                                 <Typography
                                   variant="caption"
                                   sx={{
                                     fontWeight: 700,
                                     color: 'primary.main',
                                     cursor: 'pointer',
-                                    '&:hover': { textDecoration: 'underline' }
+                                    '&:hover': { textDecoration: 'underline' },
                                   }}
                                   onClick={() => {
                                     setOpenDetailsDialog(false);
@@ -979,12 +1428,28 @@ export const Technicians: React.FC = () => {
                                   {order.bookingReference}
                                 </Typography>
                               </TableCell>
-                              <TableCell sx={{ fontSize: '0.75rem' }}>{order.serviceName}</TableCell>
                               <TableCell sx={{ fontSize: '0.75rem' }}>
-                                {new Date(order.bookingDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
+                                {order.serviceName}
+                              </TableCell>
+                              <TableCell sx={{ fontSize: '0.75rem' }}>
+                                {new Date(order.bookingDate).toLocaleDateString(
+                                  'en-IN',
+                                  { day: '2-digit', month: 'short' },
+                                )}
                               </TableCell>
                               <TableCell>
-                                <Box sx={{ display: 'inline-block', px: 1, py: 0.2, borderRadius: 1, fontSize: '0.65rem', fontWeight: 700, bgcolor: sc.bg, color: sc.color }}>
+                                <Box
+                                  sx={{
+                                    display: 'inline-block',
+                                    px: 1,
+                                    py: 0.2,
+                                    borderRadius: 1,
+                                    fontSize: '0.65rem',
+                                    fontWeight: 700,
+                                    bgcolor: sc.bg,
+                                    color: sc.color,
+                                  }}
+                                >
                                   {normalStatus.replace('_', ' ')}
                                 </Box>
                               </TableCell>
@@ -1000,7 +1465,11 @@ export const Technicians: React.FC = () => {
           )}
         </DialogContent>
         <DialogActions sx={{ p: 2.5 }}>
-          <Button onClick={() => setOpenDetailsDialog(false)} variant="contained" color="primary">
+          <Button
+            onClick={() => setOpenDetailsDialog(false)}
+            variant="contained"
+            color="primary"
+          >
             Close
           </Button>
         </DialogActions>
@@ -1013,7 +1482,10 @@ export const Technicians: React.FC = () => {
         onClose={() => setSnackbar(s => ({ ...s, open: false }))}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert severity={snackbar.severity} onClose={() => setSnackbar(s => ({ ...s, open: false }))}>
+        <Alert
+          severity={snackbar.severity}
+          onClose={() => setSnackbar(s => ({ ...s, open: false }))}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>

@@ -68,10 +68,10 @@ export type RootStackParamList = {
   KabadiCategory: undefined;
   KabadiSubCategory: { categoryId: string; categoryName: string };
   KabadiForm: {
-    categoryId: string;
-    categoryName: string;
-    subcategoryName: string;
-  };
+    categoryId?: string;
+    categoryName?: string;
+    subcategoryName?: string;
+  } | undefined;
   KabadiBooking: undefined;
   KabadiStatus: { bookingId: string };
   KabadiHistory: undefined;
@@ -87,6 +87,7 @@ export type RootStackParamList = {
     | { categoryId?: string; categoryName?: string }
     | undefined;
   BeauticianServiceDetails: { serviceId: string; serviceTitle: string };
+  BeauticianBooking: undefined;
 
   // Maintenance Module
   MaintenanceCategories: undefined;

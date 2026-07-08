@@ -3,7 +3,8 @@ import { useAuthStore } from '../store/authStore';
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
-  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  (window.location.hostname === 'localhost' ||
+  window.location.hostname === '127.0.0.1'
     ? 'http://localhost:8000'
     : 'https://api.urbanpowers.com');
 
@@ -77,9 +78,12 @@ apiClient.interceptors.response.use(
       if (refreshToken) {
         try {
           // Attempt token refresh using standard axios to bypass interceptor
-          const response = await axios.post(`${API_BASE_URL}/api/v1/auth/refresh`, {
-            refresh_token: refreshToken,
-          });
+          const response = await axios.post(
+            `${API_BASE_URL}/api/v1/auth/refresh`,
+            {
+              refresh_token: refreshToken,
+            },
+          );
 
           const { access_token, refresh_token } = response.data;
 
@@ -115,4 +119,3 @@ apiClient.interceptors.response.use(
     return Promise.reject(error);
   },
 );
-

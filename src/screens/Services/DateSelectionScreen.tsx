@@ -187,13 +187,15 @@ export default function DateSelectionScreen() {
   const handleConfirm = () => {
     if (!selectedDate) return;
 
+    // Persist the selected date in global Zustand store first
     setSelectedDateStore(selectedDate);
 
-    navigation.navigate({
-      name: returnScreen,
-      params: { selectedDate },
-      merge: true,
-    });
+    // Navigate back to the calling screen's existing stack instance.
+    // Using goBack() preserves all local state on the caller (step, form
+    // fields, etc.). The caller reads selectedDate from the Zustand store
+    // (ServiceBookingScreen) or from its own useFocusEffect store-sync
+    // (MaintenanceBookingScreen / BeauticianBookingScreen).
+    navigation.goBack();
   };
 
   const formatDateLong = (dateStr: string) => {

@@ -119,9 +119,15 @@ export const StatCard: React.FC<StatCardProps> = ({
                   borderRadius: 1.5,
                   fontSize: '0.65rem',
                   fontWeight: 700,
-                  bgcolor: dataSource.type === 'real' ? 'rgba(72, 187, 120, 0.12)' : 'rgba(237, 137, 54, 0.12)',
+                  bgcolor:
+                    dataSource.type === 'real'
+                      ? 'rgba(72, 187, 120, 0.12)'
+                      : 'rgba(237, 137, 54, 0.12)',
                   color: dataSource.type === 'real' ? '#276749' : '#C05621',
-                  border: dataSource.type === 'real' ? '1px solid rgba(72, 187, 120, 0.25)' : '1px solid rgba(237, 137, 54, 0.25)',
+                  border:
+                    dataSource.type === 'real'
+                      ? '1px solid rgba(72, 187, 120, 0.25)'
+                      : '1px solid rgba(237, 137, 54, 0.25)',
                 }}
               >
                 <Box
@@ -132,7 +138,10 @@ export const StatCard: React.FC<StatCardProps> = ({
                     bgcolor: dataSource.type === 'real' ? '#48BB78' : '#ED8936',
                   }}
                 />
-                <span>{dataSource.label || (dataSource.type === 'real' ? 'Real API' : 'Pending API')}</span>
+                <span>
+                  {dataSource.label ||
+                    (dataSource.type === 'real' ? 'Real API' : 'Pending API')}
+                </span>
               </Box>
             )}
           </Box>

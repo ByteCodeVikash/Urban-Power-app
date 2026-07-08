@@ -52,22 +52,28 @@ API.interceptors.response.use(
       errorMessage = 'Request timed out. Please check your network connection.';
     } else if (error.message === 'Network Error') {
       errorMessage = 'Network error. Please check your internet connection.';
-    } else if (response && response.data) {
-      const data = response.data;
-      if (typeof data === 'string') {
-        errorMessage = data;
-      } else if (data.detail) {
-        if (typeof data.detail === 'string') {
-          errorMessage = data.detail;
-        } else if (Array.isArray(data.detail) && data.detail.length > 0) {
-          errorMessage = data.detail
-            .map((d: any) => d.msg || JSON.stringify(d))
-            .join(', ');
-        } else if (typeof data.detail === 'object') {
-          errorMessage = data.detail.message || JSON.stringify(data.detail);
+    } else if (response) {
+      if (response.status === 401) {
+        errorMessage = 'Your session has expired. Please log in again.';
+        (error as any).isAuthError = true;
+        useAuthStore.getState().logout();
+      } else if (response.data) {
+        const data = response.data;
+        if (typeof data === 'string') {
+          errorMessage = data;
+        } else if (data.detail) {
+          if (typeof data.detail === 'string') {
+            errorMessage = data.detail;
+          } else if (Array.isArray(data.detail) && data.detail.length > 0) {
+            errorMessage = data.detail
+              .map((d: any) => d.msg || JSON.stringify(d))
+              .join(', ');
+          } else if (typeof data.detail === 'object') {
+            errorMessage = data.detail.message || JSON.stringify(data.detail);
+          }
+        } else if (data.message) {
+          errorMessage = data.message;
         }
-      } else if (data.message) {
-        errorMessage = data.message;
       }
     }
 

@@ -27,7 +27,7 @@ export const useBookingHistory = () => {
       const normalizedBeautician = (beautician || []).map((item: any) => ({
         booking_id: item.booking_id,
         id: item.booking_id,
-        service: item.service || 'Unknown Beautician Service',
+        service: item.service || 'Unknown Beauty Service',
         date: item.date,
         timeslot: item.timeslot,
         status: item.status,
