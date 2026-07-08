@@ -1,17 +1,16 @@
-import type { Permission } from '../config/roles';
 import { useAuthStore } from '../store/authStore';
 
 export const useHasPermission = () => {
-  const user = useAuthStore(state => state.user);
+  const role = useAuthStore(state => state.role);
   const permissions = useAuthStore(state => state.permissions) || [];
 
-  const checkPermission = (permission?: Permission): boolean => {
+  const checkPermission = (permission?: string): boolean => {
     if (!permission) return true; // if no permission required, allow
-    if (!user || !user.role) return false;
+    if (!role) return false;
     
-    // Super Admin gets all permissions
-    const normalizedRole = user.role.toLowerCase().trim();
-    if (normalizedRole === 'super admin' || normalizedRole === 'super_admin') {
+    // Super Admin gets all permissions automatically
+    const normalizedRole = role.toLowerCase().replace(/_/g, ' ').trim();
+    if (normalizedRole === 'super admin') {
       return true;
     }
     
@@ -20,8 +19,8 @@ export const useHasPermission = () => {
 
   return {
     checkPermission,
-    userRole: user?.role || null,
-    hasRole: (role: string) => user?.role === role,
+    userRole: role,
+    hasRole: (checkRole: string) => role === checkRole,
   };
 };
 

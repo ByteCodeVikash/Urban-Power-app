@@ -32,6 +32,10 @@ export default function KabadiHistoryScreen() {
     refetch,
   } = useQuery({
     queryKey: ['my-scrap-bookings'],
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
     queryFn: api.kabadi.getMyBookings,
   });
 

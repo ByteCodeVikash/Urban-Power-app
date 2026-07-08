@@ -291,8 +291,26 @@ export const Orders: React.FC = () => {
       ),
     },
     {
+      id: 'booking_date',
+      label: 'Booking Date',
+      render: row => (
+        <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
+          {row.booking_date ? formatDate(row.booking_date) : '—'}
+        </Typography>
+      ),
+    },
+    {
+      id: 'preferred_time',
+      label: 'Preferred Time',
+      render: row => (
+        <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
+          {row.preferred_time || '—'}
+        </Typography>
+      ),
+    },
+    {
       id: 'created_at',
-      label: 'Date',
+      label: 'Created Time',
       render: row => (
         <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
           {formatDate(row.created_at)}
@@ -307,6 +325,35 @@ export const Orders: React.FC = () => {
           {row.assigned_technician || 'Unassigned'}
         </Typography>
       ),
+    },
+    {
+      id: 'payment_status',
+      label: 'Payment Status',
+      render: row => {
+        const payStatus = row.payment_status?.toLowerCase() || 'pending';
+        const colors = payStatus === 'completed' || payStatus === 'settled'
+          ? { bg: 'rgba(72, 187, 120, 0.15)', color: '#276749' }
+          : payStatus === 'refunded'
+          ? { bg: 'rgba(160, 174, 192, 0.15)', color: '#4A5568' }
+          : { bg: 'rgba(250, 208, 44, 0.2)', color: '#B7791F' };
+        return (
+          <Box
+            sx={{
+              display: 'inline-block',
+              px: 1.5,
+              py: 0.5,
+              borderRadius: 2,
+              fontSize: '0.72rem',
+              fontWeight: 700,
+              bgcolor: colors.bg,
+              color: colors.color,
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {row.payment_status ? row.payment_status.toUpperCase() : 'PENDING'}
+          </Box>
+        );
+      },
     },
     {
       id: 'status',

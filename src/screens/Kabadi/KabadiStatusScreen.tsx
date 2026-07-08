@@ -7,6 +7,7 @@ import {
   Pressable,
   Linking,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { useRoute, useFocusEffect } from '@react-navigation/native';
 import {
@@ -55,6 +56,13 @@ export default function KabadiStatusScreen() {
     refetch,
   } = useScrapBookingDetails(bookingId);
   const [addressText, setAddressText] = useState<string>('Loading address...');
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  }, [refetch]);
 
   useFocusEffect(
     useCallback(() => {
@@ -171,6 +179,14 @@ export default function KabadiStatusScreen() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.content}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[Colors.light.primary]}
+            tintColor={Colors.light.primary}
+          />
+        }
       >
         {/* Cancelled Banner */}
         {status === 'cancelled' && (

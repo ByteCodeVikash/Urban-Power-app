@@ -4,6 +4,10 @@ import { api } from '../services/api';
 export const useBookingHistory = () => {
   return useQuery({
     queryKey: ['booking-history'],
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
     queryFn: async () => {
       const [beautician, scrap, maintenance] = await Promise.all([
         api.bookings.getBookingHistory().catch((err: any) => {
@@ -92,6 +96,10 @@ export const useBookingDetails = (
 ) => {
   return useQuery({
     queryKey: ['booking-details', bookingType, bookingId],
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
     queryFn: async () => {
       if (bookingType === 'beautician') {
         return api.bookings.getBookingDetails(bookingId);
@@ -106,6 +114,10 @@ export const useBookingDetails = (
 export const useScrapBookingDetails = (bookingId: string) => {
   return useQuery({
     queryKey: ['scrap-booking-details', bookingId],
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
     queryFn: () => api.kabadi.getBookingDetails(bookingId),
     enabled: !!bookingId,
   });

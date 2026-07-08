@@ -13,7 +13,7 @@ class BookingBase(BaseModel):
     address_id: Optional[UUID] = Field(None, description="Foreign key to the address of the booking")
     booking_date: datetime = Field(..., description="Scheduled date and time for the booking")
     timeslot_id: Optional[UUID] = Field(None, description="Foreign key to the timeslot of the booking")
-    status: BookingStatus = Field(BookingStatus.PENDING, description="Current status of the booking")
+    status: str = Field("pending", description="Current status of the booking")
     total_price: float = Field(..., ge=0.0, description="Total price for the booking")
     notes: Optional[str] = Field(None, max_length=1024, description="Extra notes/instructions for the booking")
 
@@ -50,7 +50,7 @@ class BookingResponse(BookingBase):
     """
     id: UUID = Field(..., description="Unique identifier of the booking")
     booking_id: UUID = Field(..., description="Unique identifier of the booking (alias)")
-    booking_status: BookingStatus = Field(..., description="Current status of the booking (alias)")
+    booking_status: str = Field(..., description="Current status of the booking (alias)")
     booking_reference: str = Field(..., description="Unique booking reference code")
     photos: Optional[List[str]] = Field(default_factory=list, description="Uploaded photo URLs")
     payment_method: Optional[str] = Field(None, description="Payment method used")

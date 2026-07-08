@@ -15,12 +15,10 @@ export const SettingsModule: Module = {
     {
       path: '/settings',
       element: Settings,
-      requiredPermission: 'settings.manage',
     },
     {
       path: '/settings/audit-logs',
       element: AuditLogs,
-      requiredPermission: 'settings.manage',
     },
   ],
   menuItems: [
@@ -28,7 +26,6 @@ export const SettingsModule: Module = {
       title: 'Settings',
       icon: 'Settings',
       route: '/settings',
-      permission: 'settings.manage',
     },
   ],
 };

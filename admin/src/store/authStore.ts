@@ -12,6 +12,7 @@ export interface User {
 interface AuthState {
   user: User | null;
   admin: User | null;
+  role: string | null;
   token: string | null;
   accessToken: string | null;
   refreshToken: string | null;
@@ -25,6 +26,7 @@ interface AuthState {
   setRefreshToken: (refreshToken: string | null) => void;
   setUser: (user: User | null) => void;
   setAdmin: (admin: User | null) => void;
+  setRole: (role: string | null) => void;
   setPermissions: (permissions: string[] | null) => void;
   setInitializing: (isInitializing: boolean) => void;
 }
@@ -34,6 +36,7 @@ export const useAuthStore = create<AuthState>()(
     set => ({
       user: null,
       admin: null,
+      role: null,
       token: null,
       accessToken: null,
       refreshToken: null,
@@ -44,6 +47,7 @@ export const useAuthStore = create<AuthState>()(
         set({
           user,
           admin: user,
+          role: user.role,
           token,
           accessToken: token,
           refreshToken,
@@ -54,6 +58,7 @@ export const useAuthStore = create<AuthState>()(
         set({
           user: null,
           admin: null,
+          role: null,
           token: null,
           accessToken: null,
           refreshToken: null,
@@ -63,8 +68,9 @@ export const useAuthStore = create<AuthState>()(
       setToken: token => set({ token, accessToken: token }),
       setAccessToken: accessToken => set({ token: accessToken, accessToken }),
       setRefreshToken: refreshToken => set({ refreshToken }),
-      setUser: user => set({ user, admin: user }),
-      setAdmin: admin => set({ user: admin, admin }),
+      setUser: user => set({ user, admin: user, role: user ? user.role : null }),
+      setAdmin: admin => set({ user: admin, admin, role: admin ? admin.role : null }),
+      setRole: role => set({ role }),
       setPermissions: permissions => set({ permissions }),
       setInitializing: isInitializing => set({ isInitializing }),
     }),
@@ -74,6 +80,7 @@ export const useAuthStore = create<AuthState>()(
       partialize: state => ({
         user: state.user,
         admin: state.admin,
+        role: state.role,
         token: state.token,
         accessToken: state.accessToken,
         refreshToken: state.refreshToken,

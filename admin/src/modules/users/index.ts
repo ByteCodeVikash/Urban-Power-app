@@ -12,7 +12,6 @@ export const UsersModule: Module = {
     {
       path: '/users',
       element: Users,
-      requiredPermission: 'users.view',
     },
   ],
   menuItems: [
@@ -20,7 +19,6 @@ export const UsersModule: Module = {
       title: 'Users',
       icon: 'People',
       route: '/users',
-      permission: 'users.view',
     },
   ],
   dashboardWidgets: [

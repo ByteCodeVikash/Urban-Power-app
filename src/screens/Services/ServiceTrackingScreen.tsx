@@ -7,6 +7,7 @@ import {
   Pressable,
   Linking,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import {
   useRoute,
@@ -63,6 +64,13 @@ export default function ServiceTrackingScreen() {
     refetch,
   } = useBookingDetails(bookingId, bookingType);
   const [addressText, setAddressText] = useState<string>('Loading address...');
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  }, [refetch]);
 
   const serviceName =
     (route.params as any)?.serviceName ||
@@ -234,6 +242,14 @@ export default function ServiceTrackingScreen() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.content}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[Colors.light.primary]}
+            tintColor={Colors.light.primary}
+          />
+        }
       >
         {/* Cancelled Banner */}
         {status === 'cancelled' && (

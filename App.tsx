@@ -2,7 +2,8 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, focusManager } from '@tanstack/react-query';
+import { AppState, AppStateStatus, Platform } from 'react-native';
 import AppNavigator from './src/navigation/AppNavigator';
 import SplashScreen from './src/screens/Auth/SplashScreen';
 
@@ -14,7 +15,19 @@ export default function App() {
   useEffect(() => {
     // Helpful for tracing "crash on launch" reports in both debug and release logs.
     console.log('[App] mounted');
-    return () => console.log('[App] unmounted');
+
+    function onAppStateChange(status: AppStateStatus) {
+      if (Platform.OS !== 'web') {
+        focusManager.setFocused(status === 'active');
+      }
+    }
+
+    const subscription = AppState.addEventListener('change', onAppStateChange);
+
+    return () => {
+      console.log('[App] unmounted');
+      subscription.remove();
+    };
   }, []);
 
   if (showSplash) {

@@ -50,7 +50,7 @@ class ScrapBookingResponse(BaseModel):
     estimated_weight_kg: Optional[float] = None
     estimated_value: Optional[float] = None
     price_per_kg: Optional[float] = None
-    status: ScrapBookingStatus
+    status: str
     notes: Optional[str] = None
     photos: Optional[List[str]] = None
     created_at: datetime

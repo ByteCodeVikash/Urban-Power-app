@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import List, Optional
+from typing import List, Optional, Any
 from uuid import UUID
 from sqlalchemy import func
 from sqlalchemy.orm import Session
@@ -13,6 +13,7 @@ from app.schemas.timeslot import TimeslotCreate, TimeslotUpdate
 
 from app.models.address import Address
 from app.models.payment import Payment
+from app.models.booking_status_history import BookingStatusHistory
 
 # Booking Operations
 def create_booking(db: Session, user_id: UUID, booking_in: BookingCreate) -> Booking:
@@ -354,6 +355,25 @@ def get_available_timeslots(db: Session, service_id: UUID, date_str: str) -> Lis
     return available_timeslots
 
 
+def get_latest_status(db: Session, booking_id: UUID, booking_type: str, fallback_status: Any) -> str:
+    """
+    Retrieve the latest unmapped booking status from the status history audit log.
+    If no history entry is found, fallback to the database booking status.
+    """
+    row = (
+        db.query(BookingStatusHistory)
+        .filter(
+            BookingStatusHistory.booking_id == str(booking_id),
+            BookingStatusHistory.booking_type == booking_type,
+        )
+        .order_by(BookingStatusHistory.created_at.desc())
+        .first()
+    )
+    if row:
+        return row.status
+    return fallback_status.value if hasattr(fallback_status, "value") else str(fallback_status)
+
+
 def get_booking_history(db: Session, user_id: UUID) -> List[dict]:
     """
     Retrieve booking history for a user, formatted for the history screen.
@@ -364,12 +384,15 @@ def get_booking_history(db: Session, user_id: UUID) -> List[dict]:
         timeslot_str = ""
         if b.timeslot:
             timeslot_str = f"{b.timeslot.start_time.strftime('%H:%M:%S')} - {b.timeslot.end_time.strftime('%H:%M:%S')}"
+        
+        status_val = get_latest_status(db, b.id, "beautician", b.status)
+        
         history.append({
             "booking_id": b.id,
             "service": b.service.name if b.service else "Unknown Service",
             "date": b.booking_date.strftime("%Y-%m-%d"),
             "timeslot": timeslot_str,
-            "status": b.status.value if hasattr(b.status, "value") else str(b.status),
+            "status": status_val,
             "payment_method": b.payment_method
         })
     return history

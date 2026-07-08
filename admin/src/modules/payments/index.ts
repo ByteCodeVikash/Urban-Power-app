@@ -12,7 +12,6 @@ export const PaymentsModule: Module = {
     {
       path: '/payments',
       element: Payments,
-      requiredPermission: 'payments.view',
     },
   ],
   menuItems: [
@@ -20,7 +19,6 @@ export const PaymentsModule: Module = {
       title: 'Payments',
       icon: 'Payment',
       route: '/payments',
-      permission: 'payments.view',
     },
   ],
   dashboardWidgets: [

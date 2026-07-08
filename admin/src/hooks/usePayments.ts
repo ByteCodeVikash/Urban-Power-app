@@ -19,9 +19,7 @@
  *   cancelled (any method)            → "Refunded"
  */
 import { useQuery } from '@tanstack/react-query';
-import { useAuthStore } from '../store/authStore';
-import { aggregateAllBookings } from '../api/bookingAggregator';
-import { parseBookingNotes } from './useBookings';
+import { adminOrderService } from '../api/adminOrderService';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -69,25 +67,6 @@ export interface PaymentSummary {
   transactionCount: number;
   razorpayCount: number;
   codCount: number;
-}
-
-// ─── Raw API shapes ───────────────────────────────────────────────────────────
-
-interface RawBooking {
-  id?: string;
-  booking_id?: string;
-  booking_reference?: string;
-  status: string;
-  payment_method?: string | null;
-  total_price: number;
-  booking_date: string;
-  notes?: string | null;
-}
-
-interface HistoryItem {
-  booking_id: string;
-  service?: string;
-  timeslot?: string;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -138,46 +117,37 @@ export interface UsePaymentsResult {
 }
 
 export const usePayments = (): UsePaymentsResult => {
-  const token = useAuthStore.getState().token;
-
   const query = useQuery<PaymentTransaction[]>({
     queryKey: ['payments-derived-aggregated'],
     queryFn: async () => {
-      // Aggregate bookings from ALL users platform-wide
-      const { bookings, historyMap: aggHistoryMap } = await aggregateAllBookings(token || '');
+      const result = await adminOrderService.getOrders({
+        page: 1,
+        page_size: 10000,
+      });
 
-      // Alias types for this hook
-      const bookingsData: RawBooking[] = bookings as RawBooking[];
-
-      // Build lookup: bookingId → history item (already a Map from aggregator)
-      const historyMap = aggHistoryMap as Map<string, HistoryItem>;
-
-      const transactions: PaymentTransaction[] = bookingsData.map(booking => {
-        const bookingId = String(booking.id || booking.booking_id || '');
-        const ref = booking.booking_reference || bookingId.slice(0, 8).toUpperCase();
-        const historyItem = historyMap.get(bookingId);
-
-        const parsed = parseBookingNotes(booking.notes);
-        const gateway = deriveGateway(booking.payment_method);
-        const status = deriveStatus(booking.status, gateway);
-        const amount = Number(booking.total_price) || 0;
+      const transactions: PaymentTransaction[] = result.items.map(item => {
+        const ref = item.booking_reference || item.booking_id.slice(0, 8).toUpperCase();
+        const gateway = deriveGateway(item.payment_method);
+        const status = deriveStatus(item.status, gateway);
+        const amount = item.price || 0;
+        const bdate = item.booking_date || item.created_at;
 
         return {
           id: `TXN-${ref.slice(0, 8)}`,
-          bookingId,
+          bookingId: item.booking_id,
           bookingReference: ref,
-          serviceName: historyItem?.service || 'Service Booking',
-          timeslot: historyItem?.timeslot || '',
-          customerName: parsed.customerName || 'Customer',
-          customerPhone: parsed.phone || '',
+          serviceName: item.service_name || 'Service Booking',
+          timeslot: item.preferred_time || '',
+          customerName: item.customer_name || 'Customer',
+          customerPhone: item.customer_phone || '',
           gateway,
           amount,
           amountLabel: formatINR(amount),
           status,
-          bookingStatus: booking.status,
-          bookingDate: booking.booking_date,
-          dateLabel: formatDateLabel(booking.booking_date),
-          notes: booking.notes ?? null,
+          bookingStatus: item.status,
+          bookingDate: bdate,
+          dateLabel: formatDateLabel(bdate),
+          notes: null,
         };
       });
 

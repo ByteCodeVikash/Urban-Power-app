@@ -12,7 +12,6 @@ export const ReportsModule: Module = {
     {
       path: '/reports',
       element: Reports,
-      requiredPermission: 'reports.view',
     },
   ],
   menuItems: [
@@ -20,7 +19,6 @@ export const ReportsModule: Module = {
       title: 'Reports',
       icon: 'Chart',
       route: '/reports',
-      permission: 'reports.view',
     },
   ],
 };

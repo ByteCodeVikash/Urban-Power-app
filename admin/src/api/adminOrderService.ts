@@ -34,6 +34,10 @@ export interface AdminOrderItem {
   created_at: string;
   assigned_technician: string | null;
   payment_method: string | null;
+  booking_date?: string;
+  preferred_time?: string | null;
+  payment_status?: string;
+  user_id?: string | null;
 }
 
 export interface AdminOrderListResponse {
@@ -81,6 +85,7 @@ export interface AdminOrderDetail {
 
   price: number | null;
   payment_method: string | null;
+  payment_status?: string;
   status: string;
   assigned_technician: string | null;
   photos: string[];

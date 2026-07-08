@@ -75,7 +75,15 @@ def list_my_bookings(
     """
     Retrieve all bookings made by the current authenticated user.
     """
-    return booking_service.get_user_bookings(db=db, user_id=current_user.id)
+    bookings = booking_service.get_user_bookings(db=db, user_id=current_user.id)
+    response_list = []
+    for b in bookings:
+        status_val = booking_service.get_latest_status(db, b.id, "beautician", b.status)
+        res = BookingResponse.model_validate(b)
+        res.status = status_val
+        res.booking_status = status_val
+        response_list.append(res)
+    return response_list
 
 @router.get("/history", response_model=List[BookingHistoryItem])
 def get_bookings_history(
@@ -102,7 +110,11 @@ def get_booking_details(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Booking not found"
         )
-    return db_booking
+    status_val = booking_service.get_latest_status(db, db_booking.id, "beautician", db_booking.status)
+    res = BookingResponse.model_validate(db_booking)
+    res.status = status_val
+    res.booking_status = status_val
+    return res
 
 @router.put("/{booking_id}", response_model=BookingResponse)
 def update_booking_details(
@@ -122,7 +134,11 @@ def update_booking_details(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Booking not found"
         )
-    return db_booking
+    status_val = booking_service.get_latest_status(db, db_booking.id, "beautician", db_booking.status)
+    res = BookingResponse.model_validate(db_booking)
+    res.status = status_val
+    res.booking_status = status_val
+    return res
 
 @router.delete("/{booking_id}", status_code=status.HTTP_204_NO_CONTENT)
 def cancel_and_delete_booking(

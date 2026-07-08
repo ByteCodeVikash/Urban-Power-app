@@ -44,7 +44,7 @@ class MaintenanceBookingResponse(BaseModel):
     service_ids: Optional[List[str]] = None
     service_names: Optional[List[str]] = None
     total_price: float
-    status: MaintenanceBookingStatus
+    status: str
     notes: Optional[str] = None
     photos: Optional[List[str]] = None
     customer_name: Optional[str] = None

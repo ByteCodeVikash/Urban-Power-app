@@ -11,6 +11,7 @@ from app.schemas.maintenance_booking import (
     MaintenanceBookingUpdate,
 )
 from app.services import maintenance_booking as maintenance_booking_service
+from app.services import booking as booking_service
 from app.api.deps import get_current_active_user
 
 router = APIRouter(prefix="/maintenance-bookings", tags=["maintenance-bookings"])
@@ -39,9 +40,16 @@ def list_my_maintenance_bookings(
     """
     Retrieve all maintenance bookings made by the current authenticated user.
     """
-    return maintenance_booking_service.get_user_maintenance_bookings(
+    bookings = maintenance_booking_service.get_user_maintenance_bookings(
         db=db, user_id=current_user.id
     )
+    response_list = []
+    for b in bookings:
+        status_val = booking_service.get_latest_status(db, b.id, "maintenance", b.status)
+        res = MaintenanceBookingResponse.model_validate(b)
+        res.status = status_val
+        response_list.append(res)
+    return response_list
 
 
 @router.get("/{booking_id}", response_model=MaintenanceBookingResponse)
@@ -61,7 +69,10 @@ def get_maintenance_booking(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Maintenance booking not found",
         )
-    return db_booking
+    status_val = booking_service.get_latest_status(db, db_booking.id, "maintenance", db_booking.status)
+    res = MaintenanceBookingResponse.model_validate(db_booking)
+    res.status = status_val
+    return res
 
 
 @router.put("/{booking_id}", response_model=MaintenanceBookingResponse)
@@ -82,4 +93,7 @@ def update_maintenance_booking(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Maintenance booking not found",
         )
-    return db_booking
+    status_val = booking_service.get_latest_status(db, db_booking.id, "maintenance", db_booking.status)
+    res = MaintenanceBookingResponse.model_validate(db_booking)
+    res.status = status_val
+    return res

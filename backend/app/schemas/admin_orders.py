@@ -51,6 +51,10 @@ class AdminOrderItem(BaseModel):
 
     assigned_technician: Optional[str] = None
     payment_method: Optional[str] = None
+    booking_date: Optional[datetime] = None
+    preferred_time: Optional[str] = None
+    payment_status: Optional[str] = None
+    user_id: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -109,6 +113,7 @@ class AdminOrderDetail(BaseModel):
 
     price: Optional[float] = None
     payment_method: Optional[str] = None
+    payment_status: Optional[str] = None
 
     status: str
     assigned_technician: Optional[str] = None

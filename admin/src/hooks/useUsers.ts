@@ -1,7 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useAuthStore } from '../store/authStore';
-import { aggregateAllBookings } from '../api/bookingAggregator';
-import { parseBookingNotes } from './useBookings';
+import { adminOrderService } from '../api/adminOrderService';
 
 export interface UserProfile {
   id: string;            // user_id UUID from bookings
@@ -31,13 +29,13 @@ export interface UserBooking {
 }
 
 export const useUsers = () => {
-  const token = useAuthStore.getState().token;
-
   return useQuery<UserProfile[]>({
     queryKey: ['users-derived-aggregated'],
     queryFn: async () => {
-      // Aggregate bookings from ALL users platform-wide
-      const { bookings: bookingsData, historyMap } = await aggregateAllBookings(token || '');
+      const result = await adminOrderService.getOrders({
+        page: 1,
+        page_size: 10000,
+      });
 
       // Group bookings by user_id
       const userMap = new Map<string, {
@@ -51,24 +49,21 @@ export const useUsers = () => {
         is_verified: boolean;
       }>();
 
-      bookingsData.forEach((booking: any) => {
-        const uid = booking.user_id?.toString();
+      result.items.forEach((item) => {
+        const uid = item.user_id;
         if (!uid) return;
 
-        const parsed = parseBookingNotes(booking.notes);
-        const bookingIdStr = (booking.id || booking.booking_id)?.toString();
-        const historyItem = bookingIdStr ? historyMap.get(bookingIdStr) : null;
-
+        const bookingDate = item.booking_date || item.created_at;
         const userBooking: UserBooking = {
-          id: booking.id || booking.booking_id || '',
-          booking_reference: booking.booking_reference || '',
-          service_name: historyItem?.service || 'Service Booking',
-          booking_date: booking.booking_date || '',
-          timeslot_str: historyItem?.timeslot || '',
-          status: booking.status || '',
-          total_price: Number(booking.total_price) || 0,
-          payment_method: booking.payment_method || null,
-          notes: booking.notes || null,
+          id: item.booking_id,
+          booking_reference: item.booking_reference,
+          service_name: item.service_name || 'Service Booking',
+          booking_date: bookingDate,
+          timeslot_str: item.preferred_time || '',
+          status: item.status,
+          total_price: item.price || 0,
+          payment_method: item.payment_method || null,
+          notes: null,
         };
 
         if (!userMap.has(uid)) {
@@ -86,16 +81,16 @@ export const useUsers = () => {
 
         const entry = userMap.get(uid)!;
 
-        if (parsed.customerName && parsed.customerName !== 'Client') {
-          entry.names.push(parsed.customerName);
+        if (item.customer_name) {
+          entry.names.push(item.customer_name);
         }
-        if (parsed.phone) {
-          entry.phones.push(parsed.phone);
+        if (item.customer_phone) {
+          entry.phones.push(item.customer_phone);
         }
-        if (booking.booking_date) {
-          entry.dates.push(booking.booking_date);
+        if (bookingDate) {
+          entry.dates.push(bookingDate);
         }
-        entry.totalSpend += Number(booking.total_price) || 0;
+        entry.totalSpend += item.price || 0;
         entry.bookings.push(userBooking);
       });
 
@@ -155,14 +150,10 @@ export const useUsers = () => {
 };
 
 export const useUserCount = () => {
-  const token = useAuthStore.getState().token;
-
   return useQuery<number>({
-    queryKey: ['users-count-aggregated'],
+    queryKey: ['users-count-db'],
     queryFn: async () => {
-      const { bookings } = await aggregateAllBookings(token || '');
-      const unique = new Set(bookings.map((b: any) => b.user_id?.toString()).filter(Boolean));
-      return unique.size;
+      return await adminOrderService.getUsersCount();
     },
     refetchInterval: 30_000,
     staleTime: 25_000,

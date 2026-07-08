@@ -17,6 +17,7 @@ import { TrendingUp as TrendingIcon, Refresh as RefreshIcon } from '@mui/icons-m
 import { useNavigate } from 'react-router-dom';
 import { ModuleRegistry } from '../modules/registry';
 import { useAdminOrderStats } from '../hooks/useAdminOrders';
+import { useHasPermission } from '../hooks/useHasPermission';
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -24,11 +25,17 @@ export const Dashboard: React.FC = () => {
   const [dateRange, setDateRange] = useState('7days');
   const [customStart, setCustomStart] = useState('');
   const [customEnd, setCustomEnd] = useState('');
+  const { checkPermission } = useHasPermission();
 
   const allWidgets = ModuleRegistry.getDashboardWidgets();
+  
+  // Filter widgets by resolved permission
+  const permittedWidgets = allWidgets.filter(w => {
+    return !w.requiredPermission || checkPermission(w.requiredPermission);
+  });
 
   // Categorize widgets based on their functional scope/layout needs
-  const kpiWidgets = allWidgets.filter(w =>
+  const kpiWidgets = permittedWidgets.filter(w =>
     [
       'total-orders',
       'pending-orders',
@@ -42,11 +49,11 @@ export const Dashboard: React.FC = () => {
     ].includes(w.id),
   );
 
-  const graphWidgets = allWidgets.filter(w =>
+  const graphWidgets = permittedWidgets.filter(w =>
     ['bookings-graph', 'revenue-graph', 'top-services'].includes(w.id),
   );
 
-  const listWidgets = allWidgets.filter(w =>
+  const listWidgets = permittedWidgets.filter(w =>
     ['latest-orders', 'top-technicians', 'low-rated-technicians'].includes(
       w.id,
     ),

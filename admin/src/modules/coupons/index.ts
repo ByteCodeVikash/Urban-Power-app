@@ -12,7 +12,6 @@ export const CouponsModule: Module = {
     {
       path: '/coupons',
       element: CouponManager,
-      requiredPermission: 'coupons.manage',
     },
   ],
   menuItems: [
@@ -20,7 +19,6 @@ export const CouponsModule: Module = {
       title: 'Coupon Management',
       icon: 'LocalOffer',
       route: '/coupons',
-      permission: 'coupons.manage',
     },
   ],
 };

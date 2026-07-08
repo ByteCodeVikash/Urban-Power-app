@@ -15,12 +15,10 @@ export const ServicesModule: Module = {
     {
       path: '/services',
       element: Services,
-      requiredPermission: 'services.manage',
     },
     {
       path: '/categories',
       element: Categories,
-      requiredPermission: 'services.manage',
     },
   ],
   menuItems: [
@@ -28,13 +26,11 @@ export const ServicesModule: Module = {
       title: 'Services',
       icon: 'Build',
       route: '/services',
-      permission: 'services.manage',
     },
     {
       title: 'Categories',
       icon: 'Category',
       route: '/categories',
-      permission: 'services.manage',
     },
   ],
   dashboardWidgets: [

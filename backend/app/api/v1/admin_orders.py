@@ -190,6 +190,12 @@ def _normalize_beautician(b: Booking) -> AdminOrderItem:
     cat_name = b.service.category.name if (b.service and b.service.category) else "General"
     addr_str = _format_address(b.address)
     tech = _parse_technician_from_notes(b.notes)
+    preferred_time = (
+        f"{b.timeslot.start_time.strftime('%I:%M %p')} - {b.timeslot.end_time.strftime('%I:%M %p')}"
+        if b.timeslot
+        else None
+    )
+    payment_status = b.payment.payment_status if b.payment else "pending"
     return AdminOrderItem(
         booking_id=str(b.id),
         booking_reference=b.booking_reference,
@@ -204,14 +210,20 @@ def _normalize_beautician(b: Booking) -> AdminOrderItem:
         created_at=b.created_at,
         assigned_technician=tech,
         payment_method=b.payment_method,
+        booking_date=b.booking_date,
+        preferred_time=preferred_time,
+        payment_status=payment_status,
+        user_id=str(b.user_id) if b.user_id else None,
     )
 
 
-def _normalize_scrap(s: ScrapBooking) -> AdminOrderItem:
+def _normalize_scrap(s: ScrapBooking, address: Optional[Address] = None) -> AdminOrderItem:
     cname = (s.user.full_name if s.user else None) or "Unknown"
     cphone = s.user.phone if s.user else None
-    addr_str = s.address_text or _format_address(s.address) if hasattr(s, "address") else s.address_text
+    addr_str = s.address_text or _format_address(address)
     tech = _parse_technician_from_notes(s.notes)
+    status_str = s.status.value if hasattr(s.status, "value") else str(s.status)
+    payment_status = "completed" if status_str == "completed" else "pending"
     return AdminOrderItem(
         booking_id=str(s.id),
         booking_reference=s.booking_reference,
@@ -222,18 +234,24 @@ def _normalize_scrap(s: ScrapBooking) -> AdminOrderItem:
         service_name=s.item_name or "Scrap Pickup",
         category=s.category_name or "Scrap",
         price=float(s.estimated_value or 0),
-        status=s.status.value if hasattr(s.status, "value") else str(s.status),
+        status=status_str,
         created_at=s.created_at,
         assigned_technician=tech,
+        booking_date=s.booking_date,
+        preferred_time=s.time_slot,
+        payment_status=payment_status,
+        user_id=str(s.user_id) if s.user_id else None,
     )
 
 
-def _normalize_maintenance(m: MaintenanceBooking) -> AdminOrderItem:
+def _normalize_maintenance(m: MaintenanceBooking, address: Optional[Address] = None) -> AdminOrderItem:
     cname = m.customer_name or (m.user.full_name if m.user else None) or "Unknown"
     cphone = m.customer_phone or (m.user.phone if m.user else None)
-    addr_str = m.address_text or (_format_address(m.address) if hasattr(m, "address") else None)
+    addr_str = m.address_text or _format_address(address)
     svc_name = (m.service_names[0] if m.service_names else None) or "Maintenance"
     tech = _parse_technician_from_notes(m.notes)
+    status_str = m.status.value if hasattr(m.status, "value") else str(m.status)
+    payment_status = "completed" if status_str == "completed" else "pending"
     return AdminOrderItem(
         booking_id=str(m.id),
         booking_reference=m.booking_reference,
@@ -244,9 +262,13 @@ def _normalize_maintenance(m: MaintenanceBooking) -> AdminOrderItem:
         service_name=svc_name,
         category="Maintenance",
         price=float(m.total_price),
-        status=m.status.value if hasattr(m.status, "value") else str(m.status),
+        status=status_str,
         created_at=m.created_at,
         assigned_technician=tech,
+        booking_date=m.booking_date,
+        preferred_time=None,
+        payment_status=payment_status,
+        user_id=str(m.user_id) if m.user_id else None,
     )
 
 
@@ -310,7 +332,7 @@ def _write_history(
 def list_admin_orders(
     # Pagination
     page: int = Query(1, ge=1, description="Page number (1-indexed)"),
-    page_size: int = Query(20, ge=1, le=500, description="Records per page"),
+    page_size: int = Query(20, ge=1, le=10000, description="Records per page"),
     # Filters
     booking_type: Optional[str] = Query(None, description="beautician | scrap | maintenance"),
     status: Optional[str] = Query(None, description="Filter by booking status"),
@@ -340,6 +362,8 @@ def list_admin_orders(
                 joinedload(Booking.user),
                 joinedload(Booking.service).joinedload(Service.category),
                 joinedload(Booking.address),
+                joinedload(Booking.timeslot),
+                joinedload(Booking.payment),
             )
         )
         if status:
@@ -378,8 +402,14 @@ def list_admin_orders(
             except ValueError:
                 pass
         rows = q.order_by(ScrapBooking.created_at.desc()).all()
+        address_ids = [s.address_id for s in rows if s.address_id]
+        addr_map = {}
+        if address_ids:
+            addresses = db.query(Address).filter(Address.id.in_(address_ids)).all()
+            addr_map = {addr.id: addr for addr in addresses}
         for s in rows:
-            item = _normalize_scrap(s)
+            address = addr_map.get(s.address_id) if s.address_id else None
+            item = _normalize_scrap(s, address)
             all_items.append(item)
 
     # ── Maintenance bookings ─────────────────────────────────────────────────
@@ -401,8 +431,14 @@ def list_admin_orders(
             except ValueError:
                 pass
         rows = q.order_by(MaintenanceBooking.created_at.desc()).all()
+        address_ids = [m.address_id for m in rows if m.address_id]
+        addr_map = {}
+        if address_ids:
+            addresses = db.query(Address).filter(Address.id.in_(address_ids)).all()
+            addr_map = {addr.id: addr for addr in addresses}
         for m in rows:
-            item = _normalize_maintenance(m)
+            address = addr_map.get(m.address_id) if m.address_id else None
+            item = _normalize_maintenance(m, address)
             all_items.append(item)
 
     # ── Sort all types together newest-first ─────────────────────────────────
@@ -751,6 +787,8 @@ def get_admin_order_detail(
                 joinedload(Booking.user),
                 joinedload(Booking.service).joinedload(Service.category),
                 joinedload(Booking.address),
+                joinedload(Booking.timeslot),
+                joinedload(Booking.payment),
             )
             .filter(Booking.id == bid)
             .first()
@@ -762,6 +800,7 @@ def get_admin_order_detail(
                  or (b.user.full_name if b.user else None) or "Unknown")
         cphone = (_parse_phone_from_notes(b.notes)
                   or (b.user.phone if b.user else None))
+        payment_status = b.payment.payment_status if b.payment else "pending"
         return AdminOrderDetail(
             booking_id=str(b.id),
             booking_reference=b.booking_reference,
@@ -778,6 +817,7 @@ def get_admin_order_detail(
             timeslot_id=str(b.timeslot_id) if b.timeslot_id else None,
             price=float(b.total_price),
             payment_method=b.payment_method,
+            payment_status=payment_status,
             status=b.status.value if hasattr(b.status, "value") else str(b.status),
             assigned_technician=_parse_technician_from_notes(b.notes),
             photos=b.photos or [],
@@ -802,6 +842,8 @@ def get_admin_order_detail(
         if s.address_id:
             addr = db.query(Address).filter(Address.id == s.address_id).first()
 
+        status_str = s.status.value if hasattr(s.status, "value") else str(s.status)
+        payment_status = "completed" if status_str == "completed" else "pending"
         return AdminOrderDetail(
             booking_id=str(s.id),
             booking_reference=s.booking_reference,
@@ -820,7 +862,8 @@ def get_admin_order_detail(
             estimated_value=s.estimated_value,
             time_slot=s.time_slot,
             price=float(s.estimated_value or 0),
-            status=s.status.value if hasattr(s.status, "value") else str(s.status),
+            payment_status=payment_status,
+            status=status_str,
             assigned_technician=_parse_technician_from_notes(s.notes),
             photos=s.photos or [],
             notes=s.notes,
@@ -844,6 +887,8 @@ def get_admin_order_detail(
         if m.address_id:
             addr = db.query(Address).filter(Address.id == m.address_id).first()
 
+        status_str = m.status.value if hasattr(m.status, "value") else str(m.status)
+        payment_status = "completed" if status_str == "completed" else "pending"
         return AdminOrderDetail(
             booking_id=str(m.id),
             booking_reference=m.booking_reference,
@@ -859,7 +904,8 @@ def get_admin_order_detail(
             service_names=m.service_names,
             service_ids=[str(sid) for sid in (m.service_ids or [])],
             price=float(m.total_price),
-            status=m.status.value if hasattr(m.status, "value") else str(m.status),
+            payment_status=payment_status,
+            status=status_str,
             assigned_technician=_parse_technician_from_notes(m.notes),
             photos=m.photos or [],
             notes=m.notes,

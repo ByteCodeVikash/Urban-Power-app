@@ -7,6 +7,7 @@ from app.core.database import get_db
 from app.models.user import User
 from app.schemas.scrap_booking import ScrapBookingCreate, ScrapBookingResponse, ScrapBookingUpdate
 from app.services import scrap_booking as scrap_booking_service
+from app.services import booking as booking_service
 from app.api.deps import get_current_active_user
 
 router = APIRouter(prefix="/scrap-bookings", tags=["scrap-bookings"])
@@ -35,7 +36,14 @@ def list_my_scrap_bookings(
     """
     Retrieve all scrap pickup bookings made by the current authenticated user.
     """
-    return scrap_booking_service.get_user_scrap_bookings(db=db, user_id=current_user.id)
+    bookings = scrap_booking_service.get_user_scrap_bookings(db=db, user_id=current_user.id)
+    response_list = []
+    for b in bookings:
+        status_val = booking_service.get_latest_status(db, b.id, "scrap", b.status)
+        res = ScrapBookingResponse.model_validate(b)
+        res.status = status_val
+        response_list.append(res)
+    return response_list
 
 
 @router.get("/{booking_id}", response_model=ScrapBookingResponse)
@@ -55,7 +63,10 @@ def get_scrap_booking(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Scrap booking not found",
         )
-    return db_booking
+    status_val = booking_service.get_latest_status(db, db_booking.id, "scrap", db_booking.status)
+    res = ScrapBookingResponse.model_validate(db_booking)
+    res.status = status_val
+    return res
 
 
 @router.put("/{booking_id}", response_model=ScrapBookingResponse)
@@ -76,4 +87,7 @@ def update_scrap_booking(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Scrap booking not found",
         )
-    return db_booking
+    status_val = booking_service.get_latest_status(db, db_booking.id, "scrap", db_booking.status)
+    res = ScrapBookingResponse.model_validate(db_booking)
+    res.status = status_val
+    return res

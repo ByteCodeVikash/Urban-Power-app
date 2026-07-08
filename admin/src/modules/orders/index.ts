@@ -15,19 +15,16 @@ export const OrdersModule: Module = {
     {
       path: '/orders',
       element: Orders,
-      requiredPermission: 'orders.view',
     },
     // New route: /orders/:bookingType/:bookingId (admin API pattern)
     {
       path: '/orders/:bookingType/:bookingId',
       element: OrderDetails,
-      requiredPermission: 'orders.view',
     },
     // Legacy route kept for backward compatibility
     {
       path: '/orders/:id',
       element: OrderDetails,
-      requiredPermission: 'orders.view',
     },
   ],
   menuItems: [
@@ -35,7 +32,6 @@ export const OrdersModule: Module = {
       title: 'Orders',
       icon: 'Receipt',
       route: '/orders',
-      permission: 'orders.view',
     },
   ],
   dashboardWidgets: [

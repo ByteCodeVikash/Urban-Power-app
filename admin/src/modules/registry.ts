@@ -1,5 +1,7 @@
 import React from 'react';
 import type { Permission } from '../config/roles';
+import { menuConfig } from '../config/menuConfig';
+import type { MenuItem } from '../config/menuConfig';
 
 export interface ModuleRoute {
   path: string;
@@ -26,6 +28,7 @@ export interface DashboardWidgetConfig {
     md?: number;
     lg?: number;
   };
+  requiredPermission?: Permission;
 }
 
 export interface Module {
@@ -35,6 +38,31 @@ export interface Module {
   menuItems: MenuItemConfig[];
   dashboardWidgets?: DashboardWidgetConfig[];
 }
+
+export const findPermissionForRoute = (routePath: string): Permission | undefined => {
+  let bestMatch: any = undefined;
+
+  const search = (items: MenuItem[]) => {
+    for (const item of items) {
+      if (item.route === routePath) {
+        bestMatch = item;
+        return;
+      }
+      if (item.route !== '/' && routePath.startsWith(item.route)) {
+        if (!bestMatch || item.route.length > bestMatch.route.length) {
+          bestMatch = item;
+        }
+      }
+      if (item.children) {
+        search(item.children);
+      }
+    }
+  };
+
+  search(menuConfig);
+  const found = bestMatch as MenuItem | undefined;
+  return found?.permission;
+};
 
 class Registry {
   private modules: Map<string, Module> = new Map();
@@ -71,7 +99,13 @@ class Registry {
   public getRoutes(): ModuleRoute[] {
     const routes: ModuleRoute[] = [];
     this.getModules().forEach(mod => {
-      routes.push(...mod.routes);
+      mod.routes.forEach(route => {
+        const resolvedPermission = findPermissionForRoute(route.path);
+        routes.push({
+          ...route,
+          requiredPermission: resolvedPermission,
+        });
+      });
     });
     return routes;
   }
@@ -81,8 +115,21 @@ class Registry {
    */
   public getMenuItems(): MenuItemConfig[] {
     const menuItems: MenuItemConfig[] = [];
+    
+    const resolveItemPermission = (item: MenuItemConfig): MenuItemConfig => {
+      const resolvedPermission = findPermissionForRoute(item.route);
+      const children = item.children ? item.children.map(resolveItemPermission) : undefined;
+      return {
+        ...item,
+        permission: resolvedPermission,
+        children,
+      };
+    };
+
     this.getModules().forEach(mod => {
-      menuItems.push(...mod.menuItems);
+      mod.menuItems.forEach(item => {
+        menuItems.push(resolveItemPermission(item));
+      });
     });
     return menuItems;
   }
@@ -94,7 +141,15 @@ class Registry {
     const widgets: DashboardWidgetConfig[] = [];
     this.getModules().forEach(mod => {
       if (mod.dashboardWidgets) {
-        widgets.push(...mod.dashboardWidgets);
+        const firstRoute = mod.menuItems[0]?.route;
+        const resolvedPermission = firstRoute ? findPermissionForRoute(firstRoute) : undefined;
+
+        mod.dashboardWidgets.forEach(widget => {
+          widgets.push({
+            ...widget,
+            requiredPermission: resolvedPermission,
+          });
+        });
       }
     });
     return widgets;

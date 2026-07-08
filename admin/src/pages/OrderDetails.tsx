@@ -499,6 +499,7 @@ export const OrderDetails: React.FC = () => {
           <DetailCard title="Payment Summary" icon={<PaymentIcon sx={{ color: '#276749' }} />}>
             <InfoRow label="AMOUNT" value={`₹${Number(order.price || 0).toLocaleString('en-IN')}`} />
             <InfoRow label="PAYMENT METHOD" value={order.payment_method || 'Not specified'} />
+            <InfoRow label="PAYMENT STATUS" value={order.payment_status ? order.payment_status.toUpperCase() : 'PENDING'} />
             <InfoRow label="LAST UPDATED" value={fmtShort(order.updated_at)} />
           </DetailCard>
 

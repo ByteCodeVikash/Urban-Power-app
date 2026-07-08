@@ -12,7 +12,6 @@ export const TechniciansModule: Module = {
     {
       path: '/technicians',
       element: Technicians,
-      requiredPermission: 'technicians.view',
     },
   ],
   menuItems: [
@@ -20,7 +19,6 @@ export const TechniciansModule: Module = {
       title: 'Technicians',
       icon: 'Engineering',
       route: '/technicians',
-      permission: 'technicians.view',
     },
   ],
   dashboardWidgets: [

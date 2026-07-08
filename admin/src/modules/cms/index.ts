@@ -12,7 +12,6 @@ export const CMSModule: Module = {
     {
       path: '/cms',
       element: CMSManager,
-      requiredPermission: 'cms.manage',
     },
   ],
   menuItems: [
@@ -20,7 +19,6 @@ export const CMSModule: Module = {
       title: 'CMS',
       icon: 'Web',
       route: '/cms',
-      permission: 'cms.manage',
     },
   ],
 };
