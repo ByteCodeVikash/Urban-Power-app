@@ -16,32 +16,15 @@ API.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    console.log(
-      `[OTP Login Flow] Axios request start: [${config.method?.toUpperCase()}] ${config.baseURL || ''}${config.url}\n` +
-        `Headers: ${JSON.stringify(config.headers)}\n` +
-        `Data: ${JSON.stringify(config.data || {})}`,
-    );
     return config;
   },
   error => {
-    console.error(
-      '[OTP Login Flow] Axios request setup error:',
-      error?.message || error,
-      'Stack:',
-      error?.stack,
-    );
     return Promise.reject(error);
   },
 );
 
 API.interceptors.response.use(
   response => {
-    console.log(
-      `[OTP Login Flow] Axios request end: SUCCESS [${response.config.method?.toUpperCase()}] ${response.config.url}\n` +
-        `HTTP Status: ${response.status}\n` +
-        `Response Headers: ${JSON.stringify(response.headers)}\n` +
-        `Response Body: ${JSON.stringify(response.data)}`,
-    );
     return response;
   },
   error => {
@@ -79,13 +62,6 @@ API.interceptors.response.use(
 
     error.message = errorMessage;
 
-    console.error(
-      `[OTP Login Flow] Axios Error: ${errorMessage}\n` +
-        `HTTP Status: ${response ? response.status : 'N/A'}\n` +
-        `Response Headers: ${response ? JSON.stringify(response.headers) : 'N/A'}\n` +
-        `Response Body: ${response ? JSON.stringify(response.data) : 'N/A'}\n` +
-        `Stack Trace: ${error.stack || 'N/A'}`,
-    );
     return Promise.reject(error);
   },
 );

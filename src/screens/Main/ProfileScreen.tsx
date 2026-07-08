@@ -49,8 +49,7 @@ export default function ProfileScreen() {
     {
       icon: <ShoppingBag size={22} color={Colors.light.text} />,
       label: 'My Orders',
-      onPress: () =>
-        navigation.navigate('OrderTracking', { orderId: 'ORD-5432' }),
+      onPress: () => navigation.navigate('Bookings'),
     },
     {
       icon: <Recycle size={22} color={Colors.light.text} />,
@@ -184,43 +183,6 @@ export default function ProfileScreen() {
         {renderMenuSection('PROFESSIONAL TOOLS', professionalMenu)}
         {renderMenuSection('SUPPORT & SAFETY', supportMenu)}
 
-        <View style={styles.menuSection}>
-          <Typography
-            variant="tiny"
-            weight="800"
-            color={Colors.light.textMuted}
-            style={styles.sectionTitle}
-          >
-            MOCK ROLE SWITCHER (DEMO)
-          </Typography>
-          <View style={styles.roleGrid}>
-            {(['Customer', 'Technician', 'Admin'] as const).map(r => (
-              <Pressable
-                key={r}
-                onPress={() => {
-                  useAuthStore.getState().switchRole(r);
-                  alert(`Switched to ${r} mode`);
-                }}
-                style={[
-                  styles.roleChip,
-                  useAuthStore.getState().role === r && styles.activeChip,
-                ]}
-              >
-                <Typography
-                  variant="tiny"
-                  weight="800"
-                  color={
-                    useAuthStore.getState().role === r
-                      ? Colors.light.white
-                      : Colors.light.text
-                  }
-                >
-                  {r.toUpperCase()}
-                </Typography>
-              </Pressable>
-            ))}
-          </View>
-        </View>
 
         <Pressable style={styles.logoutButton} onPress={logout}>
           <LogOut color={Colors.light.danger} size={22} />
@@ -318,24 +280,5 @@ const styles = StyleSheet.create({
     marginHorizontal: Spacing.lg,
     borderRadius: BorderRadius.xl,
     ...Shadows.light.xs,
-  },
-  roleGrid: {
-    flexDirection: 'row',
-    padding: Spacing.xl,
-    gap: Spacing.md,
-  },
-  roleChip: {
-    flex: 1,
-    paddingVertical: 12,
-    alignItems: 'center',
-    borderRadius: BorderRadius.lg,
-    backgroundColor: Colors.light.surface,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-  },
-  activeChip: {
-    backgroundColor: Colors.light.primary,
-    borderColor: Colors.light.primary,
-    ...Shadows.light.sm,
   },
 });

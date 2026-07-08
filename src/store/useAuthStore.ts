@@ -34,36 +34,22 @@ interface AuthState {
 const customStorage = {
   getItem: async (name: string): Promise<string | null> => {
     try {
-      console.log('[OTP Login Flow] AsyncStorage read start:', name);
-      const value = await AsyncStorage.getItem(name);
-      console.log('[OTP Login Flow] AsyncStorage read end. Found:', !!value);
-      return value;
+      return await AsyncStorage.getItem(name);
     } catch (e: any) {
       console.warn('[useAuthStore] Error reading auth session:', e);
-      console.log('[OTP Login Flow] AsyncStorage read error:', e?.message || e);
       return null;
     }
   },
   setItem: async (name: string, value: string): Promise<void> => {
     try {
-      console.log(
-        '[OTP Login Flow] AsyncStorage save start:',
-        name,
-        'payload size:',
-        value.length,
-      );
       await AsyncStorage.setItem(name, value);
-      console.log('[OTP Login Flow] AsyncStorage save end. Success.');
     } catch (e: any) {
       console.warn('[useAuthStore] Error writing auth session:', e);
-      console.log('[OTP Login Flow] AsyncStorage save error:', e?.message || e);
     }
   },
   removeItem: async (name: string): Promise<void> => {
     try {
-      console.log('[OTP Login Flow] AsyncStorage remove start:', name);
       await AsyncStorage.removeItem(name);
-      console.log('[OTP Login Flow] AsyncStorage remove end.');
     } catch (e: any) {
       console.warn('[useAuthStore] Error removing auth session:', e);
     }
@@ -90,9 +76,6 @@ export const useAuthStore = create<AuthState>()(
             phone,
             name,
             role,
-            email: `${name.toLowerCase().replace(/\s+/g, '') || 'user'}@example.com`,
-            profileImage:
-              'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=256&auto=format&fit=crop',
           },
           isAuthenticated: true,
           role: role,

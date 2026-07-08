@@ -69,7 +69,6 @@ const MAIN_VERTICALS = [
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 export default function HomeScreen() {
-  console.log('[OTP Login Flow] Home screen render');
   const navigation = useNavigation<NavigationProp>();
   const [refreshing, setRefreshing] = useState(false);
 

@@ -35,42 +35,47 @@ export const openRazorpayCheckout = async (
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const RazorpayCheckout = require('react-native-razorpay').default;
     if (RazorpayCheckout && typeof RazorpayCheckout.open === 'function') {
-      console.log('[Razorpay] Opening real checkout...');
       const response = await RazorpayCheckout.open(options);
       return response as RazorpaySuccessResponse;
     }
   } catch (err) {
+    if (!__DEV__) {
+      throw new Error(
+        'Payment gateway unavailable. Please update the app and try again.',
+      );
+    }
     console.warn(
-      '[Razorpay] Native module unavailable – using mock fallback. Error:',
+      '[Razorpay] Native module unavailable – using dev fallback. Error:',
       err,
     );
   }
 
-  // 2. Simulated checkout for dev / Expo Go environments
+  // 2. Dev-only simulated checkout (never runs in production builds)
+  if (!__DEV__) {
+    throw new Error(
+      'Payment gateway unavailable. Please update the app and try again.',
+    );
+  }
+
   return new Promise<RazorpaySuccessResponse>((resolve, reject) => {
     Alert.alert(
-      'Razorpay Payment (Sandbox)',
-      `Simulate secure payment of ₹${(options.amount / 100).toFixed(2)} for "${options.description}"?`,
+      'Razorpay Payment (Dev Simulation)',
+      `Simulate payment of ₹${(options.amount / 100).toFixed(2)} for "${options.description}"?`,
       [
         {
           text: '✅ Pay Successfully',
           onPress: () => {
-            const mockPaymentId = `pay_mock_${Math.random().toString(36).substring(2, 11)}`;
-            console.log(
-              '[Razorpay] Mock payment successful. ID:',
-              mockPaymentId,
-            );
+            const devPaymentId = `pay_dev_${Math.random().toString(36).substring(2, 11)}`;
             resolve({
-              razorpay_payment_id: mockPaymentId,
+              razorpay_payment_id: devPaymentId,
               razorpay_order_id: options.order_id,
-              razorpay_signature: 'mock_signature_sandbox',
+              razorpay_signature: 'dev_signature_only',
             });
           },
         },
         {
           text: '❌ Cancel',
           onPress: () => {
-            console.log('[Razorpay] Mock payment cancelled by user.');
             reject({ code: 2, description: 'Payment cancelled by user' });
           },
           style: 'cancel',

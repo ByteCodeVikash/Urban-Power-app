@@ -13,7 +13,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.urbanpower",
+      "bundleIdentifier": "com.urbanpower.app",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Urban Power needs access to your location to find nearby services and set delivery addresses."
       }
@@ -23,7 +23,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#1A0533"
       },
-      "package": "com.anonymous.urbanpower",
+      "package": "com.urbanpower.app",
       "googleServicesFile": "./google-services.json"
     },
     "web": {
@@ -38,7 +38,6 @@
         "expo-build-properties",
         {
           "android": {
-            "usesCleartextTraffic": true,
             "kotlinVersion": "2.0.21"
           }
         }

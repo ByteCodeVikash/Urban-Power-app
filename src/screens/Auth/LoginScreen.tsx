@@ -123,11 +123,8 @@ export default function LoginScreen() {
       const firebaseAuth = require('@react-native-firebase/auth').default;
       firebaseAuth()
         .signOut()
-        .catch((err: any) => {
-          console.log(
-            '[LoginScreen] Error signing out of Firebase on mount:',
-            err,
-          );
+        .catch((_err: any) => {
+          // Silently ignore — stale session cleanup is best-effort
         });
     }
   }, []);
@@ -145,12 +142,6 @@ export default function LoginScreen() {
       ) {
         if (isBackendVerifying.current) return;
 
-        console.log(
-          '[OTP Login Flow] SMS received / Firebase state verification succeeded.',
-        );
-        console.log(
-          '[LoginScreen] Firebase authenticated successfully. Commencing backend validation...',
-        );
         isBackendVerifying.current = true;
         if (!loadingRef.current) {
           loadingRef.current = true;
@@ -158,21 +149,11 @@ export default function LoginScreen() {
         }
         setError(null);
         try {
-          console.log('[OTP Login Flow] getIdToken() start');
           const idToken = await user.getIdToken();
-          console.log('[OTP Login Flow] getIdToken() end');
           const verifiedPhone = user.phoneNumber || '';
 
           // Exchange token with backend
-          console.log(
-            '[LoginScreen] Exchanging token with backend for verified phone:',
-            verifiedPhone,
-          );
-          console.log(
-            '[OTP Login Flow] Axios request start. Endpoint: verifyOtp',
-          );
           const response = await api.auth.verifyOtp(verifiedPhone, idToken);
-          console.log('[OTP Login Flow] Axios request end. Status: 200');
 
           // Complete login and navigate directly to Dashboard
           let role: UserRole = 'Customer';
@@ -190,23 +171,10 @@ export default function LoginScreen() {
             'Urban Power User';
           const id = response.user?.id || Math.random().toString();
 
-          console.log(
-            '[OTP Login Flow] Navigation to Dashboard. Target role:',
-            role,
-          );
           isVerificationInProgress.current = false;
           login(verifiedPhone, role, name, id, response.access_token);
         } catch (err: any) {
-          console.error(
-            '[LoginScreen] Auto-login backend exchange error:',
-            err,
-          );
-          console.error(
-            '[OTP Login Flow] Axios Error or Verification error:',
-            err?.message || err,
-            'Stack:',
-            err?.stack,
-          );
+          console.error('[LoginScreen] Auto-login backend exchange error:', err?.message || err);
           setError(err?.message || 'Verification failed. Please try again.');
           isVerificationInProgress.current = false;
           isBackendVerifying.current = false;
@@ -286,16 +254,11 @@ export default function LoginScreen() {
   };
 
   const handleSendOtp = async () => {
-    console.log('[OTP Login Flow] Button Press: Send OTP');
-    console.log('[OTP Login Flow] Phone Number:', phoneNumber);
     if (phoneNumber.length < 10) {
       setPhoneError('Please enter a valid 10-digit phone number');
       return;
     }
     if (loadingRef.current) {
-      console.log(
-        '[OTP Login Flow] sendOtp ignored because a request is already loading',
-      );
       return;
     }
     loadingRef.current = true;
@@ -304,22 +267,14 @@ export default function LoginScreen() {
     setPhoneError(null);
     isVerificationInProgress.current = true;
     try {
-      console.log('[OTP Login Flow] Firebase sendOtp() start');
       const confirmResult = await firebaseAuthService.sendOtp(phoneNumber);
-      console.log('[OTP Login Flow] Firebase sendOtp() success');
       setConfirmation(confirmResult);
       setStep('OTP');
       setResendTimer(30); // 30-second resend limit
       setOtp(''); // clear previous OTP
     } catch (err: any) {
       isVerificationInProgress.current = false;
-      console.error('[LoginScreen] Send OTP error:', err);
-      console.error(
-        '[OTP Login Flow] Firebase sendOtp() failed. Error:',
-        err?.message || err,
-        'Stack:',
-        err?.stack,
-      );
+      console.error('[LoginScreen] Send OTP error:', err?.message || err);
       setError(
         err?.message || 'Failed to send verification code. Please try again.',
       );
@@ -330,13 +285,8 @@ export default function LoginScreen() {
   };
 
   const handleVerifyOtp = async () => {
-    console.log('[OTP Login Flow] Button Press: Verify & Continue');
-    console.log('[OTP Login Flow] OTP entered:', otp);
     if (otp.length < requiredOtpLength) return;
     if (loadingRef.current || isBackendVerifying.current) {
-      console.log(
-        '[OTP Login Flow] verifyOtp ignored because a request is already in progress',
-      );
       return;
     }
     loadingRef.current = true;
@@ -350,19 +300,11 @@ export default function LoginScreen() {
         );
       }
       // Verify OTP with Firebase
-      console.log('[OTP Login Flow] confirm.confirm() start');
       await confirmation.confirm(otp);
-      console.log('[OTP Login Flow] confirm.confirm() end');
       // The onAuthStateChanged listener handles backend validation and Zustand state updates.
     } catch (err: any) {
       isVerificationInProgress.current = false;
-      console.error('[LoginScreen] Verify OTP error:', err);
-      console.error(
-        '[OTP Login Flow] confirm.confirm() failed. Error:',
-        err?.message || err,
-        'Stack:',
-        err?.stack,
-      );
+      console.error('[LoginScreen] Verify OTP error:', err?.message || err);
       setError(
         err?.message ||
           'Verification failed. Please check the code and try again.',
@@ -382,11 +324,8 @@ export default function LoginScreen() {
       const firebaseAuth = require('@react-native-firebase/auth').default;
       firebaseAuth()
         .signOut()
-        .catch((err: any) => {
-          console.log(
-            '[LoginScreen] Error signing out of Firebase on back to phone:',
-            err,
-          );
+        .catch((_err: any) => {
+          // Silently ignore — best-effort cleanup
         });
     }
   };

@@ -11,19 +11,13 @@ export const googleAuthService = {
         const {
           GoogleSignin,
         } = require('@react-native-google-signin/google-signin');
-        // Configure with a default webClientId for local environment
         GoogleSignin.configure({
-          webClientId:
-            '356047649885-mockwebclientid.apps.googleusercontent.com',
+          webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || '',
           offlineAccess: true,
         });
       } catch (error) {
         console.error('[GoogleAuthService] Configuration error:', error);
       }
-    } else {
-      console.log(
-        '[GoogleAuthService] Native Google Sign-In module is not available. Using mock mode.',
-      );
     }
   },
 
@@ -66,23 +60,19 @@ export const googleAuthService = {
         throw error;
       }
     } else {
-      console.log('[GoogleAuthService] Triggered mock sign-in.');
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 800));
-
-      // Use a mock user details matching the backend structure
-      const mockEmail = 'alice.smith@example.com';
-      const mockName = 'Alice Smith';
-      const mockPhoto =
-        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=256&auto=format&fit=crop';
-      const mockIdToken = `google-mock-${mockEmail}-${mockName.replace(/\s+/g, '_')}-${mockPhoto}`;
-
-      return {
-        idToken: mockIdToken,
-        email: mockEmail,
-        name: mockName,
-        photo: mockPhoto,
-      };
+      if (__DEV__) {
+        // Dev-only: simulate sign-in when native module is unavailable
+        await new Promise(resolve => setTimeout(resolve, 800));
+        return {
+          idToken: `google-dev-${Date.now()}`,
+          email: 'dev.test@urbanpower.app',
+          name: 'Dev Test User',
+          photo: '',
+        };
+      }
+      throw new Error(
+        'Google Sign-In is not available. Please ensure the app is installed correctly.',
+      );
     }
   },
 
@@ -97,7 +87,7 @@ export const googleAuthService = {
         console.error('[GoogleAuthService] Sign-out error:', error);
       }
     } else {
-      console.log('[GoogleAuthService] Triggered mock sign-out.');
+      // Native module unavailable — nothing to sign out from
     }
   },
 };

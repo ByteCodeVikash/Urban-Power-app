@@ -49,14 +49,14 @@ export const Map = React.forwardRef<any, MapProps>(
         if (!useMock && mapRef.current) {
           mapRef.current.animateToRegion(r, duration);
         } else {
-          console.log('Mock animateToRegion:', r);
+          // No-op: map ref unavailable in web/no-key mode
         }
       },
       fitToCoordinates: (coordinates: { latitude: number; longitude: number }[], options: any) => {
         if (!useMock && mapRef.current) {
           mapRef.current.fitToCoordinates(coordinates, options);
         } else {
-          console.log('Mock fitToCoordinates');
+          // No-op: map ref unavailable in web/no-key mode
         }
       },
     }));
