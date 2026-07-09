@@ -80,6 +80,15 @@ import OffersScreen from '../screens/Shop/OffersScreen';
 import MapScreen from '../screens/Main/MapScreen';
 import ComingSoonScreen from '../screens/Services/ComingSoonScreen';
 
+// Legal Screens
+import LegalHubScreen from '../screens/Legal/LegalHubScreen';
+import PrivacyPolicyScreen from '../screens/Legal/PrivacyPolicyScreen';
+import TermsAndConditionsScreen from '../screens/Legal/TermsAndConditionsScreen';
+import RefundPolicyScreen from '../screens/Legal/RefundPolicyScreen';
+import ContactUsScreen from '../screens/Legal/ContactUsScreen';
+import AboutScreen from '../screens/Legal/AboutScreen';
+import DeleteAccountScreen from '../screens/Account/DeleteAccountScreen';
+
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function AppNavigator() {
@@ -317,6 +326,24 @@ export default function AppNavigator() {
             <Stack.Screen name="Offers" component={OffersScreen} />
             <Stack.Screen name="MapScreen" component={MapScreen} />
             <Stack.Screen name="ComingSoon" component={ComingSoonScreen} />
+
+            {/* Legal Module */}
+            <Stack.Screen name="LegalHub" component={LegalHubScreen} />
+            <Stack.Screen
+              name="PrivacyPolicy"
+              component={PrivacyPolicyScreen}
+            />
+            <Stack.Screen
+              name="TermsAndConditions"
+              component={TermsAndConditionsScreen}
+            />
+            <Stack.Screen name="RefundPolicy" component={RefundPolicyScreen} />
+            <Stack.Screen name="ContactUs" component={ContactUsScreen} />
+            <Stack.Screen name="AboutUrbanPower" component={AboutScreen} />
+            <Stack.Screen
+              name="DeleteAccount"
+              component={DeleteAccountScreen}
+            />
           </>
         )}
       </Stack.Navigator>

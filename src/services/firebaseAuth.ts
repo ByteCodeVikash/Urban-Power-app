@@ -23,17 +23,42 @@ export const firebaseAuthService = {
       }
     }
 
+    console.log('[FirebaseAuthService] sendOtp() initiated.', {
+      isFirebaseAvailable,
+      originalPhone: phoneNumber,
+      formattedPhone,
+    });
+
     if (isFirebaseAvailable) {
       const firebaseAuth = require('@react-native-firebase/auth').default;
       try {
+        console.log(
+          '[FirebaseAuthService] Invoking native signInWithPhoneNumber for:',
+          formattedPhone,
+        );
         const confirmation =
           await firebaseAuth().signInWithPhoneNumber(formattedPhone);
+        console.log(
+          '[FirebaseAuthService] Native confirmation object returned.',
+          {
+            verificationId: confirmation?.verificationId,
+            hasConfirm: typeof confirmation?.confirm === 'function',
+          },
+        );
         return confirmation;
       } catch (error: any) {
-        console.error('[FirebaseAuthService] sendOtp failed:', error?.message || error);
+        console.error('[FirebaseAuthService] sendOtp failed detailed error:', {
+          code: error?.code,
+          message: error?.message,
+          stack: error?.stack,
+          rawError: JSON.stringify(error, Object.getOwnPropertyNames(error)),
+        });
         throw error;
       }
     } else {
+      console.warn(
+        '[FirebaseAuthService] Native Firebase Auth is not available in this environment.',
+      );
       throw new Error(
         'Firebase Authentication is not available in the current environment.',
       );
@@ -44,16 +69,39 @@ export const firebaseAuthService = {
     confirmation: ConfirmationResult,
     code: string,
   ): Promise<{ idToken: string; phoneNumber: string }> => {
+    console.log('[FirebaseAuthService] verifyOtp() initiated.', {
+      code,
+      verificationId: confirmation?.verificationId,
+    });
     try {
+      console.log('[FirebaseAuthService] Invoking confirmation.confirm...');
       const result = await confirmation.confirm(code);
       const user = result.user;
+      console.log(
+        '[FirebaseAuthService] Native confirmation successful. User retrieved:',
+        {
+          uid: user?.uid,
+          phoneNumber: user?.phoneNumber,
+          displayName: user?.displayName,
+        },
+      );
+      console.log('[FirebaseAuthService] Retrieving Firebase ID token...');
       const idToken = await user.getIdToken();
+      console.log(
+        '[FirebaseAuthService] Firebase ID token successfully retrieved. Length:',
+        idToken?.length,
+      );
       return {
         idToken,
         phoneNumber: user.phoneNumber || '',
       };
-    } catch (error) {
-      console.error('[FirebaseAuthService] Verification error:', error);
+    } catch (error: any) {
+      console.error('[FirebaseAuthService] verifyOtp failed detailed error:', {
+        code: error?.code,
+        message: error?.message,
+        stack: error?.stack,
+        rawError: JSON.stringify(error, Object.getOwnPropertyNames(error)),
+      });
       throw error;
     }
   },

@@ -183,7 +183,6 @@ export default function ProfileScreen() {
         {renderMenuSection('PROFESSIONAL TOOLS', professionalMenu)}
         {renderMenuSection('SUPPORT & SAFETY', supportMenu)}
 
-
         <Pressable style={styles.logoutButton} onPress={logout}>
           <LogOut color={Colors.light.danger} size={22} />
           <Typography

@@ -39,12 +39,12 @@ export const NetworkImage: React.FC<NetworkImageProps> = ({
     if (!source) {
       return (fallbackSource ?? builtInFallbackSource) as any;
     }
-    
+
     // If it's a local asset (number)
     if (typeof source === 'number') {
       return source;
     }
-    
+
     // If it's an object/array containing a uri
     const anySource: any = source as any;
     if (Array.isArray(anySource)) {
@@ -53,11 +53,11 @@ export const NetworkImage: React.FC<NetworkImageProps> = ({
       }
       return (fallbackSource ?? builtInFallbackSource) as any;
     }
-    
+
     if (anySource && typeof anySource === 'object' && anySource.uri) {
       return source;
     }
-    
+
     return (fallbackSource ?? builtInFallbackSource) as any;
   }, [source, fallbackSource, builtInFallbackSource]);
 
@@ -126,7 +126,7 @@ export const NetworkImage: React.FC<NetworkImageProps> = ({
       opacity,
       backgroundColor,
     } = flattened as any;
-    
+
     return {
       width,
       height,
@@ -212,4 +212,3 @@ const styles = StyleSheet.create({
     borderColor: Colors.light.textMuted,
   },
 });
-

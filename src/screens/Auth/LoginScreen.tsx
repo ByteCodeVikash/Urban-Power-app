@@ -10,6 +10,7 @@ import {
   ScrollView,
   Image,
   ActivityIndicator,
+  Text,
 } from 'react-native';
 import Animated, {
   FadeIn,
@@ -26,6 +27,9 @@ import { firebaseAuthService } from '../../services/firebaseAuth';
 import { api } from '../../services/api';
 import { OtpInput } from '../../components/OtpInput';
 import { googleAuthService } from '../../services/googleAuth';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../navigation/Types';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -102,12 +106,15 @@ export default function LoginScreen() {
   const [resendTimer, setResendTimer] = useState(0);
 
   const login = useAuthStore(state => state.login);
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const requiredOtpLength = firebaseAuthService.isNative ? 6 : 4;
 
   const stepRef = useRef(step);
   const loadingRef = useRef(loading);
   const isBackendVerifying = useRef(false);
   const isVerificationInProgress = useRef(false);
+  const phoneNumberRef = useRef(phoneNumber);
 
   useEffect(() => {
     stepRef.current = step;
@@ -116,6 +123,10 @@ export default function LoginScreen() {
   useEffect(() => {
     loadingRef.current = loading;
   }, [loading]);
+
+  useEffect(() => {
+    phoneNumberRef.current = phoneNumber;
+  }, [phoneNumber]);
 
   // Clear any stale firebase auth session on mount to prevent false-positive auto-verifications
   useEffect(() => {
@@ -135,12 +146,25 @@ export default function LoginScreen() {
 
     const firebaseAuth = require('@react-native-firebase/auth').default;
     const unsubscribe = firebaseAuth().onAuthStateChanged(async (user: any) => {
+      console.log('[LoginScreen] onAuthStateChanged triggered.', {
+        userUid: user?.uid,
+        userPhone: user?.phoneNumber,
+        currentStep: stepRef.current,
+        isVerificationInProgress: isVerificationInProgress.current,
+        isBackendVerifying: isBackendVerifying.current,
+      });
+
       // If user is logged in to Firebase and we have verification in progress
       if (
         user &&
         (stepRef.current === 'OTP' || isVerificationInProgress.current)
       ) {
-        if (isBackendVerifying.current) return;
+        if (isBackendVerifying.current) {
+          console.log(
+            '[LoginScreen] Backend verification is already in progress, skipping duplicate.',
+          );
+          return;
+        }
 
         isBackendVerifying.current = true;
         if (!loadingRef.current) {
@@ -149,11 +173,25 @@ export default function LoginScreen() {
         }
         setError(null);
         try {
+          console.log(
+            '[LoginScreen] Retrieving Firebase ID Token for backend validation...',
+          );
           const idToken = await user.getIdToken();
-          const verifiedPhone = user.phoneNumber || '';
+          const verifiedPhone =
+            user.phoneNumber || `+91${phoneNumberRef.current}`;
+          console.log(
+            '[LoginScreen] ID token retrieved. Exchanging with backend `/verify-otp` for:',
+            verifiedPhone,
+          );
 
           // Exchange token with backend
           const response = await api.auth.verifyOtp(verifiedPhone, idToken);
+          console.log('[LoginScreen] Backend verifyOtp response success:', {
+            hasUser: !!response?.user,
+            role: response?.user?.role,
+            fullName: response?.user?.full_name,
+            hasAccessToken: !!response?.access_token,
+          });
 
           // Complete login and navigate directly to Dashboard
           let role: UserRole = 'Customer';
@@ -174,7 +212,17 @@ export default function LoginScreen() {
           isVerificationInProgress.current = false;
           login(verifiedPhone, role, name, id, response.access_token);
         } catch (err: any) {
-          console.error('[LoginScreen] Auto-login backend exchange error:', err?.message || err);
+          console.error(
+            '[LoginScreen] Auto-login backend exchange detailed error:',
+            {
+              message: err?.message,
+              code: err?.code,
+              responseStatus: err?.response?.status,
+              responseData: err?.response?.data,
+              stack: err?.stack,
+              rawError: JSON.stringify(err, Object.getOwnPropertyNames(err)),
+            },
+          );
           setError(err?.message || 'Verification failed. Please try again.');
           isVerificationInProgress.current = false;
           isBackendVerifying.current = false;
@@ -189,6 +237,9 @@ export default function LoginScreen() {
 
   // Initialize Google Sign-In SDK on mount
   useEffect(() => {
+    console.log(
+      '[LoginScreen] Component mounted. Initializing Google Sign-In...',
+    );
     googleAuthService.configure();
   }, []);
 
@@ -204,21 +255,35 @@ export default function LoginScreen() {
   // Auto-submit OTP when length criteria is met
   useEffect(() => {
     if (otp.length === requiredOtpLength && step === 'OTP' && !loading) {
+      console.log('[LoginScreen] Auto-submitting OTP of length', otp.length);
       handleVerifyOtp();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [otp]);
 
   const handleGoogleLogin = async () => {
+    console.log('[LoginScreen] handleGoogleLogin requested.');
     setGoogleLoading(true);
     setLoading(true);
     setError(null);
     try {
       // 1. Trigger Google login flow
+      console.log('[LoginScreen] Launching googleAuthService.signIn...');
       const { idToken, name } = await googleAuthService.signIn();
+      console.log(
+        '[LoginScreen] googleAuthService.signIn success. Exchanging token with backend...',
+      );
 
       // 2. Exchange token with backend
       const response = await api.auth.googleLogin(idToken);
+      console.log(
+        '[LoginScreen] Backend googleLogin success response received:',
+        {
+          hasUser: !!response?.user,
+          role: response?.user?.role,
+          hasAccessToken: !!response?.access_token,
+        },
+      );
 
       // 3. Complete login
       let userRole: UserRole = 'Customer';
@@ -232,7 +297,14 @@ export default function LoginScreen() {
       // Complete login immediately
       login(userPhone, userRole, userName, userId, response.access_token);
     } catch (err: any) {
-      console.error('[LoginScreen] Google Login error:', err);
+      console.error('[LoginScreen] Google Login detailed error:', {
+        message: err?.message,
+        code: err?.code,
+        responseStatus: err?.response?.status,
+        responseData: err?.response?.data,
+        stack: err?.stack,
+        rawError: JSON.stringify(err, Object.getOwnPropertyNames(err)),
+      });
       // Skip error banners for user cancellations
       if (err?.message !== 'SIGN_IN_CANCELLED' && err?.code !== '12501') {
         setError(err?.message || 'Google Sign-in failed. Please try again.');
@@ -254,11 +326,16 @@ export default function LoginScreen() {
   };
 
   const handleSendOtp = async () => {
+    console.log(
+      '[LoginScreen] handleSendOtp requested for phone number:',
+      phoneNumber,
+    );
     if (phoneNumber.length < 10) {
       setPhoneError('Please enter a valid 10-digit phone number');
       return;
     }
     if (loadingRef.current) {
+      console.log('[LoginScreen] handleSendOtp skipped: load lock is active.');
       return;
     }
     loadingRef.current = true;
@@ -267,14 +344,23 @@ export default function LoginScreen() {
     setPhoneError(null);
     isVerificationInProgress.current = true;
     try {
+      console.log('[LoginScreen] Invoking firebaseAuthService.sendOtp...');
       const confirmResult = await firebaseAuthService.sendOtp(phoneNumber);
+      console.log(
+        '[LoginScreen] sendOtp resolved. Storing confirmation & switching step to OTP.',
+      );
       setConfirmation(confirmResult);
       setStep('OTP');
       setResendTimer(30); // 30-second resend limit
       setOtp(''); // clear previous OTP
     } catch (err: any) {
       isVerificationInProgress.current = false;
-      console.error('[LoginScreen] Send OTP error:', err?.message || err);
+      console.error('[LoginScreen] Send OTP detailed error:', {
+        message: err?.message,
+        code: err?.code,
+        stack: err?.stack,
+        rawError: JSON.stringify(err, Object.getOwnPropertyNames(err)),
+      });
       setError(
         err?.message || 'Failed to send verification code. Please try again.',
       );
@@ -285,8 +371,12 @@ export default function LoginScreen() {
   };
 
   const handleVerifyOtp = async () => {
+    console.log('[LoginScreen] handleVerifyOtp requested with code:', otp);
     if (otp.length < requiredOtpLength) return;
     if (loadingRef.current || isBackendVerifying.current) {
+      console.log(
+        '[LoginScreen] handleVerifyOtp skipped: verification or loading lock active.',
+      );
       return;
     }
     loadingRef.current = true;
@@ -299,12 +389,62 @@ export default function LoginScreen() {
           'No active verification session. Please request a new OTP.',
         );
       }
+
+      // Check if user is already signed in natively (auto-verification succeeded)
+      const firebaseAuth = require('@react-native-firebase/auth').default;
+      const currentUser = firebaseAuth().currentUser;
+      console.log(
+        '[LoginScreen] Checking current native user before confirmation:',
+        currentUser?.uid,
+      );
+      if (currentUser) {
+        console.log(
+          '[LoginScreen] User already signed in natively. Skipping manual confirmation.',
+        );
+        return;
+      }
+
       // Verify OTP with Firebase
+      console.log('[LoginScreen] Invoking confirmation.confirm...');
       await confirmation.confirm(otp);
+      console.log('[LoginScreen] confirmation.confirm resolved.');
       // The onAuthStateChanged listener handles backend validation and Zustand state updates.
     } catch (err: any) {
+      // If the user has already signed in natively or backend verification is in progress,
+      // we can ignore the 'session-expired' or similar error.
+      const firebaseAuth = require('@react-native-firebase/auth').default;
+      const isAlreadySignedIn = !!firebaseAuth().currentUser;
+      const isSessionExpired =
+        err?.code === 'auth/session-expired' ||
+        err?.message?.includes('session-expired') ||
+        err?.message?.includes('expired');
+
+      console.warn('[LoginScreen] Verify OTP handler caught error:', {
+        message: err?.message,
+        code: err?.code,
+        isAlreadySignedIn,
+        isBackendVerifying: isBackendVerifying.current,
+      });
+
+      if (
+        isAlreadySignedIn ||
+        isBackendVerifying.current ||
+        (isAlreadySignedIn && isSessionExpired)
+      ) {
+        console.log(
+          '[LoginScreen] Ignored manual verification error since user is already signed in natively:',
+          err?.message || err,
+        );
+        return;
+      }
+
       isVerificationInProgress.current = false;
-      console.error('[LoginScreen] Verify OTP error:', err?.message || err);
+      console.error('[LoginScreen] Verify OTP detailed error:', {
+        message: err?.message,
+        code: err?.code,
+        stack: err?.stack,
+        rawError: JSON.stringify(err, Object.getOwnPropertyNames(err)),
+      });
       setError(
         err?.message ||
           'Verification failed. Please check the code and try again.',
@@ -543,14 +683,22 @@ export default function LoginScreen() {
             </View>
 
             <View style={styles.footer}>
-              <Typography
-                variant="caption"
-                color={Colors.light.textMuted}
-                align="center"
-              >
-                By continuing, you agree to our Terms of Service & Privacy
-                Policy
-              </Typography>
+              <Text style={styles.consentText}>
+                {'By continuing, you agree to our '}
+                <Text
+                  style={styles.consentLink}
+                  onPress={() => navigation.navigate('TermsAndConditions')}
+                >
+                  Terms of Service
+                </Text>
+                {' & '}
+                <Text
+                  style={styles.consentLink}
+                  onPress={() => navigation.navigate('PrivacyPolicy')}
+                >
+                  Privacy Policy
+                </Text>
+              </Text>
             </View>
           </View>
         </ScrollView>
@@ -690,6 +838,17 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.sm,
   },
   footer: { marginTop: 'auto', paddingVertical: Spacing.lg },
+  consentText: {
+    textAlign: 'center',
+    fontSize: 12,
+    color: Colors.light.textMuted,
+    lineHeight: 18,
+  },
+  consentLink: {
+    color: Colors.light.primary,
+    fontWeight: '700',
+    textDecorationLine: 'underline',
+  },
   successContainer: {
     flex: 1,
     justifyContent: 'center',

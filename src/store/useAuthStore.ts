@@ -28,6 +28,9 @@ interface AuthState {
   logout: () => void;
   switchRole: (role: UserRole) => void;
   updateProfile: (updatedFields: Partial<Omit<User, 'id' | 'role'>>) => void;
+  // TODO(backend): Wire to api.auth.deleteAccount() once endpoint is live.
+  // This action calls the backend, then clears local session on success.
+  deleteAccount: (reason?: string) => Promise<void>;
 }
 
 // Fail-safe storage wrapper to handle native module environment safety
@@ -100,6 +103,19 @@ export const useAuthStore = create<AuthState>()(
         set(state => ({
           user: state.user ? { ...state.user, ...updatedFields } : null,
         }));
+      },
+      deleteAccount: async (reason?: string) => {
+        // Calls the API which throws if the backend endpoint is not yet live.
+        // The DeleteAccountScreen catches the error and surfaces the email fallback.
+        const { api } = require('../services/api');
+        await api.auth.deleteAccount(reason);
+        // Only reached on backend success:
+        set({
+          user: null,
+          isAuthenticated: false,
+          role: null,
+          accessToken: null,
+        });
       },
     }),
     {

@@ -8,10 +8,7 @@ import {
   TextInput,
   BackHandler,
 } from 'react-native';
-import {
-  useNavigation,
-  useFocusEffect,
-} from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import {
   ChevronLeft,
   Calendar,
@@ -66,8 +63,18 @@ export default function MaintenanceBookingScreen() {
   const [addrState, setAddrState] = useState('');
   const [addrPin, setAddrPin] = useState('');
   // Computed address string for submission
-  const address = [addrHouseNo, addrBuilding, addrStreet, addrArea, addrLandmark, addrCity, addrState, addrPin]
-    .filter(Boolean).join(', ');
+  const address = [
+    addrHouseNo,
+    addrBuilding,
+    addrStreet,
+    addrArea,
+    addrLandmark,
+    addrCity,
+    addrState,
+    addrPin,
+  ]
+    .filter(Boolean)
+    .join(', ');
   const [date, setDate] = useState('');
 
   // Read selectedDate from Zustand store (set by DateSelectionScreen before goBack())
@@ -395,7 +402,11 @@ export default function MaintenanceBookingScreen() {
             </View>
             <View style={styles.phoneInputContainer}>
               <View style={styles.phoneCountryCode}>
-                <Typography variant="body2" weight="700" color={Colors.light.primary}>
+                <Typography
+                  variant="body2"
+                  weight="700"
+                  color={Colors.light.primary}
+                >
                   +91
                 </Typography>
               </View>
@@ -403,7 +414,7 @@ export default function MaintenanceBookingScreen() {
                 style={styles.phoneInput}
                 placeholder="Enter 10-digit phone number"
                 value={phone}
-                onChangeText={(text) => setPhone(text.replace(/[^0-9]/g, ''))}
+                onChangeText={text => setPhone(text.replace(/[^0-9]/g, ''))}
                 keyboardType="phone-pad"
                 maxLength={10}
               />
@@ -454,32 +465,122 @@ export default function MaintenanceBookingScreen() {
             </View>
             <View style={styles.addressGrid}>
               <View style={styles.addressHalf}>
-                <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>HOUSE / FLAT NO.</Typography>
-                <TextInput style={styles.input} placeholder="e.g. A-12" value={addrHouseNo} onChangeText={setAddrHouseNo} />
+                <Typography
+                  variant="caption"
+                  color={Colors.light.textSecondary}
+                  style={styles.fieldLabel}
+                >
+                  HOUSE / FLAT NO.
+                </Typography>
+                <TextInput
+                  style={styles.input}
+                  placeholder="e.g. A-12"
+                  value={addrHouseNo}
+                  onChangeText={setAddrHouseNo}
+                />
               </View>
               <View style={styles.addressHalf}>
-                <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>BUILDING / SOCIETY</Typography>
-                <TextInput style={styles.input} placeholder="e.g. Green Park Apts" value={addrBuilding} onChangeText={setAddrBuilding} />
+                <Typography
+                  variant="caption"
+                  color={Colors.light.textSecondary}
+                  style={styles.fieldLabel}
+                >
+                  BUILDING / SOCIETY
+                </Typography>
+                <TextInput
+                  style={styles.input}
+                  placeholder="e.g. Green Park Apts"
+                  value={addrBuilding}
+                  onChangeText={setAddrBuilding}
+                />
               </View>
             </View>
-            <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>STREET *</Typography>
-            <TextInput style={styles.input} placeholder="e.g. MG Road" value={addrStreet} onChangeText={setAddrStreet} />
-            <Typography variant="caption" color={Colors.light.textSecondary} style={[styles.fieldLabel, { marginTop: Spacing.sm }]}>AREA / LOCALITY</Typography>
-            <TextInput style={styles.input} placeholder="e.g. Sector 45" value={addrArea} onChangeText={setAddrArea} />
-            <Typography variant="caption" color={Colors.light.textSecondary} style={[styles.fieldLabel, { marginTop: Spacing.sm }]}>LANDMARK (OPTIONAL)</Typography>
-            <TextInput style={styles.input} placeholder="e.g. Near Metro Station" value={addrLandmark} onChangeText={setAddrLandmark} />
+            <Typography
+              variant="caption"
+              color={Colors.light.textSecondary}
+              style={styles.fieldLabel}
+            >
+              STREET *
+            </Typography>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g. MG Road"
+              value={addrStreet}
+              onChangeText={setAddrStreet}
+            />
+            <Typography
+              variant="caption"
+              color={Colors.light.textSecondary}
+              style={[styles.fieldLabel, { marginTop: Spacing.sm }]}
+            >
+              AREA / LOCALITY
+            </Typography>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g. Sector 45"
+              value={addrArea}
+              onChangeText={setAddrArea}
+            />
+            <Typography
+              variant="caption"
+              color={Colors.light.textSecondary}
+              style={[styles.fieldLabel, { marginTop: Spacing.sm }]}
+            >
+              LANDMARK (OPTIONAL)
+            </Typography>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g. Near Metro Station"
+              value={addrLandmark}
+              onChangeText={setAddrLandmark}
+            />
             <View style={styles.addressGrid}>
               <View style={styles.addressHalf}>
-                <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>CITY *</Typography>
-                <TextInput style={styles.input} placeholder="e.g. Delhi" value={addrCity} onChangeText={setAddrCity} />
+                <Typography
+                  variant="caption"
+                  color={Colors.light.textSecondary}
+                  style={styles.fieldLabel}
+                >
+                  CITY *
+                </Typography>
+                <TextInput
+                  style={styles.input}
+                  placeholder="e.g. Delhi"
+                  value={addrCity}
+                  onChangeText={setAddrCity}
+                />
               </View>
               <View style={styles.addressHalf}>
-                <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>STATE *</Typography>
-                <TextInput style={styles.input} placeholder="e.g. Delhi" value={addrState} onChangeText={setAddrState} />
+                <Typography
+                  variant="caption"
+                  color={Colors.light.textSecondary}
+                  style={styles.fieldLabel}
+                >
+                  STATE *
+                </Typography>
+                <TextInput
+                  style={styles.input}
+                  placeholder="e.g. Delhi"
+                  value={addrState}
+                  onChangeText={setAddrState}
+                />
               </View>
             </View>
-            <Typography variant="caption" color={Colors.light.textSecondary} style={[styles.fieldLabel, { marginTop: Spacing.sm }]}>PIN CODE *</Typography>
-            <TextInput style={styles.input} placeholder="e.g. 110001" value={addrPin} onChangeText={(t) => setAddrPin(t.replace(/[^0-9]/g, ''))} keyboardType="number-pad" maxLength={6} />
+            <Typography
+              variant="caption"
+              color={Colors.light.textSecondary}
+              style={[styles.fieldLabel, { marginTop: Spacing.sm }]}
+            >
+              PIN CODE *
+            </Typography>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g. 110001"
+              value={addrPin}
+              onChangeText={t => setAddrPin(t.replace(/[^0-9]/g, ''))}
+              keyboardType="number-pad"
+              maxLength={6}
+            />
           </View>
         </View>
 

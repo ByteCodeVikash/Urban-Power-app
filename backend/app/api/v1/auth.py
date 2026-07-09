@@ -10,7 +10,9 @@ from app.schemas.auth import (
     TokenRefreshRequest,
     TokenRefreshResponse,
     GoogleLoginRequest,
-    GoogleLoginResponse
+    GoogleLoginResponse,
+    DeleteAccountRequest,
+    DeleteAccountResponse
 )
 from app.core.redis import set_otp_async, cache_get_async, cache_delete_async
 from app.core.http import get_http_client
@@ -18,6 +20,11 @@ from app.core.sms import send_sms
 from app.core.config import settings
 from app.core.database import get_db
 from app.models.user import User
+from app.models.booking import Booking, BookingStatus
+from app.models.scrap_booking import ScrapBooking, ScrapBookingStatus
+from app.models.maintenance_booking import MaintenanceBooking, MaintenanceBookingStatus
+from app.models.address import Address
+from app.api.deps import get_current_active_user
 from app.core.security import create_access_token, create_refresh_token, decode_token
 from google.oauth2 import id_token
 from google.auth.exceptions import GoogleAuthError
@@ -170,10 +177,24 @@ async def verify_otp(payload: VerifyOTPRequest, request: Request, db: Session = 
                         detail=f"Firebase token verification failed: {resp.text}"
                     )
             except httpx.HTTPError as e:
-                logger.error(f"[OTP Login Flow Backend] [Req ID: {req_id}] Error calling Firebase auth API: {e}", exc_info=True)
+                logger.error(
+                    f"[OTP Login Flow Backend] [Req ID: {req_id}] HTTP error calling Firebase auth API: "
+                    f"type={type(e).__name__}, message={str(e)}, url={url}",
+                    exc_info=True
+                )
                 raise HTTPException(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail="Failed to verify Firebase token due to network error"
+                    detail=f"Failed to verify Firebase token due to network error: {type(e).__name__} - {str(e)}"
+                )
+            except Exception as e:
+                logger.error(
+                    f"[OTP Login Flow Backend] [Req ID: {req_id}] Unexpected error calling Firebase auth API: "
+                    f"type={type(e).__name__}, message={str(e)}, url={url}",
+                    exc_info=True
+                )
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=f"Failed to verify Firebase token due to unexpected server error: {type(e).__name__} - {str(e)}"
                 )
     else:
         # Standard Redis OTP verification
@@ -529,6 +550,76 @@ async def refresh_token(
         refresh_token=new_refresh_token,
         token_type="bearer"
     )
+
+
+@router.delete("/account", response_model=DeleteAccountResponse)
+async def delete_account(
+    payload: DeleteAccountRequest,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Permanently deactivates user account, clears profile PII (anonymizes email/phone/name),
+    deletes all saved addresses, and invalidates active JWT sessions/refresh tokens.
+    
+    Returns 409 Conflict if there are any active/pending bookings.
+    """
+    # 1. Check for active/pending bookings
+    active_booking = db.query(Booking).filter(
+        Booking.user_id == current_user.id,
+        Booking.status.in_([
+            BookingStatus.PENDING,
+            BookingStatus.CONFIRMED,
+            BookingStatus.ASSIGNED,
+            BookingStatus.IN_PROGRESS
+        ])
+    ).first()
+
+    active_scrap = db.query(ScrapBooking).filter(
+        ScrapBooking.user_id == current_user.id,
+        ScrapBooking.status.in_([
+            ScrapBookingStatus.REQUESTED,
+            ScrapBookingStatus.ASSIGNED,
+            ScrapBookingStatus.IN_PROGRESS
+        ])
+    ).first()
+
+    active_maintenance = db.query(MaintenanceBooking).filter(
+        MaintenanceBooking.user_id == current_user.id,
+        MaintenanceBooking.status.in_([
+            MaintenanceBookingStatus.PENDING,
+            MaintenanceBookingStatus.CONFIRMED,
+            MaintenanceBookingStatus.ASSIGNED,
+            MaintenanceBookingStatus.IN_PROGRESS
+        ])
+    ).first()
+
+    if active_booking or active_scrap or active_maintenance:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Cannot delete account with active or pending bookings. Please complete or cancel all bookings first."
+        )
+
+    # 2. Delete saved addresses
+    db.query(Address).filter(Address.user_id == current_user.id).delete()
+
+    # 3. Anonymize user profile (removes PII, frees phone/email)
+    user_id_hex = current_user.id.hex
+    current_user.full_name = "Deleted User"
+    current_user.phone = None
+    current_user.profile_image = None
+    current_user.email = f"deleted_{user_id_hex}@deleted.urbanpower.com"
+    current_user.is_active = False
+    current_user.is_verified = False
+
+    # 4. Commit changes to DB
+    db.commit()
+
+    return DeleteAccountResponse(
+        status="success",
+        message="Account successfully deactivated and scheduled for deletion."
+    )
+
 
 
 

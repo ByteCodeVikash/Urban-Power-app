@@ -108,6 +108,13 @@ export const api = {
 
       return response.data;
     },
+
+    deleteAccount: async (reason?: string): Promise<{ message: string }> => {
+      const response = await API.delete('/api/v1/auth/account', {
+        data: { confirm: true, reason },
+      });
+      return response.data;
+    },
   },
 
   // =========================

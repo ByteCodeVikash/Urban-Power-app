@@ -1,4 +1,5 @@
 import re
+from typing import Optional
 from pydantic import BaseModel, Field, field_validator
 
 class SendOTPRequest(BaseModel):
@@ -89,6 +90,30 @@ class GoogleLoginResponse(BaseModel):
     refresh_token: str = Field(..., description="JWT refresh token")
     token_type: str = Field("bearer", description="Token type identifier")
     user: UserResponse = Field(..., description="User profile details")
+
+
+class DeleteAccountRequest(BaseModel):
+    """
+    Pydantic schema for verifying explicit confirmation of account deletion.
+    """
+    confirm: bool = Field(..., description="Explicit confirmation to delete the account")
+    reason: Optional[str] = Field(None, description="Optional reason for account deletion")
+
+    @field_validator("confirm")
+    @classmethod
+    def validate_confirm(cls, v: bool) -> bool:
+        if not v:
+            raise ValueError("Explicit confirmation is required to delete the account")
+        return v
+
+
+class DeleteAccountResponse(BaseModel):
+    """
+    Pydantic schema for the account deletion response.
+    """
+    status: str = Field("success", description="Status of the deletion request")
+    message: str = Field("Account successfully deactivated and scheduled for deletion.", description="Human-readable status message")
+
 
 
 

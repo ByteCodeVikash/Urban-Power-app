@@ -20,6 +20,7 @@ import {
   User,
   Crown,
   LifeBuoy,
+  Scale,
 } from 'lucide-react-native';
 import { Typography } from '../../components/Typography';
 import { Header } from '../../components/Header';
@@ -85,6 +86,12 @@ export default function ProfileScreen() {
       title: 'Settings',
       icon: Settings,
       route: 'Settings',
+    },
+    {
+      id: 'legal',
+      title: 'Legal & Info',
+      icon: Scale,
+      route: 'LegalHub',
     },
     {
       id: 'support',
@@ -183,7 +190,7 @@ export default function ProfileScreen() {
 
         <View style={styles.footer}>
           <Typography variant="caption" color={Colors.light.textMuted}>
-            Version 1.0.2 (2025)
+            Version 1.0.0 (2025)
           </Typography>
         </View>
       </ScrollView>

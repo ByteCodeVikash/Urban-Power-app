@@ -110,8 +110,6 @@ export const OtpInput: React.FC<OtpInputProps> = ({
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         editable={!disabled}
-        caretHidden={true}
-        selectTextOnFocus={false}
       />
     </Pressable>
   );
@@ -193,7 +191,7 @@ const styles = StyleSheet.create({
   },
   hiddenTextInput: {
     ...StyleSheet.absoluteFillObject,
-    opacity: 0,
+    opacity: 0.01,
     fontSize: 1, // Minimize visible artifacts if any
     color: 'transparent',
     backgroundColor: 'transparent',

@@ -15,7 +15,8 @@ export interface MinimalService {
 export interface BeautyCategory {
   name: string;
   subcategories: (string | { name: string; price: number })[];
-}export const beautyCategories: BeautyCategory[] = [
+}
+export const beautyCategories: BeautyCategory[] = [
   {
     name: 'Facial & Skincare',
     subcategories: [

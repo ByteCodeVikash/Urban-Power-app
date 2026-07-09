@@ -67,11 +67,13 @@ export type RootStackParamList = {
   // Kabadi Module
   KabadiCategory: undefined;
   KabadiSubCategory: { categoryId: string; categoryName: string };
-  KabadiForm: {
-    categoryId?: string;
-    categoryName?: string;
-    subcategoryName?: string;
-  } | undefined;
+  KabadiForm:
+    | {
+        categoryId?: string;
+        categoryName?: string;
+        subcategoryName?: string;
+      }
+    | undefined;
   KabadiBooking: undefined;
   KabadiStatus: { bookingId: string };
   KabadiHistory: undefined;
@@ -140,6 +142,7 @@ export type RootStackParamList = {
   ManagePayment: undefined;
   Settings: undefined;
   AboutApp: undefined;
+  DeleteAccount: undefined;
 
   // Support Module
   GettingStarted: undefined;
@@ -152,4 +155,12 @@ export type RootStackParamList = {
   Search: undefined;
   Offers: undefined;
   ComingSoon: undefined;
+
+  // Legal Module
+  LegalHub: undefined;
+  PrivacyPolicy: undefined;
+  TermsAndConditions: undefined;
+  RefundPolicy: undefined;
+  ContactUs: undefined;
+  AboutUrbanPower: undefined;
 };

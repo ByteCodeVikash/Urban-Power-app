@@ -200,8 +200,18 @@ export default function KabadiFormScreen() {
   const [addrState, setAddrState] = useState('');
   const [addrPin, setAddrPin] = useState('');
   // Computed pickup address string for submission
-  const pickupAddress = [addrHouseNo, addrBuilding, addrStreet, addrArea, addrLandmark, addrCity, addrState, addrPin]
-    .filter(Boolean).join(', ');
+  const pickupAddress = [
+    addrHouseNo,
+    addrBuilding,
+    addrStreet,
+    addrArea,
+    addrLandmark,
+    addrCity,
+    addrState,
+    addrPin,
+  ]
+    .filter(Boolean)
+    .join(', ');
 
   // Generate next 7 days
   const dates = Array.from({ length: 7 }, (_, i) => {
@@ -218,7 +228,8 @@ export default function KabadiFormScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSchedule = async () => {
-    const activeWeight = selectedItems.length > 0 ? String(totalWeight) : weight;
+    const activeWeight =
+      selectedItems.length > 0 ? String(totalWeight) : weight;
     if (!name || !phone || !activeWeight) {
       alert('Please enter your name, phone and estimated weight.');
       return;
@@ -243,18 +254,24 @@ export default function KabadiFormScreen() {
       let finalCategoryName = categoryName || 'Mixed Scrap';
       let finalItemName = subcategoryName || 'General Scrap';
       let finalPricePerKg = subcategory?.price || 0;
-      let finalEstimatedValue = (subcategory?.price || 0) * (parseFloat(activeWeight) || 0);
+      let finalEstimatedValue =
+        (subcategory?.price || 0) * (parseFloat(activeWeight) || 0);
 
       if (selectedItems.length > 0) {
-        const uniqueCategoryIds = Array.from(new Set(selectedItems.map(i => i.category_id)));
+        const uniqueCategoryIds = Array.from(
+          new Set(selectedItems.map(i => i.category_id)),
+        );
         const catNames = uniqueCategoryIds.map(cid => {
           const cat = KABADI_ITEMS.find(k => k.id === cid);
           return cat ? cat.title : 'Scrap';
         });
         finalCategoryName = catNames.join(', ');
-        finalItemName = selectedItems.map(i => `${i.name} (${i.quantity} kg)`).join(', ');
+        finalItemName = selectedItems
+          .map(i => `${i.name} (${i.quantity} kg)`)
+          .join(', ');
         finalEstimatedValue = totalEstimatedPrice;
-        finalPricePerKg = totalWeight > 0 ? (totalEstimatedPrice / totalWeight) : 0;
+        finalPricePerKg =
+          totalWeight > 0 ? totalEstimatedPrice / totalWeight : 0;
       }
 
       // Persist to PostgreSQL via backend API
@@ -267,17 +284,21 @@ export default function KabadiFormScreen() {
         estimated_weight_kg: parseFloat(activeWeight) || 0,
         estimated_value: finalEstimatedValue,
         price_per_kg: finalPricePerKg,
-        notes: instructions ? `${instructions} | Payout: ${payoutMethod}` : `Payout: ${payoutMethod}`,
+        notes: instructions
+          ? `${instructions} | Payout: ${payoutMethod}`
+          : `Payout: ${payoutMethod}`,
         photos: uploadedUrl ? [uploadedUrl] : [],
       });
 
-      const successTitle = selectedItems.length > 0 
-        ? `${selectedItems.length} Scrap Items`
-        : `${categoryName} - ${subcategoryName}`;
+      const successTitle =
+        selectedItems.length > 0
+          ? `${selectedItems.length} Scrap Items`
+          : `${categoryName} - ${subcategoryName}`;
 
-      const scheduleCategories = selectedItems.length > 0
-        ? selectedItems.map(i => `${i.name} (${i.quantity} kg)`)
-        : [`${categoryName} - ${subcategoryName}`];
+      const scheduleCategories =
+        selectedItems.length > 0
+          ? selectedItems.map(i => `${i.name} (${i.quantity} kg)`)
+          : [`${categoryName} - ${subcategoryName}`];
 
       // Also update local Zustand store for UI state (secondary mirror)
       schedulePickup({
@@ -307,8 +328,7 @@ export default function KabadiFormScreen() {
       // which causes AppNavigator to redirect to LoginScreen.
       if (!err?.isAuthError) {
         const errMsg =
-          err?.message ||
-          'Failed to schedule pickup. Please try again.';
+          err?.message || 'Failed to schedule pickup. Please try again.';
         alert(errMsg);
       }
     } finally {
@@ -341,7 +361,7 @@ export default function KabadiFormScreen() {
             >
               Selected Items ({selectedItems.length})
             </Typography>
-            {selectedItems.map((item) => (
+            {selectedItems.map(item => (
               <View key={item.id} style={styles.selectedItemRow}>
                 <View style={{ flex: 1 }}>
                   <Typography variant="body2" weight="700">
@@ -458,7 +478,10 @@ export default function KabadiFormScreen() {
               <TextInput
                 style={[
                   styles.singleLineInput,
-                  selectedItems.length > 0 && { backgroundColor: '#F1F5F9', color: Colors.light.textMuted }
+                  selectedItems.length > 0 && {
+                    backgroundColor: '#F1F5F9',
+                    color: Colors.light.textMuted,
+                  },
                 ]}
                 placeholder="e.g. 10"
                 value={weight}
@@ -480,7 +503,11 @@ export default function KabadiFormScreen() {
               </Typography>
               <View style={styles.phoneInputContainer}>
                 <View style={styles.phoneCountryCode}>
-                  <Typography variant="body2" weight="700" color={Colors.light.primary}>
+                  <Typography
+                    variant="body2"
+                    weight="700"
+                    color={Colors.light.primary}
+                  >
                     +91
                   </Typography>
                 </View>
@@ -488,7 +515,7 @@ export default function KabadiFormScreen() {
                   style={styles.phoneInput}
                   placeholder="Enter 10-digit number"
                   value={phone}
-                  onChangeText={(text) => setPhone(text.replace(/[^0-9]/g, ''))}
+                  onChangeText={text => setPhone(text.replace(/[^0-9]/g, ''))}
                   keyboardType="phone-pad"
                   maxLength={10}
                 />
@@ -590,32 +617,122 @@ export default function KabadiFormScreen() {
           </Typography>
           <View style={styles.addressGrid}>
             <View style={styles.addressHalf}>
-              <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>HOUSE / FLAT NO.</Typography>
-              <TextInput style={styles.singleLineInput} placeholder="e.g. A-12" value={addrHouseNo} onChangeText={setAddrHouseNo} />
+              <Typography
+                variant="caption"
+                color={Colors.light.textSecondary}
+                style={styles.fieldLabel}
+              >
+                HOUSE / FLAT NO.
+              </Typography>
+              <TextInput
+                style={styles.singleLineInput}
+                placeholder="e.g. A-12"
+                value={addrHouseNo}
+                onChangeText={setAddrHouseNo}
+              />
             </View>
             <View style={styles.addressHalf}>
-              <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>BUILDING / SOCIETY</Typography>
-              <TextInput style={styles.singleLineInput} placeholder="e.g. Green Park Apts" value={addrBuilding} onChangeText={setAddrBuilding} />
+              <Typography
+                variant="caption"
+                color={Colors.light.textSecondary}
+                style={styles.fieldLabel}
+              >
+                BUILDING / SOCIETY
+              </Typography>
+              <TextInput
+                style={styles.singleLineInput}
+                placeholder="e.g. Green Park Apts"
+                value={addrBuilding}
+                onChangeText={setAddrBuilding}
+              />
             </View>
           </View>
-          <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>STREET *</Typography>
-          <TextInput style={[styles.singleLineInput, { marginBottom: Spacing.sm }]} placeholder="e.g. MG Road" value={addrStreet} onChangeText={setAddrStreet} />
-          <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>AREA / LOCALITY</Typography>
-          <TextInput style={[styles.singleLineInput, { marginBottom: Spacing.sm }]} placeholder="e.g. Sector 45" value={addrArea} onChangeText={setAddrArea} />
-          <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>LANDMARK (OPTIONAL)</Typography>
-          <TextInput style={[styles.singleLineInput, { marginBottom: Spacing.sm }]} placeholder="e.g. Near Metro Station" value={addrLandmark} onChangeText={setAddrLandmark} />
+          <Typography
+            variant="caption"
+            color={Colors.light.textSecondary}
+            style={styles.fieldLabel}
+          >
+            STREET *
+          </Typography>
+          <TextInput
+            style={[styles.singleLineInput, { marginBottom: Spacing.sm }]}
+            placeholder="e.g. MG Road"
+            value={addrStreet}
+            onChangeText={setAddrStreet}
+          />
+          <Typography
+            variant="caption"
+            color={Colors.light.textSecondary}
+            style={styles.fieldLabel}
+          >
+            AREA / LOCALITY
+          </Typography>
+          <TextInput
+            style={[styles.singleLineInput, { marginBottom: Spacing.sm }]}
+            placeholder="e.g. Sector 45"
+            value={addrArea}
+            onChangeText={setAddrArea}
+          />
+          <Typography
+            variant="caption"
+            color={Colors.light.textSecondary}
+            style={styles.fieldLabel}
+          >
+            LANDMARK (OPTIONAL)
+          </Typography>
+          <TextInput
+            style={[styles.singleLineInput, { marginBottom: Spacing.sm }]}
+            placeholder="e.g. Near Metro Station"
+            value={addrLandmark}
+            onChangeText={setAddrLandmark}
+          />
           <View style={styles.addressGrid}>
             <View style={styles.addressHalf}>
-              <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>CITY *</Typography>
-              <TextInput style={styles.singleLineInput} placeholder="e.g. Delhi" value={addrCity} onChangeText={setAddrCity} />
+              <Typography
+                variant="caption"
+                color={Colors.light.textSecondary}
+                style={styles.fieldLabel}
+              >
+                CITY *
+              </Typography>
+              <TextInput
+                style={styles.singleLineInput}
+                placeholder="e.g. Delhi"
+                value={addrCity}
+                onChangeText={setAddrCity}
+              />
             </View>
             <View style={styles.addressHalf}>
-              <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>STATE *</Typography>
-              <TextInput style={styles.singleLineInput} placeholder="e.g. Delhi" value={addrState} onChangeText={setAddrState} />
+              <Typography
+                variant="caption"
+                color={Colors.light.textSecondary}
+                style={styles.fieldLabel}
+              >
+                STATE *
+              </Typography>
+              <TextInput
+                style={styles.singleLineInput}
+                placeholder="e.g. Delhi"
+                value={addrState}
+                onChangeText={setAddrState}
+              />
             </View>
           </View>
-          <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>PIN CODE *</Typography>
-          <TextInput style={styles.singleLineInput} placeholder="e.g. 110001" value={addrPin} onChangeText={(t) => setAddrPin(t.replace(/[^0-9]/g, ''))} keyboardType="number-pad" maxLength={6} />
+          <Typography
+            variant="caption"
+            color={Colors.light.textSecondary}
+            style={styles.fieldLabel}
+          >
+            PIN CODE *
+          </Typography>
+          <TextInput
+            style={styles.singleLineInput}
+            placeholder="e.g. 110001"
+            value={addrPin}
+            onChangeText={t => setAddrPin(t.replace(/[^0-9]/g, ''))}
+            keyboardType="number-pad"
+            maxLength={6}
+          />
         </View>
 
         {/* Preferred Payout Method Section */}
@@ -623,7 +740,11 @@ export default function KabadiFormScreen() {
           <Typography variant="h3" weight="700" style={styles.sectionTitle}>
             Preferred Payout Method
           </Typography>
-          <Typography variant="caption" color={Colors.light.textSecondary} style={{ marginBottom: Spacing.md }}>
+          <Typography
+            variant="caption"
+            color={Colors.light.textSecondary}
+            style={{ marginBottom: Spacing.md }}
+          >
             Select how you would like to receive the payment for your scrap.
           </Typography>
 

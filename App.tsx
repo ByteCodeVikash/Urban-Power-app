@@ -17,9 +17,6 @@ export default function App() {
   const [showSplash, setShowSplash] = React.useState(true);
 
   useEffect(() => {
-    // Helpful for tracing "crash on launch" reports in both debug and release logs.
-    console.log('[App] mounted');
-
     function onAppStateChange(status: AppStateStatus) {
       if (Platform.OS !== 'web') {
         focusManager.setFocused(status === 'active');
@@ -29,7 +26,6 @@ export default function App() {
     const subscription = AppState.addEventListener('change', onAppStateChange);
 
     return () => {
-      console.log('[App] unmounted');
       subscription.remove();
     };
   }, []);

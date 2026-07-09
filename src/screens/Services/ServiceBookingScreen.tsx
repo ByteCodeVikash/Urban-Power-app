@@ -82,8 +82,18 @@ export default function ServiceBookingScreen() {
   const [addrState, setAddrState] = useState('');
   const [addrPin, setAddrPin] = useState('');
   // Computed address string for submission
-  const address = [addrHouseNo, addrBuilding, addrStreet, addrArea, addrLandmark, addrCity, addrState, addrPin]
-    .filter(Boolean).join(', ');
+  const address = [
+    addrHouseNo,
+    addrBuilding,
+    addrStreet,
+    addrArea,
+    addrLandmark,
+    addrCity,
+    addrState,
+    addrPin,
+  ]
+    .filter(Boolean)
+    .join(', ');
 
   // Zustand Store Date & Timeslot
   const date = useBookingStore(state => state.selectedDate);
@@ -120,8 +130,6 @@ export default function ServiceBookingScreen() {
       navigation.setParams({ selectedTimeslot: undefined });
     }
   }, [route.params?.selectedDate, route.params?.selectedTimeslot, navigation]);
-
-
 
   const formatDateDisplay = (dateStr: string) => {
     if (!dateStr) return '';
@@ -301,8 +309,17 @@ export default function ServiceBookingScreen() {
   };
 
   const handleProceedToSummary = () => {
-    if (!name || !phone || !addrCity || !addrStreet || !date || !selectedTimeslot) {
-      alert('Please fill all details, including street, city, date and timeslot');
+    if (
+      !name ||
+      !phone ||
+      !addrCity ||
+      !addrStreet ||
+      !date ||
+      !selectedTimeslot
+    ) {
+      alert(
+        'Please fill all details, including street, city, date and timeslot',
+      );
       return;
     }
     if (phone.length !== 10) {
@@ -419,10 +436,7 @@ export default function ServiceBookingScreen() {
       // Skip alert for auth errors — interceptor already called logout()
       // which causes AppNavigator to redirect to LoginScreen.
       if (!error?.isAuthError) {
-        alert(
-          error.message ||
-            'An error occurred while confirming booking.',
-        );
+        alert(error.message || 'An error occurred while confirming booking.');
       }
     } finally {
       setIsProcessingPayment(false);
@@ -532,7 +546,11 @@ export default function ServiceBookingScreen() {
         </View>
         <View style={styles.phoneInputContainer}>
           <View style={styles.phoneCountryCode}>
-            <Typography variant="body2" weight="700" color={Colors.light.primary}>
+            <Typography
+              variant="body2"
+              weight="700"
+              color={Colors.light.primary}
+            >
               +91
             </Typography>
           </View>
@@ -540,7 +558,7 @@ export default function ServiceBookingScreen() {
             style={styles.phoneInput}
             placeholder="Enter 10-digit phone number"
             value={phone}
-            onChangeText={(text) => setPhone(text.replace(/[^0-9]/g, ''))}
+            onChangeText={text => setPhone(text.replace(/[^0-9]/g, ''))}
             keyboardType="phone-pad"
             maxLength={10}
           />
@@ -620,32 +638,122 @@ export default function ServiceBookingScreen() {
         </View>
         <View style={styles.addressGrid}>
           <View style={styles.addressHalf}>
-            <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>HOUSE / FLAT NO.</Typography>
-            <TextInput style={styles.input} placeholder="e.g. A-12" value={addrHouseNo} onChangeText={setAddrHouseNo} />
+            <Typography
+              variant="caption"
+              color={Colors.light.textSecondary}
+              style={styles.fieldLabel}
+            >
+              HOUSE / FLAT NO.
+            </Typography>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g. A-12"
+              value={addrHouseNo}
+              onChangeText={setAddrHouseNo}
+            />
           </View>
           <View style={styles.addressHalf}>
-            <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>BUILDING / SOCIETY</Typography>
-            <TextInput style={styles.input} placeholder="e.g. Green Park Apts" value={addrBuilding} onChangeText={setAddrBuilding} />
+            <Typography
+              variant="caption"
+              color={Colors.light.textSecondary}
+              style={styles.fieldLabel}
+            >
+              BUILDING / SOCIETY
+            </Typography>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g. Green Park Apts"
+              value={addrBuilding}
+              onChangeText={setAddrBuilding}
+            />
           </View>
         </View>
-        <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>STREET *</Typography>
-        <TextInput style={styles.input} placeholder="e.g. MG Road" value={addrStreet} onChangeText={setAddrStreet} />
-        <Typography variant="caption" color={Colors.light.textSecondary} style={[styles.fieldLabel, { marginTop: Spacing.sm }]}>AREA / LOCALITY</Typography>
-        <TextInput style={styles.input} placeholder="e.g. Sector 45" value={addrArea} onChangeText={setAddrArea} />
-        <Typography variant="caption" color={Colors.light.textSecondary} style={[styles.fieldLabel, { marginTop: Spacing.sm }]}>LANDMARK (OPTIONAL)</Typography>
-        <TextInput style={styles.input} placeholder="e.g. Near Metro Station" value={addrLandmark} onChangeText={setAddrLandmark} />
+        <Typography
+          variant="caption"
+          color={Colors.light.textSecondary}
+          style={styles.fieldLabel}
+        >
+          STREET *
+        </Typography>
+        <TextInput
+          style={styles.input}
+          placeholder="e.g. MG Road"
+          value={addrStreet}
+          onChangeText={setAddrStreet}
+        />
+        <Typography
+          variant="caption"
+          color={Colors.light.textSecondary}
+          style={[styles.fieldLabel, { marginTop: Spacing.sm }]}
+        >
+          AREA / LOCALITY
+        </Typography>
+        <TextInput
+          style={styles.input}
+          placeholder="e.g. Sector 45"
+          value={addrArea}
+          onChangeText={setAddrArea}
+        />
+        <Typography
+          variant="caption"
+          color={Colors.light.textSecondary}
+          style={[styles.fieldLabel, { marginTop: Spacing.sm }]}
+        >
+          LANDMARK (OPTIONAL)
+        </Typography>
+        <TextInput
+          style={styles.input}
+          placeholder="e.g. Near Metro Station"
+          value={addrLandmark}
+          onChangeText={setAddrLandmark}
+        />
         <View style={styles.addressGrid}>
           <View style={styles.addressHalf}>
-            <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>CITY *</Typography>
-            <TextInput style={styles.input} placeholder="e.g. Delhi" value={addrCity} onChangeText={setAddrCity} />
+            <Typography
+              variant="caption"
+              color={Colors.light.textSecondary}
+              style={styles.fieldLabel}
+            >
+              CITY *
+            </Typography>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g. Delhi"
+              value={addrCity}
+              onChangeText={setAddrCity}
+            />
           </View>
           <View style={styles.addressHalf}>
-            <Typography variant="caption" color={Colors.light.textSecondary} style={styles.fieldLabel}>STATE *</Typography>
-            <TextInput style={styles.input} placeholder="e.g. Delhi" value={addrState} onChangeText={setAddrState} />
+            <Typography
+              variant="caption"
+              color={Colors.light.textSecondary}
+              style={styles.fieldLabel}
+            >
+              STATE *
+            </Typography>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g. Delhi"
+              value={addrState}
+              onChangeText={setAddrState}
+            />
           </View>
         </View>
-        <Typography variant="caption" color={Colors.light.textSecondary} style={[styles.fieldLabel, { marginTop: Spacing.sm }]}>PIN CODE *</Typography>
-        <TextInput style={styles.input} placeholder="e.g. 110001" value={addrPin} onChangeText={(t) => setAddrPin(t.replace(/[^0-9]/g, ''))} keyboardType="number-pad" maxLength={6} />
+        <Typography
+          variant="caption"
+          color={Colors.light.textSecondary}
+          style={[styles.fieldLabel, { marginTop: Spacing.sm }]}
+        >
+          PIN CODE *
+        </Typography>
+        <TextInput
+          style={styles.input}
+          placeholder="e.g. 110001"
+          value={addrPin}
+          onChangeText={t => setAddrPin(t.replace(/[^0-9]/g, ''))}
+          keyboardType="number-pad"
+          maxLength={6}
+        />
       </View>
 
       {/* Reference Photos Section */}

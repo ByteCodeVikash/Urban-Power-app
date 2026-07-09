@@ -52,7 +52,10 @@ export const Map = React.forwardRef<any, MapProps>(
           // No-op: map ref unavailable in web/no-key mode
         }
       },
-      fitToCoordinates: (coordinates: { latitude: number; longitude: number }[], options: any) => {
+      fitToCoordinates: (
+        coordinates: { latitude: number; longitude: number }[],
+        options: any,
+      ) => {
         if (!useMock && mapRef.current) {
           mapRef.current.fitToCoordinates(coordinates, options);
         } else {

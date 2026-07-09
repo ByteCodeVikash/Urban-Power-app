@@ -39,7 +39,7 @@ interface Period {
   label: string;
   sublabel: string;
   startHour: number; // inclusive
-  endHour: number;   // exclusive
+  endHour: number; // exclusive
   Icon: React.ComponentType<any>;
   accentColor: string;
   bgColor: string;
@@ -216,7 +216,10 @@ export default function TimeslotSelectionScreen() {
         style={[
           styles.slotPill,
           isAvailable ? styles.slotPillAvailable : styles.slotPillDisabled,
-          isSelected && { ...styles.slotPillSelected, borderColor: accentColor },
+          isSelected && {
+            ...styles.slotPillSelected,
+            borderColor: accentColor,
+          },
         ]}
         disabled={!isAvailable}
         onPress={() => handleSelectSlot(item)}
@@ -290,7 +293,10 @@ export default function TimeslotSelectionScreen() {
             </Typography>
             <Typography
               variant="caption"
-              style={[styles.periodSublabel, { color: Colors.light.textSecondary }]}
+              style={[
+                styles.periodSublabel,
+                { color: Colors.light.textSecondary },
+              ]}
             >
               {sublabel}
             </Typography>
@@ -305,11 +311,12 @@ export default function TimeslotSelectionScreen() {
             <Typography
               variant="tiny"
               weight="700"
-              style={{ color: availableCount > 0 ? accentColor : Colors.light.textMuted }}
+              style={{
+                color:
+                  availableCount > 0 ? accentColor : Colors.light.textMuted,
+              }}
             >
-              {availableCount === 0
-                ? 'Full'
-                : `${availableCount} open`}
+              {availableCount === 0 ? 'Full' : `${availableCount} open`}
             </Typography>
           </View>
         </View>
@@ -366,20 +373,37 @@ export default function TimeslotSelectionScreen() {
           {/* Legend row */}
           <View style={styles.legendRow}>
             <View style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: Colors.light.primary }]} />
+              <View
+                style={[
+                  styles.legendDot,
+                  { backgroundColor: Colors.light.primary },
+                ]}
+              />
               <Typography variant="tiny" color={Colors.light.textSecondary}>
                 Available
               </Typography>
             </View>
             <View style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: '#D1D5DB' }]} />
+              <View
+                style={[styles.legendDot, { backgroundColor: '#D1D5DB' }]}
+              />
               <Typography variant="tiny" color={Colors.light.textSecondary}>
                 Fully Booked
               </Typography>
             </View>
             <View style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: Colors.light.primary, opacity: 0.9 }]} />
-              <Check size={9} color="#fff" strokeWidth={3} style={{ position: 'absolute' }} />
+              <View
+                style={[
+                  styles.legendDot,
+                  { backgroundColor: Colors.light.primary, opacity: 0.9 },
+                ]}
+              />
+              <Check
+                size={9}
+                color="#fff"
+                strokeWidth={3}
+                style={{ position: 'absolute' }}
+              />
               <Typography variant="tiny" color={Colors.light.textSecondary}>
                 Selected
               </Typography>
@@ -402,7 +426,8 @@ export default function TimeslotSelectionScreen() {
               style={styles.selectedSummaryText}
               numberOfLines={1}
             >
-              {formatTime(selectedSlot.start_time)} – {formatTime(selectedSlot.end_time)}
+              {formatTime(selectedSlot.start_time)} –{' '}
+              {formatTime(selectedSlot.end_time)}
             </Typography>
           </View>
         )}

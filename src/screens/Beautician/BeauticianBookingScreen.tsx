@@ -195,8 +195,7 @@ export default function BeauticianBookingScreen() {
       // which causes AppNavigator to redirect to LoginScreen.
       if (!err?.isAuthError) {
         const errMsg =
-          err?.message ||
-          'Failed to book beauty services. Please try again.';
+          err?.message || 'Failed to book beauty services. Please try again.';
         alert(errMsg);
       }
     } finally {
@@ -303,7 +302,11 @@ export default function BeauticianBookingScreen() {
             </View>
             <View style={styles.phoneInputContainer}>
               <View style={styles.phoneCountryCode}>
-                <Typography variant="body2" weight="700" color={Colors.light.primary}>
+                <Typography
+                  variant="body2"
+                  weight="700"
+                  color={Colors.light.primary}
+                >
                   +91
                 </Typography>
               </View>
@@ -311,7 +314,7 @@ export default function BeauticianBookingScreen() {
                 style={styles.phoneInput}
                 placeholder="Enter 10-digit phone number"
                 value={phone}
-                onChangeText={(text) => setPhone(text.replace(/[^0-9]/g, ''))}
+                onChangeText={text => setPhone(text.replace(/[^0-9]/g, ''))}
                 keyboardType="phone-pad"
                 maxLength={10}
               />
