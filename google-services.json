@@ -12,7 +12,20 @@
           "package_name": "com.anonymous.urbanpower"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "356047649885-tp245c2eluhuqt5hdbfie9ctus93ns7f.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.anonymous.urbanpower",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "356047649885-n1ikjb54tqtkqr1j2i7jhhum8qtu71cr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDQzI2sUQ6bB4khy_N12huhB6rc34DpEE4"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "356047649885-n1ikjb54tqtkqr1j2i7jhhum8qtu71cr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     },
@@ -31,7 +49,36 @@
           "package_name": "com.urbanpower.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "356047649885-75rdqjkiplsqbls2sh20hoiubnqlkjig.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.urbanpower.app",
+            "certificate_hash": "68d21e773d1e6c766cce212d5a4b5fd8ffed9937"
+          }
+        },
+        {
+          "client_id": "356047649885-ciunefp4nn0cu5vlamur8tjs3kcv50k2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.urbanpower.app",
+            "certificate_hash": "ff1ce5c9c209fee17456625564bade5cce888684"
+          }
+        },
+        {
+          "client_id": "356047649885-i1hrtkcc0tplq5b8tbd5k29gj881o6bi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.urbanpower.app",
+            "certificate_hash": "badd46033d904791abdab4a7dfe0a42d8dd4d1ce"
+          }
+        },
+        {
+          "client_id": "356047649885-n1ikjb54tqtkqr1j2i7jhhum8qtu71cr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDQzI2sUQ6bB4khy_N12huhB6rc34DpEE4"
@@ -39,7 +86,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "356047649885-n1ikjb54tqtkqr1j2i7jhhum8qtu71cr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

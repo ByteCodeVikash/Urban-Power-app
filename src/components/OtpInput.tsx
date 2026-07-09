@@ -95,11 +95,18 @@ export const OtpInput: React.FC<OtpInputProps> = ({
         ref={inputRef}
         value={value}
         onChangeText={text => {
-          // Only allow digits
-          const cleanedText = text.replace(/[^0-9]/g, '');
+          // Check if the input contains a numeric sequence of the specified length
+          const otpRegex = new RegExp(`\\b\\d{${length}}\\b`);
+          const otpMatch = text.match(otpRegex);
+          if (otpMatch) {
+            onChangeText(otpMatch[0]);
+            return;
+          }
+          // Otherwise, only allow digits up to the specified length
+          const cleanedText = text.replace(/[^0-9]/g, '').slice(0, length);
           onChangeText(cleanedText);
         }}
-        maxLength={length}
+        maxLength={100}
         keyboardType="number-pad"
         returnKeyType="done"
         textContentType="oneTimeCode" // iOS Autofill

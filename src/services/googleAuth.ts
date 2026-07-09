@@ -16,50 +16,25 @@ export const googleAuthService = {
           GoogleSignin,
         } = require('@react-native-google-signin/google-signin');
 
-        let webClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || '';
-        console.log(
-          '[GoogleAuthService] Initial EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID from process.env:',
-          webClientId,
-        );
-
-        // Dynamic fallback: read from google-services.json if env variable is empty
-        if (!webClientId) {
-          try {
-            console.log(
-              '[GoogleAuthService] Env client ID is empty. Attempting fallback to google-services.json',
+        let webClientId = '';
+        try {
+          const googleServices = require('../../google-services.json');
+          const clients = googleServices?.client || [];
+          for (const client of clients) {
+            const oauthClients = client?.oauth_client || [];
+            const webClient = oauthClients.find(
+              (o: any) => o.client_type === 3,
             );
-            const googleServices = require('../../google-services.json');
-            const clients = googleServices?.client || [];
-            console.log(
-              '[GoogleAuthService] Found clients in google-services.json:',
-              clients.length,
-            );
-            for (const client of clients) {
-              const oauthClients = client?.oauth_client || [];
-              console.log(
-                '[GoogleAuthService] Checking package:',
-                client?.client_info?.android_client_info?.package_name,
-                'with oauthClients count:',
-                oauthClients.length,
-              );
-              const webClient = oauthClients.find(
-                (o: any) => o.client_type === 3,
-              );
-              if (webClient?.client_id) {
-                webClientId = webClient.client_id;
-                console.log(
-                  '[GoogleAuthService] Found web client ID in google-services.json:',
-                  webClientId,
-                );
-                break;
-              }
+            if (webClient?.client_id) {
+              webClientId = webClient.client_id;
+              break;
             }
-          } catch (e) {
-            console.warn(
-              '[GoogleAuthService] Failed to load client ID from google-services.json:',
-              e,
-            );
           }
+        } catch (e) {
+          console.warn(
+            '[GoogleAuthService] Failed to load client ID from google-services.json:',
+            e,
+          );
         }
 
         console.log(
@@ -68,7 +43,7 @@ export const googleAuthService = {
         );
         GoogleSignin.configure({
           webClientId: webClientId,
-          offlineAccess: true,
+          offlineAccess: false,
         });
         console.log(
           '[GoogleAuthService] GoogleSignin.configure successfully executed.',
@@ -136,6 +111,16 @@ export const googleAuthService = {
           photo,
         };
       } catch (error: any) {
+        console.log("--- GOOGLE SIGN-IN ERROR DETECTED ---");
+        console.log("error:", error);
+        console.log("error.message:", error?.message);
+        console.log("error.code:", error?.code);
+        console.log("error.stack:", error?.stack);
+        console.log("Google Sign-In error.code:", error?.code);
+        console.log("Google Sign-In error.message:", error?.message);
+        console.log("Google Sign-In nativeStatus:", error?.nativeStatus);
+        console.log("Google Sign-In statusCodes:", error?.statusCodes);
+        console.log("-------------------------------------");
         console.error('[GoogleAuthService] Native Sign-in error details:', {
           code: error?.code,
           message: error?.message,

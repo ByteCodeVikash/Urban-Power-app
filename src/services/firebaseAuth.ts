@@ -47,6 +47,13 @@ export const firebaseAuthService = {
         );
         return confirmation;
       } catch (error: any) {
+        console.log("--- FIREBASE SEND OTP ERROR DETECTED ---");
+        console.log("error:", error);
+        console.log("error.message:", error?.message);
+        console.log("error.code:", error?.code);
+        console.log("error.stack:", error?.stack);
+        console.log("phoneNumber:", formattedPhone);
+        console.log("-----------------------------------------");
         console.error('[FirebaseAuthService] sendOtp failed detailed error:', {
           code: error?.code,
           message: error?.message,
@@ -96,6 +103,14 @@ export const firebaseAuthService = {
         phoneNumber: user.phoneNumber || '',
       };
     } catch (error: any) {
+      console.log("--- FIREBASE VERIFY OTP ERROR DETECTED ---");
+      console.log("error:", error);
+      console.log("error.message:", error?.message);
+      console.log("error.code:", error?.code);
+      console.log("error.stack:", error?.stack);
+      console.log("verificationId:", confirmation?.verificationId);
+      console.log("credential:", error?.credential);
+      console.log("-------------------------------------------");
       console.error('[FirebaseAuthService] verifyOtp failed detailed error:', {
         code: error?.code,
         message: error?.message,

@@ -59,9 +59,4 @@
   return [super application:application didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
 }
 
-- (void)customizeRootView:(RCTRootView *)rootView {
-  [super customizeRootView:rootView];
-  rootView.backgroundColor = [UIColor colorWithRed:0.10196 green:0.01961 blue:0.20000 alpha:1.0];
-}
-
 @end

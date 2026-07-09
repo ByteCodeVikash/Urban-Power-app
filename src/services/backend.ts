@@ -28,13 +28,27 @@ API.interceptors.response.use(
     return response;
   },
   error => {
+    console.log("--- AXIOS ERROR DETECTED ---");
+    console.log("error:", error);
+    console.log("error.message:", error?.message);
+    console.log("error.response:", error?.response);
+    console.log("error.response.status:", error?.response?.status);
+    console.log("error.response.data:", error?.response?.data);
+    console.log("error.code:", error?.code);
+    console.log("error.stack:", error?.stack);
+    console.log("axios config:", error?.config);
+    console.log("request url:", error?.config?.url);
+    console.log("request body:", error?.config?.data);
+    console.log("request headers:", error?.config?.headers);
+    console.log("----------------------------");
+
     const response = error.response;
     let errorMessage = error.message;
 
     if (error.code === 'ECONNABORTED') {
       errorMessage = 'Request timed out. Please check your network connection.';
     } else if (error.message === 'Network Error') {
-      errorMessage = 'Network error. Please check your internet connection.';
+      errorMessage = `Network Error: Failed to connect to ${error?.config?.url || 'backend server'}. Please check your network or server status.`;
     } else if (response) {
       if (response.status === 401) {
         errorMessage = 'Your session has expired. Please log in again.';
