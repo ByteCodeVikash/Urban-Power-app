@@ -37,6 +37,7 @@ import { useAddressStore } from '../../store/useAddressStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { api } from '../../services/api';
 import { openRazorpayCheckout } from '../../services/razorpay';
+import { pincodeService } from '../../services/pincodeService';
 
 export default function ServiceBookingScreen() {
   const navigation = useNavigation<any>();
@@ -46,6 +47,7 @@ export default function ServiceBookingScreen() {
   const addBooking = useBookingStore(state => state.addBooking);
 
   const category = CATEGORIES.find(c => c.id === categoryId);
+  const isBeauty = categoryId === 'c2' || categoryName === 'Beauty';
 
   // If a service was pre-selected (from SubcategoryScreen), start at step 2
   const preSelected = selectedServiceId
@@ -94,6 +96,63 @@ export default function ServiceBookingScreen() {
   ]
     .filter(Boolean)
     .join(', ');
+
+  const [lastAutofilledPin, setLastAutofilledPin] = useState('');
+  const [lastAutofilledValues, setLastAutofilledValues] = useState({
+    city: '',
+    state: '',
+    area: '',
+  });
+
+  // Handle Pincode Lookup
+  useEffect(() => {
+    const lookup = async () => {
+      if (addrPin.length === 6) {
+        if (addrPin === lastAutofilledPin) {
+          return;
+        }
+        try {
+          const details = await pincodeService.lookup(addrPin);
+          if (details) {
+            // Update City
+            if (!addrCity || addrCity === lastAutofilledValues.city) {
+              setAddrCity(details.city);
+            }
+            // Update State
+            if (!addrState || addrState === lastAutofilledValues.state) {
+              setAddrState(details.state);
+            }
+            // Update Area/Locality
+            const firstLocality = details.localities[0] || '';
+            if (!addrArea || addrArea === lastAutofilledValues.area) {
+              setAddrArea(firstLocality);
+            }
+            setLastAutofilledPin(addrPin);
+            setLastAutofilledValues({
+              city: details.city,
+              state: details.state,
+              area: firstLocality,
+            });
+          } else {
+            alert('Invalid PIN code. Please enter a valid 6-digit PIN code.');
+          }
+        } catch (error) {
+          console.error('Pincode lookup error:', error);
+          alert(
+            'Failed to lookup PIN code. Please verify your internet connection.',
+          );
+        }
+      }
+    };
+    lookup();
+  }, [
+    addrPin,
+    lastAutofilledPin,
+    lastAutofilledValues,
+    addrCity,
+    addrState,
+    addrArea,
+  ]);
 
   // Zustand Store Date & Timeslot
   const date = useBookingStore(state => state.selectedDate);
@@ -326,7 +385,7 @@ export default function ServiceBookingScreen() {
       alert('Please enter a valid 10-digit phone number');
       return;
     }
-    if (isUploading) {
+    if (!isBeauty && isUploading) {
       alert('Please wait for the image upload to complete.');
       return;
     }
@@ -339,17 +398,34 @@ export default function ServiceBookingScreen() {
 
     try {
       let addressId = '';
-      if (addresses && addresses.length > 0) {
-        const defaultAddr = addresses.find(a => a.is_default) || addresses[0];
-        addressId = defaultAddr.id;
+      const streetVal = [addrBuilding, addrStreet, addrArea]
+        .filter(Boolean)
+        .join(', ');
+
+      const existingAddr = addresses?.find(
+        (a: any) =>
+          a.pincode === addrPin.trim() &&
+          a.city?.toLowerCase().trim() === addrCity.toLowerCase().trim() &&
+          a.state?.toLowerCase().trim() === addrState.toLowerCase().trim() &&
+          a.street?.toLowerCase().trim() === streetVal.toLowerCase().trim() &&
+          (a.house_number || '')?.toLowerCase().trim() ===
+            (addrHouseNo || '')?.toLowerCase().trim() &&
+          (a.landmark || '')?.toLowerCase().trim() ===
+            (addrLandmark || '')?.toLowerCase().trim(),
+      );
+
+      if (existingAddr) {
+        addressId = existingAddr.id;
       } else {
         const newAddr = await addAddress({
           address_type: 'Home',
-          street: address || 'Default Street',
-          city: 'City',
-          state: 'State',
-          pincode: '123456',
-          is_default: true,
+          house_number: addrHouseNo.trim() || null,
+          street: streetVal || 'Default Street',
+          landmark: addrLandmark.trim() || null,
+          city: addrCity.trim() || 'City',
+          state: addrState.trim() || 'State',
+          pincode: addrPin.trim() || '123456',
+          is_default: addresses && addresses.length === 0,
         });
         addressId = newAddr.id;
       }
@@ -757,85 +833,87 @@ export default function ServiceBookingScreen() {
       </View>
 
       {/* Reference Photos Section */}
-      <View style={styles.inputGroup}>
-        <View style={styles.inputLabel}>
-          <Camera size={18} color={Colors.light.primary} />
-          <Typography variant="body2" weight="700" style={{ marginLeft: 8 }}>
-            Reference Photos (Optional)
+      {!isBeauty && (
+        <View style={styles.inputGroup}>
+          <View style={styles.inputLabel}>
+            <Camera size={18} color={Colors.light.primary} />
+            <Typography variant="body2" weight="700" style={{ marginLeft: 8 }}>
+              Reference Photos (Optional)
+            </Typography>
+          </View>
+          <Typography
+            variant="caption"
+            color={Colors.light.textSecondary}
+            style={{ marginBottom: Spacing.sm }}
+          >
+            Upload reference photos for a more accurate diagnostic check.
           </Typography>
-        </View>
-        <Typography
-          variant="caption"
-          color={Colors.light.textSecondary}
-          style={{ marginBottom: Spacing.sm }}
-        >
-          Upload reference photos for a more accurate diagnostic check.
-        </Typography>
 
-        {uploadError && (
-          <View style={styles.errorContainer}>
-            <AlertCircle color={Colors.light.error} size={18} />
-            <Typography
-              variant="body2"
-              color={Colors.light.error}
-              style={{ marginLeft: Spacing.sm, flex: 1 }}
-            >
-              {uploadError}
-            </Typography>
-          </View>
-        )}
+          {uploadError && (
+            <View style={styles.errorContainer}>
+              <AlertCircle color={Colors.light.error} size={18} />
+              <Typography
+                variant="body2"
+                color={Colors.light.error}
+                style={{ marginLeft: Spacing.sm, flex: 1 }}
+              >
+                {uploadError}
+              </Typography>
+            </View>
+          )}
 
-        {imageUri ? (
-          <View style={styles.previewContainer}>
-            <NetworkImage
-              source={{ uri: imageUri }}
-              style={styles.previewImage}
-            />
-            {isUploading ? (
-              <View style={styles.uploadingOverlay}>
-                <View style={styles.progressContainer}>
-                  <View
-                    style={[
-                      styles.progressBarFill,
-                      { width: `${uploadProgress}%` },
-                    ]}
-                  />
+          {imageUri ? (
+            <View style={styles.previewContainer}>
+              <NetworkImage
+                source={{ uri: imageUri }}
+                style={styles.previewImage}
+              />
+              {isUploading ? (
+                <View style={styles.uploadingOverlay}>
+                  <View style={styles.progressContainer}>
+                    <View
+                      style={[
+                        styles.progressBarFill,
+                        { width: `${uploadProgress}%` },
+                      ]}
+                    />
+                  </View>
+                  <Typography
+                    variant="caption"
+                    color={Colors.light.textSecondary}
+                    weight="700"
+                  >
+                    Uploading... {uploadProgress}%
+                  </Typography>
                 </View>
-                <Typography
-                  variant="caption"
-                  color={Colors.light.textSecondary}
-                  weight="700"
-                >
-                  Uploading... {uploadProgress}%
-                </Typography>
-              </View>
-            ) : (
-              <Pressable style={styles.removeBtn} onPress={handleRemoveImage}>
-                <Trash2 color={Colors.light.white} size={16} />
-              </Pressable>
-            )}
-          </View>
-        ) : (
-          <Pressable style={styles.uploadBox} onPress={handleSelectImage}>
-            <Camera color={Colors.light.primary} size={32} />
-            <Typography
-              variant="body2"
-              color={Colors.light.textSecondary}
-              style={{ marginTop: Spacing.sm }}
-              weight="600"
-            >
-              Tap to select photo
-            </Typography>
-            <Typography
-              variant="caption"
-              color={Colors.light.textMuted}
-              style={{ marginTop: 2 }}
-            >
-              Max 10MB (JPEG, PNG, WEBP)
-            </Typography>
-          </Pressable>
-        )}
-      </View>
+              ) : (
+                <Pressable style={styles.removeBtn} onPress={handleRemoveImage}>
+                  <Trash2 color={Colors.light.white} size={16} />
+                </Pressable>
+              )}
+            </View>
+          ) : (
+            <Pressable style={styles.uploadBox} onPress={handleSelectImage}>
+              <Camera color={Colors.light.primary} size={32} />
+              <Typography
+                variant="body2"
+                color={Colors.light.textSecondary}
+                style={{ marginTop: Spacing.sm }}
+                weight="600"
+              >
+                Tap to select photo
+              </Typography>
+              <Typography
+                variant="caption"
+                color={Colors.light.textMuted}
+                style={{ marginTop: 2 }}
+              >
+                Max 10MB (JPEG, PNG, WEBP)
+              </Typography>
+            </Pressable>
+          )}
+        </View>
+      )}
 
       <View style={styles.summaryCard}>
         <View style={styles.summaryRow}>

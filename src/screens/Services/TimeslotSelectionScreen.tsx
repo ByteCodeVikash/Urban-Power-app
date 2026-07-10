@@ -114,8 +114,7 @@ const formatDateLong = (dateStr: string): string => {
 export default function TimeslotSelectionScreen() {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
-  const { serviceId, date, returnScreen, initialTimeslotId } =
-    route.params || {};
+  const { serviceId, date, initialTimeslotId } = route.params || {};
 
   const [timeslots, setTimeslots] = useState<TimeslotItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -182,11 +181,7 @@ export default function TimeslotSelectionScreen() {
   const handleConfirm = () => {
     if (!selectedSlot) return;
     setSelectedTimeslotStore(selectedSlot);
-    navigation.navigate({
-      name: returnScreen,
-      params: { selectedTimeslot: selectedSlot },
-      merge: true,
-    });
+    navigation.goBack();
   };
 
   // ── Single-selection handler ──

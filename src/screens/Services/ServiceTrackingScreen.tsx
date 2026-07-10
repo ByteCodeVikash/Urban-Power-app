@@ -35,19 +35,22 @@ function parseBookingNotes(notes: string | null | undefined) {
       customerName: 'Client',
       phone: '',
       technician: 'None',
+      timeslot: '',
       customNotes: '',
     };
   }
 
-  const nameMatch = notes.match(/Customer Name:\s*([^,\n]+)/i);
-  const phoneMatch = notes.match(/Phone:\s*([^,\n]+)/i);
-  const techMatch = notes.match(/Technician:\s*([^,\n]+)/i);
+  const nameMatch = notes.match(/Customer Name:\s*([^|,\n]+)/i);
+  const phoneMatch = notes.match(/Phone:\s*([^|,\n]+)/i);
+  const techMatch = notes.match(/Technician:\s*([^|,\n]+)/i);
+  const timeslotMatch = notes.match(/Timeslot:\s*([^|,\n]+)/i);
 
   let customerName = nameMatch ? nameMatch[1].trim() : 'Client';
   let phone = phoneMatch ? phoneMatch[1].trim() : '';
   let technician = techMatch ? techMatch[1].trim() : 'None';
+  let timeslot = timeslotMatch ? timeslotMatch[1].trim() : '';
 
-  return { customerName, phone, technician };
+  return { customerName, phone, technician, timeslot };
 }
 
 export default function ServiceTrackingScreen() {
@@ -77,7 +80,10 @@ export default function ServiceTrackingScreen() {
     (bookingType === 'maintenance' && booking?.service_names?.join(', ')) ||
     'Service Booking';
   const dateStr = (route.params as any)?.dateStr || '';
-  const timeslotStr = (route.params as any)?.timeslotStr || '';
+  const timeslotStr =
+    (route.params as any)?.timeslotStr ||
+    parseBookingNotes(booking?.notes).timeslot ||
+    '';
 
   useFocusEffect(
     useCallback(() => {
@@ -522,7 +528,7 @@ export default function ServiceTrackingScreen() {
         <Button
           title="Go to Bookings"
           style={{ flex: 1 }}
-          onPress={() => navigation.navigate('MyBookings')}
+          onPress={() => navigation.navigate('Bookings')}
         />
       </View>
     </SafeAreaView>

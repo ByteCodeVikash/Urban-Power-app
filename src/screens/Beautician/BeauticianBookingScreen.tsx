@@ -8,6 +8,8 @@ import {
   TextInput,
   BackHandler,
   ActivityIndicator,
+  Modal,
+  TouchableOpacity,
 } from 'react-native';
 import {
   useNavigation,
@@ -16,6 +18,8 @@ import {
 } from '@react-navigation/native';
 import {
   ChevronLeft,
+  ChevronRight,
+  X,
   Calendar,
   User,
   MapPin,
@@ -30,6 +34,12 @@ import { useBeauticianStore } from '../../store/useBeauticianStore';
 import { useAddressStore } from '../../store/useAddressStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { api } from '../../services/api';
+
+interface DayItem {
+  dateStr: string;
+  dayNum: number;
+  isCurrentMonth: boolean;
+}
 
 export default function BeauticianBookingScreen() {
   const navigation = useNavigation<any>();
@@ -48,6 +58,13 @@ export default function BeauticianBookingScreen() {
     state.getSelectedCount(),
   );
 
+  // Read selectedDate & selectedTimeslot from Zustand store
+  const storeSelectedDate = useBookingStore(state => state.selectedDate);
+  const setSelectedDateStore = useBookingStore(state => state.setSelectedDate);
+  const selectedTimeslotStore = useBookingStore(
+    state => state.selectedTimeslot,
+  );
+
   // Form State
   const [name, setName] = useState(user?.name || '');
   const [phone, setPhone] = useState(() => {
@@ -56,18 +73,115 @@ export default function BeauticianBookingScreen() {
     return cleaned.slice(-10);
   });
   const [selectedAddressId, setSelectedAddressId] = useState<string>('');
-  const [date, setDate] = useState('');
-  const [timeslot, setTimeslot] = useState<any>(null);
+  const [date, setDate] = useState(storeSelectedDate || '');
+  const [timeslot, setTimeslot] = useState<any>(selectedTimeslotStore || null);
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Read selectedDate from Zustand store (set by DateSelectionScreen before goBack())
-  const storeSelectedDate = useBookingStore(state => state.selectedDate);
+  // Date Picker Modal State
+  const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
+  const [selectedDateTemp, setSelectedDateTemp] = useState('');
+  const [availableDates, setAvailableDates] = useState<string[]>([]);
+  const [isLoadingDates, setIsLoadingDates] = useState(false);
+
+  // Calendar month/year navigation state
+  const today = new Date();
+  const [currentMonth, setCurrentMonth] = useState(today.getMonth());
+  const [currentYear, setCurrentYear] = useState(today.getFullYear());
+
+  // Weekdays & Months constants
+  const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const MONTHS = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+
+  // Helper: Generate days in grid for currentMonth/currentYear
+  const getDaysInMonth = (year: number, month: number): DayItem[] => {
+    const firstDayOfMonth = new Date(year, month, 1);
+    const startDayOfWeek = firstDayOfMonth.getDay();
+    const days: DayItem[] = [];
+
+    // Previous month padding
+    const prevMonthDate = new Date(year, month, 0);
+    const prevMonthDays = prevMonthDate.getDate();
+    for (let i = startDayOfWeek - 1; i >= 0; i--) {
+      const day = prevMonthDays - i;
+      const pm = month === 0 ? 11 : month - 1;
+      const py = month === 0 ? year - 1 : year;
+      const dateStr = `${py}-${String(pm + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      days.push({ dateStr, dayNum: day, isCurrentMonth: false });
+    }
+
+    // Current month days
+    const totalDays = new Date(year, month + 1, 0).getDate();
+    for (let i = 1; i <= totalDays; i++) {
+      const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+      days.push({ dateStr, dayNum: i, isCurrentMonth: true });
+    }
+
+    // Next month padding to align rows
+    const totalCells = days.length;
+    const remaining = totalCells % 7;
+    if (remaining > 0) {
+      const paddingNeeded = 7 - remaining;
+      const nm = month === 11 ? 0 : month + 1;
+      const ny = month === 11 ? year + 1 : year;
+      for (let i = 1; i <= paddingNeeded; i++) {
+        const dateStr = `${ny}-${String(nm + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+        days.push({ dateStr, dayNum: i, isCurrentMonth: false });
+      }
+    }
+
+    return days;
+  };
+
+  const checkIsPast = (dateStr: string) => {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const dateObj = new Date(y, m - 1, d);
+    const compareToday = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate(),
+    );
+    return dateObj < compareToday;
+  };
 
   // Fetch PostgreSQL addresses on mount
   useEffect(() => {
     fetchAddresses();
   }, []);
+
+  // Fetch available dates for the selected beauty services
+  useEffect(() => {
+    async function fetchAvailableDates() {
+      const firstServiceId = selectedServices[0]?.id;
+      if (!firstServiceId) return;
+      try {
+        setIsLoadingDates(true);
+        const dates = await api.bookings.getAvailableDates(firstServiceId);
+        setAvailableDates(dates);
+      } catch (err) {
+        console.error(
+          'Failed to load available dates in BeauticianBookingScreen',
+          err,
+        );
+      } finally {
+        setIsLoadingDates(false);
+      }
+    }
+    fetchAvailableDates();
+  }, [selectedServices]);
 
   // Set default address when addresses load
   useEffect(() => {
@@ -77,18 +191,21 @@ export default function BeauticianBookingScreen() {
     }
   }, [addresses, selectedAddressId]);
 
-  // Sync local date from store whenever this screen re-focuses
-  // (i.e., after returning from DateSelectionScreen via goBack())
+  // Sync local date & timeslot from store whenever this screen re-focuses
+  // (i.e., after returning from DateSelectionScreen / TimeslotSelectionScreen via goBack())
   useFocusEffect(
     useCallback(() => {
-      if (storeSelectedDate) {
+      if (storeSelectedDate && storeSelectedDate !== date) {
         setDate(storeSelectedDate);
-        setTimeslot(null); // Reset timeslot when date changes
+        setTimeslot(null); // Reset timeslot ONLY when date actually changes!
       }
-    }, [storeSelectedDate]),
+      if (selectedTimeslotStore && selectedTimeslotStore !== timeslot) {
+        setTimeslot(selectedTimeslotStore);
+      }
+    }, [storeSelectedDate, date, selectedTimeslotStore, timeslot]),
   );
 
-  // Handle timeslot route param returned from TimeslotSelectionScreen
+  // Handle timeslot route param returned from TimeslotSelectionScreen (fallback)
   useEffect(() => {
     if (route.params?.selectedTimeslot) {
       setTimeslot(route.params.selectedTimeslot);
@@ -335,12 +452,20 @@ export default function BeauticianBookingScreen() {
             <Pressable
               style={styles.trigger}
               onPress={() => {
-                const firstServiceId = selectedServices[0]?.id || '';
-                navigation.navigate('DateSelection', {
-                  serviceId: firstServiceId,
-                  returnScreen: 'BeauticianBooking',
-                  initialDate: date,
-                });
+                if (date) {
+                  const [year, month] = date.split('-').map(Number);
+                  if (year && month) {
+                    setCurrentYear(year);
+                    setCurrentMonth(month - 1);
+                  }
+                  setSelectedDateTemp(date);
+                } else {
+                  const d = new Date();
+                  setCurrentYear(d.getFullYear());
+                  setCurrentMonth(d.getMonth());
+                  setSelectedDateTemp('');
+                }
+                setIsDatePickerVisible(true);
               }}
             >
               <Typography
@@ -522,6 +647,245 @@ export default function BeauticianBookingScreen() {
           style={styles.confirmBtn}
         />
       </View>
+
+      {/* Custom Modal Date Picker */}
+      <Modal
+        visible={isDatePickerVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setIsDatePickerVisible(false)}
+      >
+        <Pressable
+          style={styles.modalOverlay}
+          onPress={() => setIsDatePickerVisible(false)}
+        >
+          <Pressable
+            style={styles.modalContent}
+            onPress={e => e.stopPropagation()}
+          >
+            <View style={styles.modalHeader}>
+              <Typography variant="h3" weight="800" style={styles.modalTitle}>
+                Select Preferred Date
+              </Typography>
+              <TouchableOpacity
+                onPress={() => setIsDatePickerVisible(false)}
+                style={styles.closeBtn}
+              >
+                <X size={20} color={Colors.light.textSecondary} />
+              </TouchableOpacity>
+            </View>
+
+            {isLoadingDates ? (
+              <View
+                style={{ paddingVertical: Spacing.xl, alignItems: 'center' }}
+              >
+                <ActivityIndicator size="large" color={Colors.light.primary} />
+                <Typography variant="body2" style={{ marginTop: Spacing.md }}>
+                  Loading available dates...
+                </Typography>
+              </View>
+            ) : (
+              <View>
+                {/* Calendar Navigation */}
+                <View style={styles.modalCalendarHeader}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      if (currentMonth === 0) {
+                        setCurrentMonth(11);
+                        setCurrentYear(prev => prev - 1);
+                      } else {
+                        setCurrentMonth(prev => prev - 1);
+                      }
+                    }}
+                    style={styles.modalNavButton}
+                  >
+                    <ChevronLeft size={20} color={Colors.light.text} />
+                  </TouchableOpacity>
+
+                  <Typography
+                    variant="body1"
+                    weight="800"
+                    style={styles.modalMonthLabel}
+                  >
+                    {MONTHS[currentMonth]} {currentYear}
+                  </Typography>
+
+                  <TouchableOpacity
+                    onPress={() => {
+                      if (currentMonth === 11) {
+                        setCurrentMonth(0);
+                        setCurrentYear(prev => prev + 1);
+                      } else {
+                        setCurrentMonth(prev => prev + 1);
+                      }
+                    }}
+                    style={styles.modalNavButton}
+                  >
+                    <ChevronRight size={20} color={Colors.light.text} />
+                  </TouchableOpacity>
+                </View>
+
+                {/* Weekdays Row */}
+                <View style={styles.modalWeekdaysRow}>
+                  {WEEKDAYS.map((day, idx) => (
+                    <View key={idx} style={styles.modalWeekdayCell}>
+                      <Typography
+                        variant="caption"
+                        weight="800"
+                        color={Colors.light.textMuted}
+                      >
+                        {day.substring(0, 2).toUpperCase()}
+                      </Typography>
+                    </View>
+                  ))}
+                </View>
+
+                {/* Days Grid */}
+                <View style={styles.modalGridContainer}>
+                  {getDaysInMonth(currentYear, currentMonth).map(dayItem => {
+                    const isPast = checkIsPast(dayItem.dateStr);
+                    const isAvailable = availableDates.includes(
+                      dayItem.dateStr,
+                    );
+                    const isSelected = selectedDateTemp === dayItem.dateStr;
+                    const isClickable = !isPast && isAvailable;
+
+                    let cellStyle: any = [styles.modalDayCell];
+                    let textStyle: any = [styles.modalDayText];
+
+                    if (!dayItem.isCurrentMonth) {
+                      textStyle.push(styles.modalOtherMonthText);
+                    }
+
+                    if (isSelected) {
+                      cellStyle.push(styles.modalSelectedCell);
+                      textStyle.push(styles.modalSelectedText);
+                    } else if (isClickable) {
+                      cellStyle.push(styles.modalAvailableCell);
+                      textStyle.push(styles.modalAvailableText);
+                    } else {
+                      cellStyle.push(styles.modalDisabledCell);
+                      textStyle.push(styles.modalDisabledText);
+                    }
+
+                    return (
+                      <TouchableOpacity
+                        key={dayItem.dateStr}
+                        style={cellStyle}
+                        disabled={!isClickable}
+                        onPress={() => {
+                          if (!dayItem.isCurrentMonth) {
+                            const [y, m] = dayItem.dateStr
+                              .split('-')
+                              .map(Number);
+                            setCurrentYear(y);
+                            setCurrentMonth(m - 1);
+                          }
+                          setSelectedDateTemp(dayItem.dateStr);
+                        }}
+                        activeOpacity={0.7}
+                      >
+                        <Typography
+                          variant="body2"
+                          weight={isSelected ? '800' : '600'}
+                          style={textStyle}
+                        >
+                          {dayItem.dayNum}
+                        </Typography>
+                        {isAvailable && !isSelected && (
+                          <View style={styles.modalDotIndicator} />
+                        )}
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+
+                {/* Legend */}
+                <View style={styles.modalLegendSection}>
+                  <View style={styles.modalLegendRow}>
+                    <View style={styles.modalLegendItem}>
+                      <View
+                        style={[
+                          styles.modalLegendIndicator,
+                          {
+                            backgroundColor: Colors.light.primaryLight,
+                            borderColor: Colors.light.primary,
+                            borderWidth: 1,
+                          },
+                        ]}
+                      />
+                      <Typography
+                        variant="caption"
+                        color={Colors.light.textSecondary}
+                      >
+                        Available
+                      </Typography>
+                    </View>
+                    <View style={styles.modalLegendItem}>
+                      <View
+                        style={[
+                          styles.modalLegendIndicator,
+                          { backgroundColor: Colors.light.primary },
+                        ]}
+                      />
+                      <Typography
+                        variant="caption"
+                        color={Colors.light.textSecondary}
+                      >
+                        Selected
+                      </Typography>
+                    </View>
+                    <View style={styles.modalLegendItem}>
+                      <View
+                        style={[
+                          styles.modalLegendIndicator,
+                          {
+                            backgroundColor: Colors.light.transparent,
+                            borderColor: Colors.light.border,
+                            borderWidth: 1,
+                          },
+                        ]}
+                      />
+                      <Typography
+                        variant="caption"
+                        color={Colors.light.textSecondary}
+                      >
+                        Unavailable
+                      </Typography>
+                    </View>
+                  </View>
+                </View>
+
+                {/* Footer Buttons */}
+                <View style={styles.modalFooter}>
+                  <Button
+                    title="Cancel"
+                    variant="outline"
+                    onPress={() => setIsDatePickerVisible(false)}
+                    style={styles.modalCancelBtn}
+                  />
+                  <Button
+                    title="Confirm"
+                    disabled={!selectedDateTemp}
+                    onPress={() => {
+                      if (selectedDateTemp) {
+                        const hasChanged = selectedDateTemp !== date;
+                        setDate(selectedDateTemp);
+                        setSelectedDateStore(selectedDateTemp);
+                        if (hasChanged) {
+                          setTimeslot(null);
+                        }
+                        setIsDatePickerVisible(false);
+                      }
+                    }}
+                    style={styles.modalConfirmBtn}
+                  />
+                </View>
+              </View>
+            )}
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -689,5 +1053,147 @@ const styles = StyleSheet.create({
   },
   confirmBtn: {
     paddingHorizontal: Spacing.xl,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: Spacing.md,
+  },
+  modalContent: {
+    backgroundColor: Colors.light.white,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.lg,
+    width: '100%',
+    maxWidth: 360,
+    ...Shadows.light.lg,
+    borderWidth: 1,
+    borderColor: Colors.light.borderLight,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: Spacing.md,
+  },
+  modalTitle: {
+    color: Colors.light.text,
+  },
+  closeBtn: {
+    padding: Spacing.xs,
+  },
+  modalCalendarHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: Spacing.md,
+    backgroundColor: Colors.light.surface,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.xs,
+    paddingVertical: Spacing.xs,
+  },
+  modalNavButton: {
+    padding: Spacing.sm,
+    borderRadius: BorderRadius.sm,
+    backgroundColor: Colors.light.white,
+    ...Shadows.light.xs,
+  },
+  modalMonthLabel: {
+    textAlign: 'center',
+    color: Colors.light.text,
+  },
+  modalWeekdaysRow: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.light.borderLight,
+    paddingBottom: Spacing.sm,
+    marginBottom: Spacing.sm,
+  },
+  modalWeekdayCell: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  modalGridContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingVertical: Spacing.xs,
+  },
+  modalDayCell: {
+    width: '14.28%',
+    aspectRatio: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: BorderRadius.full,
+    marginVertical: Spacing.xxs,
+    position: 'relative',
+  },
+  modalDayText: {
+    color: Colors.light.text,
+  },
+  modalOtherMonthText: {
+    opacity: 0.3,
+  },
+  modalSelectedCell: {
+    backgroundColor: Colors.light.primary,
+    ...Shadows.light.xs,
+  },
+  modalSelectedText: {
+    color: Colors.light.white,
+  },
+  modalAvailableCell: {
+    backgroundColor: Colors.light.primaryLight,
+  },
+  modalAvailableText: {
+    color: Colors.light.primary,
+  },
+  modalDisabledCell: {
+    backgroundColor: 'transparent',
+  },
+  modalDisabledText: {
+    color: Colors.light.textMuted,
+  },
+  modalDotIndicator: {
+    position: 'absolute',
+    bottom: 4,
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: Colors.light.primary,
+  },
+  modalLegendSection: {
+    marginTop: Spacing.md,
+    paddingTop: Spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: Colors.light.borderLight,
+  },
+  modalLegendRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: Spacing.sm,
+  },
+  modalLegendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  modalLegendIndicator: {
+    width: 12,
+    height: 12,
+    borderRadius: 3,
+    marginRight: Spacing.xs,
+  },
+  modalFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: Spacing.md,
+    marginTop: Spacing.md,
+  },
+  modalCancelBtn: {
+    flex: 1,
+    borderColor: Colors.light.border,
+    borderWidth: 1,
+  },
+  modalConfirmBtn: {
+    flex: 1,
   },
 });

@@ -187,7 +187,7 @@ export default function LoginScreen() {
 
           // Exchange token with backend
           const response = await api.auth.verifyOtp(verifiedPhone, idToken);
-          console.log("JWT response:", JSON.stringify(response));
+          console.log('JWT response:', JSON.stringify(response));
           console.log('[LoginScreen] Backend verifyOtp response success:', {
             hasUser: !!response?.user,
             role: response?.user?.role,
@@ -214,24 +214,24 @@ export default function LoginScreen() {
           isVerificationInProgress.current = false;
           login(verifiedPhone, role, name, id, response.access_token);
         } catch (err: any) {
-          console.log("--- AUTO-LOGIN/VERIFY-OTP BACKEND EXCHANGE ERROR ---");
-          console.log("error:", err);
-          console.log("error.message:", err?.message);
-          console.log("error.response:", err?.response);
-          console.log("error.response.status:", err?.response?.status);
-          console.log("error.response.data:", err?.response?.data);
-          console.log("error.code:", err?.code);
-          console.log("error.stack:", err?.stack);
-          console.log("axios config:", err?.config);
-          console.log("request url:", err?.config?.url);
-          console.log("request body:", err?.config?.data);
-          console.log("request headers:", err?.config?.headers);
-          console.log("Firebase ID Token:", idToken);
-          console.log("verificationId:", confirmation?.verificationId);
-          console.log("credential:", user?.credential || err?.credential);
-          console.log("backend endpoint:", "/api/v1/auth/verify-otp");
-          console.log("JWT response:", null);
-          console.log("---------------------------------------------------");
+          console.log('--- AUTO-LOGIN/VERIFY-OTP BACKEND EXCHANGE ERROR ---');
+          console.log('error:', err);
+          console.log('error.message:', err?.message);
+          console.log('error.response:', err?.response);
+          console.log('error.response.status:', err?.response?.status);
+          console.log('error.response.data:', err?.response?.data);
+          console.log('error.code:', err?.code);
+          console.log('error.stack:', err?.stack);
+          console.log('axios config:', err?.config);
+          console.log('request url:', err?.config?.url);
+          console.log('request body:', err?.config?.data);
+          console.log('request headers:', err?.config?.headers);
+          console.log('Firebase ID Token:', idToken);
+          console.log('verificationId:', confirmation?.verificationId);
+          console.log('credential:', user?.credential || err?.credential);
+          console.log('backend endpoint:', '/api/v1/auth/verify-otp');
+          console.log('JWT response:', null);
+          console.log('---------------------------------------------------');
           console.error(
             '[LoginScreen] Auto-login backend exchange detailed error:',
             {
@@ -298,7 +298,7 @@ export default function LoginScreen() {
 
       // 2. Exchange token with backend
       const response = await api.auth.googleLogin(idToken);
-      console.log("JWT response:", JSON.stringify(response));
+      console.log('JWT response:', JSON.stringify(response));
       console.log(
         '[LoginScreen] Backend googleLogin success response received:',
         {
@@ -320,26 +320,26 @@ export default function LoginScreen() {
       // Complete login immediately
       login(userPhone, userRole, userName, userId, response.access_token);
     } catch (err: any) {
-      console.log("--- GOOGLE LOGIN ERROR ---");
-      console.log("error:", err);
-      console.log("error.message:", err?.message);
-      console.log("error.response:", err?.response);
-      console.log("error.response.status:", err?.response?.status);
-      console.log("error.response.data:", err?.response?.data);
-      console.log("error.code:", err?.code);
-      console.log("error.stack:", err?.stack);
-      console.log("axios config:", err?.config);
-      console.log("request url:", err?.config?.url);
-      console.log("request body:", err?.config?.data);
-      console.log("request headers:", err?.config?.headers);
-      console.log("Firebase ID Token:", idTokenVar);
-      console.log("backend endpoint:", "/api/v1/auth/google-login");
-      console.log("Google Sign-In error.code:", err?.code);
-      console.log("Google Sign-In error.message:", err?.message);
-      console.log("Google Sign-In nativeStatus:", err?.nativeStatus);
-      console.log("Google Sign-In statusCodes:", err?.statusCodes);
-      console.log("JWT response:", null);
-      console.log("--------------------------");
+      console.log('--- GOOGLE LOGIN ERROR ---');
+      console.log('error:', err);
+      console.log('error.message:', err?.message);
+      console.log('error.response:', err?.response);
+      console.log('error.response.status:', err?.response?.status);
+      console.log('error.response.data:', err?.response?.data);
+      console.log('error.code:', err?.code);
+      console.log('error.stack:', err?.stack);
+      console.log('axios config:', err?.config);
+      console.log('request url:', err?.config?.url);
+      console.log('request body:', err?.config?.data);
+      console.log('request headers:', err?.config?.headers);
+      console.log('Firebase ID Token:', idTokenVar);
+      console.log('backend endpoint:', '/api/v1/auth/google-login');
+      console.log('Google Sign-In error.code:', err?.code);
+      console.log('Google Sign-In error.message:', err?.message);
+      console.log('Google Sign-In nativeStatus:', err?.nativeStatus);
+      console.log('Google Sign-In statusCodes:', err?.statusCodes);
+      console.log('JWT response:', null);
+      console.log('--------------------------');
       console.error('[LoginScreen] Google Login detailed error:', {
         message: err?.message,
         code: err?.code,
@@ -398,21 +398,21 @@ export default function LoginScreen() {
       setOtp(''); // clear previous OTP
     } catch (err: any) {
       isVerificationInProgress.current = false;
-      console.log("--- SEND OTP ERROR ---");
-      console.log("error:", err);
-      console.log("error.message:", err?.message);
-      console.log("error.response:", err?.response);
-      console.log("error.response.status:", err?.response?.status);
-      console.log("error.response.data:", err?.response?.data);
-      console.log("error.code:", err?.code);
-      console.log("error.stack:", err?.stack);
-      console.log("axios config:", err?.config);
-      console.log("request url:", err?.config?.url);
-      console.log("request body:", err?.config?.data);
-      console.log("request headers:", err?.config?.headers);
-      console.log("phoneNumber:", phoneNumber);
-      console.log("backend endpoint:", "/api/v1/auth/send-otp");
-      console.log("-----------------------");
+      console.log('--- SEND OTP ERROR ---');
+      console.log('error:', err);
+      console.log('error.message:', err?.message);
+      console.log('error.response:', err?.response);
+      console.log('error.response.status:', err?.response?.status);
+      console.log('error.response.data:', err?.response?.data);
+      console.log('error.code:', err?.code);
+      console.log('error.stack:', err?.stack);
+      console.log('axios config:', err?.config);
+      console.log('request url:', err?.config?.url);
+      console.log('request body:', err?.config?.data);
+      console.log('request headers:', err?.config?.headers);
+      console.log('phoneNumber:', phoneNumber);
+      console.log('backend endpoint:', '/api/v1/auth/send-otp');
+      console.log('-----------------------');
       console.error('[LoginScreen] Send OTP detailed error:', {
         message: err?.message,
         code: err?.code,
@@ -468,15 +468,15 @@ export default function LoginScreen() {
       console.log('[LoginScreen] confirmation.confirm resolved.');
       // The onAuthStateChanged listener handles backend validation and Zustand state updates.
     } catch (err: any) {
-      console.log("--- VERIFY OTP ERROR ---");
-      console.log("error:", err);
-      console.log("error.message:", err?.message);
-      console.log("error.code:", err?.code);
-      console.log("error.stack:", err?.stack);
-      console.log("verificationId:", confirmation?.verificationId);
-      console.log("otp:", otp);
-      console.log("credential:", err?.credential);
-      console.log("------------------------");
+      console.log('--- VERIFY OTP ERROR ---');
+      console.log('error:', err);
+      console.log('error.message:', err?.message);
+      console.log('error.code:', err?.code);
+      console.log('error.stack:', err?.stack);
+      console.log('verificationId:', confirmation?.verificationId);
+      console.log('otp:', otp);
+      console.log('credential:', err?.credential);
+      console.log('------------------------');
       // If the user has already signed in natively or backend verification is in progress,
       // we can ignore the 'session-expired' or similar error.
       const firebaseAuth = require('@react-native-firebase/auth').default;

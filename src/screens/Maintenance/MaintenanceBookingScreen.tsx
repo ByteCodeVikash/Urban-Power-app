@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -7,19 +7,24 @@ import {
   Pressable,
   TextInput,
   BackHandler,
+  ActivityIndicator,
+  Modal,
+  TouchableOpacity,
 } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import {
   ChevronLeft,
+  ChevronRight,
+  X,
   Calendar,
   User,
   MapPin,
-  CheckCircle2,
   Clock,
   Camera,
   Trash2,
   AlertCircle,
   Wrench,
+  CheckCircle2,
 } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Typography } from '../../components/Typography';
@@ -29,13 +34,45 @@ import { useBookingStore } from '../../store/useBookingStore';
 import { useMaintenanceStore } from '../../store/useMaintenanceStore';
 import { api } from '../../services/api';
 import { useAuthStore } from '../../store/useAuthStore';
-import { useAddresses } from '../../hooks/useServices';
+import { useAddressStore } from '../../store/useAddressStore';
 import { NetworkImage } from '../../components/NetworkImage';
+
+interface DayItem {
+  dateStr: string;
+  dayNum: number;
+  isCurrentMonth: boolean;
+}
+
+const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const MONTHS = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+
+const TIMESLOTS = [
+  { label: 'Morning', value: '09:00 AM - 12:00 PM', sublabel: '9:00 AM – 12:00 PM' },
+  { label: 'Afternoon', value: '12:00 PM - 03:00 PM', sublabel: '12:00 PM – 3:00 PM' },
+  { label: 'Evening', value: '03:00 PM - 06:00 PM', sublabel: '3:00 PM – 6:00 PM' },
+];
 
 export default function MaintenanceBookingScreen() {
   const navigation = useNavigation<any>();
   const { user } = useAuthStore();
-  const { data: addresses } = useAddresses();
+  const {
+    addresses,
+    isLoading: isLoadingAddresses,
+    fetchAddresses,
+  } = useAddressStore();
 
   const selectedServices = useMaintenanceStore(state => state.selectedServices);
   const clearSelection = useMaintenanceStore(state => state.clearSelection);
@@ -45,52 +82,156 @@ export default function MaintenanceBookingScreen() {
   );
 
   const addBooking = useBookingStore(state => state.addBooking);
+  const storeSelectedDate = useBookingStore(state => state.selectedDate);
+  const setSelectedDateStore = useBookingStore(state => state.setSelectedDate);
+  const clearSelectedSlot = useBookingStore(state => state.clearSelectedSlot);
 
   // Form State
-  const [name, setName] = useState('');
+  const [name, setName] = useState(user?.name || '');
   const [phone, setPhone] = useState(() => {
     const rawPhone = user?.phone || '';
     const cleaned = rawPhone.replace(/[^0-9]/g, '');
     return cleaned.slice(-10);
   });
-  // Manual address fields
-  const [addrHouseNo, setAddrHouseNo] = useState('');
-  const [addrBuilding, setAddrBuilding] = useState('');
-  const [addrStreet, setAddrStreet] = useState('');
-  const [addrArea, setAddrArea] = useState('');
-  const [addrLandmark, setAddrLandmark] = useState('');
-  const [addrCity, setAddrCity] = useState('');
-  const [addrState, setAddrState] = useState('');
-  const [addrPin, setAddrPin] = useState('');
-  // Computed address string for submission
-  const address = [
-    addrHouseNo,
-    addrBuilding,
-    addrStreet,
-    addrArea,
-    addrLandmark,
-    addrCity,
-    addrState,
-    addrPin,
-  ]
-    .filter(Boolean)
-    .join(', ');
-  const [date, setDate] = useState('');
 
-  // Read selectedDate from Zustand store (set by DateSelectionScreen before goBack())
-  const storeSelectedDate = useBookingStore(state => state.selectedDate);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
+    null,
+  );
+  const [selectedTimeslot, setSelectedTimeslot] = useState(
+    '09:00 AM - 12:00 PM',
+  );
+  const [notes, setNotes] = useState('');
+  const [date, setDate] = useState(storeSelectedDate || '');
 
-  // Sync local date state from store whenever this screen comes into focus
-  // (i.e., after returning from DateSelectionScreen via goBack())
-  useFocusEffect(
-    useCallback(() => {
-      if (storeSelectedDate) {
-        setDate(storeSelectedDate);
-      }
-    }, [storeSelectedDate]),
+  // Date Picker Modal States
+  const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
+  const [selectedDateTemp, setSelectedDateTemp] = useState('');
+  const [availableDates, setAvailableDates] = useState<string[]>([]);
+  const [isLoadingDates, setIsLoadingDates] = useState(false);
+
+  // Timeslot Picker Modal States
+  const [isTimeslotPickerVisible, setIsTimeslotPickerVisible] = useState(false);
+  const [selectedTimeslotTemp, setSelectedTimeslotTemp] = useState(
+    '09:00 AM - 12:00 PM',
   );
 
-  // Address is intentionally left empty; user must type it manually.
+  const today = new Date();
+  const [currentMonth, setCurrentMonth] = useState(today.getMonth());
+  const [currentYear, setCurrentYear] = useState(today.getFullYear());
+
+  // Load available dates for maintenance services
+  useEffect(() => {
+    async function loadDates() {
+      const firstServiceId = selectedServices[0]?.id;
+      if (!firstServiceId) return;
+
+      setIsLoadingDates(true);
+      try {
+        const dates = await api.bookings.getAvailableDates(firstServiceId);
+        setAvailableDates(dates);
+      } catch (err) {
+        console.error('Error loading dates in MaintenanceBookingScreen:', err);
+      } finally {
+        setIsLoadingDates(false);
+      }
+    }
+    loadDates();
+  }, [selectedServices]);
+
+  // Calendar Helpers
+  const getDaysInMonth = (year: number, month: number): DayItem[] => {
+    const firstDayOfMonth = new Date(year, month, 1);
+    const startDayOfWeek = firstDayOfMonth.getDay();
+    const days: DayItem[] = [];
+
+    // Previous month padding
+    const prevMonthDate = new Date(year, month, 0);
+    const prevMonthDays = prevMonthDate.getDate();
+    for (let i = startDayOfWeek - 1; i >= 0; i--) {
+      const day = prevMonthDays - i;
+      const pm = month === 0 ? 11 : month - 1;
+      const py = month === 0 ? year - 1 : year;
+      const dateStr = `${py}-${String(pm + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      days.push({ dateStr, dayNum: day, isCurrentMonth: false });
+    }
+
+    // Current month days
+    const totalDays = new Date(year, month + 1, 0).getDate();
+    for (let i = 1; i <= totalDays; i++) {
+      const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+      days.push({ dateStr, dayNum: i, isCurrentMonth: true });
+    }
+
+    // Next month padding to align rows
+    const totalCells = days.length;
+    const remaining = totalCells % 7;
+    if (remaining > 0) {
+      const paddingNeeded = 7 - remaining;
+      const nm = month === 11 ? 0 : month + 1;
+      const ny = month === 11 ? year + 1 : year;
+      for (let i = 1; i <= paddingNeeded; i++) {
+        const dateStr = `${ny}-${String(nm + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+        days.push({ dateStr, dayNum: i, isCurrentMonth: false });
+      }
+    }
+
+    return days;
+  };
+
+  const checkIsPast = (dateStr: string) => {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const dateObj = new Date(y, m - 1, d);
+    const compareToday = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate(),
+    );
+    return dateObj < compareToday;
+  };
+
+  // Initialize & Sync Autofill Info
+  useEffect(() => {
+    if (user) {
+      if (!name) {
+        setName(user.name || '');
+      }
+      if (!phone) {
+        const rawPhone = user.phone || '';
+        const cleaned = rawPhone.replace(/[^0-9]/g, '');
+        setPhone(cleaned.slice(-10));
+      }
+    }
+  }, [user]);
+
+  // Fetch addresses on mount & focus
+  useEffect(() => {
+    fetchAddresses();
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchAddresses();
+    }, []),
+  );
+
+  // Auto-select default address
+  useEffect(() => {
+    if (addresses && addresses.length > 0 && !selectedAddressId) {
+      const defaultAddr = addresses.find(a => a.is_default) || addresses[0];
+      if (defaultAddr) {
+        setSelectedAddressId(defaultAddr.id);
+      }
+    }
+  }, [addresses, selectedAddressId]);
+
+  // Sync local date state from store whenever this screen comes into focus.
+  // Always overwrite — this ensures date persists across navigation and
+  // also correctly clears a stale date if the store was reset elsewhere.
+  useFocusEffect(
+    useCallback(() => {
+      setDate(storeSelectedDate || '');
+    }, [storeSelectedDate]),
+  );
 
   const formatDateDisplay = (dateStr: string) => {
     if (!dateStr) return '';
@@ -240,14 +381,35 @@ export default function MaintenanceBookingScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
-    if (!name || !phone || !addrCity || !addrStreet || !date) {
-      alert('Please fill all details including street and city');
+    if (!name || !phone || !date) {
+      alert('Please fill in your name, phone number, and preferred date');
       return;
     }
     if (phone.length !== 10) {
       alert('Please enter a valid 10-digit phone number');
       return;
     }
+    if (!selectedAddressId) {
+      alert('Please select a service address');
+      return;
+    }
+    const selectedAddrObj = addresses.find(a => a.id === selectedAddressId);
+    if (!selectedAddrObj) {
+      alert('Selected address not found');
+      return;
+    }
+
+    const formattedAddress = [
+      selectedAddrObj.house_number,
+      selectedAddrObj.street,
+      selectedAddrObj.landmark ? `(Near ${selectedAddrObj.landmark})` : null,
+      selectedAddrObj.city,
+      selectedAddrObj.state,
+      selectedAddrObj.pincode,
+    ]
+      .filter(Boolean)
+      .join(', ');
+
     if (isUploading) {
       alert('Please wait for the image upload to complete.');
       return;
@@ -268,17 +430,23 @@ export default function MaintenanceBookingScreen() {
 
       const formattedPhone = `+91${phone}`;
 
+      const fullNotes = `Customer Name: ${name}, Phone: ${formattedPhone} | Timeslot: ${selectedTimeslot}${notes ? ` | Notes: ${notes}` : ''}`;
+
       // Persist to PostgreSQL via backend API
-      await api.maintenance.createBooking({
-        address_text: address,
+      const bookingResponse = await api.maintenance.createBooking({
+        address_id: selectedAddressId,
+        address_text: formattedAddress,
         booking_date: bookingDateISO,
         service_ids: selectedServices.map(s => String(s.id)),
         service_names: selectedServices.map(s => s.name),
         total_price: getTotalPrice,
         customer_name: name,
         customer_phone: formattedPhone,
+        notes: fullNotes,
         photos: uploadedUrl ? [uploadedUrl] : [],
       });
+
+      const actualBookingId = bookingResponse?.id || 'UP-PENDING';
 
       // Also update local Zustand store for UI state (secondary mirror)
       addBooking({
@@ -287,20 +455,26 @@ export default function MaintenanceBookingScreen() {
         subtitle: 'Maintenance Booking',
         customerName: name,
         phone: formattedPhone,
-        address: address,
+        address: formattedAddress,
         date: date,
+        time: selectedTimeslot,
         price: getTotalPrice,
         image: uploadedUrl || undefined,
       });
 
-      // Clear maintenance cart selection
+      // Clear maintenance cart selection and booking date
       clearSelection();
+      clearSelectedSlot();
 
       // Navigate to booking success
       navigation.navigate('GeneralBookingSuccess', {
+        bookingId: actualBookingId,
         title: title,
+        service: title,
         date: date,
-        address: address,
+        timeslot: selectedTimeslot,
+        address: formattedAddress,
+        bookingType: 'maintenance',
       });
     } catch (err: any) {
       console.error('Maintenance booking API error:', err);
@@ -433,153 +607,247 @@ export default function MaintenanceBookingScreen() {
               </Typography>
             </View>
             <Pressable
-              style={styles.dateSelectorTrigger}
+              style={[
+                styles.dateSelectorTrigger,
+                date ? styles.dateSelectorTriggerSelected : undefined,
+              ]}
               onPress={() => {
-                const firstServiceId = selectedServices[0]?.id || '';
-                navigation.navigate('DateSelection', {
-                  serviceId: firstServiceId,
-                  returnScreen: 'MaintenanceBooking',
-                  initialDate: date,
-                });
+                // Always sync temp state from current confirmed date before opening
+                const currentDate = date || storeSelectedDate || '';
+                if (currentDate) {
+                  const [year, month] = currentDate.split('-').map(Number);
+                  if (year && month) {
+                    setCurrentYear(year);
+                    setCurrentMonth(month - 1);
+                  }
+                } else {
+                  const d = new Date();
+                  setCurrentYear(d.getFullYear());
+                  setCurrentMonth(d.getMonth());
+                }
+                setSelectedDateTemp(currentDate);
+                setIsDatePickerVisible(true);
               }}
             >
-              <Typography
-                variant="body2"
-                color={date ? Colors.light.text : Colors.light.textMuted}
-              >
-                {date ? formatDateDisplay(date) : 'Select Preferred Date'}
-              </Typography>
+              <View style={styles.dateSelectorContent}>
+                {date ? (
+                  <>
+                    <CheckCircle2
+                      size={18}
+                      color={Colors.light.primary}
+                      style={{ marginRight: 8 }}
+                    />
+                    <View style={{ flex: 1 }}>
+                      <Typography
+                        variant="tiny"
+                        color={Colors.light.primary}
+                        weight="700"
+                      >
+                        Pickup / Service Date
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        weight="700"
+                        color={Colors.light.text}
+                      >
+                        {formatDateDisplay(date)}
+                      </Typography>
+                    </View>
+                    <Pressable
+                      onPress={e => {
+                        e.stopPropagation();
+                        setDate('');
+                        setSelectedDateStore('');
+                        setSelectedDateTemp('');
+                      }}
+                      hitSlop={8}
+                      style={{ padding: 4 }}
+                    >
+                      <X size={16} color={Colors.light.textMuted} />
+                    </Pressable>
+                  </>
+                ) : (
+                  <>
+                    <Calendar
+                      size={18}
+                      color={Colors.light.textMuted}
+                      style={{ marginRight: 8 }}
+                    />
+                    <Typography
+                      variant="body2"
+                      color={Colors.light.textMuted}
+                    >
+                      Select Preferred Date
+                    </Typography>
+                  </>
+                )}
+              </View>
             </Pressable>
           </View>
 
           <View style={styles.inputGroup}>
             <View style={styles.inputLabel}>
-              <MapPin size={18} color={Colors.light.primary} />
+              <Clock size={18} color={Colors.light.primary} />
               <Typography
                 variant="body2"
                 weight="700"
                 style={{ marginLeft: 8 }}
               >
-                Service Address
+                Preferred Time Slot
               </Typography>
             </View>
-            <View style={styles.addressGrid}>
-              <View style={styles.addressHalf}>
-                <Typography
-                  variant="caption"
-                  color={Colors.light.textSecondary}
-                  style={styles.fieldLabel}
-                >
-                  HOUSE / FLAT NO.
-                </Typography>
-                <TextInput
-                  style={styles.input}
-                  placeholder="e.g. A-12"
-                  value={addrHouseNo}
-                  onChangeText={setAddrHouseNo}
+            <Pressable
+              style={[
+                styles.dateSelectorTrigger,
+                styles.dateSelectorTriggerSelected,
+              ]}
+              onPress={() => {
+                // Always pre-load temp from the current confirmed value before opening
+                setSelectedTimeslotTemp(selectedTimeslot);
+                setIsTimeslotPickerVisible(true);
+              }}
+            >
+              <View style={styles.dateSelectorContent}>
+                <CheckCircle2
+                  size={18}
+                  color={Colors.light.primary}
+                  style={{ marginRight: 8 }}
                 />
+                <View style={{ flex: 1 }}>
+                  <Typography
+                    variant="tiny"
+                    color={Colors.light.primary}
+                    weight="700"
+                  >
+                    Selected Time Slot
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    weight="700"
+                    color={Colors.light.text}
+                  >
+                    {TIMESLOTS.find(s => s.value === selectedTimeslot)?.label ??
+                      'Morning'}{' '}
+                    · {selectedTimeslot}
+                  </Typography>
+                </View>
               </View>
-              <View style={styles.addressHalf}>
+            </Pressable>
+          </View>
+
+          <View style={styles.inputGroup}>
+            <View style={styles.inputLabelRow}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <MapPin size={18} color={Colors.light.primary} />
                 <Typography
-                  variant="caption"
-                  color={Colors.light.textSecondary}
-                  style={styles.fieldLabel}
+                  variant="body2"
+                  weight="700"
+                  style={{ marginLeft: 8 }}
                 >
-                  BUILDING / SOCIETY
+                  Service Address
                 </Typography>
-                <TextInput
-                  style={styles.input}
-                  placeholder="e.g. Green Park Apts"
-                  value={addrBuilding}
-                  onChangeText={setAddrBuilding}
-                />
               </View>
+              {addresses && addresses.length > 0 && (
+                <Pressable
+                  onPress={() => navigation.navigate('SavedAddresses')}
+                >
+                  <Typography
+                    variant="caption"
+                    color={Colors.light.primary}
+                    weight="700"
+                  >
+                    + Manage
+                  </Typography>
+                </Pressable>
+              )}
             </View>
-            <Typography
-              variant="caption"
-              color={Colors.light.textSecondary}
-              style={styles.fieldLabel}
-            >
-              STREET *
-            </Typography>
-            <TextInput
-              style={styles.input}
-              placeholder="e.g. MG Road"
-              value={addrStreet}
-              onChangeText={setAddrStreet}
-            />
-            <Typography
-              variant="caption"
-              color={Colors.light.textSecondary}
-              style={[styles.fieldLabel, { marginTop: Spacing.sm }]}
-            >
-              AREA / LOCALITY
-            </Typography>
-            <TextInput
-              style={styles.input}
-              placeholder="e.g. Sector 45"
-              value={addrArea}
-              onChangeText={setAddrArea}
-            />
-            <Typography
-              variant="caption"
-              color={Colors.light.textSecondary}
-              style={[styles.fieldLabel, { marginTop: Spacing.sm }]}
-            >
-              LANDMARK (OPTIONAL)
-            </Typography>
-            <TextInput
-              style={styles.input}
-              placeholder="e.g. Near Metro Station"
-              value={addrLandmark}
-              onChangeText={setAddrLandmark}
-            />
-            <View style={styles.addressGrid}>
-              <View style={styles.addressHalf}>
+
+            {isLoadingAddresses ? (
+              <ActivityIndicator
+                size="small"
+                color={Colors.light.primary}
+                style={{ marginTop: 8 }}
+              />
+            ) : addresses.length === 0 ? (
+              <Pressable
+                style={styles.noAddressBtn}
+                onPress={() => navigation.navigate('SavedAddresses')}
+              >
                 <Typography
-                  variant="caption"
-                  color={Colors.light.textSecondary}
-                  style={styles.fieldLabel}
+                  variant="body2"
+                  color={Colors.light.primary}
+                  weight="700"
                 >
-                  CITY *
+                  + Add Service Address
                 </Typography>
-                <TextInput
-                  style={styles.input}
-                  placeholder="e.g. Delhi"
-                  value={addrCity}
-                  onChangeText={setAddrCity}
-                />
+              </Pressable>
+            ) : (
+              <View style={styles.addressContainer}>
+                {addresses.map(addr => {
+                  const isSelected = addr.id === selectedAddressId;
+                  const details = [
+                    addr.house_number,
+                    addr.street,
+                    addr.landmark ? `(Near ${addr.landmark})` : null,
+                    addr.city,
+                    addr.state,
+                    addr.pincode,
+                  ]
+                    .filter(Boolean)
+                    .join(', ');
+
+                  return (
+                    <Pressable
+                      key={addr.id}
+                      style={[
+                        styles.addressCard,
+                        isSelected && styles.addressCardSelected,
+                      ]}
+                      onPress={() => setSelectedAddressId(addr.id)}
+                    >
+                      <View style={styles.addressCardHeader}>
+                        <Typography variant="body2" weight="800">
+                          {addr.address_type}
+                        </Typography>
+                        {addr.is_default && (
+                          <View style={styles.defaultBadge}>
+                            <Typography
+                              variant="tiny"
+                              color={Colors.light.success}
+                              weight="800"
+                            >
+                              DEFAULT
+                            </Typography>
+                          </View>
+                        )}
+                      </View>
+                      <Typography
+                        variant="caption"
+                        color={Colors.light.textSecondary}
+                        style={{ marginTop: 4 }}
+                      >
+                        {details}
+                      </Typography>
+                    </Pressable>
+                  );
+                })}
               </View>
-              <View style={styles.addressHalf}>
-                <Typography
-                  variant="caption"
-                  color={Colors.light.textSecondary}
-                  style={styles.fieldLabel}
-                >
-                  STATE *
-                </Typography>
-                <TextInput
-                  style={styles.input}
-                  placeholder="e.g. Delhi"
-                  value={addrState}
-                  onChangeText={setAddrState}
-                />
-              </View>
+            )}
+          </View>
+
+          <View style={styles.inputGroup}>
+            <View style={styles.inputLabel}>
+              <Typography variant="body2" weight="700">
+                Any Notes / Instructions (Optional)
+              </Typography>
             </View>
-            <Typography
-              variant="caption"
-              color={Colors.light.textSecondary}
-              style={[styles.fieldLabel, { marginTop: Spacing.sm }]}
-            >
-              PIN CODE *
-            </Typography>
             <TextInput
-              style={styles.input}
-              placeholder="e.g. 110001"
-              value={addrPin}
-              onChangeText={t => setAddrPin(t.replace(/[^0-9]/g, ''))}
-              keyboardType="number-pad"
-              maxLength={6}
+              style={[styles.input, styles.textArea]}
+              placeholder="e.g. Please wear a mask, ring bell twice"
+              multiline
+              numberOfLines={3}
+              value={notes}
+              onChangeText={setNotes}
             />
           </View>
         </View>
@@ -690,6 +958,414 @@ export default function MaintenanceBookingScreen() {
 
         <View style={{ height: 60 }} />
       </ScrollView>
+
+      {/* Custom Modal Date Picker */}
+      <Modal
+        visible={isDatePickerVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setIsDatePickerVisible(false)}
+      >
+        <Pressable
+          style={styles.modalOverlay}
+          onPress={() => setIsDatePickerVisible(false)}
+        >
+          <Pressable
+            style={styles.modalContent}
+            onPress={e => e.stopPropagation()}
+          >
+            <View style={styles.modalHeader}>
+              <Typography variant="h3" weight="800" style={styles.modalTitle}>
+                Select Preferred Date
+              </Typography>
+              <TouchableOpacity
+                onPress={() => setIsDatePickerVisible(false)}
+                style={styles.closeBtn}
+              >
+                <X size={20} color={Colors.light.textSecondary} />
+              </TouchableOpacity>
+            </View>
+
+            {isLoadingDates ? (
+              <View
+                style={{ paddingVertical: Spacing.xl, alignItems: 'center' }}
+              >
+                <ActivityIndicator size="large" color={Colors.light.primary} />
+                <Typography variant="body2" style={{ marginTop: Spacing.md }}>
+                  Loading available dates...
+                </Typography>
+              </View>
+            ) : (
+              <View>
+                {/* Calendar Navigation */}
+                <View style={styles.modalCalendarHeader}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      if (currentMonth === 0) {
+                        setCurrentMonth(11);
+                        setCurrentYear(prev => prev - 1);
+                      } else {
+                        setCurrentMonth(prev => prev - 1);
+                      }
+                    }}
+                    style={styles.modalNavButton}
+                  >
+                    <ChevronLeft size={20} color={Colors.light.text} />
+                  </TouchableOpacity>
+
+                  <Typography
+                    variant="body1"
+                    weight="800"
+                    style={styles.modalMonthLabel}
+                  >
+                    {MONTHS[currentMonth]} {currentYear}
+                  </Typography>
+
+                  <TouchableOpacity
+                    onPress={() => {
+                      if (currentMonth === 11) {
+                        setCurrentMonth(0);
+                        setCurrentYear(prev => prev + 1);
+                      } else {
+                        setCurrentMonth(prev => prev + 1);
+                      }
+                    }}
+                    style={styles.modalNavButton}
+                  >
+                    <ChevronRight size={20} color={Colors.light.text} />
+                  </TouchableOpacity>
+                </View>
+
+                {/* Weekdays Row */}
+                <View style={styles.modalWeekdaysRow}>
+                  {WEEKDAYS.map((day, idx) => (
+                    <View key={idx} style={styles.modalWeekdayCell}>
+                      <Typography
+                        variant="caption"
+                        weight="800"
+                        color={Colors.light.textMuted}
+                      >
+                        {day.substring(0, 2).toUpperCase()}
+                      </Typography>
+                    </View>
+                  ))}
+                </View>
+
+                {/* Days Grid */}
+                <View style={styles.modalGridContainer}>
+                  {getDaysInMonth(currentYear, currentMonth).map(dayItem => {
+                    const isPast = checkIsPast(dayItem.dateStr);
+                    const isAvailable = availableDates.includes(
+                      dayItem.dateStr,
+                    );
+                    const isSelected = selectedDateTemp === dayItem.dateStr;
+                    const isClickable = !isPast && isAvailable;
+
+                    let cellStyle: any = [styles.modalDayCell];
+                    let textStyle: any = [styles.modalDayText];
+
+                    if (!dayItem.isCurrentMonth) {
+                      textStyle.push(styles.modalOtherMonthText);
+                    }
+
+                    if (isSelected) {
+                      cellStyle.push(styles.modalSelectedCell);
+                      textStyle.push(styles.modalSelectedText);
+                    } else if (isClickable) {
+                      cellStyle.push(styles.modalAvailableCell);
+                      textStyle.push(styles.modalAvailableText);
+                    } else {
+                      cellStyle.push(styles.modalDisabledCell);
+                      textStyle.push(styles.modalDisabledText);
+                    }
+
+                    return (
+                      <TouchableOpacity
+                        key={dayItem.dateStr}
+                        style={cellStyle}
+                        disabled={!isClickable}
+                        onPress={() => {
+                          if (!dayItem.isCurrentMonth) {
+                            const [y, m] = dayItem.dateStr
+                              .split('-')
+                              .map(Number);
+                            setCurrentYear(y);
+                            setCurrentMonth(m - 1);
+                          }
+                          setSelectedDateTemp(dayItem.dateStr);
+                        }}
+                        activeOpacity={0.7}
+                      >
+                        <Typography
+                          variant="body2"
+                          weight={isSelected ? '800' : '600'}
+                          style={textStyle}
+                        >
+                          {dayItem.dayNum}
+                        </Typography>
+                        {isAvailable && !isSelected && (
+                          <View style={styles.modalDotIndicator} />
+                        )}
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+
+                {/* Legend Row */}
+                <View style={styles.modalLegendSection}>
+                  <View style={styles.modalLegendRow}>
+                    <View style={styles.modalLegendItem}>
+                      <View
+                        style={[
+                          styles.modalLegendIndicator,
+                          { backgroundColor: Colors.light.primary },
+                        ]}
+                      />
+                      <Typography
+                        variant="caption"
+                        color={Colors.light.textSecondary}
+                      >
+                        Selected
+                      </Typography>
+                    </View>
+                    <View style={styles.modalLegendItem}>
+                      <View
+                        style={[
+                          styles.modalLegendIndicator,
+                          { backgroundColor: Colors.light.primaryLight },
+                        ]}
+                      />
+                      <Typography
+                        variant="caption"
+                        color={Colors.light.textSecondary}
+                      >
+                        Available
+                      </Typography>
+                    </View>
+                    <View style={styles.modalLegendItem}>
+                      <View
+                        style={[
+                          styles.modalLegendIndicator,
+                          {
+                            backgroundColor: 'transparent',
+                            borderWidth: 1,
+                            borderColor: Colors.light.border,
+                          },
+                        ]}
+                      />
+                      <Typography
+                        variant="caption"
+                        color={Colors.light.textMuted}
+                      >
+                        Unavailable
+                      </Typography>
+                    </View>
+                  </View>
+                </View>
+
+                {/* Selected Date Preview Banner */}
+                {selectedDateTemp ? (
+                  <View style={styles.modalSelectedBanner}>
+                    <CheckCircle2
+                      size={16}
+                      color={Colors.light.primary}
+                      style={{ marginRight: 6 }}
+                    />
+                    <View style={{ flex: 1 }}>
+                      <Typography variant="tiny" color={Colors.light.primary} weight="700">
+                        Tap "Confirm Date" to save
+                      </Typography>
+                      <Typography variant="body2" weight="700" color={Colors.light.text}>
+                        {formatDateDisplay(selectedDateTemp)}
+                      </Typography>
+                    </View>
+                  </View>
+                ) : (
+                  <View style={styles.modalNoBanner}>
+                    <AlertCircle size={16} color={Colors.light.warning} style={{ marginRight: 6 }} />
+                    <Typography variant="caption" color={Colors.light.textSecondary}>
+                      Tap an available date above to select it
+                    </Typography>
+                  </View>
+                )}
+
+                {/* Modal Footer (Buttons) */}
+                <View style={styles.modalFooter}>
+                  <Button
+                    title="Cancel"
+                    variant="outline"
+                    onPress={() => {
+                      // Dismiss without applying — restore temp to confirmed date
+                      setSelectedDateTemp(date);
+                      setIsDatePickerVisible(false);
+                    }}
+                    style={styles.modalCancelBtn}
+                  />
+                  <Button
+                    title="Confirm Date"
+                    onPress={() => {
+                      if (selectedDateTemp) {
+                        // Persist to local state and Zustand store simultaneously
+                        setDate(selectedDateTemp);
+                        setSelectedDateStore(selectedDateTemp);
+                      }
+                      setIsDatePickerVisible(false);
+                    }}
+                    style={styles.modalConfirmBtn}
+                    disabled={!selectedDateTemp}
+                  />
+                </View>
+              </View>
+            )}
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Timeslot Picker Modal */}
+      <Modal
+        visible={isTimeslotPickerVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => {
+          setSelectedTimeslotTemp(selectedTimeslot);
+          setIsTimeslotPickerVisible(false);
+        }}
+      >
+        <Pressable
+          style={styles.modalOverlay}
+          onPress={() => {
+            setSelectedTimeslotTemp(selectedTimeslot);
+            setIsTimeslotPickerVisible(false);
+          }}
+        >
+          <Pressable
+            style={styles.modalContent}
+            onPress={e => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <View style={styles.modalHeader}>
+              <Typography variant="h3" weight="800" style={styles.modalTitle}>
+                Select Time Slot
+              </Typography>
+              <TouchableOpacity
+                onPress={() => {
+                  setSelectedTimeslotTemp(selectedTimeslot);
+                  setIsTimeslotPickerVisible(false);
+                }}
+                style={styles.closeBtn}
+              >
+                <X size={20} color={Colors.light.textSecondary} />
+              </TouchableOpacity>
+            </View>
+
+            {/* Slot Pills */}
+            <View style={styles.timeslotModalPillsContainer}>
+              {TIMESLOTS.map(slot => {
+                const isSelected = selectedTimeslotTemp === slot.value;
+                return (
+                  <Pressable
+                    key={slot.value}
+                    style={[
+                      styles.timeslotModalPill,
+                      isSelected && styles.timeslotModalPillSelected,
+                    ]}
+                    onPress={() => setSelectedTimeslotTemp(slot.value)}
+                  >
+                    <View style={styles.timeslotModalPillLeft}>
+                      {isSelected ? (
+                        <CheckCircle2
+                          size={20}
+                          color={Colors.light.primary}
+                        />
+                      ) : (
+                        <Clock
+                          size={20}
+                          color={Colors.light.textMuted}
+                        />
+                      )}
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Typography
+                        variant="body1"
+                        weight="700"
+                        color={
+                          isSelected
+                            ? Colors.light.primary
+                            : Colors.light.text
+                        }
+                      >
+                        {slot.label}
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        color={
+                          isSelected
+                            ? Colors.light.primary
+                            : Colors.light.textSecondary
+                        }
+                      >
+                        {slot.sublabel}
+                      </Typography>
+                    </View>
+                    {isSelected && (
+                      <View style={styles.timeslotModalCheckBadge}>
+                        <Typography
+                          variant="tiny"
+                          weight="700"
+                          color={Colors.light.primary}
+                        >
+                          Selected
+                        </Typography>
+                      </View>
+                    )}
+                  </Pressable>
+                );
+              })}
+            </View>
+
+            {/* Preview Banner */}
+            <View style={styles.modalSelectedBanner}>
+              <Clock
+                size={15}
+                color={Colors.light.primary}
+                style={{ marginRight: 6 }}
+              />
+              <View style={{ flex: 1 }}>
+                <Typography variant="tiny" color={Colors.light.primary} weight="700">
+                  Tap "Confirm Time Slot" to save
+                </Typography>
+                <Typography variant="body2" weight="700" color={Colors.light.text}>
+                  {TIMESLOTS.find(s => s.value === selectedTimeslotTemp)?.label ?? ''}{' '}
+                  · {selectedTimeslotTemp}
+                </Typography>
+              </View>
+            </View>
+
+            {/* Footer Buttons */}
+            <View style={styles.modalFooter}>
+              <Button
+                title="Cancel"
+                variant="outline"
+                onPress={() => {
+                  // Dismiss without applying — restore temp to confirmed value
+                  setSelectedTimeslotTemp(selectedTimeslot);
+                  setIsTimeslotPickerVisible(false);
+                }}
+                style={styles.modalCancelBtn}
+              />
+              <Button
+                title="Confirm Time Slot"
+                onPress={() => {
+                  // Only update local state and close — no navigation
+                  setSelectedTimeslot(selectedTimeslotTemp);
+                  setIsTimeslotPickerVisible(false);
+                }}
+                style={styles.modalConfirmBtn}
+              />
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -788,6 +1464,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.light.borderLight,
     justifyContent: 'center',
+    minHeight: 56,
+  },
+  dateSelectorTriggerSelected: {
+    borderColor: Colors.light.primary,
+    backgroundColor: Colors.light.primaryLight,
+  },
+  dateSelectorContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   textArea: { height: 100, textAlignVertical: 'top' },
   addressGrid: {
@@ -879,5 +1564,256 @@ const styles = StyleSheet.create({
   },
   submitBtn: {
     marginTop: Spacing.sm,
+  },
+  addressContainer: {
+    marginTop: Spacing.sm,
+  },
+  addressCard: {
+    backgroundColor: Colors.light.surface,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    borderWidth: 1,
+    borderColor: Colors.light.borderLight,
+    marginBottom: Spacing.md,
+  },
+  addressCardSelected: {
+    borderColor: Colors.light.primary,
+    backgroundColor: Colors.light.primaryLight,
+  },
+  addressCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  defaultBadge: {
+    backgroundColor: '#DEF7EC',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: BorderRadius.sm,
+  },
+  noAddressBtn: {
+    backgroundColor: Colors.light.surface,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    borderWidth: 1.5,
+    borderStyle: 'dashed',
+    borderColor: Colors.light.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: Spacing.sm,
+  },
+  timeslotRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    marginTop: Spacing.xs,
+  },
+  timeslotPill: {
+    flex: 1,
+    backgroundColor: Colors.light.surface,
+    borderRadius: BorderRadius.lg,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.sm,
+    borderWidth: 1.5,
+    borderColor: Colors.light.borderLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  timeslotPillSelected: {
+    borderColor: Colors.light.primary,
+    backgroundColor: Colors.light.primaryLight,
+  },
+  // Timeslot modal styles
+  timeslotModalPillsContainer: {
+    marginBottom: Spacing.md,
+  },
+  timeslotModalPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: Spacing.md,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1.5,
+    borderColor: Colors.light.borderLight,
+    backgroundColor: Colors.light.surface,
+    marginBottom: Spacing.sm,
+  },
+  timeslotModalPillSelected: {
+    borderColor: Colors.light.primary,
+    backgroundColor: Colors.light.primaryLight,
+  },
+  timeslotModalPillLeft: {
+    width: 32,
+    alignItems: 'center',
+    marginRight: Spacing.sm,
+  },
+  timeslotModalCheckBadge: {
+    backgroundColor: Colors.light.primaryLight,
+    borderWidth: 1,
+    borderColor: Colors.light.primary,
+    borderRadius: BorderRadius.full,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 2,
+    marginLeft: Spacing.sm,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: Spacing.md,
+  },
+  modalContent: {
+    backgroundColor: Colors.light.white,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.lg,
+    width: '100%',
+    maxWidth: 360,
+    ...Shadows.light.lg,
+    borderWidth: 1,
+    borderColor: Colors.light.borderLight,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: Spacing.md,
+  },
+  modalTitle: {
+    color: Colors.light.text,
+  },
+  closeBtn: {
+    padding: Spacing.xs,
+  },
+  modalCalendarHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: Spacing.md,
+    backgroundColor: Colors.light.surface,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.xs,
+    paddingVertical: Spacing.xs,
+  },
+  modalNavButton: {
+    padding: Spacing.sm,
+    borderRadius: BorderRadius.sm,
+    backgroundColor: Colors.light.white,
+    ...Shadows.light.xs,
+  },
+  modalMonthLabel: {
+    textAlign: 'center',
+    color: Colors.light.text,
+  },
+  modalWeekdaysRow: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.light.borderLight,
+    paddingBottom: Spacing.sm,
+    marginBottom: Spacing.sm,
+  },
+  modalWeekdayCell: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  modalGridContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingVertical: Spacing.xs,
+  },
+  modalDayCell: {
+    width: '14.28%',
+    aspectRatio: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: BorderRadius.full,
+    marginVertical: Spacing.xxs,
+    position: 'relative',
+  },
+  modalDayText: {
+    color: Colors.light.text,
+  },
+  modalOtherMonthText: {
+    opacity: 0.3,
+  },
+  modalSelectedCell: {
+    backgroundColor: Colors.light.primary,
+    ...Shadows.light.xs,
+  },
+  modalSelectedText: {
+    color: Colors.light.white,
+  },
+  modalAvailableCell: {
+    backgroundColor: Colors.light.primaryLight,
+  },
+  modalAvailableText: {
+    color: Colors.light.primary,
+  },
+  modalDisabledCell: {
+    backgroundColor: 'transparent',
+  },
+  modalDisabledText: {
+    color: Colors.light.textMuted,
+  },
+  modalDotIndicator: {
+    position: 'absolute',
+    bottom: 4,
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: Colors.light.primary,
+  },
+  modalLegendSection: {
+    marginTop: Spacing.md,
+    paddingTop: Spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: Colors.light.borderLight,
+  },
+  modalLegendRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: Spacing.sm,
+  },
+  modalLegendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  modalLegendIndicator: {
+    width: 12,
+    height: 12,
+    borderRadius: 3,
+    marginRight: Spacing.xs,
+  },
+  modalFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: Spacing.md,
+    marginTop: Spacing.md,
+  },
+  modalSelectedBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.light.primaryLight,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    marginTop: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.light.primary,
+  },
+  modalNoBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.light.surface,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    marginTop: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.light.borderLight,
+  },
+  modalCancelBtn: {
+    flex: 1,
+    borderColor: Colors.light.border,
+    borderWidth: 1,
+  },
+  modalConfirmBtn: {
+    flex: 1,
   },
 });

@@ -19,16 +19,7 @@ interface KabadiState {
 }
 
 export const useKabadiStore = create<KabadiState>((set, get) => ({
-  pickups: [
-    {
-      id: 'K1',
-      categories: ['Plastic', 'Paper'],
-      address: 'Flat 402, Green Valley Apartments, HSR Layout',
-      date: '15 Oct, 2023',
-      timeSlot: '10 AM - 12 PM',
-      status: 'Requested',
-    },
-  ],
+  pickups: [],
   schedulePickup: pickup => {
     set(state => ({
       pickups: [

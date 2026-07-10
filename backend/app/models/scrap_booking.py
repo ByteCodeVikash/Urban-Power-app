@@ -100,6 +100,16 @@ class ScrapBooking(BaseModel):
         nullable=False,
         doc="Current status of the scrap pickup request"
     )
+    customer_name: Mapped[Optional[str]] = mapped_column(
+        String(255),
+        nullable=True,
+        doc="Customer's full name as entered in the booking form"
+    )
+    customer_phone: Mapped[Optional[str]] = mapped_column(
+        String(20),
+        nullable=True,
+        doc="Customer's phone number as entered in the booking form"
+    )
     notes: Mapped[Optional[str]] = mapped_column(
         String(1024),
         nullable=True,

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import {
   View,
@@ -33,6 +33,7 @@ import { Header } from '../../components/Header';
 import { Button } from '../../components/Button';
 import { Colors, Spacing, BorderRadius, Shadows } from '../../constants/Theme';
 import { useAddressStore, Address } from '../../store/useAddressStore';
+import { pincodeService } from '../../services/pincodeService';
 
 // Helper to parse geocoded address string into fields
 const parseAddress = (fullAddress: string) => {
@@ -89,6 +90,64 @@ export default function SavedAddressesScreen() {
   const [isDefault, setIsDefault] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
+  // Track last autofilled values in refs to avoid adding them as useEffect deps
+  // and to prevent overwriting user-edited fields
+  const lastAutofilledPinRef = useRef('');
+  const lastAutofilledValuesRef = useRef({ city: '', state: '', street: '' });
+
+  // Handle Pincode Lookup — only re-runs when pincode changes (not on autofill side-effects)
+  useEffect(() => {
+    if (pincode.length !== 6) return;
+
+    // Skip if this exact pin was already auto-filled
+    if (pincode === lastAutofilledPinRef.current) return;
+
+    let cancelled = false;
+    const lookup = async () => {
+      const details = await pincodeService.lookup(pincode);
+      if (cancelled) return;
+
+      if (details) {
+        const prev = lastAutofilledValuesRef.current;
+
+        // Only overwrite city if the field is blank or still holds our previous autofill
+        setCity(current => (!current || current === prev.city ? details.city : current));
+        // Only overwrite state if the field is blank or still holds our previous autofill
+        setState(current => (!current || current === prev.state ? details.state : current));
+        // Only overwrite street/locality if the field is blank or still holds our previous autofill
+        const firstLocality = details.localities[0] || '';
+        setStreet(current =>
+          !current || current === prev.street ? firstLocality : current,
+        );
+
+        lastAutofilledPinRef.current = pincode;
+        lastAutofilledValuesRef.current = {
+          city: details.city,
+          state: details.state,
+          street: firstLocality,
+        };
+      } else {
+        Alert.alert(
+          'Invalid PIN Code',
+          'No area found for this PIN code. Please enter a valid 6-digit PIN code.',
+        );
+      }
+    };
+
+    lookup().catch(() => {
+      if (!cancelled) {
+        Alert.alert(
+          'Lookup Failed',
+          'Could not fetch PIN code details. Please check your connection and try again.',
+        );
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [pincode]);
+
   // Fetch addresses on mount
   useEffect(() => {
     fetchAddresses();
@@ -106,6 +165,15 @@ export default function SavedAddressesScreen() {
       setCity(parsed.city);
       setState(parsed.state);
       setPincode(parsed.pincode);
+
+      // Seed autofill refs so that map-returned values aren't overwritten
+      // by a pincode lookup triggered on the same parsed pincode
+      lastAutofilledPinRef.current = parsed.pincode;
+      lastAutofilledValuesRef.current = {
+        city: parsed.city,
+        state: parsed.state,
+        street: parsed.street,
+      };
 
       setModalVisible(true);
 
@@ -136,6 +204,9 @@ export default function SavedAddressesScreen() {
     setLatitude(undefined);
     setLongitude(undefined);
     setIsDefault(false);
+    // Reset autofill tracking for a fresh form
+    lastAutofilledPinRef.current = '';
+    lastAutofilledValuesRef.current = { city: '', state: '', street: '' };
 
     navigation.navigate('MapScreen', { returnScreen: 'SavedAddresses' });
   };
@@ -152,6 +223,14 @@ export default function SavedAddressesScreen() {
     setLatitude(address.latitude);
     setLongitude(address.longitude);
     setIsDefault(address.is_default);
+    // Seed autofill tracking with the existing address values so we don't
+    // overwrite them on edit unless the user changes the pincode
+    lastAutofilledPinRef.current = address.pincode;
+    lastAutofilledValuesRef.current = {
+      city: address.city,
+      state: address.state,
+      street: address.street,
+    };
     setModalVisible(true);
   };
 
@@ -652,10 +731,13 @@ export default function SavedAddressesScreen() {
               <TextInput
                 style={styles.input}
                 value={pincode}
-                onChangeText={setPincode}
+                onChangeText={t =>
+                  setPincode(t.replace(/[^0-9]/g, '').slice(0, 6))
+                }
                 placeholder="e.g. 560102"
                 placeholderTextColor={Colors.light.textMuted}
                 keyboardType="numeric"
+                maxLength={6}
               />
 
               {/* Set as Default Toggle */}

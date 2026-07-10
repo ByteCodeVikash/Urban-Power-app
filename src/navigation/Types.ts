@@ -117,7 +117,16 @@ export type RootStackParamList = {
   Cart: undefined;
   Rewards: undefined;
   Bookings: undefined;
-  GeneralBookingSuccess: { title: string; date: string; address: string };
+  GeneralBookingSuccess: {
+    title: string;
+    date: string;
+    address: string;
+    bookingId?: string;
+    timeslot?: string;
+    paymentMethod?: string;
+    bookingType?: string;
+    service?: string;
+  };
 
   // Subcategory screens
   Subcategory: { categoryId: string; categoryName: string; gender?: string };

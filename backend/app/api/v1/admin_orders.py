@@ -162,6 +162,13 @@ def _parse_phone_from_notes(notes: Optional[str]) -> Optional[str]:
     return match.group(1).strip() if match else None
 
 
+def _parse_timeslot_from_notes(notes: Optional[str]) -> Optional[str]:
+    if not notes:
+        return None
+    match = re.search(r"Timeslot:\s*([^|,\n]+)", notes, re.IGNORECASE)
+    return match.group(1).strip() if match else None
+
+
 def _format_address(addr: Optional[Address]) -> Optional[str]:
     if not addr:
         return None
@@ -218,8 +225,17 @@ def _normalize_beautician(b: Booking) -> AdminOrderItem:
 
 
 def _normalize_scrap(s: ScrapBooking, address: Optional[Address] = None) -> AdminOrderItem:
-    cname = (s.user.full_name if s.user else None) or "Unknown"
-    cphone = s.user.phone if s.user else None
+    cname = (
+        s.customer_name
+        or _parse_customer_name_from_notes(s.notes)
+        or (s.user.full_name if s.user else None)
+        or "Unknown"
+    )
+    cphone = (
+        s.customer_phone
+        or _parse_phone_from_notes(s.notes)
+        or (s.user.phone if s.user else None)
+    )
     addr_str = s.address_text or _format_address(address)
     tech = _parse_technician_from_notes(s.notes)
     status_str = s.status.value if hasattr(s.status, "value") else str(s.status)
@@ -266,7 +282,7 @@ def _normalize_maintenance(m: MaintenanceBooking, address: Optional[Address] = N
         created_at=m.created_at,
         assigned_technician=tech,
         booking_date=m.booking_date,
-        preferred_time=None,
+        preferred_time=_parse_timeslot_from_notes(m.notes),
         payment_status=payment_status,
         user_id=str(m.user_id) if m.user_id else None,
     )
@@ -844,12 +860,23 @@ def get_admin_order_detail(
 
         status_str = s.status.value if hasattr(s.status, "value") else str(s.status)
         payment_status = "completed" if status_str == "completed" else "pending"
+        cname = (
+            s.customer_name
+            or _parse_customer_name_from_notes(s.notes)
+            or (s.user.full_name if s.user else None)
+            or "Unknown"
+        )
+        cphone = (
+            s.customer_phone
+            or _parse_phone_from_notes(s.notes)
+            or (s.user.phone if s.user else None)
+        )
         return AdminOrderDetail(
             booking_id=str(s.id),
             booking_reference=s.booking_reference,
             booking_type="scrap",
-            customer_name=s.user.full_name if s.user else "Unknown",
-            customer_phone=s.user.phone if s.user else None,
+            customer_name=cname,
+            customer_phone=cphone,
             customer_email=s.user.email if s.user else None,
             customer_id=str(s.user_id),
             address=s.address_text or _format_address(addr),

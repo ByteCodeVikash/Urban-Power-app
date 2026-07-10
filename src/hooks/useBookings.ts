@@ -1,6 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../services/api';
 
+function parseTimeslotFromNotes(notes: string | null | undefined): string {
+  if (!notes) return '';
+  const match = notes.match(/Timeslot:\s*([^|,\n]+)/i);
+  return match ? match[1].trim() : '';
+}
+
 export const useBookingHistory = () => {
   return useQuery({
     queryKey: ['booking-history'],
@@ -65,7 +71,7 @@ export const useBookingHistory = () => {
               ? item.service_names.join(', ')
               : 'Maintenance Service',
           date: dateStr,
-          timeslot: '',
+          timeslot: parseTimeslotFromNotes(item.notes),
           status: item.status,
           price: item.total_price || 0,
           payment_method: 'COD',

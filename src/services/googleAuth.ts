@@ -111,16 +111,16 @@ export const googleAuthService = {
           photo,
         };
       } catch (error: any) {
-        console.log("--- GOOGLE SIGN-IN ERROR DETECTED ---");
-        console.log("error:", error);
-        console.log("error.message:", error?.message);
-        console.log("error.code:", error?.code);
-        console.log("error.stack:", error?.stack);
-        console.log("Google Sign-In error.code:", error?.code);
-        console.log("Google Sign-In error.message:", error?.message);
-        console.log("Google Sign-In nativeStatus:", error?.nativeStatus);
-        console.log("Google Sign-In statusCodes:", error?.statusCodes);
-        console.log("-------------------------------------");
+        console.log('--- GOOGLE SIGN-IN ERROR DETECTED ---');
+        console.log('error:', error);
+        console.log('error.message:', error?.message);
+        console.log('error.code:', error?.code);
+        console.log('error.stack:', error?.stack);
+        console.log('Google Sign-In error.code:', error?.code);
+        console.log('Google Sign-In error.message:', error?.message);
+        console.log('Google Sign-In nativeStatus:', error?.nativeStatus);
+        console.log('Google Sign-In statusCodes:', error?.statusCodes);
+        console.log('-------------------------------------');
         console.error('[GoogleAuthService] Native Sign-in error details:', {
           code: error?.code,
           message: error?.message,

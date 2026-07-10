@@ -212,32 +212,37 @@ export const api = {
       }
     },
     getCategories: async () => {
-      await delay(300);
-      const mapped = KABADI_ITEMS.map(category => ({
-        id: category.id,
-        name: category.title,
-        icon: 'file-text',
-        image: category.icon,
-        description: `${category.title} waste products and materials`,
-        active: true,
-        items: category.subcategories.map(sub => ({
-          id: sub.id,
-          category_id: category.id,
-          name: sub.title,
-          price_per_kg: sub.price,
-          description: `Recycle your ${sub.title} at local market price.`,
+      try {
+        const response = await API.get('/api/v1/scrap/categories');
+        // Map backend response to the shape ScrapCategoriesScreen + ScrapItemListScreen expect
+        return (response.data || []).map((category: any) => ({
+          id: String(category.id),
+          name: category.name,
+          icon: category.icon || '',
+          image: category.image || category.icon || '',
+          description: category.description || `${category.name} waste products and materials`,
+          active: category.active !== false,
+          items: (category.items || []).map((item: any) => ({
+            id: String(item.id),
+            category_id: String(category.id),
+            name: item.name,
+            price_per_kg: item.price_per_kg,
+            description: item.description || `Recycle your ${item.name} at local market price.`,
+            image: item.image || category.image || category.icon || '',
+            active: item.active !== false,
+          })),
+        }));
+      } catch (error) {
+        console.error('Scrap categories API error, falling back to MockData:', error);
+        // Fallback to MockData if backend is unavailable
+        return KABADI_ITEMS.map(category => ({
+          id: category.id,
+          name: category.title,
+          icon: category.icon,
           image: category.icon,
+          description: `${category.title} waste products and materials`,
           active: true,
-        })),
-      }));
-      return mapped;
-    },
-    getItemDetails: async (itemId: string) => {
-      await delay(200);
-      for (const category of KABADI_ITEMS) {
-        const sub = category.subcategories.find(s => s.id === itemId);
-        if (sub) {
-          return {
+          items: category.subcategories.map(sub => ({
             id: sub.id,
             category_id: category.id,
             name: sub.title,
@@ -245,10 +250,41 @@ export const api = {
             description: `Recycle your ${sub.title} at local market price.`,
             image: category.icon,
             active: true,
-          };
-        }
+          })),
+        }));
       }
-      throw new Error('Scrap item not found');
+    },
+    getItemDetails: async (itemId: string) => {
+      try {
+        const response = await API.get(`/api/v1/scrap/items/${itemId}`);
+        const item = response.data;
+        return {
+          id: String(item.id),
+          category_id: String(item.category_id),
+          name: item.name,
+          price_per_kg: item.price_per_kg,
+          description: item.description || `Recycle your ${item.name} at local market price.`,
+          image: item.image || '',
+          active: item.active !== false,
+        };
+      } catch (error) {
+        // Fallback to MockData
+        for (const category of KABADI_ITEMS) {
+          const sub = category.subcategories.find(s => s.id === itemId);
+          if (sub) {
+            return {
+              id: sub.id,
+              category_id: category.id,
+              name: sub.title,
+              price_per_kg: sub.price,
+              description: `Recycle your ${sub.title} at local market price.`,
+              image: category.icon,
+              active: true,
+            };
+          }
+        }
+        throw new Error('Scrap item not found');
+      }
     },
     createBooking: async (data: {
       address_text?: string;
@@ -262,7 +298,12 @@ export const api = {
       price_per_kg?: number;
       notes?: string;
       photos?: string[];
+      customer_name?: string;
+      customer_phone?: string;
     }) => {
+      // Send all fields including customer_name and customer_phone so the
+      // backend can store them as dedicated columns (matching MaintenanceBooking).
+      // They are also embedded in notes for legacy regex parsing in older code paths.
       const response = await API.post('/api/v1/scrap-bookings/', data);
       return response.data;
     },

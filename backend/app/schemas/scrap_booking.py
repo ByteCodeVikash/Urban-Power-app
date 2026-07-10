@@ -22,6 +22,8 @@ class ScrapBookingCreate(BaseModel):
     price_per_kg: Optional[float] = Field(None, ge=0, description="Rate per kg at booking time")
     notes: Optional[str] = Field(None, max_length=1024, description="Extra instructions")
     photos: Optional[List[str]] = Field(default_factory=list, description="Uploaded photo URLs")
+    customer_name: Optional[str] = Field(None, max_length=255, description="Customer name as entered in the form")
+    customer_phone: Optional[str] = Field(None, max_length=20, description="Customer phone as entered in the form")
 
 
 class ScrapBookingUpdate(BaseModel):
@@ -53,6 +55,8 @@ class ScrapBookingResponse(BaseModel):
     status: str
     notes: Optional[str] = None
     photos: Optional[List[str]] = None
+    customer_name: Optional[str] = None
+    customer_phone: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 

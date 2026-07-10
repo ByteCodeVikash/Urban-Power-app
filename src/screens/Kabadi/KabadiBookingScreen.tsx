@@ -129,9 +129,7 @@ export default function KabadiBookingScreen() {
       <View style={styles.footer}>
         <Button
           title="Track My Pickup"
-          onPress={() =>
-            navigation.navigate('KabadiStatus', { bookingId: '89102' })
-          }
+          onPress={() => navigation.navigate('MyBookings')}
           style={{ marginBottom: Spacing.md }}
         />
         <Button

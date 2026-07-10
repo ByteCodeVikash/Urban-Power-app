@@ -3,4 +3,4 @@
  */
 
 // Centralized API BASE_URL pointing to the production VPS backend
-export const BASE_URL = 'https://api.urbanpowers.com';
+export const BASE_URL = 'http://localhost:8000';
