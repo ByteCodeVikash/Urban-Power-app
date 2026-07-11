@@ -28,6 +28,7 @@ import {
   Edit as EditIcon,
   Search as SearchIcon,
   Refresh as RefreshIcon,
+  ContentCopy as CopyIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { DataTable, type ColumnConfig } from '../components/common/DataTable';
@@ -178,6 +179,13 @@ export const Orders: React.FC = () => {
     severity: 'success' | 'error';
   }>({ open: false, message: '', severity: 'success' });
 
+  // ── Address modal state ───────────────────────────────────────────────────
+  const [addressDialog, setAddressDialog] = useState<{
+    open: boolean;
+    address: string;
+    customerName: string;
+  }>({ open: false, address: '', customerName: '' });
+
   const showSnackbar = (message: string, severity: 'success' | 'error') => {
     setSnackbar({ open: true, message, severity });
   };
@@ -297,10 +305,19 @@ export const Orders: React.FC = () => {
       id: 'address',
       label: 'Address',
       render: row => (
-        <Tooltip title={row.address || 'No address'} arrow enterDelay={200}>
+        <Tooltip title="Click to view full address" arrow enterDelay={200}>
           <Typography
             variant="body2"
             color="text.secondary"
+            onClick={() => {
+              if (row.address) {
+                setAddressDialog({
+                  open: true,
+                  address: row.address,
+                  customerName: row.customer_name || 'Customer',
+                });
+              }
+            }}
             sx={{
               maxWidth: 240,
               display: '-webkit-box',
@@ -310,6 +327,11 @@ export const Orders: React.FC = () => {
               textOverflow: 'ellipsis',
               whiteSpace: 'normal',
               cursor: 'pointer',
+              transition: 'color 0.2s',
+              '&:hover': {
+                color: 'primary.main',
+                textDecoration: 'underline',
+              },
             }}
           >
             {row.address || 'No address'}
@@ -638,6 +660,8 @@ export const Orders: React.FC = () => {
           overflow: 'hidden',
           '& .MuiTableContainer-root': {
             overflowX: 'auto !important',
+            width: '100% !important',
+            maxWidth: '100% !important',
           },
           '& .MuiTable-root': {
             minWidth: '1600px !important',
@@ -729,6 +753,82 @@ export const Orders: React.FC = () => {
             }
           >
             Update Status
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* View Address Dialog */}
+      <Dialog
+        open={addressDialog.open}
+        onClose={() => setAddressDialog(s => ({ ...s, open: false }))}
+        fullWidth
+        maxWidth="xs"
+      >
+        <DialogTitle
+          sx={{ fontWeight: 700, fontFamily: '"Outfit", sans-serif' }}
+        >
+          Customer Address
+        </DialogTitle>
+        <DialogContent>
+          <Box sx={{ mb: 2 }}>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ fontWeight: 700, fontSize: '0.7rem', letterSpacing: 0.5 }}
+            >
+              CUSTOMER
+            </Typography>
+            <Typography variant="body1" sx={{ fontWeight: 600, color: '#2D3748', mt: 0.5 }}>
+              {addressDialog.customerName}
+            </Typography>
+          </Box>
+          <Box>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ fontWeight: 700, fontSize: '0.7rem', letterSpacing: 0.5 }}
+            >
+              FULL ADDRESS
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                p: 2,
+                bgcolor: '#F7FAFC',
+                borderRadius: 2,
+                border: '1px solid #E2E8F0',
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-word',
+                fontFamily: 'inherit',
+                fontSize: '0.9rem',
+                color: '#2D3748',
+                mt: 0.5,
+              }}
+            >
+              {addressDialog.address}
+            </Typography>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 2.5, justifyContent: 'space-between' }}>
+          <Button
+            size="small"
+            color="primary"
+            startIcon={<CopyIcon fontSize="small" />}
+            onClick={() => {
+              navigator.clipboard.writeText(addressDialog.address);
+              showSnackbar('Address copied to clipboard', 'success');
+            }}
+            sx={{ textTransform: 'none', fontWeight: 600 }}
+          >
+            Copy Address
+          </Button>
+          <Button
+            onClick={() => setAddressDialog(s => ({ ...s, open: false }))}
+            variant="contained"
+            color="primary"
+            sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 2 }}
+          >
+            Close
           </Button>
         </DialogActions>
       </Dialog>
