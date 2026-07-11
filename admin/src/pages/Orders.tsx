@@ -21,6 +21,7 @@ import {
   Pagination,
   Stack,
   Skeleton,
+  Tooltip,
 } from '@mui/material';
 import {
   Visibility as ViewIcon,
@@ -296,18 +297,24 @@ export const Orders: React.FC = () => {
       id: 'address',
       label: 'Address',
       render: row => (
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          sx={{
-            maxWidth: 160,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {row.address || 'No address'}
-        </Typography>
+        <Tooltip title={row.address || 'No address'} arrow enterDelay={200}>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{
+              maxWidth: 240,
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'normal',
+              cursor: 'pointer',
+            }}
+          >
+            {row.address || 'No address'}
+          </Typography>
+        </Tooltip>
       ),
     },
     {
@@ -625,14 +632,27 @@ export const Orders: React.FC = () => {
       </Box>
 
       {/* Table */}
-      <DataTable
-        title="Bookings & Orders"
-        filename="bookings_report"
-        columns={columns}
-        data={orders}
-        isLoading={isLoading}
-        emptyMessage="No orders found. Adjust your filters or check backend connectivity."
-      />
+      <Box
+        sx={{
+          width: '100%',
+          overflow: 'hidden',
+          '& .MuiTableContainer-root': {
+            overflowX: 'auto !important',
+          },
+          '& .MuiTable-root': {
+            minWidth: '1600px !important',
+          },
+        }}
+      >
+        <DataTable
+          title="Bookings & Orders"
+          filename="bookings_report"
+          columns={columns}
+          data={orders}
+          isLoading={isLoading}
+          emptyMessage="No orders found. Adjust your filters or check backend connectivity."
+        />
+      </Box>
 
       {/* Pagination */}
       {!isLoading && total > PAGE_SIZE && (

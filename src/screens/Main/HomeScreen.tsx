@@ -275,7 +275,13 @@ export default function HomeScreen() {
               { backgroundColor: '#1E1B4B' },
               shopAnimatedStyle,
             ]}
-            onPress={() => navigation.navigate('ShopCategory')}
+            onPress={() => {
+              Alert.alert(
+                'Coming Soon',
+                'Shopping service is coming to your area soon!',
+                [{ text: 'OK' }],
+              );
+            }}
             onPressIn={() => {
               shopScale.value = withTiming(0.96, { duration: 100 });
             }}
@@ -330,7 +336,13 @@ export default function HomeScreen() {
           <View style={styles.sectionHeaderWrapper}>
             <SectionHeader
               title="For You"
-              onSeeAll={() => navigation.navigate('ShopCategory')}
+              onSeeAll={() => {
+                Alert.alert(
+                  'Coming Soon',
+                  'Shopping service is coming to your area soon!',
+                  [{ text: 'OK' }],
+                );
+              }}
             />
           </View>
           <FlatList
