@@ -327,8 +327,8 @@ def verify_google_token(token: str) -> dict:
     """
     Verify Google ID Token. Supporting mock verification in development.
     """
-    # Fallback to mock token when settings.SMS_MOCK is true or mock token pattern matches
-    if settings.SMS_MOCK or token.startswith("google-mock-"):
+    # Fallback to mock token when mock token pattern matches
+    if token.startswith("google-mock-"):
         email = "testgoogle@urbanpower.com"
         name = "Test Google User"
         picture = "https://example.com/mock-google-pic.png"
