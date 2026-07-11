@@ -162,7 +162,13 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
       >
         {imageUrl ? (
           <NetworkImage
-            source={{ uri: imageUrl }}
+            source={
+              typeof imageUrl === 'number'
+                ? imageUrl
+                : typeof imageUrl === 'object' && imageUrl !== null
+                ? imageUrl
+                : { uri: imageUrl }
+            }
             style={[styles.image, !isActive && styles.imageMuted]}
             resizeMode="cover"
           />

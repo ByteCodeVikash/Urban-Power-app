@@ -540,7 +540,10 @@ export const api = {
         return response.data.available_timeslots;
       } catch (error) {
         console.error('getAvailableTimeslots Error:', error);
-        // Fallback mock slots
+        // Fallback mock slots — shown when backend is unreachable.
+        // Note: mock IDs ('1', '2', etc.) are not valid UUIDs, so booking
+        // submission is blocked by the UUID guard in BeauticianBookingScreen
+        // before any invalid data reaches the backend.
         return [
           {
             id: '1',

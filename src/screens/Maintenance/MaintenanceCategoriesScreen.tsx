@@ -16,6 +16,7 @@ import { CategoryCard } from '../../components/CategoryCard';
 import { Colors, Spacing, BorderRadius, Shadows } from '../../constants/Theme';
 import { useMaintenanceCategories } from '../../hooks/useMaintenance';
 import { useMaintenanceStore } from '../../store/useMaintenanceStore';
+import { getMaintenanceImage } from '../../utils/maintenanceImages';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -77,7 +78,7 @@ export default function MaintenanceCategoriesScreen() {
                   id: item.id,
                   name: item.name,
                   icon: item.icon,
-                  image: item.image,
+                  image: getMaintenanceImage(item.name, item.image),
                 }}
                 imageHeight={120}
                 style={styles.categoryCard}

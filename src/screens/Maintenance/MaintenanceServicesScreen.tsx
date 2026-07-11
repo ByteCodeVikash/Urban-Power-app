@@ -23,6 +23,7 @@ import {
   MaintenanceService,
 } from '../../store/useMaintenanceStore';
 import { RootStackParamList } from '../../navigation/Types';
+import { getMaintenanceImage } from '../../utils/maintenanceImages';
 
 type MaintenanceServicesRouteProp = RouteProp<
   RootStackParamList,
@@ -179,7 +180,7 @@ export default function MaintenanceServicesScreen() {
                 <View style={styles.serviceInfoSection}>
                   {item.image ? (
                     <NetworkImage
-                      source={{ uri: item.image }}
+                      source={getMaintenanceImage(item.name, item.image)}
                       style={styles.serviceImage}
                       resizeMode="cover"
                     />

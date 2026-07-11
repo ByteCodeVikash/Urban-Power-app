@@ -58,6 +58,12 @@ export default function ServiceBookingScreen() {
   const [selectedService, setSelectedService] = useState<any>(preSelected);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
+  // For Beauty bookings the selectedService.id is a MockData ID (e.g. 's2a').
+  // We need the real backend UUID to use in API calls.
+  const [resolvedServiceId, setResolvedServiceId] = useState<string>('');
+  // True while the async name→UUID lookup is in-flight
+  const [isResolvingServiceId, setIsResolvingServiceId] = useState<boolean>(false);
+
   const bookingTitle = selectedService
     ? subcategoryName
       ? `${selectedService.title} — ${subcategoryName}`
@@ -175,6 +181,85 @@ export default function ServiceBookingScreen() {
     clearSelectedSlot();
     fetchAddresses();
   }, []);
+
+  // When this is a Beauty booking, resolve the real backend UUID for the selected service.
+  // MockData IDs like 's2a' are not valid UUIDs and will be rejected by the backend.
+  useEffect(() => {
+    if (!isBeauty || !selectedService) {
+      // Non-beauty flow: use the mock ID as-is (or it may already be a real UUID)
+      setResolvedServiceId(selectedService?.id || '');
+      setIsResolvingServiceId(false);
+      return;
+    }
+    const fetchRealServiceId = async () => {
+      setIsResolvingServiceId(true);
+      try {
+        const services: any[] = await api.beautician.getServices();
+        
+        // 1. Get terms to search for
+        const subName = (subcategoryName || '').toLowerCase().trim();
+        const mainName = (selectedService?.title || selectedService?.name || '').toLowerCase().trim();
+        
+        let matchedService = null;
+        
+        // Step 1: Exact match with subcategoryName
+        if (subName) {
+          matchedService = services.find(
+            (s: any) => (s.name || '').toLowerCase().trim() === subName
+          );
+        }
+        
+        // Step 2: Substring match with subcategoryName
+        if (!matchedService && subName) {
+          matchedService = services.find((s: any) => {
+            const dbName = (s.name || '').toLowerCase().trim();
+            return dbName.includes(subName) || subName.includes(dbName);
+          });
+        }
+        
+        // Step 3: Exact match with main category title
+        if (!matchedService && mainName) {
+          matchedService = services.find(
+            (s: any) => (s.name || '').toLowerCase().trim() === mainName
+          );
+        }
+        
+        // Step 4: Substring match with main category title
+        if (!matchedService && mainName) {
+          matchedService = services.find((s: any) => {
+            const dbName = (s.name || '').toLowerCase().trim();
+            return dbName.includes(mainName) || mainName.includes(dbName);
+          });
+        }
+
+        if (matchedService?.id) {
+          setResolvedServiceId(matchedService.id);
+        } else {
+          // If we couldn't resolve, try to find any service belonging to the same category
+          const firstInCat = services.find((s: any) => {
+            const catName = (s.category?.name || '').toLowerCase().trim();
+            return catName === mainName || mainName.includes(catName) || catName.includes(mainName);
+          });
+          
+          const fallbackId = firstInCat?.id || (services.length > 0 ? services[0].id : '');
+          setResolvedServiceId(fallbackId);
+          console.warn(
+            '[ServiceBookingScreen] Could not find precise backend UUID for beauty service:',
+            selectedService.title,
+            subcategoryName,
+            'using fallback ID:',
+            fallbackId
+          );
+        }
+      } catch (err) {
+        console.error('[ServiceBookingScreen] Failed to resolve beauty service UUID:', err);
+        setResolvedServiceId('');
+      } finally {
+        setIsResolvingServiceId(false);
+      }
+    };
+    fetchRealServiceId();
+  }, [isBeauty, selectedService, subcategoryName]);
 
   // Address is intentionally left empty; user must type it manually.
 
@@ -434,8 +519,33 @@ export default function ServiceBookingScreen() {
       const formattedPhone = `+91${phone}`;
 
       // 1. Create booking in the backend
+      // For Beauty bookings, selectedService.id is a MockData ID (e.g. 's2a').
+      // We must use the real backend UUID resolved in resolvedServiceId.
+      const serviceIdForBooking = isBeauty && resolvedServiceId ? resolvedServiceId : selectedService.id;
+
+      // If this is a Beauty booking and the UUID lookup is still in-flight,
+      // ask the user to retry in a moment rather than failing silently.
+      if (isBeauty && isResolvingServiceId) {
+        alert('Service information is still loading. Please try again in a moment.');
+        setIsProcessingPayment(false);
+        return;
+      }
+
+      const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!UUID_REGEX.test(serviceIdForBooking)) {
+        // UUID validation failed — either the name lookup didn't find a match,
+        // or the service is being accessed via the legacy MockData flow.
+        alert('Could not resolve service. Please go back and re-select the service.');
+        setIsProcessingPayment(false);
+        return;
+      }
+      if (!UUID_REGEX.test(selectedTimeslot!.id)) {
+        alert('Timeslot ID is not a valid UUID. Please re-select a timeslot.');
+        setIsProcessingPayment(false);
+        return;
+      }
       const bookingResponse = await api.bookings.createBooking({
-        service_id: selectedService.id,
+        service_id: serviceIdForBooking,
         address_id: addressId,
         booking_date: bookingDateTime,
         timeslot_id: selectedTimeslot!.id,
@@ -443,6 +553,7 @@ export default function ServiceBookingScreen() {
         photos: uploadedUrl ? [uploadedUrl] : [],
         payment_method: selectedPaymentMethod,
       });
+      console.log('[ServiceBookingScreen] Booking payload:', JSON.stringify({ service_id: serviceIdForBooking, address_id: addressId, booking_date: bookingDateTime, timeslot_id: selectedTimeslot!.id }));
 
       const bookingId = bookingResponse.id || bookingResponse.booking_id;
 
@@ -651,8 +762,10 @@ export default function ServiceBookingScreen() {
         <Pressable
           style={styles.dateSelectorTrigger}
           onPress={() => {
+            // Use the resolved backend UUID for Beauty services, fallback to mock id for others
+            const serviceIdForNav = isBeauty && resolvedServiceId ? resolvedServiceId : (selectedService?.id || '');
             navigation.navigate('DateSelection', {
-              serviceId: selectedService?.id || '',
+              serviceId: serviceIdForNav,
               returnScreen: 'ServiceBookingScreen',
               initialDate: date,
             });
@@ -684,8 +797,10 @@ export default function ServiceBookingScreen() {
               alert('Please select a service date first');
               return;
             }
+            // Use the resolved backend UUID for Beauty services, fallback to mock id for others
+            const serviceIdForNav = isBeauty && resolvedServiceId ? resolvedServiceId : (selectedService?.id || '');
             navigation.navigate('TimeslotSelection', {
-              serviceId: selectedService?.id || '',
+              serviceId: serviceIdForNav,
               date: date,
               returnScreen: 'ServiceBookingScreen',
               initialTimeslotId: selectedTimeslot?.id,

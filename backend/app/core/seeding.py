@@ -380,9 +380,9 @@ DEFAULT_MAINTENANCE_DATA = [
         "image": "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=600&auto=format&fit=crop",
         "description": "Professional AC servicing, repair, gas charging, and installation",
         "services": [
-            {"name": "AC Regular Service", "price": 499.0, "duration": 45, "image": "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=300&auto=format&fit=crop", "description": "Filter cleaning, cooling coil check, and basic service"},
-            {"name": "AC Deep Cleaning", "price": 899.0, "duration": 75, "image": "https://images.unsplash.com/photo-1621905252507-b354bc25edac?q=80&w=300&auto=format&fit=crop", "description": "Foam wash cleaning for deep dust removal"},
-            {"name": "AC Installation", "price": 1499.0, "duration": 90, "image": "https://images.unsplash.com/photo-1581094288338-2314dddb7ecc?q=80&w=300&auto=format&fit=crop", "description": "Installation of split or window AC by certified professionals"}
+            {"name": "AC Regular Service", "price": 499.0, "duration": 45, "image": "https://images.unsplash.com/photo-1628177142898-93e36e4e3a50?q=80&w=300&auto=format&fit=crop", "description": "Filter cleaning, cooling coil check, and basic service"},
+            {"name": "AC Deep Cleaning", "price": 899.0, "duration": 75, "image": "https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?q=80&w=300&auto=format&fit=crop", "description": "Foam wash cleaning for deep dust removal"},
+            {"name": "AC Installation", "price": 1499.0, "duration": 90, "image": "https://images.unsplash.com/photo-1545558014-8692077e9b5c?q=80&w=300&auto=format&fit=crop", "description": "Installation of split or window AC by certified professionals"}
         ]
     },
     {
@@ -391,7 +391,7 @@ DEFAULT_MAINTENANCE_DATA = [
         "image": "https://images.unsplash.com/photo-1621905251918-48416bd8575a?q=80&w=600&auto=format&fit=crop",
         "description": "Switch, socket, fan, light, and wiring repair or installation",
         "services": [
-            {"name": "Switch / Socket Repair", "price": 99.0, "duration": 20, "image": "https://images.unsplash.com/photo-1558224494-ef8b2127bb53?q=80&w=300&auto=format&fit=crop", "description": "Fixing loose contacts, burnt switches, or socket replacement"},
+            {"name": "Switch / Socket Repair", "price": 99.0, "duration": 20, "image": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=300&auto=format&fit=crop", "description": "Fixing loose contacts, burnt switches, or socket replacement"},
             {"name": "Ceiling Fan Repair", "price": 199.0, "duration": 40, "image": "https://images.unsplash.com/photo-1618944847023-38aa001235f0?q=80&w=300&auto=format&fit=crop", "description": "Capacitor replacement, noise fixing, or installation"},
             {"name": "Complete House Inspection", "price": 499.0, "duration": 60, "image": "https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=300&auto=format&fit=crop", "description": "Complete electrical health checkup of your house"}
         ]

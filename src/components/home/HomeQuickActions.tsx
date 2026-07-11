@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
+import { View, StyleSheet, Pressable, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ShoppingBag, Package, Truck, ShoppingCart } from 'lucide-react-native';
@@ -9,6 +9,9 @@ import { RootStackParamList } from '../../navigation/Types';
 import { useCartStore } from '../../store/useCartStore';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+
+// IDs of quick-action cards that are temporarily disabled (show Coming Soon)
+const COMING_SOON_IDS = ['shop', 'grocery'];
 
 const QUICK_ACTIONS = [
   {
@@ -45,11 +48,23 @@ export function HomeQuickActions() {
           const count = action.id === 'cart' ? cartCount : 0;
           const Icon = action.icon;
 
+          const handlePress = () => {
+            if (COMING_SOON_IDS.includes(action.id)) {
+              Alert.alert(
+                'Coming Soon',
+                `${action.label} service is coming to your area soon!`,
+                [{ text: 'OK' }],
+              );
+              return;
+            }
+            navigation.navigate(action.route);
+          };
+
           return (
             <Pressable
               key={action.id}
               style={styles.item}
-              onPress={() => navigation.navigate(action.route)}
+              onPress={handlePress}
             >
               <View style={styles.iconWrapper}>
                 <Icon

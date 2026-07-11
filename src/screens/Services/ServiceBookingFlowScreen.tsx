@@ -43,6 +43,10 @@ export default function ServiceBookingFlowScreen() {
   const [selectedService, setSelectedService] = useState<any>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
+  // For Beauty bookings the selectedService.id is a MockData ID (e.g. 's2a').
+  // We need the real backend UUID to use in API calls.
+  const [resolvedServiceId, setResolvedServiceId] = useState<string>('');
+
   const { user } = useAuthStore();
   const { addresses, fetchAddresses, addAddress } = useAddressStore();
 
@@ -155,7 +159,40 @@ export default function ServiceBookingFlowScreen() {
     fetchAddresses();
   }, []);
 
-  // Address is intentionally left empty; user must type it manually.
+  // When this is a Beauty booking, resolve the real backend UUID for the selected service.
+  // MockData IDs like 's2a' are not valid UUIDs and will be rejected by the backend.
+  useEffect(() => {
+    if (!isBeauty || !selectedService) {
+      setResolvedServiceId(selectedService?.id || '');
+      return;
+    }
+    const fetchRealServiceId = async () => {
+      try {
+        const services: any[] = await api.beautician.getServices();
+        const serviceName = (selectedService.title || selectedService.name || '').toLowerCase().trim();
+        const matched = services.find(
+          (s: any) => (s.name || '').toLowerCase().trim() === serviceName
+        );
+        if (matched?.id) {
+          setResolvedServiceId(matched.id);
+        } else {
+          const partial = services.find((s: any) =>
+            serviceName.includes((s.name || '').toLowerCase().trim()) ||
+            (s.name || '').toLowerCase().trim().includes(serviceName)
+          );
+          setResolvedServiceId(partial?.id || '');
+          if (!partial?.id) {
+            console.warn('[ServiceBookingFlowScreen] Could not resolve backend UUID for beauty service:', selectedService.title);
+          }
+        }
+      } catch (err) {
+        console.error('[ServiceBookingFlowScreen] Failed to resolve beauty service UUID:', err);
+        setResolvedServiceId('');
+      }
+    };
+    fetchRealServiceId();
+  }, [isBeauty, selectedService]);
+
 
   useEffect(() => {
     if (route.params?.selectedDate) {
@@ -377,8 +414,22 @@ export default function ServiceBookingFlowScreen() {
       const formattedPhone = `+91${phone}`;
 
       // 1. Create booking in the backend
+      // For Beauty bookings, selectedService.id is a MockData ID (e.g. 's2a').
+      // We must use the real backend UUID resolved in resolvedServiceId.
+      const serviceIdForBooking = isBeauty && resolvedServiceId ? resolvedServiceId : selectedService.id;
+      const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!serviceIdForBooking || !UUID_REGEX.test(serviceIdForBooking)) {
+        alert('Could not resolve a valid service ID. Please go back and re-select the service.');
+        setIsProcessingPayment(false);
+        return;
+      }
+      if (!UUID_REGEX.test(selectedTimeslot!.id)) {
+        alert('Timeslot ID is not valid. Please re-select a timeslot.');
+        setIsProcessingPayment(false);
+        return;
+      }
       const bookingResponse = await api.bookings.createBooking({
-        service_id: selectedService.id,
+        service_id: serviceIdForBooking,
         address_id: addressId,
         booking_date: bookingDateTime,
         timeslot_id: selectedTimeslot!.id,
@@ -386,6 +437,7 @@ export default function ServiceBookingFlowScreen() {
         photos: uploadedUrl ? [uploadedUrl] : [],
         payment_method: selectedPaymentMethod,
       });
+      console.log('[ServiceBookingFlowScreen] Booking payload:', JSON.stringify({ service_id: serviceIdForBooking, timeslot_id: selectedTimeslot!.id }));
 
       const bookingId = bookingResponse.id || bookingResponse.booking_id;
 
@@ -597,8 +649,9 @@ export default function ServiceBookingFlowScreen() {
         <Pressable
           style={styles.dateSelectorTrigger}
           onPress={() => {
+            const serviceIdForNav = isBeauty && resolvedServiceId ? resolvedServiceId : (selectedService?.id || '');
             navigation.navigate('DateSelection', {
-              serviceId: selectedService?.id || '',
+              serviceId: serviceIdForNav,
               returnScreen: 'ServiceBookingFlow',
               initialDate: date,
             });
@@ -630,8 +683,9 @@ export default function ServiceBookingFlowScreen() {
               alert('Please select a service date first');
               return;
             }
+            const serviceIdForNav = isBeauty && resolvedServiceId ? resolvedServiceId : (selectedService?.id || '');
             navigation.navigate('TimeslotSelection', {
-              serviceId: selectedService?.id || '',
+              serviceId: serviceIdForNav,
               date: date,
               returnScreen: 'ServiceBookingFlow',
               initialTimeslotId: selectedTimeslot?.id,

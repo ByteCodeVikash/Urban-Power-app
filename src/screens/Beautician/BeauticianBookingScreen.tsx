@@ -258,6 +258,10 @@ export default function BeauticianBookingScreen() {
     }, [navigation]),
   );
 
+  // UUID v4 validation regex
+  const UUID_REGEX =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
   const handleSubmit = async () => {
     if (!name || !phone || !selectedAddressId || !date || !timeslot) {
       alert('Please fill all details and select date/timeslot/address');
@@ -267,17 +271,28 @@ export default function BeauticianBookingScreen() {
       alert('Please enter a valid 10-digit phone number');
       return;
     }
+    // Guard: ensure timeslot.id is a valid UUID
+    if (!UUID_REGEX.test(timeslot.id)) {
+      alert('The selected timeslot is invalid. Please re-select a timeslot.');
+      return;
+    }
+    // Guard: ensure address ID is a valid UUID
+    if (!UUID_REGEX.test(selectedAddressId)) {
+      alert('Invalid address selected. Please re-select your address.');
+      return;
+    }
+    // Guard: ensure every selected service ID is a valid UUID
+    if (selectedServices.some(s => !UUID_REGEX.test(s.id))) {
+      alert('One or more selected services are invalid.');
+      return;
+    }
     if (isSubmitting) return;
 
     setIsSubmitting(true);
     try {
-      // Build ISO booking date with timeslot start_time
       const bookingDateISO = `${date}T${timeslot.start_time}Z`;
-
       const formattedPhone = `+91${phone}`;
 
-      // Since the standard table bookings table enforces a single service_id,
-      // we iterate and create a booking for each selected service.
       const bookingPromises = selectedServices.map(service => {
         const fullNotes = `Customer Name: ${name}, Phone: ${formattedPhone}${notes ? ` | Notes: ${notes}` : ''}`;
         return api.bookings.createBooking({
@@ -294,10 +309,8 @@ export default function BeauticianBookingScreen() {
       const responses = await Promise.all(bookingPromises);
       const firstResponse = responses[0];
 
-      // Clear selection
       clearSelection();
 
-      // Navigate to booking success
       navigation.navigate('GeneralBookingSuccess', {
         bookingId: firstResponse?.booking_id || 'UP-SUCCESS',
         service: selectedServices.map(s => s.name).join(', '),
@@ -308,11 +321,21 @@ export default function BeauticianBookingScreen() {
       });
     } catch (err: any) {
       console.error('Beautician booking API error:', err);
-      // Skip alert for auth errors — interceptor already called logout()
-      // which causes AppNavigator to redirect to LoginScreen.
       if (!err?.isAuthError) {
-        const errMsg =
-          err?.message || 'Failed to book beauty services. Please try again.';
+        // Parse Pydantic v2 422 validation error: detail is an array of {loc, msg, type}
+        const responseData = err?.response?.data;
+        let errMsg = 'Failed to book beauty services. Please try again.';
+        if (responseData?.detail && Array.isArray(responseData.detail)) {
+          const firstError = responseData.detail[0];
+          const field = Array.isArray(firstError?.loc)
+            ? firstError.loc.slice(1).join('.')
+            : 'unknown field';
+          errMsg = `Booking failed — "${field}": ${firstError?.msg || 'invalid value'}. Please re-select your timeslot/address and try again.`;
+        } else if (typeof responseData?.detail === 'string') {
+          errMsg = responseData.detail;
+        } else if (err?.message) {
+          errMsg = err.message;
+        }
         alert(errMsg);
       }
     } finally {
@@ -495,7 +518,11 @@ export default function BeauticianBookingScreen() {
                   alert('Please select a date first');
                   return;
                 }
-                const firstServiceId = selectedServices[0]?.id || '';
+                const firstServiceId = selectedServices[0]?.id;
+                if (!firstServiceId) {
+                  alert('No service selected. Please go back and select a beauty service first.');
+                  return;
+                }
                 navigation.navigate('TimeslotSelection', {
                   serviceId: firstServiceId,
                   date: date,
